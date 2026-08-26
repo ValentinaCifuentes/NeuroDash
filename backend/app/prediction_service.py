@@ -121,6 +121,7 @@ def make_prediction(
     
     timezone_name = profile["timezone"]
     sensory_context = profile.get("sensory_context", {})
+    habitual_context = profile.get("habitual_context", {})
     historical_supports = profile.get("historical_supports", [])
 
     # 2. Build baseline and features
@@ -160,7 +161,16 @@ def make_prediction(
     if abstain:
         # Build abstained contract response
         prov = build_provenance(subject_id, has_school_records=has_school_records, lineage=None)
-        supports = select_supports(historical_supports, sensory_context)
+        supports = select_supports(
+            historical_supports,
+            sensory_context,
+            habitual_context=habitual_context,
+            missingness=features.missingness,
+            confidence=ConfidenceLevel.INSUFFICIENT,
+            abstained=True,
+            recent_records=records[-7:],
+            recent_occurrences=occurrences[-7:],
+        )
         
         contract = PredictionContractV2(
             subject_id=subject_id,
@@ -193,7 +203,17 @@ def make_prediction(
         factors = generate_non_causal_factors(raw_explanations)
         
         # Select supports
-        supports = select_supports(historical_supports, sensory_context)
+        supports = select_supports(
+            historical_supports,
+            sensory_context,
+            habitual_context=habitual_context,
+            factors=factors,
+            missingness=features.missingness,
+            confidence=confidence,
+            abstained=False,
+            recent_records=records[-7:],
+            recent_occurrences=occurrences[-7:],
+        )
         
         # Build provenance
         prov = build_provenance(subject_id, has_school_records=has_school_records, lineage=metadata)

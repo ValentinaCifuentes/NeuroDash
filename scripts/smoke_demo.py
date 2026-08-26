@@ -64,6 +64,7 @@ def execute_smoke_run(
         
     timezone_name = profile["timezone"]
     sensory_context = profile.get("sensory_context", {})
+    habitual_context = profile.get("habitual_context", {})
     historical_supports = profile.get("historical_supports", [])
     
     # Use a fixed prediction cutoff as of the end of the history
@@ -103,7 +104,17 @@ def execute_smoke_run(
         # Build abstained contract
         prov = build_provenance(subject_id, has_school_records=False, lineage=None)
         catalog_cfg = c_dir / "support_catalog.yaml" if c_dir and (c_dir / "support_catalog.yaml").exists() else None
-        supports = select_supports(historical_supports, sensory_context, catalog_cfg)
+        supports = select_supports(
+            historical_supports,
+            sensory_context,
+            catalog_cfg,
+            habitual_context=habitual_context,
+            missingness=features.missingness,
+            confidence=ConfidenceLevel.INSUFFICIENT,
+            abstained=True,
+            recent_records=records[-7:],
+            recent_occurrences=occurrences[-7:],
+        )
         
         contract = PredictionContractV2(
             contract_version=CONTRACT_VERSION,
@@ -139,7 +150,18 @@ def execute_smoke_run(
         
         # Support selection
         catalog_cfg = c_dir / "support_catalog.yaml" if c_dir and (c_dir / "support_catalog.yaml").exists() else None
-        supports = select_supports(historical_supports, sensory_context, catalog_cfg)
+        supports = select_supports(
+            historical_supports,
+            sensory_context,
+            catalog_cfg,
+            habitual_context=habitual_context,
+            factors=factors,
+            missingness=features.missingness,
+            confidence=confidence,
+            abstained=False,
+            recent_records=records[-7:],
+            recent_occurrences=occurrences[-7:],
+        )
         
         # Provenance
         prov = build_provenance(subject_id, has_school_records=False, lineage=metadata)

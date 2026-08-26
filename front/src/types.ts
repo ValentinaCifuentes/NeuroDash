@@ -224,7 +224,7 @@ export interface MissingDataItem {
 
 export interface SupportItem {
   support_id: string;
-  source: 'historical_support' | 'program_objective' | 'sensory_profile';
+  source: 'historical_support' | 'program_objective' | 'sensory_profile' | 'validated_catalog' | 'insufficient_data';
   label: string;
   detail?: string | null;
 }
