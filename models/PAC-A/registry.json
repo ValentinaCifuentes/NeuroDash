@@ -1,0 +1,39 @@
+[
+  {
+    "filename": "model_v1.joblib",
+    "metadata": {
+      "C": 1.0,
+      "negatives_count": 3,
+      "penalty": "l2",
+      "positives_count": 1,
+      "samples_count": 4,
+      "seed": 42,
+      "solver": "liblinear"
+    },
+    "timestamp": "2026-08-26T16:57:58.852017+00:00",
+    "version": 1
+  },
+  {
+    "filename": "model_v2.joblib",
+    "metadata": {
+      "C": 1.0,
+      "lineage": {
+        "data_generation_timestamp": "2026-08-26T17:22:01.616452+00:00",
+        "policy": {
+          "daily_regulation": "prior_day_only",
+          "exclusion_policy": "conservative"
+        },
+        "split_cutoff": "2026-08-23T12:00:00-04:00",
+        "subject_id": "PAC-A"
+      },
+      "negatives_count": 14,
+      "penalty": "l2",
+      "positives_count": 5,
+      "samples_count": 19,
+      "seed": 42,
+      "solver": "liblinear"
+    },
+    "timestamp": "2026-08-26T17:22:01.620092+00:00",
+    "version": 2
+  }
+]

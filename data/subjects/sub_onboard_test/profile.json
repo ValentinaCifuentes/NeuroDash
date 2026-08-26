@@ -1,0 +1,16 @@
+{
+  "habitual_context": {
+    "exercise": "bedtime stretching"
+  },
+  "historical_supports": [
+    {
+      "description": "Weighted blanket",
+      "id": "hist_1"
+    }
+  ],
+  "sensory_context": {
+    "sensory_profile": "Hypersensitive"
+  },
+  "subject_id": "sub_onboard_test",
+  "timezone": "America/New_York"
+}

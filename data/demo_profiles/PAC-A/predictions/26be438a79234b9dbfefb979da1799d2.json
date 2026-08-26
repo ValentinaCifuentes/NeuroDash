@@ -1,0 +1,28 @@
+{
+  "features": {
+    "event_count_delta_baseline": 0.0,
+    "event_count_mean_14d": null,
+    "event_count_mean_1d": null,
+    "event_count_mean_3d": null,
+    "event_count_mean_7d": null,
+    "record_count_14d": 0.0,
+    "record_count_1d": 0.0,
+    "record_count_3d": 0.0,
+    "record_count_7d": 0.0,
+    "sleep_quality_delta_baseline": -0.20000000000000018,
+    "sleep_quality_mean_14d": null,
+    "sleep_quality_mean_1d": null,
+    "sleep_quality_mean_3d": null,
+    "sleep_quality_mean_7d": null,
+    "wake_state_delta_baseline": 0.04999999999999982,
+    "wake_state_mean_14d": null,
+    "wake_state_mean_1d": null,
+    "wake_state_mean_3d": null,
+    "wake_state_mean_7d": null
+  },
+  "model_score": null,
+  "prediction_cutoff": "2026-08-26T12:00:00+00:00",
+  "prediction_id": "26be438a79234b9dbfefb979da1799d2",
+  "risk": null,
+  "subject_id": "PAC-A"
+}

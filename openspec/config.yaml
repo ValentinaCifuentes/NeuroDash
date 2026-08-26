@@ -1,0 +1,20 @@
+schema: spec-driven
+project: neurodash
+language: en
+artifact_store: hybrid
+strict_tdd: true
+testing:
+  status: configured
+  test_runner: py -m pytest
+  unit: pytest (configured)
+  integration: FastAPI TestClient/httpx (dependency configured; tests pending)
+  frontend: Vitest + React Testing Library (configured; component tests pending)
+  e2e: Playwright smoke test (documented optional target, not configured)
+  coverage: not configured
+  lint: not configured
+  type_check: tsc --noEmit via npm run build
+  format: not configured
+conventions:
+  architecture: modular monolith; Python/FastAPI backend and React/TypeScript/Vite frontend are documented target architecture
+  source_of_truth: docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md
+  implementation_status: foundation tooling, Contract v2 schemas, and file persistence ports are implemented; temporal, ML, API, and caregiver UI work remain pending

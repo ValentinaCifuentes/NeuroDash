@@ -1,0 +1,97 @@
+[
+  {
+    "active_metrics": null,
+    "candidate_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "metric_compared": "f1",
+    "min_improvement": 0.01,
+    "promoted": true,
+    "reason": "No active model existed. Candidate promoted as the first active model.",
+    "subject_id": "PAC-A",
+    "timestamp": "2026-08-26T16:57:58.852017+00:00"
+  },
+  {
+    "active_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "candidate_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "metric_compared": "f1",
+    "min_improvement": 0.01,
+    "promoted": false,
+    "reason": "Candidate model f1 of 1.0000 did not improve active model f1 of 1.0000 by at least 0.01.",
+    "subject_id": "PAC-A",
+    "timestamp": "2026-08-26T16:58:27.292725+00:00"
+  },
+  {
+    "active_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "candidate_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "metric_compared": "f1",
+    "min_improvement": 0.01,
+    "promoted": false,
+    "reason": "Candidate model f1 of 1.0000 did not improve active model f1 of 1.0000 by at least 0.01.",
+    "subject_id": "PAC-A",
+    "timestamp": "2026-08-26T17:11:53.596220+00:00"
+  },
+  {
+    "active_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "candidate_metrics": {
+      "accuracy": 1.0,
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "metric_compared": "f1",
+    "min_improvement": 0.01,
+    "promoted": false,
+    "reason": "Candidate model f1 of 1.0000 did not improve active model f1 of 1.0000 by at least 0.01.",
+    "subject_id": "PAC-A",
+    "timestamp": "2026-08-26T17:18:27.239239+00:00"
+  },
+  {
+    "active_metrics": {
+      "accuracy": 0.625,
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "candidate_metrics": {
+      "accuracy": 0.625,
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    "metric_compared": "f1",
+    "min_improvement": 0.01,
+    "promoted": false,
+    "reason": "Candidate model f1 of 0.0000 did not improve active model f1 of 0.0000 by at least 0.01.",
+    "subject_id": "PAC-A",
+    "timestamp": "2026-08-26T17:26:32.596582+00:00"
+  }
+]

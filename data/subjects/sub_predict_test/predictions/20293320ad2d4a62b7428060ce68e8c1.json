@@ -1,0 +1,18 @@
+{
+  "features": {
+    "record_count_14d": 0.0,
+    "record_count_1d": 0.0,
+    "record_count_3d": 0.0,
+    "record_count_7d": 0.0,
+    "wake_state_delta_baseline": null,
+    "wake_state_mean_14d": null,
+    "wake_state_mean_1d": null,
+    "wake_state_mean_3d": null,
+    "wake_state_mean_7d": null
+  },
+  "model_score": null,
+  "prediction_cutoff": "2026-08-26T12:00:00+00:00",
+  "prediction_id": "20293320ad2d4a62b7428060ce68e8c1",
+  "risk": null,
+  "subject_id": "sub_predict_test"
+}

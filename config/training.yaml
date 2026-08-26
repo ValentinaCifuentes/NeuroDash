@@ -1,0 +1,7 @@
+version: "1.0"
+min_samples: 5
+min_positive_labels: 1
+seed: 42
+penalty: "l2"
+C: 1.0
+solver: "liblinear"

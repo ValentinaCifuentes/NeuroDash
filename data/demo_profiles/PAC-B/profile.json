@@ -1,0 +1,14 @@
+{
+  "historical_supports": [
+    {
+      "description": "Scheduled noise-reducing breaks.",
+      "id": "sup_b_1",
+      "type": "historical"
+    }
+  ],
+  "sensory_context": {
+    "sensory_profile": "Hiposensible"
+  },
+  "subject_id": "PAC-B",
+  "timezone": "UTC"
+}
