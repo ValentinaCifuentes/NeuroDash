@@ -69,28 +69,51 @@ npm test -- --run
 | Python dependencies and test configuration | Ready |
 | Contract v2 transport schemas | Ready |
 | CSV, JSON, and joblib persistence ports | Ready |
-| FastAPI routes and ASGI entry point | Not implemented |
-| Temporal feature pipeline and baseline | Not implemented |
-| ML lifecycle and demo data | Not implemented |
-| Caregiver UI | Not implemented |
+| FastAPI routes and ASGI entry point | Ready |
+| Temporal feature pipeline and baseline | Ready |
+| ML lifecycle and demo data | Ready |
+| Caregiver UI | Ready |
+| Reproducibility & Validation scripts | Ready |
+
+## Reproducibility Pipeline
+
+NeuraDash CORE includes a complete verification and reproducibility pipeline to validate data schema, generate synthetic histories, train models, and test predictions.
+
+Run the following commands from the repository root:
+```powershell
+# 1. Generate mock histories and profiles
+python scripts/generate_mock_histories.py
+
+# 2. Validate history data schemas
+python scripts/validate_source_data.py data/bluba/PAC-A_history.json
+
+# 3. Train models for the demo profiles
+python scripts/train_demo_models.py
+
+# 4. Run the end-to-end smoke verification
+python scripts/smoke_demo.py
+```
 
 ## Repository layout
 
 ```text
-backend/app/     Backend schemas and persistence adapters
-engine/          Shared Contract v2 types
-frontend/        Vite/React/TypeScript frontend tooling
-tests/           Python unit tests
-docs/            Product source of truth and technical architecture
+backend/app/     Backend schemas, routes, and services
+engine/          Temporal feature pipeline, confidence, and safety rules
+ml/              ML dataset builder, training, evaluation, and registry
+frontend/        Vite/React/TypeScript caregiver interface
+scripts/         Reproducibility and verification scripts
+tests/           Python unit and integration tests
+docs/            Product and technical architecture guides
 openspec/        Spec-driven development artifacts
 ```
 
 ## Safety boundary
 
-NeuraDash is designed to communicate uncertainty and support options. It must not be used as a diagnostic, causal, or clinical decision-making tool.
+NeuraDash is designed to communicate uncertainty and support options. It must not be used as a diagnostic, causal, or clinical decision-making tool. No clinical accuracy claims are made, and no IoT or school inputs are utilized in the CORE logic.
 
 ## Further context
 
 - [Product source of truth](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
 - [Technical architecture](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
+- [Reproducibility & Verification Guide](docs/NeuraDash_Reproducibility_and_Verification_Guide.md)
 - [Implementation plan](openspec/changes/implement-neuradash-core/tasks.md)

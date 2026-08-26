@@ -1,0 +1,3 @@
+version: "1.0"
+daily_regulation: "prior_day_only"
+exclusion_policy: "conservative"

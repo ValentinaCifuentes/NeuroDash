@@ -36,25 +36,25 @@ Chain strategy: feature-branch-chain
 
 ## Phase 2: Temporal, Baseline, and Features
 
-- [ ] 2.1 RED: test aware timestamps, cutoff equality/future exclusion, naive rejection, provenance, and conservative exclusion; GREEN: implement `engine/temporal.py` and `config/availability.yaml`; REFACTOR: make policy injectable.
-- [ ] 2.2 RED: test prior-day-only regulation, 1/3/7/14-day windows, missingness, and sensory-never-baseline-risk; GREEN: implement `engine/baseline.py`, `engine/features.py`, schemas, and feature policy; REFACTOR: remove duplicated window logic.
+- [x] 2.1 RED: test aware timestamps, cutoff equality/future exclusion, naive rejection, provenance, and conservative exclusion; GREEN: implement `engine/temporal.py` and `config/availability.yaml`; REFACTOR: make policy injectable.
+- [x] 2.2 RED: test prior-day-only regulation, 1/3/7/14-day windows, missingness, and sensory-never-baseline-risk; GREEN: implement `engine/baseline.py`, `engine/features.py`, schemas, and feature policy; REFACTOR: remove duplicated window logic.
 
 ## Phase 3: Personal ML Lifecycle
 
-- [ ] 3.1 RED: test X(T)→y(T) `(T,T+24h]`, temporal split, labels, lineage, seeded synthetic limits; GREEN: implement `ml/dataset_builder.py`, deterministic generators, and `data/bluba/`; REFACTOR: make lineage metadata explicit.
-- [ ] 3.2 RED: test repeated training equality, subject-local artifacts, no profile-risk branch, cold-start abstention, and registry versioning; GREEN: implement `ml/{trainer,evaluator,model_registry,inference,explain}.py`, configs, and PAC fixtures; REFACTOR: share one inference path.
+- [x] 3.1 RED: test X(T)→y(T) `(T,T+24h]`, temporal split, labels, lineage, seeded synthetic limits; GREEN: implement `ml/dataset_builder.py`, deterministic generators, and `data/bluba/`; REFACTOR: make lineage metadata explicit.
+- [x] 3.2 RED: test repeated training equality, subject-local artifacts, no profile-risk branch, cold-start abstention, and registry versioning; GREEN: implement `ml/{trainer,evaluator,model_registry,inference,explain}.py`, configs, and PAC fixtures; REFACTOR: share one inference path.
 
 ## Phase 4: Safety, Outcomes, and API
 
-- [ ] 4.1 RED: test confidence separation/monotonic coverage, abstention HTTP semantics, non-causal factors, provenance, support ordering/prohibitions, and school `excluded_from_core`; GREEN: implement `engine/{confidence,abstention,explanation,support,provenance}.py` and `engine/schemas.py` adapter boundary; REFACTOR: enforce no hardcoded profile risk.
-- [ ] 4.2 RED: test manual outcome lineage, configured temporal promotion, audit/non-promotion, and active-model preservation; GREEN: implement `ml` lifecycle persistence and `backend/app/routes/outcomes.py`; REFACTOR: make audit writes atomic.
-- [ ] 4.3 RED: test onboarding cold start, cutoff-safe timeline/prediction, 404/422/500 sanitization, and Contract v2 transport; GREEN: implement `backend/app/{main,prediction_service}.py` and routes for subjects, predictions, demos; REFACTOR: centralize error mapping.
+- [x] 4.1 RED: test confidence separation/monotonic coverage, abstention HTTP semantics, non-causal factors, provenance, support ordering/prohibitions, and school `excluded_from_core`; GREEN: implement `engine/{confidence,abstention,explanation,support,provenance}.py` and `engine/schemas.py` adapter boundary; REFACTOR: enforce no hardcoded profile risk.
+- [x] 4.2 RED: test manual outcome lineage, configured temporal promotion, audit/non-promotion, and active-model preservation; GREEN: implement `ml` lifecycle persistence and `backend/app/routes/outcomes.py`; REFACTOR: make audit writes atomic.
+- [x] 4.3 RED: test onboarding cold start, cutoff-safe timeline/prediction, 404/422/500 sanitization, and Contract v2 transport; GREEN: implement `backend/app/{main,prediction_service}.py` and routes for subjects, predictions, demos; REFACTOR: centralize error mapping.
 
 ## Phase 5: Caregiver Experience
 
-- [ ] 5.1 RED: add RTL tests for profile-first onboarding, safe result, empty/abstained state, accessibility, and absence of `model_score`, algorithm, diagnosis, causal language; GREEN: create typed API client and `frontend/src/**` components/styles; REFACTOR: enforce 44px targets, focus, contrast, reduced motion.
+- [x] 5.1 RED: add RTL tests for profile-first onboarding, safe result, empty/abstained state, accessibility, and absence of `model_score`, algorithm, diagnosis, causal language; GREEN: create typed API client and `frontend/src/**` components/styles; REFACTOR: enforce 44px targets, focus, contrast, reduced motion.
 
 ## Phase 6: Reproducibility and Delivery Proof
 
-- [ ] 6.1 RED: add deterministic script/e2e assertions for validate→generate→train→load→predict/abstain across PAC-A/B/C; GREEN: create `scripts/{validate_source_data,generate_mock_histories,train_demo_models,smoke_demo}.py`, fixtures, and integration smoke; REFACTOR: document synthetic-data limitations and no IoT/school inputs.
-- [ ] 6.2 RED: add docs/checks for configuration hashes, artifact lineage, and reproducible commands; GREEN: document setup and evidence; REFACTOR: run full unit, integration, reproducibility, and UI suites and record outputs.
+- [x] 6.1 RED: add deterministic script/e2e assertions for validate→generate→train→load→predict/abstain across PAC-A/B/C; GREEN: create `scripts/{validate_source_data,generate_mock_histories,train_demo_models,smoke_demo}.py`, fixtures, and integration smoke; REFACTOR: document synthetic-data limitations and no IoT/school inputs.
+- [x] 6.2 RED: add docs/checks for configuration hashes, artifact lineage, and reproducible commands; GREEN: document setup and evidence; REFACTOR: run full unit, integration, reproducibility, and UI suites and record outputs.

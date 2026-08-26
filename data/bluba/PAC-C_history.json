@@ -1,0 +1,28 @@
+{
+  "lineage": {
+    "data_generation_timestamp": "2026-08-26T17:21:51.499112+00:00",
+    "generator_name": "synthetic_history_generator",
+    "seed": 1003
+  },
+  "occurrences": [],
+  "records": [
+    {
+      "availability_timestamp": "2026-08-01T12:00:00-05:00",
+      "event_count": 5,
+      "id": "rec_PAC-C_0",
+      "sleep_quality": 6.98,
+      "source_timestamp": "2026-08-01T12:00:00-05:00",
+      "subject_id": "PAC-C",
+      "wake_state": 5.16
+    },
+    {
+      "availability_timestamp": "2026-08-02T12:00:00-05:00",
+      "event_count": 5,
+      "id": "rec_PAC-C_1",
+      "sleep_quality": 7.24,
+      "source_timestamp": "2026-08-02T12:00:00-05:00",
+      "subject_id": "PAC-C",
+      "wake_state": 5.42
+    }
+  ]
+}

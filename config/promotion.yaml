@@ -1,0 +1,2 @@
+metric: "f1"
+min_improvement: 0.01

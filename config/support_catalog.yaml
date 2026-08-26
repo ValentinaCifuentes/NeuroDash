@@ -1,0 +1,11 @@
+- id: cat_sensory_1
+  category: sensory
+  sensory_profile_contains: Hypersensitive
+  description: Reduce ambient lighting and noise in the evening.
+- id: cat_habit_1
+  category: habit
+  habit_profile_contains: exercise
+  description: Engage in calm stretching before bedtime.
+- id: cat_general_1
+  category: general
+  description: Maintain a regular sleep schedule.

@@ -1,0 +1,25 @@
+[
+  {
+    "filename": "model_v1.joblib",
+    "metadata": {
+      "C": 1.0,
+      "lineage": {
+        "data_generation_timestamp": "2026-08-26T17:22:01.626088+00:00",
+        "policy": {
+          "daily_regulation": "prior_day_only",
+          "exclusion_policy": "conservative"
+        },
+        "split_cutoff": "2026-08-23T12:00:00+00:00",
+        "subject_id": "PAC-B"
+      },
+      "negatives_count": 15,
+      "penalty": "l2",
+      "positives_count": 4,
+      "samples_count": 19,
+      "seed": 42,
+      "solver": "liblinear"
+    },
+    "timestamp": "2026-08-26T17:22:01.629611+00:00",
+    "version": 1
+  }
+]
