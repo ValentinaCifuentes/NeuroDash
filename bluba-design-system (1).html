@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bluba · Design System</title>
+<style>
+/* ============================================================
+   BLUBA · DESIGN TOKENS
+   Extraídos de la app Bitácora Diaria (mobile)
+   ============================================================ */
+:root{
+  /* --- Marca / Primarios --- */
+  --bl-primary-50:#F5F1FD;
+  --bl-primary-100:#EDE6FA;
+  --bl-primary-200:#DCCDF5;
+  --bl-primary-300:#C3ABEC;
+  --bl-primary-400:#A57FE0;
+  --bl-primary-500:#8B5CD6;   /* acento interactivo */
+  --bl-primary-600:#7B4FC0;   /* header, botón primario, FAB */
+  --bl-primary-700:#6A3FA8;   /* hover / presionado */
+  --bl-primary-800:#54308A;
+
+  /* --- Neutros --- */
+  --bl-white:#FFFFFF;
+  --bl-bg:#F6F4FB;            /* fondo de pantalla */
+  --bl-surface:#FFFFFF;       /* cards */
+  --bl-surface-alt:#FAF9FD;   /* bloques internos / grupos */
+  --bl-border:#E8E5F0;
+  --bl-border-strong:#D6D2E2;
+  --bl-text:#1F2233;          /* títulos */
+  --bl-text-body:#3F4256;
+  --bl-text-muted:#8A8CA0;    /* subtítulos, placeholders */
+  --bl-overlay:rgba(31,34,51,.45);
+
+  /* --- Estados semánticos --- */
+  --bl-success:#22C55E;  --bl-success-bg:#E9FAF0;  --bl-success-border:#BDE9CE;
+  --bl-warning:#F5C518;  --bl-warning-bg:#FEF8E4;  --bl-warning-border:#F3E0A4;
+  --bl-danger:#EF3E36;   --bl-danger-bg:#FDECEC;   --bl-danger-border:#F7C4C1;
+  --bl-info:#3B82F6;     --bl-info-bg:#EAF2FE;     --bl-info-border:#BFD8FA;
+  --bl-neutral-chip:#EFEDF5;
+
+  /* --- Tipografía --- */
+  --bl-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bl-fs-display:26px;  /* "Bitácora Diaria" */
+  --bl-fs-h1:22px;       /* "¿Cómo estuvo el día de hoy?" */
+  --bl-fs-h2:18px;       /* "Salud Gastrointestinal" */
+  --bl-fs-h3:16px;       /* "¿Cómo durmió anoche?" */
+  --bl-fs-body:15px;
+  --bl-fs-sm:14px;
+  --bl-fs-xs:12px;
+  --bl-fs-eyebrow:11px;  /* "TRATAMIENTO", "DIGESTIÓN" */
+
+  --bl-fw-regular:400;
+  --bl-fw-medium:500;
+  --bl-fw-semibold:600;
+  --bl-fw-bold:700;
+  --bl-fw-extrabold:800;
+
+  --bl-lh-tight:1.2;
+  --bl-lh-normal:1.45;
+  --bl-lh-loose:1.6;
+  --bl-ls-eyebrow:.08em;
+
+  /* --- Espaciado (base 4px) --- */
+  --bl-sp-1:4px;  --bl-sp-2:8px;  --bl-sp-3:12px; --bl-sp-4:16px;
+  --bl-sp-5:20px; --bl-sp-6:24px; --bl-sp-8:32px; --bl-sp-10:40px;
+
+  /* --- Radios --- */
+  --bl-r-sm:8px;
+  --bl-r-md:12px;   /* inputs, opciones */
+  --bl-r-lg:16px;   /* bloques internos */
+  --bl-r-xl:20px;   /* cards */
+  --bl-r-2xl:24px;  /* sheet, botón principal */
+  --bl-r-full:999px;
+
+  /* --- Sombras --- */
+  --bl-sh-xs:0 1px 2px rgba(31,34,51,.04);
+  --bl-sh-sm:0 1px 3px rgba(31,34,51,.06), 0 1px 2px rgba(31,34,51,.04);
+  --bl-sh-card:0 2px 10px rgba(88,64,140,.06);
+  --bl-sh-lg:0 8px 24px rgba(88,64,140,.10);
+  --bl-sh-fab:0 6px 18px rgba(123,79,192,.40);
+  --bl-sh-sheet:0 -8px 32px rgba(31,34,51,.18);
+  --bl-ring:0 0 0 3px rgba(139,92,214,.35);
+
+  /* --- Layout --- */
+  --bl-container:390px;   /* ancho base del viewport de diseño */
+  --bl-gutter:16px;
+  --bl-header-h:56px;
+  --bl-tap:44px;          /* área táctil mínima */
+
+  --bl-ease:cubic-bezier(.4,0,.2,1);
+  --bl-dur:180ms;
+}
+
+/* ============================================================
+   DOCUMENTACIÓN (chrome de esta página, no del producto)
+   ============================================================ */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bl-bg);font-family:var(--bl-font);color:var(--bl-text-body);
+     font-size:var(--bl-fs-body);line-height:var(--bl-lh-normal);-webkit-font-smoothing:antialiased}
+.doc{max-width:1080px;margin:0 auto;padding:var(--bl-sp-6) var(--bl-sp-5) var(--bl-sp-10)}
+.doc-head{background:var(--bl-primary-600);color:#fff;border-radius:var(--bl-r-xl);
+          padding:var(--bl-sp-8);margin-bottom:var(--bl-sp-8)}
+.doc-head h1{margin:0;font-size:32px;font-weight:var(--bl-fw-extrabold);letter-spacing:-.02em}
+.doc-head p{margin:var(--bl-sp-2) 0 0;opacity:.85;max-width:60ch}
+.part{margin:var(--bl-sp-10) 0 var(--bl-sp-6);padding-bottom:var(--bl-sp-3);
+      border-bottom:2px solid var(--bl-primary-200)}
+.part h2{margin:0;font-size:24px;color:var(--bl-primary-700);font-weight:var(--bl-fw-bold)}
+.part span{font-size:var(--bl-fs-eyebrow);letter-spacing:var(--bl-ls-eyebrow);
+           text-transform:uppercase;color:var(--bl-text-muted);font-weight:var(--bl-fw-bold)}
+h3.sec{font-size:var(--bl-fs-h2);color:var(--bl-text);margin:var(--bl-sp-8) 0 var(--bl-sp-3)}
+.note{font-size:var(--bl-fs-sm);color:var(--bl-text-muted);margin:0 0 var(--bl-sp-4)}
+.panel{background:var(--bl-surface);border:1px solid var(--bl-border);border-radius:var(--bl-r-xl);
+       padding:var(--bl-sp-5);box-shadow:var(--bl-sh-card)}
+.grid{display:grid;gap:var(--bl-sp-4)}
+.g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12px;
+     background:var(--bl-primary-50);color:var(--bl-primary-700);padding:2px 6px;border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:var(--bl-fs-sm)}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--bl-border)}
+th{font-size:var(--bl-fs-eyebrow);letter-spacing:var(--bl-ls-eyebrow);text-transform:uppercase;color:var(--bl-text-muted)}
+
+/* Muestras de color */
+.sw{border:1px solid var(--bl-border);border-radius:var(--bl-r-md);overflow:hidden;background:#fff}
+.sw i{display:block;height:64px}
+.sw b{display:block;padding:8px 10px 2px;font-size:var(--bl-fs-sm);color:var(--bl-text)}
+.sw small{display:block;padding:0 10px 10px;font-size:var(--bl-fs-xs);color:var(--bl-text-muted);
+          font-family:ui-monospace,monospace}
+
+/* ============================================================
+   COMPONENTES DE PRODUCTO
+   ============================================================ */
+
+/* --- Marco de dispositivo --- */
+.device{width:var(--bl-container);margin:0 auto;background:var(--bl-bg);border-radius:var(--bl-r-2xl);
+        overflow:hidden;box-shadow:var(--bl-sh-lg);border:1px solid var(--bl-border)}
+.device-body{padding:var(--bl-sp-4);display:flex;flex-direction:column;gap:var(--bl-sp-4)}
+
+/* --- Header / App bar --- */
+.bl-appbar{height:var(--bl-header-h);background:var(--bl-primary-600);color:#fff;display:flex;
+           align-items:center;gap:var(--bl-sp-3);padding:0 var(--bl-sp-4)}
+.bl-appbar__brand{display:flex;align-items:center;gap:var(--bl-sp-2);font-weight:var(--bl-fw-bold);font-size:19px}
+.bl-appbar__icon{background:none;border:0;color:#fff;font-size:20px;cursor:pointer;padding:var(--bl-sp-2);
+                 border-radius:var(--bl-r-sm);line-height:1}
+.bl-appbar__icon:focus-visible{outline:none;box-shadow:0 0 0 2px #fff}
+.bl-appbar__user{margin-left:auto;font-weight:var(--bl-fw-semibold);font-size:var(--bl-fs-sm)}
+
+/* --- Card --- */
+.bl-card{background:var(--bl-surface);border-radius:var(--bl-r-xl);box-shadow:var(--bl-sh-card);
+         padding:var(--bl-sp-5)}
+.bl-card__title{margin:0;font-size:var(--bl-fs-display);font-weight:var(--bl-fw-extrabold);
+                color:var(--bl-text);letter-spacing:-.01em}
+.bl-card__sub{margin:var(--bl-sp-2) 0 0;color:var(--bl-text-muted);font-size:var(--bl-fs-sm)}
+.bl-card__sub strong{color:var(--bl-text);font-weight:var(--bl-fw-bold)}
+.bl-card__header{display:flex;align-items:center;gap:var(--bl-sp-3);margin-bottom:var(--bl-sp-4)}
+.bl-card__header h2{margin:0;font-size:var(--bl-fs-h1);font-weight:var(--bl-fw-extrabold);
+                    color:var(--bl-text);line-height:var(--bl-lh-tight)}
+
+/* Icono cuadrado con gradiente (avatar de sección) */
+.bl-icon-tile{width:48px;height:48px;flex:0 0 48px;border-radius:var(--bl-r-lg);display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--bl-primary-500),var(--bl-primary-700));color:#fff;font-size:20px;
+  box-shadow:var(--bl-sh-sm)}
+
+/* --- Eyebrow + fieldset --- */
+.bl-eyebrow{font-size:var(--bl-fs-eyebrow);letter-spacing:var(--bl-ls-eyebrow);text-transform:uppercase;
+            font-weight:var(--bl-fw-bold);color:var(--bl-text-muted);display:flex;align-items:center;gap:6px}
+.bl-legend{margin:var(--bl-sp-1) 0 var(--bl-sp-3);font-size:var(--bl-fs-h3);font-weight:var(--bl-fw-bold);
+           color:var(--bl-text)}
+.bl-group{background:var(--bl-surface-alt);border:1px solid var(--bl-border);border-radius:var(--bl-r-lg);
+          padding:var(--bl-sp-4)}
+
+/* --- Option (radio card) --- */
+.bl-option{display:flex;align-items:center;gap:var(--bl-sp-3);width:100%;min-height:var(--bl-tap);
+  background:var(--bl-white);border:1px solid var(--bl-border);border-radius:var(--bl-r-md);
+  padding:var(--bl-sp-4);margin-bottom:var(--bl-sp-3);cursor:pointer;text-align:left;
+  font:inherit;color:var(--bl-text-body);box-shadow:var(--bl-sh-xs);
+  transition:border-color var(--bl-dur) var(--bl-ease),background var(--bl-dur) var(--bl-ease)}
+.bl-option:last-child{margin-bottom:0}
+.bl-option:hover{border-color:var(--bl-primary-300)}
+.bl-option:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+.bl-option__label{flex:1}
+.bl-option__mark{width:24px;height:24px;border-radius:var(--bl-r-full);border:2px solid var(--bl-border-strong);
+                 display:grid;place-items:center;color:transparent;font-size:13px;flex:0 0 24px}
+.bl-option[aria-checked="true"]{border-color:var(--bl-primary-500);background:var(--bl-primary-50);
+                                color:var(--bl-primary-600);font-weight:var(--bl-fw-semibold)}
+.bl-option[aria-checked="true"] .bl-option__mark{background:var(--bl-primary-600);border-color:var(--bl-primary-600);color:#fff}
+.bl-dot{width:14px;height:14px;border-radius:var(--bl-r-full);flex:0 0 14px}
+
+/* --- Tabs (segmented) --- */
+.bl-tabs{display:flex;background:var(--bl-surface);border-radius:var(--bl-r-lg);padding:var(--bl-sp-1);
+         box-shadow:var(--bl-sh-card)}
+.bl-tab{flex:1;min-height:var(--bl-tap);border:0;background:transparent;border-radius:var(--bl-r-md);
+        font:inherit;font-size:var(--bl-fs-sm);font-weight:var(--bl-fw-semibold);color:var(--bl-text-muted);
+        cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:var(--bl-sp-2)}
+.bl-tab[aria-selected="true"]{background:var(--bl-white);color:var(--bl-primary-600);box-shadow:var(--bl-sh-sm)}
+.bl-tab:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+
+/* --- Botones --- */
+.bl-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--bl-sp-2);
+  min-height:var(--bl-tap);padding:14px var(--bl-sp-6);border-radius:var(--bl-r-2xl);border:1px solid transparent;
+  font:inherit;font-size:var(--bl-fs-body);font-weight:var(--bl-fw-semibold);cursor:pointer;
+  transition:background var(--bl-dur) var(--bl-ease),transform var(--bl-dur) var(--bl-ease)}
+.bl-btn:active{transform:translateY(1px)}
+.bl-btn:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+.bl-btn--primary{background:var(--bl-primary-600);color:#fff;box-shadow:var(--bl-sh-lg)}
+.bl-btn--primary:hover{background:var(--bl-primary-700)}
+.bl-btn--secondary{background:var(--bl-primary-50);color:var(--bl-primary-700);border-color:var(--bl-primary-200)}
+.bl-btn--ghost{background:transparent;color:var(--bl-primary-600)}
+.bl-btn--danger{background:var(--bl-danger);color:#fff;border-radius:var(--bl-r-lg)}
+.bl-btn--block{width:100%}
+.bl-btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.bl-fab{width:56px;height:56px;border-radius:var(--bl-r-full);border:0;background:var(--bl-primary-600);
+        color:#fff;font-size:26px;cursor:pointer;box-shadow:var(--bl-sh-fab);display:grid;place-items:center}
+.bl-fab:focus-visible{outline:none;box-shadow:var(--bl-ring),var(--bl-sh-fab)}
+
+/* --- Inputs --- */
+.bl-field{margin-bottom:var(--bl-sp-4)}
+.bl-field:last-child{margin-bottom:0}
+.bl-label{display:block;font-size:var(--bl-fs-sm);font-weight:var(--bl-fw-semibold);
+          color:var(--bl-text-body);margin-bottom:var(--bl-sp-2)}
+.bl-input{width:100%;min-height:var(--bl-tap);background:var(--bl-white);border:1px solid var(--bl-border);
+  border-radius:var(--bl-r-md);padding:12px var(--bl-sp-4);font:inherit;font-size:var(--bl-fs-body);
+  color:var(--bl-text);transition:border-color var(--bl-dur) var(--bl-ease)}
+.bl-input::placeholder{color:var(--bl-text-muted)}
+.bl-input:focus{outline:none;border-color:var(--bl-primary-500);box-shadow:var(--bl-ring)}
+.bl-input--center{text-align:center;font-size:var(--bl-fs-h3);font-weight:var(--bl-fw-semibold)}
+.bl-input[aria-invalid="true"]{border-color:var(--bl-danger);box-shadow:0 0 0 3px rgba(239,62,54,.18)}
+.bl-help{font-size:var(--bl-fs-xs);color:var(--bl-text-muted);margin:6px 0 0}
+.bl-error{font-size:var(--bl-fs-xs);color:var(--bl-danger);margin:6px 0 0;font-weight:var(--bl-fw-medium)}
+
+/* --- Switch --- */
+.bl-switch-row{display:flex;align-items:center;gap:var(--bl-sp-4);background:var(--bl-surface-alt);
+  border:1px solid var(--bl-border);border-radius:var(--bl-r-lg);padding:var(--bl-sp-4)}
+.bl-switch{width:52px;height:30px;flex:0 0 52px;border-radius:var(--bl-r-full);background:var(--bl-border-strong);
+  border:0;cursor:pointer;position:relative;transition:background var(--bl-dur) var(--bl-ease)}
+.bl-switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:var(--bl-r-full);
+  background:#fff;box-shadow:var(--bl-sh-sm);transition:transform var(--bl-dur) var(--bl-ease)}
+.bl-switch[aria-checked="true"]{background:var(--bl-primary-600)}
+.bl-switch[aria-checked="true"]::after{transform:translateX(22px)}
+.bl-switch:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+.bl-switch-row span{font-size:var(--bl-fs-sm);color:var(--bl-text-body)}
+
+/* --- Slider --- */
+.bl-slider{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:var(--bl-r-full);
+           background:var(--bl-border);margin:var(--bl-sp-4) 0 var(--bl-sp-2)}
+.bl-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:var(--bl-r-full);
+  background:var(--bl-primary-600);border:0;cursor:pointer;box-shadow:var(--bl-sh-sm)}
+.bl-slider::-moz-range-thumb{width:22px;height:22px;border-radius:var(--bl-r-full);background:var(--bl-primary-600);
+  border:0;cursor:pointer}
+.bl-slider:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+.bl-scale{display:flex;justify-content:space-between;font-size:var(--bl-fs-xs);color:var(--bl-text-muted)}
+
+/* --- Chips / badges --- */
+.bl-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--bl-r-full);
+  font-size:var(--bl-fs-xs);font-weight:var(--bl-fw-bold);background:var(--bl-neutral-chip);color:var(--bl-text-body)}
+.bl-badge--danger{background:var(--bl-danger);color:#fff}
+.bl-badge--success{background:var(--bl-success-bg);color:#15803D}
+.bl-badge--warning{background:var(--bl-warning-bg);color:#8A6D06}
+.bl-badge--info{background:var(--bl-info-bg);color:#1D4ED8}
+
+/* --- Sidebar / navegación --- */
+.bl-sidebar{width:280px;background:var(--bl-primary-500);color:#fff;border-radius:var(--bl-r-lg);
+            padding:var(--bl-sp-5) 0;box-shadow:var(--bl-sh-lg)}
+.bl-sidebar__top{display:flex;align-items:center;justify-content:space-between;padding:0 var(--bl-sp-5) var(--bl-sp-4)}
+.bl-sidebar__top h2{margin:0;font-size:var(--bl-fs-h2);font-weight:var(--bl-fw-bold)}
+.bl-sidebar__user{margin:0 var(--bl-sp-4) var(--bl-sp-5);background:rgba(255,255,255,.14);
+  border-radius:var(--bl-r-md);padding:var(--bl-sp-4);font-weight:var(--bl-fw-bold);font-size:var(--bl-fs-sm)}
+.bl-sidebar__section{padding:var(--bl-sp-4) var(--bl-sp-5) var(--bl-sp-2);font-size:var(--bl-fs-eyebrow);
+  letter-spacing:var(--bl-ls-eyebrow);text-transform:uppercase;color:rgba(255,255,255,.7);font-weight:var(--bl-fw-bold)}
+.bl-navitem{display:flex;align-items:center;gap:var(--bl-sp-3);min-height:var(--bl-tap);
+  padding:var(--bl-sp-3) var(--bl-sp-5);color:#fff;text-decoration:none;font-size:var(--bl-fs-body)}
+.bl-navitem:hover{background:rgba(255,255,255,.12)}
+.bl-navitem[aria-current="page"]{background:rgba(255,255,255,.45);color:var(--bl-primary-800);
+  font-weight:var(--bl-fw-bold)}
+.bl-navitem:focus-visible{outline:none;box-shadow:inset 0 0 0 2px #fff}
+
+/* --- Bottom sheet + grid de categorías --- */
+.bl-sheet{background:#fff;border-radius:var(--bl-r-2xl) var(--bl-r-2xl) 0 0;padding:var(--bl-sp-5);
+          box-shadow:var(--bl-sh-sheet);position:relative}
+.bl-sheet__grabber{width:44px;height:4px;border-radius:var(--bl-r-full);background:var(--bl-border-strong);
+                   margin:0 auto var(--bl-sp-4)}
+.bl-sheet__title{text-align:center;color:var(--bl-primary-600);font-size:var(--bl-fs-h2);
+                 font-weight:var(--bl-fw-bold);margin:0 0 var(--bl-sp-5)}
+.bl-sheet__close{position:absolute;top:var(--bl-sp-5);right:var(--bl-sp-5);background:none;border:0;
+                 font-size:20px;color:var(--bl-text-muted);cursor:pointer;line-height:1;
+                 width:32px;height:32px;border-radius:var(--bl-r-sm)}
+.bl-sheet__close:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+.bl-catgrid{display:grid;grid-template-columns:1fr 1fr;gap:var(--bl-sp-4)}
+.bl-cat{background:#fff;border:1.5px solid var(--bl-border);border-radius:var(--bl-r-lg);
+  padding:var(--bl-sp-5) var(--bl-sp-3);text-align:center;cursor:pointer;font:inherit;
+  transition:transform var(--bl-dur) var(--bl-ease),box-shadow var(--bl-dur) var(--bl-ease)}
+.bl-cat:hover{transform:translateY(-2px);box-shadow:var(--bl-sh-card)}
+.bl-cat:focus-visible{outline:none;box-shadow:var(--bl-ring)}
+.bl-cat__icon{width:44px;height:44px;border-radius:var(--bl-r-full);margin:0 auto var(--bl-sp-3);
+              display:grid;place-items:center;font-size:20px}
+.bl-cat__name{display:block;font-weight:var(--bl-fw-bold);color:var(--bl-text);font-size:var(--bl-fs-body)}
+.bl-cat__desc{display:block;font-size:var(--bl-fs-xs);color:var(--bl-text-muted);margin-top:4px;line-height:var(--bl-lh-normal)}
+.bl-cat--food{border-color:var(--bl-success-border)}   .bl-cat--food .bl-cat__icon{background:var(--bl-success-bg)}
+.bl-cat--crisis{border-color:var(--bl-danger-border)}  .bl-cat--crisis .bl-cat__icon{background:var(--bl-danger-bg);color:var(--bl-danger)}
+.bl-cat--trans{border-color:var(--bl-warning-border)}  .bl-cat--trans .bl-cat__icon{background:var(--bl-warning-bg);color:#8A6D06}
+.bl-cat--sens{border-color:var(--bl-info-border)}      .bl-cat--sens .bl-cat__icon{background:var(--bl-info-bg);color:var(--bl-info)}
+
+/* --- Callout de acción rápida --- */
+.bl-quick{display:flex;align-items:center;gap:var(--bl-sp-4);background:var(--bl-danger-bg);
+  border:1px dashed var(--bl-danger-border);border-radius:var(--bl-r-lg);padding:var(--bl-sp-4)}
+.bl-quick__text{flex:1}
+.bl-quick__text b{display:block;color:var(--bl-primary-600);font-size:var(--bl-fs-body)}
+.bl-quick__text span{font-size:var(--bl-fs-xs);color:var(--bl-text-muted)}
+
+/* --- Feedback --- */
+.bl-alert{display:flex;gap:var(--bl-sp-3);border-radius:var(--bl-r-md);padding:var(--bl-sp-4);
+          font-size:var(--bl-fs-sm);border:1px solid}
+.bl-alert--success{background:var(--bl-success-bg);border-color:var(--bl-success-border);color:#15803D}
+.bl-alert--warning{background:var(--bl-warning-bg);border-color:var(--bl-warning-border);color:#8A6D06}
+.bl-alert--danger{background:var(--bl-danger-bg);border-color:var(--bl-danger-border);color:#B91C1C}
+.bl-alert--info{background:var(--bl-info-bg);border-color:var(--bl-info-border);color:#1D4ED8}
+.bl-toast{display:inline-flex;align-items:center;gap:var(--bl-sp-3);background:var(--bl-text);color:#fff;
+  border-radius:var(--bl-r-md);padding:12px var(--bl-sp-5);font-size:var(--bl-fs-sm);box-shadow:var(--bl-sh-lg)}
+.bl-skeleton{background:linear-gradient(90deg,var(--bl-border) 25%,#F2F0F7 50%,var(--bl-border) 75%);
+  background-size:200% 100%;animation:bl-shimmer 1.4s infinite;border-radius:var(--bl-r-sm);height:14px}
+@keyframes bl-shimmer{to{background-position:-200% 0}}
+.bl-empty{text-align:center;padding:var(--bl-sp-8) var(--bl-sp-5);color:var(--bl-text-muted)}
+.bl-empty b{display:block;color:var(--bl-text);font-size:var(--bl-fs-h3);margin-bottom:6px}
+.bl-spinner{width:22px;height:22px;border-radius:50%;border:3px solid var(--bl-primary-200);
+  border-top-color:var(--bl-primary-600);animation:bl-spin .7s linear infinite}
+@keyframes bl-spin{to{transform:rotate(360deg)}}
+
+/* --- Accesibilidad --- */
+.bl-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+            clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.bl-skip{position:absolute;left:-9999px;background:var(--bl-primary-600);color:#fff;padding:10px 16px;
+         border-radius:var(--bl-r-sm)}
+.bl-skip:focus{left:var(--bl-sp-4);top:var(--bl-sp-4)}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="doc">
+
+<header class="doc-head">
+  <h1>Bluba · Design System</h1>
+  <p>Sistema extraído de la app Bitácora Diaria. Cuidadores y profesionales registran estado basal
+     y eventos cotidianos en sesiones cortas, muchas veces en medio de una crisis: por eso el sistema
+     prioriza objetivos táctiles grandes, jerarquía clara y color semántico consistente.</p>
+</header>
+
+<!-- ══════════════════════ PARTE 1 ══════════════════════ -->
+<div class="part"><span>Parte 1</span><h2>Fundamentos</h2></div>
+
+<h3 class="sec">1.1 Color · Primarios</h3>
+<p class="note">El violeta es el único color de marca. Se usa para navegación, acción principal y estado
+seleccionado. Nunca para transmitir un dato clínico.</p>
+<div class="grid g4">
+  <div class="sw"><i style="background:#F5F1FD"></i><b>primary-50</b><small>#F5F1FD · fondo seleccionado</small></div>
+  <div class="sw"><i style="background:#EDE6FA"></i><b>primary-100</b><small>#EDE6FA</small></div>
+  <div class="sw"><i style="background:#DCCDF5"></i><b>primary-200</b><small>#DCCDF5 · bordes</small></div>
+  <div class="sw"><i style="background:#C3ABEC"></i><b>primary-300</b><small>#C3ABEC · nav activo</small></div>
+  <div class="sw"><i style="background:#A57FE0"></i><b>primary-400</b><small>#A57FE0</small></div>
+  <div class="sw"><i style="background:#8B5CD6"></i><b>primary-500</b><small>#8B5CD6 · sidebar, acento</small></div>
+  <div class="sw"><i style="background:#7B4FC0"></i><b>primary-600</b><small>#7B4FC0 · header, CTA, FAB</small></div>
+  <div class="sw"><i style="background:#6A3FA8"></i><b>primary-700</b><small>#6A3FA8 · hover</small></div>
+</div>
+
+<h3 class="sec">1.2 Color · Neutros y superficies</h3>
+<div class="grid g4">
+  <div class="sw"><i style="background:#F6F4FB"></i><b>bg</b><small>#F6F4FB</small></div>
+  <div class="sw"><i style="background:#FFFFFF;box-shadow:inset 0 0 0 1px #E8E5F0"></i><b>surface</b><small>#FFFFFF</small></div>
+  <div class="sw"><i style="background:#FAF9FD"></i><b>surface-alt</b><small>#FAF9FD</small></div>
+  <div class="sw"><i style="background:#E8E5F0"></i><b>border</b><small>#E8E5F0</small></div>
+  <div class="sw"><i style="background:#D6D2E2"></i><b>border-strong</b><small>#D6D2E2</small></div>
+  <div class="sw"><i style="background:#8A8CA0"></i><b>text-muted</b><small>#8A8CA0</small></div>
+  <div class="sw"><i style="background:#3F4256"></i><b>text-body</b><small>#3F4256</small></div>
+  <div class="sw"><i style="background:#1F2233"></i><b>text</b><small>#1F2233</small></div>
+</div>
+
+<h3 class="sec">1.3 Color · Estados semánticos</h3>
+<p class="note">Códigos fijos de registro clínico. Verde = normalidad, amarillo = alteración leve,
+rojo = alteración marcada o intensidad alta, azul = información y apoyos sensoriales.
+Cada color viaja siempre acompañado de texto o icono; el color nunca es la única señal.</p>
+<div class="grid g4">
+  <div class="sw"><i style="background:#22C55E"></i><b>success</b><small>#22C55E · Normal</small></div>
+  <div class="sw"><i style="background:#F5C518"></i><b>warning</b><small>#F5C518 · Estreñimiento</small></div>
+  <div class="sw"><i style="background:#EF3E36"></i><b>danger</b><small>#EF3E36 · Diarrea, crisis</small></div>
+  <div class="sw"><i style="background:#3B82F6"></i><b>info</b><small>#3B82F6 · Sensorial, descanso</small></div>
+</div>
+
+<h3 class="sec">1.4 Tipografía</h3>
+<p class="note">Familia única: <code>Inter</code> con fallback al sistema. Un solo tipo mantiene legible el
+registro rápido; la jerarquía la carga el peso, no la familia. Los títulos usan <code>800</code> y
+tracking negativo; los eyebrows usan mayúsculas con tracking abierto para separar categorías clínicas.</p>
+<div class="panel">
+  <table>
+    <tr><th>Rol</th><th>Token</th><th>Tamaño / peso</th><th>Muestra</th></tr>
+    <tr><td>Display</td><td><code>--bl-fs-display</code></td><td>26px / 800 / -0.01em</td>
+        <td style="font-size:26px;font-weight:800;color:#1F2233;letter-spacing:-.01em">Bitácora Diaria</td></tr>
+    <tr><td>Título de tarjeta</td><td><code>--bl-fs-h1</code></td><td>22px / 800</td>
+        <td style="font-size:22px;font-weight:800;color:#1F2233">¿Cómo estuvo el día de hoy?</td></tr>
+    <tr><td>Título de sección</td><td><code>--bl-fs-h2</code></td><td>18px / 700</td>
+        <td style="font-size:18px;font-weight:700;color:#1F2233">Salud Gastrointestinal</td></tr>
+    <tr><td>Pregunta</td><td><code>--bl-fs-h3</code></td><td>16px / 700</td>
+        <td style="font-size:16px;font-weight:700;color:#1F2233">¿Cómo durmió anoche?</td></tr>
+    <tr><td>Cuerpo</td><td><code>--bl-fs-body</code></td><td>15px / 400–600</td>
+        <td style="font-size:15px">Registra intensidad con la hora actual</td></tr>
+    <tr><td>Secundario</td><td><code>--bl-fs-sm</code></td><td>14px / 400</td>
+        <td style="font-size:14px;color:#8A8CA0">Registra el estado basal y eventos cotidianos</td></tr>
+    <tr><td>Auxiliar</td><td><code>--bl-fs-xs</code></td><td>12px / 400</td>
+        <td style="font-size:12px;color:#8A8CA0">Comidas, hidratación y colaciones</td></tr>
+    <tr><td>Eyebrow</td><td><code>--bl-fs-eyebrow</code></td><td>11px / 700 / 0.08em / MAYÚS</td>
+        <td style="font-size:11px;font-weight:700;letter-spacing:.08em;color:#8A8CA0">TRATAMIENTO</td></tr>
+  </table>
+</div>
+
+<h3 class="sec">1.5 Espaciado</h3>
+<p class="note">Escala base 4px. El gutter de pantalla y la separación entre cards son ambos 16px;
+el padding interno de card es 20px.</p>
+<div class="panel grid g4">
+  <div><b>4</b><div style="height:12px;width:4px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-1</small></div>
+  <div><b>8</b><div style="height:12px;width:8px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-2</small></div>
+  <div><b>12</b><div style="height:12px;width:12px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-3</small></div>
+  <div><b>16</b><div style="height:12px;width:16px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-4 · gutter</small></div>
+  <div><b>20</b><div style="height:12px;width:20px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-5 · padding card</small></div>
+  <div><b>24</b><div style="height:12px;width:24px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-6</small></div>
+  <div><b>32</b><div style="height:12px;width:32px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-8</small></div>
+  <div><b>40</b><div style="height:12px;width:40px;background:var(--bl-primary-500);margin-top:6px"></div><small>--bl-sp-10</small></div>
+</div>
+
+<h3 class="sec">1.6 Grid y layout</h3>
+<div class="panel">
+  <table>
+    <tr><th>Regla</th><th>Valor</th></tr>
+    <tr><td>Ancho de diseño base</td><td>390px (iPhone estándar); el contenido escala fluido hasta 480px</td></tr>
+    <tr><td>Margen lateral</td><td>16px a cada lado</td></tr>
+    <tr><td>Separación entre cards</td><td>16px vertical</td></tr>
+    <tr><td>Altura del app bar</td><td>56px, fijo arriba</td></tr>
+    <tr><td>Sidebar</td><td>280px, overlay sobre capa <code>--bl-overlay</code></td></tr>
+    <tr><td>Grid de categorías</td><td>2 columnas, gap 16px</td></tr>
+    <tr><td>CTA de guardado</td><td>Anclado al fondo, ancho completo menos gutter</td></tr>
+    <tr><td>Área táctil mínima</td><td>44 × 44px en todo control</td></tr>
+  </table>
+</div>
+
+<h3 class="sec">1.7 Radios y sombras</h3>
+<div class="grid g2">
+  <div class="panel">
+    <table>
+      <tr><th>Radio</th><th>Uso</th></tr>
+      <tr><td><code>8px</code></td><td>Iconos táctiles, chips pequeños</td></tr>
+      <tr><td><code>12px</code></td><td>Inputs y opciones de selección</td></tr>
+      <tr><td><code>16px</code></td><td>Bloques internos, tiles de icono</td></tr>
+      <tr><td><code>20px</code></td><td>Cards</td></tr>
+      <tr><td><code>24px</code></td><td>Bottom sheet, botón principal</td></tr>
+      <tr><td><code>999px</code></td><td>FAB, switch, badges, radios</td></tr>
+    </table>
+  </div>
+  <div class="panel">
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:100px;text-align:center"><div style="height:56px;background:#fff;border-radius:12px;box-shadow:var(--bl-sh-sm)"></div><small>sh-sm</small></div>
+      <div style="flex:1;min-width:100px;text-align:center"><div style="height:56px;background:#fff;border-radius:20px;box-shadow:var(--bl-sh-card)"></div><small>sh-card</small></div>
+      <div style="flex:1;min-width:100px;text-align:center"><div style="height:56px;background:#fff;border-radius:20px;box-shadow:var(--bl-sh-lg)"></div><small>sh-lg</small></div>
+      <div style="flex:1;min-width:100px;text-align:center"><div style="height:56px;background:var(--bl-primary-600);border-radius:999px;box-shadow:var(--bl-sh-fab)"></div><small>sh-fab</small></div>
+    </div>
+    <p class="note" style="margin-top:16px">Las sombras tiñen de violeta (<code>rgba(88,64,140,…)</code>)
+    en vez de negro puro: sobre el fondo lila el negro se ve sucio.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════ PARTE 2 ══════════════════════ -->
+<div class="part"><span>Parte 2</span><h2>Componentes</h2></div>
+
+<h3 class="sec">2.1 Botones</h3>
+<div class="panel">
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+    <button class="bl-btn bl-btn--primary">🔒 Guardar estado basal</button>
+    <button class="bl-btn bl-btn--secondary">Ver historial</button>
+    <button class="bl-btn bl-btn--ghost">Cancelar</button>
+    <button class="bl-btn bl-btn--danger">Guardar ya</button>
+    <button class="bl-btn bl-btn--primary" disabled>Guardar estado basal</button>
+    <button class="bl-fab" aria-label="Registrar evento">+</button>
+  </div>
+  <table>
+    <tr><th>Variante</th><th>Cuándo</th></tr>
+    <tr><td>Primary</td><td>Una sola por pantalla: la acción que cierra el registro.</td></tr>
+    <tr><td>Secondary</td><td>Acciones alternativas dentro de una card.</td></tr>
+    <tr><td>Ghost</td><td>Cancelar, volver, descartar.</td></tr>
+    <tr><td>Danger</td><td>Solo registro rápido de desregulación, donde el rojo ya es el código del módulo.</td></tr>
+    <tr><td>FAB</td><td>Abrir el sheet de registro. Fijo abajo a la derecha, 16px de margen.</td></tr>
+  </table>
+</div>
+
+<h3 class="sec">2.2 Formularios</h3>
+<div class="grid g2">
+  <div class="panel">
+    <div class="bl-field">
+      <label class="bl-label" for="hora">Hora del evento</label>
+      <input class="bl-input bl-input--center" id="hora" value="2:50 p.m.">
+    </div>
+    <div class="bl-field">
+      <label class="bl-label" for="disp">Disparadores / desencadenantes</label>
+      <input class="bl-input" id="disp" placeholder="Ej: Ruidos, Frustración, Cambio de actividad">
+      <p class="bl-help">Separa varios con comas.</p>
+    </div>
+    <div class="bl-field">
+      <label class="bl-label" for="err">Estrategia aplicada</label>
+      <input class="bl-input" id="err" aria-invalid="true" aria-describedby="err-msg" placeholder="Ej: Presión profunda">
+      <p class="bl-error" id="err-msg">Escribe al menos una estrategia para guardar el episodio.</p>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="bl-switch-row" style="margin-bottom:20px">
+      <button class="bl-switch" role="switch" aria-checked="false" aria-labelledby="sw-lbl"></button>
+      <span id="sw-lbl">¿Se tomó los medicamentos de hoy?</span>
+    </div>
+    <div class="bl-group">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <b style="color:var(--bl-text)">Intensidad del episodio</b>
+        <span class="bl-badge bl-badge--danger">7 / 10</span>
+      </div>
+      <input class="bl-slider" type="range" min="1" max="10" value="7" aria-label="Intensidad del episodio, 7 de 10">
+      <div class="bl-scale"><span>Leve</span><span>Moderado</span><span>Fuerte</span></div>
+    </div>
+  </div>
+</div>
+
+<h3 class="sec">2.3 Opciones de selección</h3>
+<p class="note">El patrón central del producto. Tarjeta completa clicable, marca de verificación a la derecha,
+y en el caso clínico un punto de color como refuerzo del significado.</p>
+<div class="grid g2">
+  <div class="panel">
+    <div class="bl-eyebrow">🛏 Descanso nocturno</div>
+    <p class="bl-legend">¿Cómo durmió anoche?</p>
+    <div role="radiogroup" aria-label="Calidad del sueño">
+      <button class="bl-option" role="radio" aria-checked="true">
+        <span>😌</span><span class="bl-option__label">Reparador</span><span class="bl-option__mark">✓</span></button>
+      <button class="bl-option" role="radio" aria-checked="false">
+        <span>😐</span><span class="bl-option__label">Interrumpido</span><span class="bl-option__mark">✓</span></button>
+      <button class="bl-option" role="radio" aria-checked="false">
+        <span>😫</span><span class="bl-option__label">Muy difícil</span><span class="bl-option__mark">✓</span></button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="bl-eyebrow">🩺 Digestión</div>
+    <p class="bl-legend">Salud gastrointestinal</p>
+    <div role="radiogroup" aria-label="Salud gastrointestinal">
+      <button class="bl-option" role="radio" aria-checked="true">
+        <span class="bl-dot" style="background:var(--bl-success)"></span>
+        <span class="bl-option__label">Normal</span><span class="bl-option__mark">✓</span></button>
+      <button class="bl-option" role="radio" aria-checked="false">
+        <span class="bl-dot" style="background:var(--bl-warning)"></span>
+        <span class="bl-option__label">Estreñimiento</span><span class="bl-option__mark">✓</span></button>
+      <button class="bl-option" role="radio" aria-checked="false">
+        <span class="bl-dot" style="background:var(--bl-danger)"></span>
+        <span class="bl-option__label">Diarrea / irritación</span><span class="bl-option__mark">✓</span></button>
+    </div>
+  </div>
+</div>
+
+<h3 class="sec">2.4 Navegación</h3>
+<div class="grid g2">
+  <div>
+    <div class="panel" style="padding:0;overflow:hidden;margin-bottom:16px">
+      <div class="bl-appbar">
+        <button class="bl-appbar__icon" aria-label="Abrir menú">☰</button>
+        <span class="bl-appbar__brand">♡ Bluba</span>
+        <span class="bl-appbar__user">FS ▾</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="bl-tabs" role="tablist">
+        <button class="bl-tab" role="tab" aria-selected="true">⚙ Mi día (estado basal)</button>
+        <button class="bl-tab" role="tab" aria-selected="false">↺ Historial de hoy</button>
+      </div>
+      <p class="note" style="margin-top:16px">Dos vistas máximo. Con tres o más, usar navegación por lista.</p>
+    </div>
+  </div>
+  <div class="bl-sidebar">
+    <div class="bl-sidebar__top"><h2>Menú</h2>
+      <button class="bl-appbar__icon" aria-label="Cerrar menú">✕</button></div>
+    <div class="bl-sidebar__user">Amelia Soto Neira</div>
+    <div class="bl-sidebar__section">Consultante</div>
+    <a class="bl-navitem" href="#">🪪 Ficha inicial</a>
+    <a class="bl-navitem" href="#" aria-current="page">💜 Bitácora diaria</a>
+    <a class="bl-navitem" href="#">📈 Evolución</a>
+    <div class="bl-sidebar__section">Red</div>
+    <a class="bl-navitem" href="#">🔍 Buscar profesionales</a>
+    <div class="bl-sidebar__section">Soporte</div>
+    <a class="bl-navitem" href="#">🎫 Mis tickets</a>
+  </div>
+</div>
+
+<h3 class="sec">2.5 Cards</h3>
+<div class="grid g2">
+  <div class="bl-card">
+    <h2 class="bl-card__title">Bitácora Diaria</h2>
+    <p class="bl-card__sub">Registra el estado basal y eventos cotidianos de<br><strong>Amelia Soto Neira</strong></p>
+  </div>
+  <div class="bl-card">
+    <div class="bl-card__header">
+      <div class="bl-icon-tile">💗</div>
+      <h2>¿Cómo estuvo el día de hoy?</h2>
+    </div>
+    <div class="bl-group">
+      <div class="bl-eyebrow">🛏 Descanso nocturno</div>
+      <p class="bl-legend" style="margin-bottom:0">¿Cómo durmió anoche?</p>
+    </div>
+  </div>
+</div>
+
+<h3 class="sec">2.6 Bottom sheet y selector de categoría</h3>
+<div class="grid g2">
+  <div class="bl-sheet">
+    <div class="bl-sheet__grabber"></div>
+    <button class="bl-sheet__close" aria-label="Cerrar">✕</button>
+    <h2 class="bl-sheet__title">¿Qué deseas registrar?</h2>
+    <div class="bl-catgrid">
+      <button class="bl-cat bl-cat--food"><div class="bl-cat__icon">🍏</div>
+        <span class="bl-cat__name">Alimentación</span>
+        <span class="bl-cat__desc">Comidas, hidratación y colaciones</span></button>
+      <button class="bl-cat bl-cat--crisis"><div class="bl-cat__icon">⚡</div>
+        <span class="bl-cat__name">Desregulación</span>
+        <span class="bl-cat__desc">Crisis, conductas y desbordes</span></button>
+      <button class="bl-cat bl-cat--trans"><div class="bl-cat__icon">⇄</div>
+        <span class="bl-cat__name">Transición</span>
+        <span class="bl-cat__desc">Cambios de actividad o entorno</span></button>
+      <button class="bl-cat bl-cat--sens"><div class="bl-cat__icon">🎧</div>
+        <span class="bl-cat__name">Dieta sensorial</span>
+        <span class="bl-cat__desc">Apoyos, estímulos y descompresión</span></button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="bl-quick">
+      <div class="bl-quick__text"><b>⚡ Registro rápido</b>
+        <span>Registra intensidad con la hora actual</span></div>
+      <button class="bl-btn bl-btn--danger">Guardar ya</button>
+    </div>
+    <p class="note" style="margin-top:16px">Regla del sheet: la ruta rápida siempre visible arriba,
+    los detalles clínicos abajo y explícitamente opcionales. Un cuidador en crisis debe poder
+    guardar en un toque.</p>
+    <p style="text-align:center;color:var(--bl-primary-600);font-weight:600;font-size:14px;margin:0">
+      ¿Deseas agregar más detalles clínicos? (opcional)</p>
+  </div>
+</div>
+
+<h3 class="sec">2.7 Pantalla de referencia</h3>
+<div class="device">
+  <div class="bl-appbar">
+    <button class="bl-appbar__icon" aria-label="Abrir menú">☰</button>
+    <span class="bl-appbar__brand">♡ Bluba</span>
+    <span class="bl-appbar__user">FS ▾</span>
+  </div>
+  <div class="device-body">
+    <div class="bl-card">
+      <h2 class="bl-card__title">Bitácora Diaria</h2>
+      <p class="bl-card__sub">Registra el estado basal y eventos cotidianos de<br><strong>Amelia Soto Neira</strong></p>
+    </div>
+    <div class="bl-tabs" role="tablist">
+      <button class="bl-tab" role="tab" aria-selected="true">⚙ Mi día</button>
+      <button class="bl-tab" role="tab" aria-selected="false">↺ Historial de hoy</button>
+    </div>
+    <div class="bl-card">
+      <div class="bl-card__header"><div class="bl-icon-tile">💗</div><h2>¿Cómo estuvo el día de hoy?</h2></div>
+      <div class="bl-group">
+        <div class="bl-eyebrow">🛏 Descanso nocturno</div>
+        <p class="bl-legend">¿Cómo durmió anoche?</p>
+        <div role="radiogroup" aria-label="Calidad del sueño">
+          <button class="bl-option" role="radio" aria-checked="true">😌<span class="bl-option__label">Reparador</span><span class="bl-option__mark">✓</span></button>
+          <button class="bl-option" role="radio" aria-checked="false">😐<span class="bl-option__label">Interrumpido</span><span class="bl-option__mark">✓</span></button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end"><button class="bl-fab" aria-label="Registrar evento">+</button></div>
+    <button class="bl-btn bl-btn--primary bl-btn--block">🔒 Guardar estado basal</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ PARTE 3 ══════════════════════ -->
+<div class="part"><span>Parte 3</span><h2>Patrones</h2></div>
+
+<h3 class="sec">3.1 Estados interactivos</h3>
+<div class="panel">
+  <table>
+    <tr><th>Estado</th><th>Tratamiento</th></tr>
+    <tr><td>Reposo</td><td>Fondo blanco, borde <code>--bl-border</code>, sombra <code>sh-xs</code>.</td></tr>
+    <tr><td>Hover</td><td>Borde a <code>primary-300</code>. En categorías, elevación de 2px.</td></tr>
+    <tr><td>Foco</td><td>Anillo <code>0 0 0 3px rgba(139,92,214,.35)</code>. Nunca se elimina el outline sin reemplazo.</td></tr>
+    <tr><td>Seleccionado</td><td>Borde <code>primary-500</code> + fondo <code>primary-50</code> + texto violeta 600 + check relleno.</td></tr>
+    <tr><td>Presionado</td><td><code>translateY(1px)</code>; fondo un paso más oscuro.</td></tr>
+    <tr><td>Deshabilitado</td><td>Opacidad 45%, sin sombra, cursor bloqueado.</td></tr>
+    <tr><td>Cargando</td><td>Spinner en el botón; la etiqueta cambia a «Guardando…» y el control queda inerte.</td></tr>
+  </table>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;align-items:center">
+    <button class="bl-option" style="max-width:200px;margin:0">Reposo<span class="bl-option__mark">✓</span></button>
+    <button class="bl-option" style="max-width:200px;margin:0;border-color:var(--bl-primary-300)">Hover<span class="bl-option__mark">✓</span></button>
+    <button class="bl-option" style="max-width:200px;margin:0;box-shadow:var(--bl-ring)">Foco<span class="bl-option__mark">✓</span></button>
+    <button class="bl-option" style="max-width:200px;margin:0" aria-checked="true" role="radio">Seleccionado<span class="bl-option__mark">✓</span></button>
+  </div>
+</div>
+
+<h3 class="sec">3.2 Feedback</h3>
+<p class="note">Los mensajes explican qué pasó y qué hacer. No se disculpan y no usan lenguaje técnico.
+La acción conserva su nombre: el botón «Guardar estado basal» produce «Estado basal guardado».</p>
+<div class="grid g2">
+  <div class="panel" style="display:grid;gap:12px">
+    <div class="bl-alert bl-alert--success">✓ Estado basal guardado. Queda registrado a las 2:50 p.m.</div>
+    <div class="bl-alert bl-alert--info">ℹ Los detalles clínicos son opcionales: puedes completarlos después.</div>
+    <div class="bl-alert bl-alert--warning">⚠ Hay un registro previo para hoy. Al guardar se reemplaza.</div>
+    <div class="bl-alert bl-alert--danger">✕ No se pudo guardar. Revisa tu conexión y vuelve a intentarlo.</div>
+  </div>
+  <div class="panel">
+    <div style="margin-bottom:20px"><span class="bl-toast">✓ Episodio registrado</span></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div class="bl-spinner"></div><span style="font-size:14px;color:var(--bl-text-muted)">Guardando…</span></div>
+    <div style="display:grid;gap:8px;margin-bottom:20px">
+      <div class="bl-skeleton" style="width:60%"></div>
+      <div class="bl-skeleton" style="width:90%"></div>
+      <div class="bl-skeleton" style="width:75%"></div>
+    </div>
+    <div class="bl-empty">
+      <b>Aún no hay registros de hoy</b>
+      Toca + para registrar el primer evento del día.
+    </div>
+  </div>
+</div>
+
+<h3 class="sec">3.3 Jerarquía de registro</h3>
+<div class="panel">
+  <table>
+    <tr><th>Nivel</th><th>Qué contiene</th><th>Componente</th></tr>
+    <tr><td>1 · Contexto</td><td>Quién y qué se registra</td><td>Card de encabezado</td></tr>
+    <tr><td>2 · Modo</td><td>Estado basal vs. historial</td><td>Tabs</td></tr>
+    <tr><td>3 · Dominio</td><td>Descanso, tratamiento, digestión</td><td>Eyebrow + bloque</td></tr>
+    <tr><td>4 · Dato</td><td>La respuesta concreta</td><td>Opción, switch, slider</td></tr>
+    <tr><td>5 · Cierre</td><td>Confirmar el registro</td><td>Botón primario anclado</td></tr>
+  </table>
+  <p class="note" style="margin-top:16px">Los eventos puntuales no viven en este flujo: entran por el FAB
+  → sheet de categorías, para no alargar el formulario diario.</p>
+</div>
+
+<h3 class="sec">3.4 Accesibilidad</h3>
+<div class="grid g2">
+  <div class="panel">
+    <h4 style="margin-top:0;color:var(--bl-text)">Reglas obligatorias</h4>
+    <ul style="padding-left:18px;margin:0;font-size:14px">
+      <li>Contraste mínimo 4.5:1 en texto. <code>text-muted</code> nunca baja de 14px.</li>
+      <li>Blanco sobre <code>primary-600</code> = 5.4:1 ✓. Blanco sobre <code>primary-500</code> solo en 16px+ bold.</li>
+      <li>Ningún estado se comunica solo por color: siempre punto + etiqueta, o icono + texto.</li>
+      <li>Área táctil mínima 44×44px, incluidos cerrar e iconos del app bar.</li>
+      <li>Grupos de opción con <code>role="radiogroup"</code> y <code>aria-checked</code>; navegables con flechas.</li>
+      <li>El switch usa <code>role="switch"</code> + <code>aria-checked</code>, nunca un div suelto.</li>
+      <li>El slider expone su valor en texto: «Intensidad 7 de 10».</li>
+      <li>El sheet atrapa el foco, cierra con Esc y devuelve el foco al FAB.</li>
+      <li><code>prefers-reduced-motion</code> desactiva shimmer, spin y transiciones.</li>
+      <li>Errores enlazados con <code>aria-describedby</code> y anunciados en <code>aria-live="polite"</code>.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h4 style="margin-top:0;color:var(--bl-text)">Verificación de contraste</h4>
+    <table>
+      <tr><th>Combinación</th><th>Ratio</th><th></th></tr>
+      <tr><td>#1F2233 sobre #FFFFFF</td><td>15.9:1</td><td>AAA</td></tr>
+      <tr><td>#3F4256 sobre #FFFFFF</td><td>9.8:1</td><td>AAA</td></tr>
+      <tr><td>#8A8CA0 sobre #FFFFFF</td><td>3.4:1</td><td>solo 18px+ o texto no esencial</td></tr>
+      <tr><td>#FFFFFF sobre #7B4FC0</td><td>5.4:1</td><td>AA</td></tr>
+      <tr><td>#7B4FC0 sobre #F5F1FD</td><td>5.0:1</td><td>AA</td></tr>
+      <tr><td>#FFFFFF sobre #EF3E36</td><td>4.0:1</td><td>solo 18px+ bold</td></tr>
+    </table>
+    <a class="bl-skip" href="#main">Saltar al contenido</a>
+    <p class="note" style="margin-top:12px">El enlace «Saltar al contenido» está en el DOM y aparece al tabular.</p>
+  </div>
+</div>
+
+<h3 class="sec">3.5 Contenido y voz</h3>
+<div class="panel">
+  <table>
+    <tr><th>En vez de</th><th>Escribe</th><th>Por qué</th></tr>
+    <tr><td>Enviar</td><td>Guardar estado basal</td><td>El botón nombra lo que ocurre.</td></tr>
+    <tr><td>Error 500</td><td>No se pudo guardar. Revisa tu conexión.</td><td>Causa y salida, sin jerga.</td></tr>
+    <tr><td>Sin datos</td><td>Aún no hay registros de hoy</td><td>El vacío invita a actuar.</td></tr>
+    <tr><td>Campos opcionales</td><td>¿Deseas agregar más detalles clínicos? (opcional)</td><td>Baja la presión del registro.</td></tr>
+    <tr><td>Nivel 7</td><td>7 / 10 · Moderado</td><td>El número solo no significa nada.</td></tr>
+  </table>
+</div>
+
+</div>
+</body>
+</html>
