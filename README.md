@@ -1,8 +1,8 @@
 # NeuraDash
 
-NeuraDash is a caregiver-facing, non-diagnostic support application. The current repository state establishes the reproducible project foundation: Contract v2 types, persistence ports, Python tooling, and frontend tooling.
+NeuraDash is a caregiver-facing, non-diagnostic support application with a FastAPI backend, ML engine, and React/TypeScript caregiver interface.
 
-> **Current scope:** the FastAPI HTTP application and caregiver interface are not implemented yet. You can run the test suite and start the Vite development server, but the browser page is intentionally empty at this stage.
+> **Safety boundary:** NeuraDash communicates uncertainty and support options. It is not a diagnostic, causal, or clinical decision-making tool.
 
 ## Quick start
 
@@ -41,26 +41,40 @@ py -m pytest tests/unit/test_contract.py
 
 Expected result: the Contract v2 and persistence-port tests pass.
 
-### 3. Start the frontend development server
+### 3. Start the backend
+
+In a second terminal, from the repository root:
 
 ```powershell
-Set-Location frontend
+uvicorn backend.app.main:app --reload --port 8000
+```
+
+The API is available at `http://localhost:8000`; health check: `http://localhost:8000/health`.
+
+### 4. Start the frontend development server
+
+```powershell
+Set-Location front
 npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite (normally `http://localhost:5173`). The server runs successfully, but the application screen is not implemented yet.
+Open the URL printed by Vite (normally `http://localhost:5173`). The `front/` UI uses a mock API by default. Copy `front/.env.example` to `front/.env` and set `VITE_API_BASE=http://localhost:8000` to use the backend.
 
 ## Validate the frontend
 
-From `frontend/`:
+From `front/`:
 
 ```powershell
+npm run typecheck
 npm run build
-npm test -- --run
 ```
 
-`npm install` may create a local `package-lock.json`; it is not committed in the current repository state.
+For the deterministic demo build:
+
+```powershell
+SINGLE_FILE=1 npx vite build --outDir dist-single
+```
 
 ## What is available now
 
@@ -72,7 +86,7 @@ npm test -- --run
 | FastAPI routes and ASGI entry point | Ready |
 | Temporal feature pipeline and baseline | Ready |
 | ML lifecycle and demo data | Ready |
-| Caregiver UI | Ready |
+| Caregiver UI (`front/`) | Ready |
 | Reproducibility & Validation scripts | Ready |
 
 ## Reproducibility Pipeline
@@ -100,16 +114,12 @@ python scripts/smoke_demo.py
 backend/app/     Backend schemas, routes, and services
 engine/          Temporal feature pipeline, confidence, and safety rules
 ml/              ML dataset builder, training, evaluation, and registry
-frontend/        Vite/React/TypeScript caregiver interface
+front/            Vite/React/TypeScript caregiver interface
 scripts/         Reproducibility and verification scripts
 tests/           Python unit and integration tests
 docs/            Product and technical architecture guides
 openspec/        Spec-driven development artifacts
 ```
-
-## Safety boundary
-
-NeuraDash is designed to communicate uncertainty and support options. It must not be used as a diagnostic, causal, or clinical decision-making tool. No clinical accuracy claims are made, and no IoT or school inputs are utilized in the CORE logic.
 
 ## Further context
 
