@@ -18,14 +18,17 @@ import {
   SEMANTIC_BG,
   SEMANTIC_COLOR,
   SLEEP_CHOICES,
+  START_AUTONOMY_CHOICES,
   WAKE_CHOICES,
   formatTime,
+  todayIso,
 } from '../domain/catalog';
 import { getTimeline } from '../api';
 import type {
   DailyRecord,
   GiStatus,
   SleepQuality,
+  StartAutonomy,
   Subject,
   TimelineEntry,
   WakeMode,
@@ -46,11 +49,12 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
 
   const [sleep, setSleep] = useState<SleepQuality | null>('Reparador');
   const [wake, setWake] = useState<WakeMode | null>(null);
+  const [autonomy, setAutonomy] = useState<StartAutonomy | null>(null);
   const [medTaken, setMedTaken] = useState(false);
   const [medNotApplicable, setMedNotApplicable] = useState(false);
   const [gi, setGi] = useState<GiStatus | null>('Normal');
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayIso();
 
   function save() {
     onSaveBasal({
@@ -58,6 +62,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
       date: today,
       sleep_quality: sleep,
       wake_mode: wake,
+      start_autonomy: autonomy,
       medication_adherence: medNotApplicable ? 'No Aplica' : medTaken ? 'Sí' : 'No',
       gi_status: gi,
     });
@@ -107,12 +112,20 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
                   onChange={setSleep}
                 />
                 <OptionGroup
-                  eyebrow="Al despertar"
+                  eyebrow="Forma de despertar"
                   eyebrowIcon="☀️"
-                  legend="¿Con qué ánimo despertó?"
+                  legend="¿Cómo despertó el día de hoy?"
                   choices={WAKE_CHOICES}
                   value={wake}
                   onChange={setWake}
+                />
+                <OptionGroup
+                  eyebrow="La transición / autonomía"
+                  eyebrowIcon="🏃"
+                  legend="¿Necesitó ayuda para iniciar el día?"
+                  choices={START_AUTONOMY_CHOICES}
+                  value={autonomy}
+                  onChange={setAutonomy}
                 />
               </div>
             </section>

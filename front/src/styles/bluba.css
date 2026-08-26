@@ -159,6 +159,12 @@ button,input,textarea,select{font-family:inherit}
 .bl-option[aria-checked="true"]{border-color:var(--bl-primary-500);background:var(--bl-primary-50);
                                 color:var(--bl-primary-600);font-weight:var(--bl-fw-semibold)}
 .bl-option[aria-checked="true"] .bl-option__mark{background:var(--bl-primary-600);border-color:var(--bl-primary-600);color:#fff}
+.bl-optionrow{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--bl-sp-2)}
+.bl-option--compact{flex-direction:column;justify-content:center;gap:6px;margin-bottom:0;
+  padding:var(--bl-sp-3) var(--bl-sp-2);min-height:72px;text-align:center;font-size:var(--bl-fs-sm)}
+.bl-option--compact .bl-option__label{flex:0 0 auto;line-height:var(--bl-lh-tight)}
+/* En 3 columnas el check de 24px no cabe: basta el borde + fondo + aria-checked. */
+.bl-option--compact .bl-option__mark{width:18px;height:18px;border-width:1.5px;font-size:11px}
 .bl-dot{width:14px;height:14px;border-radius:var(--bl-r-full);flex:0 0 14px}
 
 /* --- Tabs (segmented) --- */
@@ -200,6 +206,20 @@ button,input,textarea,select{font-family:inherit}
 .bl-input:focus{outline:none;border-color:var(--bl-primary-500);box-shadow:var(--bl-ring)}
 .bl-input--center{text-align:center;font-size:var(--bl-fs-h3);font-weight:var(--bl-fw-semibold)}
 .bl-input[aria-invalid="true"]{border-color:var(--bl-danger);box-shadow:0 0 0 3px rgba(239,62,54,.18)}
+.bl-select{width:100%;min-height:var(--bl-tap);background:var(--bl-white);border:1px solid var(--bl-border);
+  border-radius:var(--bl-r-md);padding:0 40px 0 var(--bl-sp-4);font:inherit;font-size:var(--bl-fs-body);
+  color:var(--bl-text-body);cursor:pointer;-webkit-appearance:none;appearance:none;
+  /* Chevron dibujado en el propio borde: sin assets ni iconos externos. */
+  background-image:linear-gradient(45deg,transparent 50%,var(--bl-text-muted) 50%),
+                   linear-gradient(135deg,var(--bl-text-muted) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.bl-select:focus{outline:none;border-color:var(--bl-primary-500);box-shadow:var(--bl-ring)}
+.bl-textarea{width:100%;min-height:76px;background:var(--bl-surface-alt);border:1px solid var(--bl-border);
+  border-radius:var(--bl-r-md);padding:var(--bl-sp-3) var(--bl-sp-4);font:inherit;font-size:var(--bl-fs-body);
+  color:var(--bl-text-body);line-height:var(--bl-lh-normal);resize:vertical}
+.bl-textarea::placeholder{color:var(--bl-text-muted)}
+.bl-textarea:focus{outline:none;border-color:var(--bl-primary-500);box-shadow:var(--bl-ring)}
 .bl-help{font-size:var(--bl-fs-xs);color:var(--bl-text-muted);margin:6px 0 0}
 .bl-error{font-size:var(--bl-fs-xs);color:var(--bl-danger);margin:6px 0 0;font-weight:var(--bl-fw-medium)}
 

@@ -55,6 +55,12 @@ interface OptionGroupProps<T extends string> {
   onChange: (value: T) => void;
   /** Envuelve en bloque `surface-alt` cuando agrupa dentro de una card. */
   boxed?: boolean;
+  /**
+   * `stack` (por defecto) apila las opciones: etiquetas largas, lectura
+   * vertical. `row` las pone en tres columnas; solo para escalas de una
+   * o dos palabras, donde caben sin truncarse a 320px.
+   */
+  layout?: 'stack' | 'row';
 }
 
 export function OptionGroup<T extends string>({
@@ -65,6 +71,7 @@ export function OptionGroup<T extends string>({
   value,
   onChange,
   boxed = true,
+  layout = 'stack',
 }: OptionGroupProps<T>) {
   const legendId = useId();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -90,7 +97,11 @@ export function OptionGroup<T extends string>({
       <p className="bl-legend" id={legendId}>
         {legend}
       </p>
-      <div role="radiogroup" aria-labelledby={legendId}>
+      <div
+        role="radiogroup"
+        aria-labelledby={legendId}
+        className={layout === 'row' ? 'bl-optionrow' : undefined}
+      >
         {choices.map((choice, i) => {
           const checked = value === choice.value;
           return (
@@ -103,7 +114,7 @@ export function OptionGroup<T extends string>({
               role="radio"
               aria-checked={checked}
               tabIndex={checked || (value === null && i === 0) ? 0 : -1}
-              className="bl-option"
+              className={`bl-option${layout === 'row' ? ' bl-option--compact' : ''}`}
               onClick={() => onChange(choice.value)}
               onKeyDown={(e) => onKeyDown(e, i)}
             >
@@ -250,6 +261,72 @@ export function Field({
           {help}
         </p>
       )}
+    </div>
+  );
+}
+
+/* ============================================================
+   Select · las categorías con vocabulario cerrado lo usan en vez
+   de texto libre, para que el dato llegue comparable al motor
+   ============================================================ */
+
+interface SelectProps {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}
+
+export function Select({ label, value, options, onChange }: SelectProps) {
+  const id = useId();
+  return (
+    <div className="bl-field">
+      <label className="bl-label" htmlFor={id}>
+        {label}
+      </label>
+      <select
+        id={id}
+        className="bl-select"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+/* ============================================================
+   Área de texto · observaciones libres
+   ============================================================ */
+
+interface TextAreaProps {
+  label: string;
+  value: string;
+  placeholder?: string;
+  rows?: number;
+  onChange: (value: string) => void;
+}
+
+export function TextArea({ label, value, placeholder, rows = 3, onChange }: TextAreaProps) {
+  const id = useId();
+  return (
+    <div className="bl-field">
+      <label className="bl-label" htmlFor={id}>
+        {label}
+      </label>
+      <textarea
+        id={id}
+        className="bl-textarea"
+        rows={rows}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }

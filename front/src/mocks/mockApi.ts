@@ -98,6 +98,7 @@ export function getTimeline(
       detail: [
         r.sleep_quality && `Sueño: ${r.sleep_quality}`,
         r.wake_mode && `Despertar: ${r.wake_mode}`,
+        r.start_autonomy && `Inicio del día: ${r.start_autonomy}`,
         r.gi_status && `Digestión: ${r.gi_status}`,
         r.medication_adherence && `Medicación: ${r.medication_adherence}`,
       ]
@@ -119,9 +120,14 @@ export function getTimeline(
       timestamp: e.occurred_at,
       title: e.event_type,
       detail: [
-        `Intensidad ${e.intensity_value} de 10`,
+        // Las categorías con escala cualitativa muestran la palabra que
+        // eligió el tutor, no el 1-10 que derivamos para el motor.
+        e.qualitative_outcome ?? `Intensidad ${e.intensity_value} de 10`,
+        e.sensory_activity && `Actividad: ${e.sensory_activity}`,
         e.trigger && `Disparador: ${e.trigger}`,
         e.strategy_applied && `Apoyo: ${e.strategy_applied}`,
+        e.strategy_outcome && `Resultado: ${e.strategy_outcome}`,
+        e.notes,
       ]
         .filter(Boolean)
         .join(' · '),

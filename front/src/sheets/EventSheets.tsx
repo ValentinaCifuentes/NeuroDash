@@ -7,15 +7,19 @@
 
 import { useState } from 'react';
 import { BottomSheet } from '../components/shell';
-import { Field, IntensitySlider, OptionGroup } from '../components/controls';
+import { Field, IntensitySlider, OptionGroup, Select, TextArea } from '../components/controls';
 import {
   CATEGORIES,
   CATEGORY_BY_ID,
+  CATEGORY_FORM,
+  SENSORY_RESPONSE_TO_OUTCOME,
   STRATEGY_OUTCOME_CHOICES,
   intensityBand,
   toHhMm,
+  todayIso,
   toIsoAt,
 } from '../domain/catalog';
+import type { CategorySelect } from '../domain/catalog';
 import type { DysregulationEvent, LogCategory, StrategyOutcome } from '../types';
 
 /* ============================================================
@@ -56,6 +60,15 @@ export function CategorySheet({ onPick, onClose, returnFocusTo }: CategorySheetP
 
 /* ============================================================
    2. Sheet de registro de evento
+   ============================================================
+
+   Un solo componente para las cuatro categorías. Lo que cambia entre
+   ellas vive en `CATEGORY_FORM`, no en ramas de JSX: la escala de arriba,
+   los selects del detalle y el texto de la ruta rápida.
+
+   Desregulación es la excepción declarada: usa el slider 1-10 y los
+   campos clínicos de texto libre, porque es la única que alimenta la
+   columna `intensidad` del CSV con granularidad real.
    ============================================================ */
 
 interface EventSheetProps {
@@ -68,6 +81,11 @@ interface EventSheetProps {
   returnFocusTo?: React.RefObject<HTMLElement>;
 }
 
+/** Estado inicial de los selects: la primera opción, que siempre es la neutra. */
+function initialSelects(selects: CategorySelect[]): Record<string, string> {
+  return Object.fromEntries(selects.map((sel) => [sel.key, sel.options[0]]));
+}
+
 export function EventSheet({
   category,
   subjectId,
@@ -78,28 +96,59 @@ export function EventSheet({
   returnFocusTo,
 }: EventSheetProps) {
   const cat = CATEGORY_BY_ID[category];
-  const hasIntensity = category !== 'sensorial';
+  const form = CATEGORY_FORM[category];
+  const usesScale = form.scaleLegend !== null;
   // Danger solo en desregulación, donde el rojo ya es el código del módulo.
   const quickVariant = category === 'desregulacion' ? 'danger' : 'primary';
 
-  const [intensity, setIntensity] = useState(hasIntensity ? 5 : 1);
+  const [scale, setScale] = useState<string>(form.scale[0]?.value ?? '');
+  const [intensity, setIntensity] = useState(5);
   const [time, setTime] = useState(() => toHhMm(new Date().toISOString()));
+  const [selects, setSelects] = useState(() => initialSelects(form.selects));
   const [trigger, setTrigger] = useState('');
   const [strategy, setStrategy] = useState('');
   const [outcome, setOutcome] = useState<StrategyOutcome | null>(null);
+  const [notes, setNotes] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
 
+  function clean(value: string | undefined | null): string | null {
+    const v = (value ?? '').trim();
+    // "Ninguno" es la opción neutra del select: equivale a no registrar apoyo.
+    return v === '' || v === 'Ninguno' ? null : v;
+  }
+
+  /**
+   * Traduce el formulario al contrato.
+   *
+   * `quick` descarta todo el detalle opcional, pero conserva la escala:
+   * es la respuesta que la persona ya dio arriba, no un campo del detalle.
+   */
   function build(quick: boolean): DysregulationEvent {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayIso();
+    const intensityValue = usesScale ? (form.scaleIntensity[scale] ?? 5) : intensity;
+
+    const sensoryResponse = quick ? null : clean(selects.sensory_response);
+
     return {
       subject_id: subjectId,
       occurred_at: quick ? new Date().toISOString() : toIsoAt(today, time),
       event_type: cat.eventType,
-      intensity_band: intensityBand(intensity),
-      intensity_value: intensity,
-      trigger: quick ? null : trigger.trim() || null,
-      strategy_applied: quick ? null : strategy.trim() || null,
-      strategy_outcome: quick ? null : outcome,
+      intensity_band: intensityBand(intensityValue),
+      intensity_value: intensityValue,
+      qualitative_outcome: usesScale ? scale : null,
+      trigger: quick ? null : clean(trigger),
+      // Transición registra el apoyo por select; desregulación por texto libre.
+      strategy_applied: quick
+        ? null
+        : clean(selects.support_used) ?? clean(strategy),
+      // Dieta sensorial reusa `resultado_estrategia` para "¿cómo respondió?".
+      strategy_outcome: sensoryResponse
+        ? SENSORY_RESPONSE_TO_OUTCOME[sensoryResponse] ?? null
+        : quick
+          ? null
+          : outcome,
+      sensory_activity: quick ? null : clean(selects.sensory_activity),
+      notes: quick ? null : clean(notes),
       quick_capture: quick,
     };
   }
@@ -115,26 +164,32 @@ export function EventSheet({
       onClose={onClose}
       returnFocusTo={returnFocusTo}
     >
-      {hasIntensity && (
-        <div className="bl-card" style={{ boxShadow: 'var(--bl-sh-xs)', border: '1px solid var(--bl-border)' }}>
+      {/* 1 · El dato que define el registro: escala corta o slider clínico. */}
+      {usesScale ? (
+        <OptionGroup
+          legend={form.scaleLegend!}
+          choices={form.scale}
+          value={scale}
+          onChange={setScale}
+          layout="row"
+          boxed={false}
+        />
+      ) : (
+        <div
+          className="bl-card"
+          style={{ boxShadow: 'var(--bl-sh-xs)', border: '1px solid var(--bl-border)' }}
+        >
           <IntensitySlider value={intensity} onChange={setIntensity} />
         </div>
       )}
 
-      {/* Ruta rápida: siempre visible, arriba del detalle clínico. */}
-      <div
-        className="bl-quick"
-        style={{ marginTop: hasIntensity ? 'var(--bl-sp-4)' : 0 }}
-      >
+      {/* 2 · Ruta rápida: siempre visible, arriba del detalle. */}
+      <div className="bl-quick" style={{ marginTop: 'var(--bl-sp-4)' }}>
         <div className="bl-quick__text">
           <b>
             <span aria-hidden="true">⚡</span> Registro rápido
           </b>
-          <span>
-            {hasIntensity
-              ? 'Guarda la intensidad con la hora actual'
-              : 'Guarda el apoyo con la hora actual'}
-          </span>
+          <span>{form.quickHint}</span>
         </div>
         <button
           className={`bl-btn bl-btn--${quickVariant}`}
@@ -146,41 +201,64 @@ export function EventSheet({
         </button>
       </div>
 
-      {/* Detalle clínico: abajo y explícitamente opcional. */}
+      {/* 3 · Detalle: abajo y explícitamente opcional. */}
       <button
         className="bl-sheet__optional"
         style={{ background: 'none', border: 0, width: '100%', cursor: 'pointer' }}
         aria-expanded={detailsOpen}
         onClick={() => setDetailsOpen((v) => !v)}
       >
-        ¿Deseas agregar más detalles clínicos? (opcional)
+        {form.detailsLabel}
       </button>
 
       {detailsOpen && (
         <div className="bl-group">
           <Field label="Hora del evento" type="time" value={time} centered onChange={setTime} />
-          <Field
-            label="Disparadores / Desencadenantes"
-            value={trigger}
-            placeholder="Ej: Ruidos, Frustración, Cambio de actividad"
-            help="Separa varios con comas."
-            onChange={setTrigger}
-          />
-          <Field
-            label="Estrategia aplicada / Acciones de apoyo"
-            value={strategy}
-            placeholder="Ej: Espacio seguro, Presión profunda, Pictos"
-            onChange={setStrategy}
-          />
-          <div style={{ marginTop: 'var(--bl-sp-4)' }}>
-            <OptionGroup
-              legend="¿Cómo resultó la estrategia?"
-              choices={STRATEGY_OUTCOME_CHOICES}
-              value={outcome}
-              onChange={setOutcome}
-              boxed={false}
+
+          {form.selects.map((sel) => (
+            <Select
+              key={sel.key}
+              label={sel.label}
+              options={sel.options}
+              value={selects[sel.key] ?? sel.options[0]}
+              onChange={(value) => setSelects((prev) => ({ ...prev, [sel.key]: value }))}
             />
-          </div>
+          ))}
+
+          {category === 'desregulacion' && (
+            <>
+              <Field
+                label="Disparadores / Desencadenantes"
+                value={trigger}
+                placeholder="Ej: Ruidos, Frustración, Cambio de actividad"
+                help="Separa varios con comas."
+                onChange={setTrigger}
+              />
+              <Field
+                label="Estrategia aplicada / Acciones de apoyo"
+                value={strategy}
+                placeholder="Ej: Espacio seguro, Presión profunda, Pictos"
+                onChange={setStrategy}
+              />
+              <div style={{ margin: 'var(--bl-sp-4) 0' }}>
+                <OptionGroup
+                  legend="¿Cómo resultó la estrategia?"
+                  choices={STRATEGY_OUTCOME_CHOICES}
+                  value={outcome}
+                  onChange={setOutcome}
+                  boxed={false}
+                />
+              </div>
+            </>
+          )}
+
+          <TextArea
+            label="Observaciones / Notas adicionales"
+            value={notes}
+            placeholder="Cualquier otra observación relevante…"
+            onChange={setNotes}
+          />
+
           <button
             className="bl-btn bl-btn--primary bl-btn--block"
             style={{ marginTop: 'var(--bl-sp-4)' }}
@@ -188,7 +266,7 @@ export function EventSheet({
             onClick={() => onSave(build(false))}
           >
             {saving ? <span className="bl-spinner" aria-hidden="true" /> : null}
-            {saving ? 'Guardando…' : `Guardar ${cat.name.toLowerCase()}`}
+            {saving ? 'Guardando…' : 'Guardar registro'}
           </button>
         </div>
       )}

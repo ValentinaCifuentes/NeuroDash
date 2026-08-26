@@ -30,6 +30,15 @@ export interface DailyRecord {
   date: string;                       // fecha ISO           → "2026-08-26"
   sleep_quality: SleepQuality | null;         // calidad_sueno
   wake_mode: WakeMode | null;                 // modo_despertar
+  /**
+   * autonomia_inicio_dia.
+   *
+   * Extensión al CSV de BLUBA: la columna no existe en
+   * `4_seguimiento_diario_tutor.csv`. Se captura en la mañana, así que sí
+   * es utilizable como feature del mismo día (a diferencia de
+   * `day_regulation_level`).
+   */
+  start_autonomy: StartAutonomy | null;
   medication_adherence: MedicationAdherence | null; // adherencia_medicacion
   gi_status: GiStatus | null;                 // estado_gastrointestinal
   /**
@@ -54,6 +63,19 @@ export interface DysregulationEvent {
   trigger: string | null;             // detonante_gatillante
   strategy_applied: string | null;    // estrategia_calma_aplicada
   strategy_outcome: StrategyOutcome | null; // resultado_estrategia
+  /**
+   * Escala cualitativa propia de la categoría, tal como la eligió el tutor
+   * ("Adecuada", "Con ayuda", "Parcial"…). Se guarda además de
+   * `intensity_band` porque la banda es una traducción nuestra: el motor
+   * debe poder auditar qué vio realmente la persona.
+   *
+   * `null` en desregulación, donde el dato primario es el slider 1-10.
+   */
+  qualitative_outcome: string | null;
+  /** Solo Dieta Sensorial: actividad_realizada. Sin columna en el CSV. */
+  sensory_activity: string | null;
+  /** Observaciones libres del tutor. Nunca alimenta features. */
+  notes: string | null;
   /** true cuando se guardó por la ruta rápida, sin detalle clínico */
   quick_capture: boolean;
 }
@@ -69,6 +91,11 @@ export type WakeMode =
   | 'Tranquilo/Alegre'
   | 'Cansado/Con Sueño'
   | 'Irritable/Llorando';
+
+export type StartAutonomy =
+  | 'Por sí solo'
+  | 'Con alarma'
+  | 'Con insistencia';
 
 export type MedicationAdherence = 'Sí' | 'No' | 'No Aplica';
 

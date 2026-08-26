@@ -14,6 +14,7 @@ import type {
   IntensityBand,
   LogCategory,
   SleepQuality,
+  StartAutonomy,
   StrategyOutcome,
   EventType,
   WakeMode,
@@ -60,6 +61,13 @@ export const WAKE_CHOICES: Choice<WakeMode>[] = [
   { value: 'Tranquilo/Alegre', label: 'Tranquilo / Alegre', icon: '🙂' },
   { value: 'Cansado/Con Sueño', label: 'Cansado / Con sueño', icon: '🥱' },
   { value: 'Irritable/Llorando', label: 'Irritable / Llorando', icon: '😢' },
+];
+
+/* --- Inicio del día (autonomia_inicio_dia) --- */
+export const START_AUTONOMY_CHOICES: Choice<StartAutonomy>[] = [
+  { value: 'Por sí solo', label: 'Por sí solo', icon: '🚶' },
+  { value: 'Con alarma', label: 'Con alarma', icon: '⏰' },
+  { value: 'Con insistencia', label: 'Con insistencia', icon: '🤝' },
 ];
 
 /* --- Digestión (estado_gastrointestinal) --- */
@@ -139,6 +147,134 @@ export const CATEGORY_BY_ID = Object.fromEntries(
   CATEGORIES.map((c) => [c.id, c]),
 ) as Record<LogCategory, CategoryDef>;
 
+/* ============================================================
+   Formularios por categoría
+   ============================================================
+
+   Cada categoría pregunta lo suyo. Desregulación es la única que necesita
+   granularidad 1-10 (es la variable clínica del CSV); las demás se
+   registran con una escala cualitativa de tres pasos, que es lo que el
+   tutor puede responder de memoria a mitad del día.
+
+   La escala cualitativa igual produce `intensity_band`, para no romper el
+   contrato con `5_eventos_desregulacion_tutor.csv`. Ahí la banda no
+   significa "intensidad de crisis" sino "dificultad del registro"; el
+   literal que eligió la persona viaja aparte en `qualitative_outcome`.
+   ============================================================ */
+
+/** Campo select propio de una categoría. `key` decide a qué campo del evento va. */
+export interface CategorySelect {
+  key: 'support_used' | 'sensory_activity' | 'sensory_response';
+  label: string;
+  options: string[];
+}
+
+export interface CategoryForm {
+  /** `null` → la categoría usa el slider 1-10 en vez de escala cualitativa. */
+  scaleLegend: string | null;
+  scale: Choice<string>[];
+  /** Equivalente 1-10 de cada opción, para derivar `intensity_band`. */
+  scaleIntensity: Record<string, number>;
+  /** Texto bajo "Registro rápido". */
+  quickHint: string;
+  selects: CategorySelect[];
+  /** Etiqueta del disclosure de detalle. */
+  detailsLabel: string;
+}
+
+/** "¿Cómo respondió?" reusa `resultado_estrategia` con lenguaje sensorial. */
+const SENSORY_RESPONSE_OPTIONS = ['Muy bien', 'Con altibajos', 'No le acomodó'];
+
+export const SENSORY_RESPONSE_TO_OUTCOME: Record<string, StrategyOutcome> = {
+  'Muy bien': 'Regulación Exitosa',
+  'Con altibajos': 'Regulación Parcial',
+  'No le acomodó': 'Sin Regulación',
+};
+
+export const CATEGORY_FORM: Record<LogCategory, CategoryForm> = {
+  alimentacion: {
+    scaleLegend: '¿Cómo fue la alimentación hoy?',
+    scale: [
+      { value: 'Adecuada', label: 'Adecuada', dot: 'success' },
+      { value: 'Regular', label: 'Regular', dot: 'warning' },
+      { value: 'Dificultosa', label: 'Dificultosa', dot: 'danger' },
+    ],
+    scaleIntensity: { Adecuada: 2, Regular: 5, Dificultosa: 8 },
+    quickHint: 'Registra alimentación con la hora actual',
+    selects: [],
+    detailsLabel: '¿Deseas agregar más detalles? (opcional)',
+  },
+
+  desregulacion: {
+    // Única categoría con slider: la intensidad es el dato clínico del CSV.
+    scaleLegend: null,
+    scale: [],
+    scaleIntensity: {},
+    quickHint: 'Guarda la intensidad con la hora actual',
+    selects: [],
+    detailsLabel: '¿Deseas agregar más detalles clínicos? (opcional)',
+  },
+
+  transicion: {
+    scaleLegend: '¿Cómo resultó la transición?',
+    scale: [
+      { value: 'Fácil', label: 'Fácil', dot: 'success' },
+      { value: 'Con ayuda', label: 'Con ayuda', dot: 'warning' },
+      { value: 'Difícil', label: 'Difícil', dot: 'danger' },
+    ],
+    scaleIntensity: { 'Fácil': 2, 'Con ayuda': 5, 'Difícil': 8 },
+    quickHint: 'Registra transición con la hora actual',
+    selects: [
+      {
+        key: 'support_used',
+        label: 'Apoyo utilizado',
+        options: [
+          'Ninguno',
+          'Anticipación verbal',
+          'Apoyo visual / pictogramas',
+          'Objeto de transición',
+          'Acompañamiento físico',
+          'Tiempo extra',
+        ],
+      },
+    ],
+    detailsLabel: '¿Deseas agregar más detalles? (opcional)',
+  },
+
+  sensorial: {
+    scaleLegend: '¿Se realizó la dieta sensorial?',
+    scale: [
+      { value: 'Completa', label: 'Completa', dot: 'success' },
+      { value: 'Parcial', label: 'Parcial', dot: 'warning' },
+      { value: 'No realizada', label: 'No realizada', dot: 'danger' },
+    ],
+    scaleIntensity: { Completa: 2, Parcial: 5, 'No realizada': 8 },
+    quickHint: 'Registra dieta sensorial con la hora actual',
+    selects: [
+      {
+        key: 'sensory_activity',
+        label: 'Actividad realizada',
+        options: [
+          'Columpio',
+          'Presión profunda',
+          'Cepillado',
+          'Chaleco o peso',
+          'Balanceo',
+          'Masticables',
+          'Música o audífonos',
+          'Otra',
+        ],
+      },
+      {
+        key: 'sensory_response',
+        label: '¿Cómo respondió?',
+        options: SENSORY_RESPONSE_OPTIONS,
+      },
+    ],
+    detailsLabel: '¿Deseas agregar más detalles? (opcional)',
+  },
+};
+
 /* --- Intensidad: el slider entrega 1..10, el CSV guarda la banda --- */
 export function intensityBand(value: number): IntensityBand {
   if (value <= 3) return 'Leve (1-3)';
@@ -202,12 +338,31 @@ export function formatDate(iso: string): string {
   });
 }
 
-/** "14:30" → ISO del día indicado. */
+/**
+ * Fecha de hoy en zona local, como "2026-08-26".
+ *
+ * `new Date().toISOString().slice(0,10)` daría la fecha UTC, que en Chile
+ * (UTC-4) es la de mañana a partir de las 20:00. El día del registro es
+ * el día del tutor, no el de Greenwich.
+ */
+export function todayIso(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
+}
+
+/**
+ * "14:30" → ISO del día indicado, interpretado en hora local.
+ *
+ * Se construye desde las partes Y-M-D en vez de `new Date(dateIso)`: esa
+ * forma parsea "2026-08-26" como medianoche UTC, así que en Chile el
+ * evento caía el día anterior y desaparecía del historial de hoy.
+ */
 export function toIsoAt(dateIso: string, hhmm: string): string {
-  const [h, m] = hhmm.split(':').map(Number);
-  const d = new Date(dateIso);
-  d.setHours(h ?? 0, m ?? 0, 0, 0);
-  return d.toISOString();
+  const [y, mo, d] = dateIso.slice(0, 10).split('-').map(Number);
+  const [h, mi] = hhmm.split(':').map(Number);
+  return new Date(y ?? 1970, (mo ?? 1) - 1, d ?? 1, h ?? 0, mi ?? 0, 0, 0).toISOString();
 }
 
 /** ISO → "14:30" para `<input type="time">`. */
