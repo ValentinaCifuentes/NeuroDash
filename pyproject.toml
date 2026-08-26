@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools==75.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neuradash"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.12",
+    "pydantic==2.10.6",
+    "joblib==1.4.2",
+    "pandas==2.2.3",
+    "scikit-learn==1.6.1",
+    "PyYAML==6.0.2",
+    "tzdata==2025.2",
+]
+
+[tool.neuradash.timezone]
+policy = "Use stdlib zoneinfo; tzdata supplies portable IANA timezone data when the host lacks it."
+
+[project.optional-dependencies]
+dev = ["pytest==8.3.5", "httpx==0.28.1"]
+
+[tool.setuptools]
+packages = ["engine", "backend", "backend.app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
