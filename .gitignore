@@ -1,0 +1,25 @@
+# --- Node / frontend ---
+node_modules/
+dist/
+
+# --- Python / backend ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# --- Entorno ---
+.env
+.env.local
+
+# --- Artefactos ML generados (se regeneran con scripts/) ---
+# models/ se versiona a propósito: son los artefactos de la demo.
+*.joblib.tmp
+
+# --- Caches de build ---
+.vite/
+*.tsbuildinfo
