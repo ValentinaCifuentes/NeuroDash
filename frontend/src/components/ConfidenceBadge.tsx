@@ -1,5 +1,6 @@
 import React from "react";
 import { ConfidenceLevel } from "../types";
+import { translateDisplayText } from "../displayText";
 
 interface ConfidenceBadgeProps {
   level: ConfidenceLevel;
@@ -22,7 +23,7 @@ export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({ level }) => {
 
   return (
     <span className={`bl-badge ${getBadgeClass(level)}`} data-testid="confidence-badge">
-      Confidence: {level}
+      Confianza: {translateDisplayText(level)}
     </span>
   );
 };

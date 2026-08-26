@@ -20,9 +20,9 @@ export const DemoProfileSwitcher: React.FC<DemoProfileSwitcherProps> = ({
 
   return (
     <div className="bl-card" data-testid="demo-profile-switcher">
-      <div className="bl-eyebrow">Onboarding & Profile Selection</div>
+      <div className="bl-eyebrow">Registro y seleccion de perfil</div>
       <h3 className="bl-card__title" style={{ fontSize: "18px", marginTop: "4px", marginBottom: "12px" }}>
-        Select or Enter Profile
+        Selecciona o ingresa un perfil
       </h3>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", marginBottom: "16px" }}>
@@ -42,13 +42,13 @@ export const DemoProfileSwitcher: React.FC<DemoProfileSwitcherProps> = ({
       <form onSubmit={handleCustomSubmit} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         <div className="bl-field" style={{ margin: 0 }}>
           <label htmlFor="custom-subject-input" className="bl-label">
-            Enter Custom Subject ID
+            Ingresa un ID de sujeto personalizado
           </label>
           <input
             id="custom-subject-input"
             type="text"
             className="bl-input"
-            placeholder="e.g. sub_12345"
+            placeholder="ej. sub_12345"
             value={customId}
             onChange={(e) => setCustomId(e.target.value)}
           />
@@ -59,7 +59,7 @@ export const DemoProfileSwitcher: React.FC<DemoProfileSwitcherProps> = ({
           disabled={!customId.trim()}
           style={{ minHeight: "var(--bl-tap)" }}
         >
-          Access Custom Subject
+          Acceder al sujeto personalizado
         </button>
       </form>
     </div>

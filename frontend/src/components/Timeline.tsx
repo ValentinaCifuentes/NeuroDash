@@ -1,5 +1,6 @@
 import React from "react";
 import { TimelineRecord } from "../api";
+import { translateDisplayText } from "../displayText";
 
 interface TimelineProps {
   records: TimelineRecord[];
@@ -9,7 +10,7 @@ export const Timeline: React.FC<TimelineProps> = ({ records }) => {
   const formatTime = (isoString: string) => {
     try {
       const dt = new Date(isoString);
-      return dt.toLocaleString(undefined, {
+      return dt.toLocaleString("es", {
         month: "short",
         day: "numeric",
         hour: "2-digit",
@@ -25,24 +26,24 @@ export const Timeline: React.FC<TimelineProps> = ({ records }) => {
     const type = recordType.toUpperCase();
     switch (type) {
       case "SENSORY":
-        return `Sensory Log: ${rec.value} dB ambient level`;
+        return `Registro sensorial: ${rec.value} dB de nivel ambiental`;
       case "SLEEP":
-        return `Sleep Log: ${rec.value} hours duration`;
+        return `Registro de sueno: ${rec.value} horas de duracion`;
       case "OCCURRENCE":
-        return `Occurrence: ${rec.severity || "Reported behavior event"}`;
+        return `Ocurrencia: ${translateDisplayText(rec.severity || "evento conductual reportado")}`;
       case "DAILY":
-        return `Daily Log: Sleep Quality ${rec.sleep_quality ?? "N/A"}, Wake State ${rec.wake_state ?? "N/A"}, Events: ${rec.event_count ?? "N/A"}`;
+        return `Registro diario: calidad del sueno ${rec.sleep_quality ?? "N/D"}, estado al despertar ${rec.wake_state ?? "N/D"}, eventos: ${rec.event_count ?? "N/D"}`;
       default:
-        return `${recordType.charAt(0).toUpperCase() + recordType.slice(1)}: ${JSON.stringify(rec.value || rec)}`;
+        return `${translateDisplayText(recordType)}: ${JSON.stringify(rec.value || rec)}`;
     }
   };
 
   if (!records || records.length === 0) {
     return (
       <div className="bl-card" data-testid="timeline">
-        <div className="bl-eyebrow">Subject Timeline</div>
+        <div className="bl-eyebrow">Linea de tiempo del sujeto</div>
         <p style={{ fontSize: "14px", color: "var(--bl-text-muted)", margin: "8px 0 0" }}>
-          No records found for the requested period.
+          No se encontraron registros para el periodo solicitado.
         </p>
       </div>
     );
@@ -50,9 +51,9 @@ export const Timeline: React.FC<TimelineProps> = ({ records }) => {
 
   return (
     <div className="bl-card" data-testid="timeline">
-      <div className="bl-eyebrow">Subject Timeline</div>
+      <div className="bl-eyebrow">Linea de tiempo del sujeto</div>
       <h3 className="bl-card__title" style={{ fontSize: "18px", marginTop: "4px", marginBottom: "12px" }}>
-        Recent Logs
+        Registros recientes
       </h3>
       
       <div className="timeline">

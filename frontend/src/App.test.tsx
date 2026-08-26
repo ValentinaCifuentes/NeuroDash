@@ -16,13 +16,13 @@ describe("Caregiver Experience (App.tsx)", () => {
     render(<App />);
 
     // Caregivers should be asked to select or enter a subject profile first
-    expect(screen.getByText(/Select or Enter Profile/i)).toBeDefined();
+    expect(screen.getByText(/Selecciona o ingresa un perfil/i)).toBeDefined();
     expect(screen.getByRole("button", { name: /PAC-A/i })).toBeDefined();
     expect(screen.getByRole("button", { name: /PAC-B/i })).toBeDefined();
     expect(screen.getByRole("button", { name: /PAC-C/i })).toBeDefined();
     
     // Custom ID input field should be present
-    expect(screen.getByLabelText(/Enter Custom Subject ID/i)).toBeDefined();
+    expect(screen.getByLabelText(/Ingresa un ID de sujeto personalizado/i)).toBeDefined();
   });
 
   it("renders safe results separately labeling risk and confidence, factors, provenance, and supports", async () => {
@@ -85,27 +85,27 @@ describe("Caregiver Experience (App.tsx)", () => {
 
     // Wait for the risk dashboard to load
     await waitFor(() => {
-      expect(screen.getByText(/Risk Level/i)).toBeDefined();
+      expect(screen.getByText(/Nivel de riesgo/i)).toBeDefined();
     });
 
     // Check risk level is separately labeled and visible
-    expect(screen.getByText(/ELEVATED/i)).toBeDefined();
+    expect(screen.getByText(/ELEVADO/i)).toBeDefined();
 
     // Check confidence is separately badge-labeled
-    expect(screen.getByText(/Confidence: HIGH/i)).toBeDefined();
+    expect(screen.getByText(/Confianza: ALTO/i)).toBeDefined();
 
     // Check non-causal factors are shown
-    expect(screen.getByText(/Sleep duration change/i)).toBeDefined();
-    expect(screen.getByText(/Shorter sleep duration observed/i)).toBeDefined();
+    expect(screen.getByText(/Cambio en la duracion del sueno/i)).toBeDefined();
+    expect(screen.getByText(/tres dias previos/i)).toBeDefined();
 
     // Check supports are shown
-    expect(screen.getByText(/Visual Schedule/i)).toBeDefined();
+    expect(screen.getByText(/Horario visual/i)).toBeDefined();
 
     // Check data provenance details are shown
-    expect(screen.getByText(/Records Evaluated:/i)).toBeDefined();
+    expect(screen.getByText(/Registros evaluados:/i)).toBeDefined();
     expect(screen.getByText("25")).toBeDefined();
-    expect(screen.getByText(/Baseline Window:/i)).toBeDefined();
-    expect(screen.getByText(/14 days/i)).toBeDefined();
+    expect(screen.getByText(/Ventana base:/i)).toBeDefined();
+    expect(screen.getByText(/catorce dias/i)).toBeDefined();
   });
 
   it("guarantees model_score, algorithms, clinical diagnoses, and causal claims are absent from UI", async () => {
@@ -149,7 +149,7 @@ describe("Caregiver Experience (App.tsx)", () => {
     fireEvent.click(pacBButton);
 
     await waitFor(() => {
-      expect(screen.getByText("STANDARD")).toBeDefined();
+      expect(screen.getByText("ESTANDAR")).toBeDefined();
     });
 
     // Check that technical model score is NOT exposed to caregiver
@@ -209,15 +209,15 @@ describe("Caregiver Experience (App.tsx)", () => {
     fireEvent.click(pacCButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Prediction Abstained/i)).toBeDefined();
+      expect(screen.getByText(/Prediccion omitida/i)).toBeDefined();
     });
 
     // Check for informative, accessible warning about missing data
-    expect(screen.getByText(/Prediction Abstained/i)).toBeDefined();
-    expect(screen.getByText(/Missing sleep data/i)).toBeDefined();
+    expect(screen.getByText(/Prediccion omitida/i)).toBeDefined();
+    expect(screen.getByText(/Faltan datos de sueno/i)).toBeDefined();
     
     // Check that it renders an instruction or priority request to provide the missing data
-    expect(screen.getByText(/Please provide additional/i)).toBeDefined();
+    expect(screen.getByText(/Proporciona registros diarios adicionales/i)).toBeDefined();
   });
 
   it("satisfies accessibility: has clear landmarks, labels, and role semantics", async () => {
@@ -227,7 +227,7 @@ describe("Caregiver Experience (App.tsx)", () => {
     expect(screen.getByRole("main")).toBeDefined();
     
     // Check that inputs have accessible descriptions
-    const input = screen.getByLabelText(/Enter Custom Subject ID/i);
+    const input = screen.getByLabelText(/Ingresa un ID de sujeto personalizado/i);
     expect(input.id).toBeTruthy();
   });
 });

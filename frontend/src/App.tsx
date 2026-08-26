@@ -15,12 +15,12 @@ export const App: React.FC = () => {
 
   return (
     <div className="device" role="main">
-      {/* App Header */}
+      {/* Encabezado de la app */}
       <header className="bl-appbar">
         <div className="bl-appbar__brand">
           NeuraDash
           <span style={{ fontSize: "12px", fontWeight: "normal", marginLeft: "8px", opacity: 0.8 }}>
-            Core Care
+            Cuidado central
           </span>
         </div>
         {currentSubjectId && (
@@ -38,23 +38,23 @@ export const App: React.FC = () => {
               fontWeight: "bold",
               minHeight: "var(--bl-tap)"
             }}
-            aria-label="Exit profile"
+            aria-label="Salir del perfil"
           >
-            Exit
+            Salir
           </button>
         )}
       </header>
 
-      {/* Main View Area */}
+      {/* Area principal */}
       <div className="device-body">
         {currentSubjectId === null ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div className="bl-card" style={{ textAlign: "center" }}>
               <h2 style={{ fontSize: "20px", fontWeight: "var(--bl-fw-extrabold)", margin: "0 0 8px" }}>
-                Welcome to NeuraDash
+                Bienvenido a NeuraDash
               </h2>
               <p style={{ fontSize: "14px", color: "var(--bl-text-body)", margin: 0 }}>
-                Select a demo profile or enter a custom subject identifier to view risk and confidence details.
+                Selecciona un perfil de demostracion o ingresa un identificador de sujeto personalizado para ver detalles de riesgo y confianza.
               </p>
             </div>
             <DemoProfileSwitcher
