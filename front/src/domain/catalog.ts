@@ -10,10 +10,15 @@
  */
 
 import type {
+  AlertLevel,
+  Attendance,
+  ConsultationReason,
   GiStatus,
   IntensityBand,
   LogCategory,
   SleepQuality,
+  SessionModality,
+  SessionStatus,
   StartAutonomy,
   StrategyOutcome,
   EventType,
@@ -295,6 +300,88 @@ export function intensitySemantic(value: number): Semantic {
   return 'danger';
 }
 
+/* ============================================================
+   Seguimiento · mapa de calor y resumen diario
+   ============================================================ */
+
+/** Icono de sueño reusado en el calendario y su leyenda. */
+export const SLEEP_ICON: Record<SleepQuality, string> = {
+  'Reparador': '😌',
+  'Interrumpido': '😐',
+  'Dificultad de Conciliación': '😫',
+};
+
+/** Escala del mapa de calor. El índice es el bucket de `DaySummary.heat`. */
+export const HEAT_STEPS = [
+  { label: '0', bg: 'var(--bl-surface)', border: 'var(--bl-border)', text: 'Sin eventos' },
+  { label: '1-2', bg: 'var(--bl-primary-100)', border: 'var(--bl-primary-200)', text: '1 a 2 eventos' },
+  { label: '3-4', bg: 'var(--bl-primary-300)', border: 'var(--bl-primary-400)', text: '3 a 4 eventos' },
+  { label: '5+', bg: 'var(--bl-primary-600)', border: 'var(--bl-primary-700)', text: '5 o más eventos' },
+];
+
+export const WEEKDAY_SHORT = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
+
+/* ============================================================
+   Sesiones profesionales
+   ============================================================ */
+
+export const PROFESSIONALS = [
+  'Pamela Neira Neira',
+  'Rodrigo Alcaíno Vera',
+  'Camila Espinoza Ruiz',
+  'Equipo BLUBA',
+];
+
+export const CONSULTATION_REASONS: ConsultationReason[] = [
+  'Evaluación',
+  'Control',
+  'Intervención',
+  'Reunión con tutores',
+  'Derivación',
+];
+
+export const SESSION_MODALITIES: SessionModality[] = ['Presencial', 'Telemática'];
+
+export const SESSION_DURATIONS = [30, 45, 60, 90];
+
+export const ATTENDANCE_OPTIONS: Attendance[] = ['Presente', 'Ausente', 'Reprogramada'];
+
+export const SESSION_STATUSES: SessionStatus[] = [
+  'Agendada',
+  'Atendida',
+  'Cancelada',
+  'No asistió',
+];
+
+/**
+ * Nivel de alerta.
+ *
+ * Es el único campo de la sesión que el motor consume
+ * (`professional_alert_recent`, ventana 7d). Por eso lleva escala de color
+ * y no es texto libre: tiene que llegar comparable.
+ */
+export const ALERT_LEVEL_CHOICES: Choice<AlertLevel>[] = [
+  { value: 'Bajo', label: 'Bajo', dot: 'success' },
+  { value: 'Medio', label: 'Medio', dot: 'warning' },
+  { value: 'Alto', label: 'Alto', dot: 'danger' },
+];
+
+export const ALERT_SEMANTIC: Record<AlertLevel, Semantic> = {
+  Bajo: 'success',
+  Medio: 'warning',
+  Alto: 'danger',
+};
+
+export const SESSION_STATUS_SEMANTIC: Record<SessionStatus, Semantic> = {
+  'Agendada': 'info',
+  'Atendida': 'success',
+  'Cancelada': 'neutral',
+  'No asistió': 'danger',
+};
+
+/** Límite de los campos largos, igual que en el formulario de BLUBA. */
+export const NOTES_MAX = 2000;
+
 /* --- Riesgo y confianza (Prediction Contract v2) --- */
 export const RISK_LABEL: Record<string, string> = {
   LOW: 'Riesgo bajo',
@@ -369,4 +456,17 @@ export function toIsoAt(dateIso: string, hhmm: string): string {
 export function toHhMm(iso: string): string {
   const d = new Date(iso);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+/** "2026-08-22" → { weekday: "Sábado", short: "22/08/2026" } */
+export function dayLabel(dateIso: string): { weekday: string; short: string } {
+  const [y, m, d] = dateIso.split('-').map(Number);
+  const date = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+  const weekday = date.toLocaleDateString('es-CL', { weekday: 'long' });
+  return {
+    weekday: weekday.charAt(0).toUpperCase() + weekday.slice(1),
+    // Manual y no `toLocaleDateString`: es-CL resuelve con guiones según
+    // plataforma y el formato del producto es con barras.
+    short: `${String(d ?? 1).padStart(2, '0')}/${String(m ?? 1).padStart(2, '0')}/${y}`,
+  };
 }

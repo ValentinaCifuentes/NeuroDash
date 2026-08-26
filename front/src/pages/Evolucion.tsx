@@ -17,6 +17,8 @@
 
 import { useEffect, useState } from 'react';
 import { getPrediction } from '../api';
+import { Tabs } from '../components/controls';
+import { Seguimiento } from './Seguimiento';
 import {
   CONFIDENCE_LABEL,
   CONFIDENCE_SEMANTIC,
@@ -28,7 +30,10 @@ import {
 } from '../domain/catalog';
 import type { ApiError, Prediction, Subject } from '../types';
 
+type TabId = 'estimacion' | 'seguimiento';
+
 export function Evolucion({ subject, revision }: { subject: Subject; revision: number }) {
+  const [tab, setTab] = useState<TabId>('estimacion');
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -53,18 +58,31 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
       <section className="bl-card">
         <h1 className="bl-card__title">Evolución</h1>
         <p className="bl-card__sub">
-          Estimación para las próximas 24 horas de <strong>{subject.display_name}</strong>
+          Estimación y seguimiento de <strong>{subject.display_name}</strong>
         </p>
       </section>
 
-      {error && (
+      {/* Dos ejes distintos: lo que viene y lo que ya pasó. */}
+      <Tabs
+        label="Vista de evolución"
+        active={tab}
+        onChange={setTab}
+        tabs={[
+          { id: 'estimacion', label: 'Próximas 24 h', icon: '🔭' },
+          { id: 'seguimiento', label: 'Seguimiento', icon: '🗓️' },
+        ]}
+      />
+
+      {tab === 'seguimiento' && <Seguimiento subject={subject} revision={revision} />}
+
+      {tab === 'estimacion' && error && (
         <div className="bl-alert bl-alert--danger" role="alert">
           <span aria-hidden="true">⚠️</span>
           <span>{error.message}</span>
         </div>
       )}
 
-      {!prediction && !error && (
+      {tab === 'estimacion' && !prediction && !error && (
         <section className="bl-card app-stack--tight" aria-busy="true">
           <span className="bl-sr-only">Calculando la estimación</span>
           <div className="bl-skeleton" style={{ width: '45%', height: 22 }} />
@@ -73,7 +91,7 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
         </section>
       )}
 
-      {prediction && (
+      {tab === 'estimacion' && prediction && (
         <>
           {prediction.abstain ? (
             <AbstentionCard prediction={prediction} />

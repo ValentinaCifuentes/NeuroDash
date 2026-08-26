@@ -309,11 +309,23 @@ interface TextAreaProps {
   value: string;
   placeholder?: string;
   rows?: number;
+  /** Muestra contador y corta la entrada. Los campos de sesión usan 2000. */
+  maxLength?: number;
+  help?: string;
   onChange: (value: string) => void;
 }
 
-export function TextArea({ label, value, placeholder, rows = 3, onChange }: TextAreaProps) {
+export function TextArea({
+  label,
+  value,
+  placeholder,
+  rows = 3,
+  maxLength,
+  help,
+  onChange,
+}: TextAreaProps) {
   const id = useId();
+  const helpId = `${id}-help`;
   return (
     <div className="bl-field">
       <label className="bl-label" htmlFor={id}>
@@ -325,8 +337,27 @@ export function TextArea({ label, value, placeholder, rows = 3, onChange }: Text
         rows={rows}
         value={value}
         placeholder={placeholder}
+        maxLength={maxLength}
+        aria-describedby={help ? helpId : undefined}
         onChange={(e) => onChange(e.target.value)}
       />
+      {(help || maxLength) && (
+        <div className="bl-field__foot">
+          {help ? (
+            <p className="bl-help" id={helpId}>
+              {help}
+            </p>
+          ) : (
+            <span />
+          )}
+          {maxLength && (
+            /* aria-live off: el contador cambia en cada tecla y sería ruido. */
+            <span className="bl-counter" aria-hidden="true">
+              {value.length} / {maxLength}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -20,6 +20,7 @@ import type {
   DysregulationEvent,
   Prediction,
   PredictionRequest,
+  ProfessionalSession,
   Subject,
   TimelineEntry,
   TimelineResponse,
@@ -48,6 +49,132 @@ const SUBJECTS: Record<string, Subject> = {
 const dailyRecords: DailyRecord[] = [];
 const events: DysregulationEvent[] = [];
 let seq = 100;
+
+const sessions: ProfessionalSession[] = [];
+
+/* ============================================================
+   Semilla longitudinal de 30 días
+   ============================================================
+
+   Existe para que el mapa de calor y el seguimiento tengan forma en la
+   demo de UI. Es determinista (LCG con semilla fija), así que dos cargas
+   producen el mismo historial y las capturas son reproducibles.
+
+   No representa a ningún niño y no entrena nada: en la demo real el
+   historial sale de `data/demo_profiles/PAC-A/history.csv` y equivalentes.
+   ============================================================ */
+
+function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state * 1664525 + 1013904223) % 4294967296;
+    return state / 4294967296;
+  };
+}
+
+function seedHistory(subjectId: string) {
+  const rand = seededRandom(20260826);
+  const sleepOptions: DailyRecord['sleep_quality'][] = [
+    'Reparador',
+    'Reparador',
+    'Interrumpido',
+    'Dificultad de Conciliación',
+  ];
+  const types = Object.values(CATEGORY_BY_ID);
+
+  // De hace 29 días hasta ayer: hoy lo llena la persona en la demo.
+  for (let back = 29; back >= 1; back--) {
+    const day = new Date();
+    day.setDate(day.getDate() - back);
+    day.setHours(7, 30, 0, 0);
+    const date = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(
+      day.getDate(),
+    ).padStart(2, '0')}`;
+
+    // Un 15% de días sin registro: los huecos son parte de lo que se muestra.
+    if (rand() > 0.15) {
+      const sleep = sleepOptions[Math.floor(rand() * sleepOptions.length)] ?? 'Reparador';
+      dailyRecords.push({
+        record_id: `REG-S${back}`,
+        subject_id: subjectId,
+        date,
+        sleep_quality: sleep,
+        wake_mode: rand() > 0.5 ? 'Tranquilo/Alegre' : 'Cansado/Con Sueño',
+        start_autonomy: rand() > 0.6 ? 'Por sí solo' : 'Con insistencia',
+        medication_adherence: rand() > 0.2 ? 'Sí' : 'No',
+        gi_status: rand() > 0.8 ? 'Estreñimiento' : 'Normal',
+      });
+    }
+
+    // Distribución sesgada a pocos eventos, con algún día cargado.
+    const roll = rand();
+    const count = roll > 0.93 ? 5 : roll > 0.8 ? 3 : roll > 0.45 ? 1 : 0;
+    for (let i = 0; i < count; i++) {
+      const cat = types[Math.floor(rand() * types.length)] ?? types[0]!;
+      const intensity = 1 + Math.floor(rand() * 10);
+      const at = new Date(day);
+      at.setHours(9 + Math.floor(rand() * 10), Math.floor(rand() * 60), 0, 0);
+      events.push({
+        event_id: `EVT-S${back}-${i}`,
+        subject_id: subjectId,
+        occurred_at: at.toISOString(),
+        event_type: cat.eventType,
+        intensity_band: intensity <= 3 ? 'Leve (1-3)' : intensity <= 7 ? 'Moderada (4-7)' : 'Severa (8-10)',
+        intensity_value: intensity,
+        qualitative_outcome: null,
+        trigger: null,
+        strategy_applied: null,
+        strategy_outcome: null,
+        sensory_activity: null,
+        notes: null,
+        quick_capture: true,
+      });
+    }
+  }
+
+  const lastWeek = new Date();
+  lastWeek.setDate(lastWeek.getDate() - 4);
+  lastWeek.setHours(15, 0, 0, 0);
+  sessions.push({
+    session_id: 'SES-001',
+    subject_id: subjectId,
+    occurred_at: lastWeek.toISOString(),
+    professional: 'Pamela Neira Neira',
+    consultation_reason: 'Evaluación',
+    modality: 'Presencial',
+    duration_minutes: 45,
+    attendance: 'Presente',
+    paid: false,
+    status: 'Atendida',
+    alert_level: 'Medio',
+    objectives: 'Objetivos de la sesión: reforzar las vocales y el saludo.',
+    activities: 'Actividades realizadas: juego con vocales y saludar a sus compañeros.',
+    observations: 'Buena disposición durante toda la sesión.',
+    internal_notes: null,
+    visible_to_tutor: true,
+    active: true,
+  });
+}
+
+seedHistory('PAC-002');
+
+export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
+  const list = sessions
+    .filter((s) => s.subject_id === subjectId && s.active)
+    .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at));
+  return delay(list, 300);
+}
+
+export function saveSession(session: ProfessionalSession): Promise<ProfessionalSession> {
+  const stored: ProfessionalSession = {
+    ...session,
+    session_id: session.session_id ?? `SES-${++seq}`,
+  };
+  const i = sessions.findIndex((s) => s.session_id === stored.session_id);
+  if (i >= 0) sessions[i] = stored;
+  else sessions.push(stored);
+  return delay(stored);
+}
 
 export function getSubject(subjectId: string): Promise<Subject> {
   const subject = SUBJECTS[subjectId];

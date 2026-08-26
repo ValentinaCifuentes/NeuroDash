@@ -10,6 +10,7 @@ export type Route =
   | 'ficha'
   | 'bitacora'
   | 'evolucion'
+  | 'sesiones'
   | 'profesionales'
   | 'tickets';
 
@@ -32,7 +33,10 @@ const SECTIONS: { eyebrow: string; icon: string; items: NavDef[] }[] = [
   {
     eyebrow: 'Red',
     icon: '🔗',
-    items: [{ id: 'profesionales', label: 'Buscar Profesionales', icon: '🔍' }],
+    items: [
+      { id: 'sesiones', label: 'Sesiones', icon: '🗂️' },
+      { id: 'profesionales', label: 'Buscar Profesionales', icon: '🔍' },
+    ],
   },
   {
     eyebrow: 'Soporte',

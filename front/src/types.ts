@@ -123,6 +123,58 @@ export type StrategyOutcome =
 /** Categorías del sheet de registro. Resuelven a `EventType`. */
 export type LogCategory = 'alimentacion' | 'desregulacion' | 'transicion' | 'sensorial';
 
+/**
+ * `3_sesiones_profesionales.csv` — sesión del equipo tratante.
+ *
+ * No la escribe el tutor: es la superficie del profesional. Importa al
+ * motor por un campo concreto, `alert_level`, que alimenta la feature
+ * `professional_alert_recent` (Arquitectura §7, ventana 7d). El resto es
+ * contexto y gestión.
+ */
+export interface ProfessionalSession {
+  session_id?: string;                // id_sesion
+  subject_id: string;                 // id_caso
+  occurred_at: string;                // fecha_hora ISO
+  professional: string;               // profesional a cargo
+  consultation_reason: ConsultationReason;
+  modality: SessionModality;
+  duration_minutes: number;
+  attendance: Attendance;
+  /** Gestión administrativa; no viaja al motor. */
+  paid: boolean;
+  status: SessionStatus;
+  /** alertas → única señal clínica de la sesión que el motor consume. */
+  alert_level: AlertLevel;
+  objectives: string | null;
+  activities: string | null;
+  observations: string | null;
+  /**
+   * Comentarios internos del equipo.
+   *
+   * Nunca se muestran al tutor y nunca entran al motor, con independencia
+   * de `visible_to_tutor`.
+   */
+  internal_notes: string | null;
+  visible_to_tutor: boolean;
+  /** Baja lógica: una sesión inactiva no cuenta para features ni listados. */
+  active: boolean;
+}
+
+export type ConsultationReason =
+  | 'Evaluación'
+  | 'Control'
+  | 'Intervención'
+  | 'Reunión con tutores'
+  | 'Derivación';
+
+export type SessionModality = 'Presencial' | 'Telemática';
+
+export type Attendance = 'Presente' | 'Ausente' | 'Reprogramada';
+
+export type SessionStatus = 'Agendada' | 'Atendida' | 'Cancelada' | 'No asistió';
+
+export type AlertLevel = 'Bajo' | 'Medio' | 'Alto';
+
 /* ============================================================
    2. Timeline — GET /api/v1/subjects/{id}/timeline
    ============================================================ */

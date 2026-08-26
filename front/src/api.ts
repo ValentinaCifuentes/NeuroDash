@@ -8,6 +8,9 @@
  *   GET  /api/v1/subjects/{id}/timeline?as_of=...&days=...
  *   POST /api/v1/subjects/{id}/daily-records
  *   POST /api/v1/subjects/{id}/events
+ *   GET  /api/v1/subjects/{id}/sessions
+ *   PUT  /api/v1/subjects/{id}/sessions/{session_id}
+ *   POST /api/v1/subjects/{id}/sessions
  *   POST /api/v1/predictions
  *   POST /api/v1/demo/profiles/{profile_id}/predict
  *
@@ -21,6 +24,7 @@ import type {
   DysregulationEvent,
   Prediction,
   PredictionRequest,
+  ProfessionalSession,
   Subject,
   TimelineResponse,
   ApiError,
@@ -86,6 +90,21 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
     method: 'POST',
     body: JSON.stringify(event),
   });
+}
+
+export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
+  if (USING_MOCK) return mock.getSessions(subjectId);
+  return request<ProfessionalSession[]>(`/api/v1/subjects/${subjectId}/sessions`);
+}
+
+/** Crea o actualiza según traiga `session_id`. */
+export function saveSession(session: ProfessionalSession): Promise<ProfessionalSession> {
+  if (USING_MOCK) return mock.saveSession(session);
+  const base = `/api/v1/subjects/${session.subject_id}/sessions`;
+  return request<ProfessionalSession>(
+    session.session_id ? `${base}/${session.session_id}` : base,
+    { method: session.session_id ? 'PUT' : 'POST', body: JSON.stringify(session) },
+  );
 }
 
 /**

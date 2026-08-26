@@ -14,6 +14,7 @@ import { Fab, Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
 import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
+import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
 import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
@@ -137,6 +138,16 @@ export default function App() {
           />
         )}
         {route === 'evolucion' && <Evolucion subject={subject} revision={revision} />}
+        {route === 'sesiones' && (
+          <Sesiones
+            subject={subject}
+            onSaved={(message) => {
+              setRevision((r) => r + 1);
+              setToast(message);
+            }}
+            onError={setToast}
+          />
+        )}
         {route === 'ficha' && <FichaInicial subject={subject} />}
         {route === 'profesionales' && <BuscarProfesionales />}
         {route === 'tickets' && <MisTickets />}

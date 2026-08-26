@@ -220,6 +220,9 @@ button,input,textarea,select{font-family:inherit}
   color:var(--bl-text-body);line-height:var(--bl-lh-normal);resize:vertical}
 .bl-textarea::placeholder{color:var(--bl-text-muted)}
 .bl-textarea:focus{outline:none;border-color:var(--bl-primary-500);box-shadow:var(--bl-ring)}
+.bl-field__foot{display:flex;align-items:baseline;justify-content:space-between;gap:var(--bl-sp-3)}
+.bl-counter{font-size:var(--bl-fs-xs);color:var(--bl-text-muted);font-variant-numeric:tabular-nums;
+  margin-top:6px;flex:0 0 auto}
 .bl-help{font-size:var(--bl-fs-xs);color:var(--bl-text-muted);margin:6px 0 0}
 .bl-error{font-size:var(--bl-fs-xs);color:var(--bl-danger);margin:6px 0 0;font-weight:var(--bl-fw-medium)}
 
@@ -429,3 +432,58 @@ button,input,textarea,select{font-family:inherit}
 .app-stack{display:flex;flex-direction:column;gap:var(--bl-sp-4)}
 .app-stack--tight{gap:var(--bl-sp-3)}
 .app-center{text-align:center}
+
+/* ============================================================
+   Mapa de calor mensual
+   ============================================================
+   7 columnas fijas. A 375px cada celda queda en ~40px, por eso las
+   celdas no son interactivas: no llegarían a los 44px de área táctil.
+   ============================================================ */
+.app-heat{width:100%;border-collapse:separate;border-spacing:4px;table-layout:fixed;
+  margin:var(--bl-sp-4) 0 0}
+.app-heat th{font-size:10px;letter-spacing:.04em;font-weight:var(--bl-fw-bold);
+  color:var(--bl-primary-600);padding-bottom:var(--bl-sp-1);text-transform:uppercase}
+/* Altura fija: `aspect-ratio` no lo respeta un <td>, quedaría achatado. */
+.app-heat__cell{position:relative;height:40px;border:1px solid var(--bl-border);
+  border-radius:var(--bl-r-sm);background:var(--bl-surface);vertical-align:top;padding:3px}
+.app-heat__cell--outside{background:transparent;border-color:transparent;opacity:.35}
+.app-heat__num{font-size:10px;color:var(--bl-text-muted);font-variant-numeric:tabular-nums;
+  line-height:1}
+/* Sobre el tono más oscuro el gris no contrasta: se invierte a blanco. */
+.app-heat__num--on{color:#fff;font-weight:var(--bl-fw-semibold)}
+.app-heat__sleep{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:11px;
+  line-height:1}
+
+.app-legend{display:flex;flex-wrap:wrap;gap:var(--bl-sp-3) var(--bl-sp-5);
+  margin-top:var(--bl-sp-4);padding-top:var(--bl-sp-4);border-top:1px solid var(--bl-border)}
+.app-legend__group{display:flex;align-items:center;flex-wrap:wrap;gap:var(--bl-sp-2)}
+.app-legend__title{font-size:var(--bl-fs-eyebrow);letter-spacing:var(--bl-ls-eyebrow);
+  text-transform:uppercase;font-weight:var(--bl-fw-bold);color:var(--bl-text-muted)}
+.app-legend__item{display:inline-flex;align-items:center;gap:5px;font-size:var(--bl-fs-xs);
+  color:var(--bl-text-body)}
+.app-legend__swatch{width:14px;height:14px;border-radius:4px;border:1px solid var(--bl-border)}
+
+/* ============================================================
+   Seguimiento diario
+   ============================================================
+   La tabla de 5 columnas del escritorio se apila: fecha arriba, datos
+   como chips debajo. Sin scroll horizontal.
+   ============================================================ */
+.app-track__row{padding:var(--bl-sp-4) 0;border-bottom:1px solid var(--bl-border)}
+.app-track__row:first-child{padding-top:0}
+.app-track__row:last-child{border-bottom:0;padding-bottom:0}
+.app-track__head{display:flex;align-items:flex-start;justify-content:space-between;
+  gap:var(--bl-sp-3)}
+.app-track__day{display:block;color:var(--bl-text);font-size:var(--bl-fs-body);
+  font-weight:var(--bl-fw-bold)}
+.app-track__date{display:block;font-size:var(--bl-fs-xs);color:var(--bl-text-muted);margin-top:2px}
+.app-track__chips{display:flex;flex-wrap:wrap;gap:var(--bl-sp-2);margin-top:var(--bl-sp-3)}
+
+.app-chip{display:inline-flex;align-items:center;gap:5px;background:var(--bl-neutral-chip);
+  color:var(--bl-text-body);border-radius:var(--bl-r-full);padding:5px 11px;
+  font-size:var(--bl-fs-xs);font-weight:var(--bl-fw-medium)}
+.app-chip--muted{color:var(--bl-text-muted)}
+
+/* CTA con acción secundaria: cancelar no compite con guardar. */
+.app-cta--pair{display:flex;align-items:center;gap:var(--bl-sp-3)}
+.app-cta--pair .bl-btn--ghost{flex:0 0 auto;padding-left:var(--bl-sp-4);padding-right:var(--bl-sp-4)}
