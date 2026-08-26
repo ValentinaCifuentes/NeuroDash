@@ -7,6 +7,7 @@ import FactorList from "../components/FactorList";
 import MissingDataCard from "../components/MissingDataCard";
 import SupportCard from "../components/SupportCard";
 import Timeline from "../components/Timeline";
+import { numberToSpanishWords } from "../displayText";
 
 interface SubjectRiskPageProps {
   subjectId: string;
@@ -34,12 +35,12 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
     setRetrainResult(null);
     setOutcomeResult(null);
     try {
-      // 1. Fetch subject profile
+      // 1. Obtener perfil del sujeto
       let fetchedProfile: SubjectProfile;
       try {
         fetchedProfile = await api.getSubject(subjectId);
       } catch (err) {
-        // If not found, attempt to onboard automatically with timezone default
+        // Si no existe, registrarlo automaticamente con zona horaria por defecto.
         const onboardRes = await api.onboardSubject({
           subject_id: subjectId,
           timezone: "UTC",
@@ -54,7 +55,7 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
       }
       setProfile(fetchedProfile);
 
-      // 2. Fetch Prediction Contract
+      // 2. Obtener contrato de prediccion
       let fetchedPrediction: PredictionContractV2;
       if (isDemoProfile) {
         fetchedPrediction = await api.demoPredict(subjectId, { prediction_cutoff: cutoff });
@@ -66,11 +67,11 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
       }
       setPrediction(fetchedPrediction);
 
-      // 3. Fetch Timeline Records
+      // 3. Obtener registros de la linea de tiempo
       const fetchedTimeline = await api.getTimeline(subjectId, cutoff, 7);
       setTimeline(fetchedTimeline);
     } catch (err: any) {
-      setError(err.message || "Failed to load subject prediction dashboard.");
+      setError(err.message || "No se pudo cargar el panel de prediccion del sujeto.");
     } finally {
       setLoading(false);
     }
@@ -87,12 +88,12 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
       const res = await api.demoRetrain(subjectId);
       setRetrainResult(
         res.promoted
-          ? "New profile parameters successfully promoted."
-          : "Retraining completed. Baseline performance remains optimal; active model preserved."
+          ? "Los nuevos parametros del perfil se promovieron correctamente."
+          : "Actualizacion completada. El rendimiento base sigue siendo optimo; se conserva el modelo activo."
       );
       loadData();
     } catch (err: any) {
-      setRetrainResult(`Error during updates: ${err.message}`);
+      setRetrainResult(`Error durante la actualizacion: ${err.message}`);
     } finally {
       setRetraining(false);
     }
@@ -102,39 +103,39 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
     if (!prediction) return;
     setOutcomeResult(null);
     try {
-      // Create temporary prediction ID if not present
+      // Crear un ID temporal de prediccion si no viene presente.
       const predId = prediction.subject_id + "_" + prediction.prediction_cutoff.replace(/[:.-]/g, "_");
       await api.confirmOutcome(predId, { actual_outcome: outcome });
-      setOutcomeResult("Behavioral outcome log updated successfully.");
+      setOutcomeResult("Registro de resultado conductual actualizado correctamente.");
     } catch (err: any) {
-      // Fallback response for mock behavior
-      setOutcomeResult("Behavioral outcome log updated successfully.");
+      // Respuesta alternativa para comportamiento simulado.
+      setOutcomeResult("Registro de resultado conductual actualizado correctamente.");
     }
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      {/* Page Header */}
+      {/* Encabezado de pagina */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <button 
           onClick={onBack} 
           className="bl-btn bl-btn--secondary"
           style={{ minHeight: "var(--bl-tap)", padding: "4px 12px" }}
-          aria-label="Back to selection"
+          aria-label="Volver a la seleccion"
         >
-          &larr; Switch Profile
+          &larr; Cambiar perfil
         </button>
         <span style={{ fontSize: "14px", fontWeight: "var(--bl-fw-bold)", color: "var(--bl-text)" }}>
           ID: {subjectId}
         </span>
       </div>
 
-      {/* Date cutoff editor */}
+      {/* Editor de fecha de corte */}
       <div className="bl-card">
-        <div className="bl-eyebrow">Temporal Reference Point</div>
+        <div className="bl-eyebrow">Punto de referencia temporal</div>
         <div className="bl-field" style={{ margin: "8px 0 0" }}>
           <label htmlFor="cutoff-input" className="bl-label" style={{ fontSize: "12px", color: "var(--bl-text-muted)" }}>
-            Analysis Cutoff Timestamp
+            Fecha y hora de corte del analisis
           </label>
           <input
             id="cutoff-input"
@@ -150,7 +151,7 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
           className="bl-btn bl-btn--primary bl-btn--block" 
           style={{ marginTop: "8px", minHeight: "var(--bl-tap)" }}
         >
-          Update Assessment
+          Actualizar evaluacion
         </button>
       </div>
 
@@ -168,12 +169,12 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
 
       {!loading && !error && prediction && (
         <>
-          {/* Top-level confidence indicator */}
+          {/* Indicador principal de confianza */}
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <ConfidenceBadge level={prediction.confidence} />
           </div>
 
-          {/* Abstained state vs Safe prediction results */}
+          {/* Estado omitido vs resultados seguros de prediccion */}
           {prediction.abstained || prediction.confidence === "INSUFFICIENT" ? (
             <MissingDataCard missingness={prediction.missingness} abstained={prediction.abstained} />
           ) : (
@@ -184,36 +185,36 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
 
               <SupportCard supports={prediction.supports} />
 
-              {/* Data Provenance Card (Safe rendering without model_score/algorithm/causal claims) */}
+              {/* Procedencia de datos sin exponer model_score, algoritmo ni afirmaciones causales. */}
               <div className="bl-card" data-testid="provenance-card">
-                <div className="bl-eyebrow">Data Verification</div>
+                <div className="bl-eyebrow">Verificacion de datos</div>
                 <h3 className="bl-card__title" style={{ fontSize: "16px", marginTop: "4px", marginBottom: "8px" }}>
-                  Provenance & Integrity
+                  Procedencia e integridad
                 </h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", color: "var(--bl-text-body)" }}>
                   <div>
-                    Records Evaluated: <strong>{String(prediction.provenance?.records_evaluated || 0)}</strong>
+                    Registros evaluados: <strong>{String(prediction.provenance?.records_evaluated || 0)}</strong>
                   </div>
                   <div>
-                    Baseline Window: <strong>{String(prediction.provenance?.baseline_window_days || 14)} days</strong>
+                    Ventana base: <strong>{numberToSpanishWords(Number(prediction.provenance?.baseline_window_days || 14))} dias</strong>
                   </div>
                   <div>
-                    Coverage Horizon: <strong>{String(prediction.horizon_hours || 24)} hours</strong>
+                    Horizonte de cobertura: <strong>{String(prediction.horizon_hours || 24)} horas</strong>
                   </div>
                   <div style={{ borderTop: "1px solid var(--bl-border)", paddingTop: "6px", marginTop: "4px", fontSize: "11px", color: "var(--bl-text-muted)" }}>
-                    System Version: {prediction.versions?.engine || "2.0.0"} | Config: {prediction.versions?.model || "active"}
+                    Version del sistema: {prediction.versions?.engine || "2.0.0"} | Configuracion: {prediction.versions?.model || "activa"}
                   </div>
                 </div>
               </div>
             </>
           )}
 
-          {/* Demo Profile Tools */}
+          {/* Herramientas de perfil demo */}
           {isDemoProfile && (
             <div className="bl-card">
-              <div className="bl-eyebrow">Demo Controls</div>
+              <div className="bl-eyebrow">Controles de demostracion</div>
               <h3 className="bl-card__title" style={{ fontSize: "16px", marginTop: "4px", marginBottom: "8px" }}>
-                Simulation Tools
+                Herramientas de simulacion
               </h3>
               
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -223,7 +224,7 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
                   className="bl-btn bl-btn--secondary bl-btn--block"
                   style={{ minHeight: "var(--bl-tap)" }}
                 >
-                  {retraining ? "Updating Profile..." : "Retrain Profile Model"}
+                  {retraining ? "Actualizando perfil..." : "Reentrenar modelo del perfil"}
                 </button>
 
                 {retrainResult && (
@@ -233,21 +234,21 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
                 )}
 
                 <div style={{ borderTop: "1px solid var(--bl-border)", paddingTop: "10px" }}>
-                  <div className="bl-label" style={{ fontSize: "13px" }}>Report Behavioral Outcome:</div>
+                  <div className="bl-label" style={{ fontSize: "13px" }}>Reportar resultado conductual:</div>
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button
                       onClick={() => handleConfirmOutcome(true)}
                       className="bl-btn bl-btn--secondary"
                       style={{ flex: 1, minHeight: "var(--bl-tap)" }}
                     >
-                      Report Event
+                      Reportar evento
                     </button>
                     <button
                       onClick={() => handleConfirmOutcome(false)}
                       className="bl-btn bl-btn--secondary"
                       style={{ flex: 1, minHeight: "var(--bl-tap)" }}
                     >
-                      Report Stable
+                      Reportar estable
                     </button>
                   </div>
                 </div>
@@ -261,7 +262,7 @@ export const SubjectRiskPage: React.FC<SubjectRiskPageProps> = ({ subjectId, onB
             </div>
           )}
 
-          {/* Subject Timeline */}
+          {/* Linea de tiempo del sujeto */}
           <Timeline records={timeline} />
         </>
       )}

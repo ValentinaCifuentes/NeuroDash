@@ -125,15 +125,17 @@ def test_abstention_logic() -> None:
 
 def test_non_causal_factors() -> None:
     # Explanations must not use causal words like "causes", "triggers", "makes", "diagnostic", etc.
-    # Feature contributions from ML model are mapped to user-friendly non-causal descriptions.
+    # Feature contributions from ML model are mapped to user-friendly non-causal Spanish descriptions.
     raw_explanations = [
         {"feature": "sleep_quality_mean_3d", "value": 5.0, "coefficient": -0.8, "contribution": -4.0},
-        {"feature": "wake_state_mean_7d", "value": 8.0, "coefficient": 0.5, "contribution": 4.0}
+        {"feature": "wake_state_mean_7d", "value": 8.0, "coefficient": 0.5, "contribution": 4.0},
+        {"feature": "event_count_mean_3d", "value": 2.0, "coefficient": 0.2, "contribution": 0.4},
+        {"feature": "record_count_2d", "value": 2.0, "coefficient": 0.1, "contribution": 0.2},
     ]
     
     factors = generate_non_causal_factors(raw_explanations)
     
-    assert len(factors) == 2
+    assert len(factors) == 4
     for factor in factors:
         desc = factor["description"]
         # Ensure description is present and not empty
@@ -146,7 +148,25 @@ def test_non_causal_factors() -> None:
             assert word not in desc.lower(), f"Description contains forbidden causal/diagnostic word '{word}': {desc}"
             
         assert "contribution" in factor
-        assert factor["feature"] in ["sleep_quality_mean_3d", "wake_state_mean_7d"]
+        assert "factor_name" in factor
+        assert factor["factor_name"] in [
+            "Calidad Del Sueno En Los Ultimos Tres Dias",
+            "Estado Al Despertar En Los Ultimos Siete Dias",
+            "Conteo De Eventos En Los Ultimos Tres Dias",
+            "Conteo De Registros En Los Ultimos Dos Dias",
+        ]
+        assert factor["feature"] in [
+            "calidad_sueno_promedio_tres_dias",
+            "estado_despertar_promedio_siete_dias",
+            "conteo_eventos_promedio_tres_dias",
+            "conteo_registros_dos_dias",
+        ]
+        assert not any(char.isdigit() for char in factor["factor_name"])
+        assert not any(char.isdigit() for char in factor["feature"])
+        assert "sleep_quality" not in factor["feature"]
+        assert "wake_state" not in factor["feature"]
+        assert "event_count" not in factor["feature"]
+        assert "record_count" not in factor["feature"]
 
 
 def test_evidence_bounded_supports() -> None:

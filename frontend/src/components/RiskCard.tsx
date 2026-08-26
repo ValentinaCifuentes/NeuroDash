@@ -1,4 +1,5 @@
 import React from "react";
+import { translateDisplayText } from "../displayText";
 
 interface RiskCardProps {
   risk: string | null;
@@ -22,14 +23,14 @@ export const RiskCard: React.FC<RiskCardProps> = ({ risk }) => {
 
   return (
     <div className="bl-card" data-testid="risk-card">
-      <div className="bl-eyebrow">Risk Classification</div>
+      <div className="bl-eyebrow">Clasificacion de riesgo</div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "8px" }}>
-        <h3 className="bl-card__title" style={{ margin: 0 }}>Risk Level</h3>
+        <h3 className="bl-card__title" style={{ margin: 0 }}>Nivel de riesgo</h3>
         <span 
           className={`bl-badge ${getRiskColorClass(risk)}`} 
           style={{ fontSize: "16px", padding: "6px 16px" }}
         >
-          {risk || "ABSTAINED"}
+          {translateDisplayText(risk || "ABSTAINED")}
         </span>
       </div>
     </div>
