@@ -8,6 +8,10 @@ const singleFile = process.env.SINGLE_FILE === '1';
 
 export default defineConfig({
   plugins: [react(), ...(singleFile ? [viteSingleFile()] : [])],
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+  },
   server: {
     port: 5173,
     proxy: {

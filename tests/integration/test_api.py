@@ -47,14 +47,14 @@ def test_anonymous_subject_onboarding(client: TestClient) -> None:
     
     bad_resp = client.post("/api/v1/subjects", json=bad_payload)
     assert bad_resp.status_code == 422
-    assert "timezone" in bad_resp.json()["detail"].lower()
+    assert bad_resp.json()["code"] == "http_422"
 
 
 def test_subject_not_found_404(client: TestClient) -> None:
     # Nonexistent subject should return 404
     resp = client.get("/api/v1/subjects/nonexistent_subject")
     assert resp.status_code == 404
-    assert "not found" in resp.json()["detail"].lower()
+    assert resp.json()["code"] == "http_404"
 
     # Prediction for nonexistent subject
     pred_resp = client.post("/api/v1/predictions", json={
@@ -113,13 +113,14 @@ def test_invalid_input_validation_422(client: TestClient) -> None:
         "prediction_cutoff": naive_cutoff
     })
     assert resp.status_code == 422
-    assert "timezone" in resp.json()["detail"].lower()
+    assert resp.json()["code"] == "http_422"
 
     # 2. Missing subject_id in prediction body
     resp_missing = client.post("/api/v1/predictions", json={
         "prediction_cutoff": datetime.now(timezone.utc).isoformat()
     })
     assert resp_missing.status_code == 422
+    assert "input" not in resp_missing.json().get("details", {}).get("request", "")
 
 
 def test_demo_profile_predict_and_retrain(client: TestClient) -> None:

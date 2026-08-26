@@ -1,9 +1,10 @@
 import logging
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Header, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from backend.app.routes import subjects, predictions, demo_profiles
+from backend.app.schemas import ActorContext
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,6 +22,18 @@ app.include_router(predictions.router)
 app.include_router(demo_profiles.router)
 
 
+def get_actor_context(
+    x_actor_id: str | None = Header(default=None),
+    x_actor_role: str | None = Header(default=None),
+) -> ActorContext:
+    if not x_actor_id or not x_actor_role:
+        raise HTTPException(status_code=401, detail="Actor context is required.")
+    try:
+        return ActorContext(actor_id=x_actor_id, role=x_actor_role)
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail="Actor role is not authorized.") from exc
+
+
 @app.get("/health")
 def health_check() -> dict[str, str]:
     return {"status": "ok"}
@@ -32,17 +45,21 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     logger.warning(f"HTTPException on {request.url.path}: {exc.status_code} - {exc.detail}")
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail}
+        content={"code": f"http_{exc.status_code}", "message": str(exc.detail)}
     )
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     logger.warning(f"Validation error on {request.url.path}: {exc.errors()}")
-    # Format error detail neatly
+    details = {
+        str(error["loc"][-1]): error["msg"]
+        for error in exc.errors()
+        if error.get("loc")
+    }
     return JSONResponse(
         status_code=422,
-        content={"detail": str(exc.errors())}
+        content={"code": "validation_error", "message": "Request validation failed.", "details": details}
     )
 
 
@@ -52,5 +69,5 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
     # Sanitize unhandled exceptions to return a clean 500 error page to user
     return JSONResponse(
         status_code=500,
-        content={"detail": "An internal system error occurred. Details have been logged."}
+        content={"code": "internal_error", "message": "An internal system error occurred."}
     )

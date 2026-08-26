@@ -1,3 +1,4 @@
+import re
 import zoneinfo
 from datetime import datetime, timezone, timedelta
 from typing import Any
@@ -7,23 +8,48 @@ from pydantic import BaseModel, Field
 
 from ml.promotion import write_json_atomic
 from backend.app.prediction_service import get_subject_paths, load_subject_data, SubjectNotFoundError
+from backend.app.care_repository import SubjectRepository
 
 router = APIRouter(prefix="/api/v1/subjects", tags=["Subjects"])
+SUBJECTS_ROOT = Path(__file__).resolve().parents[3] / "data" / "subjects"
 
 
 class OnboardSubjectRequest(BaseModel):
-    subject_id: str = Field(..., min_length=1)
+    subject_id: str | None = Field(default=None, min_length=1)
+    display_name: str | None = Field(default=None, min_length=1)
     timezone: str
+    baseline: dict[str, Any] = Field(default_factory=dict)
+    provenance: dict[str, Any] = Field(default_factory=lambda: {"source": "caregiver_onboarding", "synthetic": False})
     sensory_context: dict[str, Any] = Field(default_factory=dict)
     habitual_context: dict[str, Any] = Field(default_factory=dict)
     historical_supports: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class OnboardSubjectResponse(BaseModel):
+    contract_version: str = "2.0"
     subject_id: str
+    display_name: str
+    initials: str
     timezone: str
     cold_start: bool = True
     provisional_baseline: dict[str, Any] = Field(default_factory=dict)
+    provenance: dict[str, Any]
+
+
+class SubjectListResponse(BaseModel):
+    contract_version: str = "2.0"
+    subjects: list[OnboardSubjectResponse]
+
+
+def subject_id_from_identity(display_name: str) -> str:
+    normalized = re.sub(r"[^a-z0-9]+", "-", display_name.casefold()).strip("-")
+    if not normalized:
+        raise HTTPException(status_code=422, detail="A subject name is required.")
+    return normalized
+
+
+def subject_initials(display_name: str) -> str:
+    return "".join(part[0] for part in display_name.split()[:2]).upper() or "?"
 
 
 @router.post("", response_model=OnboardSubjectResponse, status_code=201)
@@ -34,36 +60,50 @@ def onboard_subject(req: OnboardSubjectRequest) -> OnboardSubjectResponse:
     except Exception:
         raise HTTPException(status_code=422, detail=f"Invalid IANA timezone: {req.timezone}")
 
-    # 2. Save subject profile atomically
-    proj_root = Path(__file__).resolve().parents[3]
-    subject_dir = proj_root / "data" / "subjects" / req.subject_id
-    subject_dir.mkdir(parents=True, exist_ok=True)
+    display_name = req.display_name or req.subject_id
+    if not display_name:
+        raise HTTPException(status_code=422, detail="A subject name is required.")
+    subject_id = req.subject_id or subject_id_from_identity(display_name)
 
     profile_data = {
-        "subject_id": req.subject_id,
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "display_name": display_name,
+        "initials": subject_initials(display_name),
         "timezone": req.timezone,
+        "baseline": req.baseline,
+        "provenance": req.provenance,
         "sensory_context": req.sensory_context,
         "habitual_context": req.habitual_context,
         "historical_supports": req.historical_supports
     }
 
-    # Initialize empty records and occurrences
-    write_json_atomic(subject_dir / "profile.json", profile_data)
+    stored = SubjectRepository(SUBJECTS_ROOT).save(profile_data)
+    subject_dir = SUBJECTS_ROOT / subject_id
+    # Initialize empty records and occurrences for subsequent slices.
     if not (subject_dir / "records.json").exists():
         write_json_atomic(subject_dir / "records.json", [])
     if not (subject_dir / "occurrences.json").exists():
         write_json_atomic(subject_dir / "occurrences.json", [])
 
     return OnboardSubjectResponse(
-        subject_id=req.subject_id,
-        timezone=req.timezone,
+        **stored,
         cold_start=True,
-        provisional_baseline={}
+        provisional_baseline=stored.get("baseline", {})
     )
+
+
+@router.get("", response_model=SubjectListResponse)
+def list_subjects() -> SubjectListResponse:
+    return SubjectListResponse(subjects=[OnboardSubjectResponse(**profile) for profile in SubjectRepository(SUBJECTS_ROOT).list()])
 
 
 @router.get("/{subject_id}")
 def get_subject(subject_id: str) -> dict[str, Any]:
+    try:
+        return SubjectRepository(SUBJECTS_ROOT).get(subject_id)
+    except KeyError:
+        pass
     try:
         profile, _, _ = load_subject_data(subject_id)
         return profile

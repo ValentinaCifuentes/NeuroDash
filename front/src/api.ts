@@ -28,11 +28,49 @@ import type {
   Subject,
   TimelineResponse,
   ApiError,
+  ApiErrorEnvelope,
+  PredictionAdapterResponse,
+  PredictionView,
+  SubjectListResponse,
+  SubjectOnboardingInput,
 } from './types';
 import * as mock from './mocks/mockApi';
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
 export const USING_MOCK = BASE === '';
+
+export function mapApiError(status: number, envelope: ApiErrorEnvelope): ApiError {
+  return { status, code: envelope.code, message: envelope.message };
+}
+
+export function mapPredictionResponse(prediction: PredictionAdapterResponse): PredictionView {
+  return {
+    prediction_id: prediction.prediction_id,
+    subject_id: prediction.subject_id,
+    risk_level: prediction.risk_level,
+    confidence_level: prediction.confidence_level,
+    abstain: prediction.abstain,
+    abstention_reason: prediction.abstention_reason,
+    synthetic: prediction.data_provenance.contains_synthetic_data,
+    provenance: prediction.data_provenance.origins,
+  };
+}
+
+export function createSubjectId(displayName: string): string {
+  const subjectId = displayName
+    .trim()
+    .toLocaleLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  if (!subjectId) throw new Error('A subject name is required');
+  return subjectId;
+}
+
+export function subjectInitials(displayName: string): string {
+  return displayName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
@@ -51,11 +89,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw {
-      status: res.status,
+    throw mapApiError(res.status, {
       code: body.code ?? 'unknown_error',
       message: body.message ?? 'No se pudo completar la acción. Inténtalo otra vez.',
-    } satisfies ApiError;
+    });
   }
 
   return (await res.json()) as T;
@@ -64,6 +101,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export function getSubject(subjectId: string): Promise<Subject> {
   if (USING_MOCK) return mock.getSubject(subjectId);
   return request<Subject>(`/api/v1/subjects/${subjectId}`);
+}
+
+export function listSubjects(): Promise<Subject[]> {
+  if (USING_MOCK) return mock.listSubjects();
+  return request<SubjectListResponse>('/api/v1/subjects').then((response) => response.subjects);
+}
+
+export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
+  if (USING_MOCK) return mock.onboardSubject(input);
+  return request<Subject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(input) });
 }
 
 export function getTimeline(

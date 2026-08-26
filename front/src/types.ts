@@ -21,6 +21,21 @@ export interface Subject {
   age_range: string;                  // rango_edad         → "6-7 años"
   diagnosis: string;                  // diagnostico_principal
   sensory_profile: string;            // perfil_sensorial_predominante
+  timezone?: string;
+  cold_start?: boolean;
+  provenance?: { source: string; synthetic: boolean };
+}
+
+export interface SubjectOnboardingInput {
+  display_name: string;
+  timezone: string;
+  baseline: Record<string, string>;
+  provenance: { source: string; synthetic: boolean };
+}
+
+export interface SubjectListResponse {
+  contract_version: '2.0';
+  subjects: Subject[];
 }
 
 /** `4_seguimiento_diario_tutor.csv` — un registro por consultante y día */
@@ -285,4 +300,35 @@ export interface ApiError {
   code: string;
   /** Mensaje ya redactado para el tutor: causa + salida, sin jerga. */
   message: string;
+}
+
+export interface ApiErrorEnvelope {
+  code: string;
+  message: string;
+  details?: Record<string, string>;
+}
+
+export interface PredictionView {
+  prediction_id: string;
+  subject_id: string;
+  risk_level: RiskLevel;
+  confidence_level: ConfidenceLevel;
+  abstain: boolean;
+  abstention_reason: string | null;
+  synthetic: boolean;
+  provenance: string[];
+}
+
+export interface PredictionAdapterResponse {
+  contract_version: '2.0';
+  prediction_id: string;
+  subject_id: string;
+  as_of: string;
+  horizon: 'next_24h';
+  risk_level: RiskLevel;
+  confidence_level: ConfidenceLevel;
+  abstain: boolean;
+  abstention_reason: string | null;
+  data_provenance: DataProvenance;
+  model_score?: number;
 }

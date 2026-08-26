@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AppBar } from './components/AppBar';
+import { SubjectGate } from './components/SubjectGate';
 import { Sidebar } from './components/Sidebar';
 import type { Route } from './components/Sidebar';
 import { Fab, Toast } from './components/shell';
@@ -16,16 +17,16 @@ import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
 import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
-import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
+import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
-import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject } from './types';
-
-const SUBJECT_ID = 'PAC-002';
+import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
 
 type SheetState = { kind: 'none' } | { kind: 'categories' } | { kind: 'event'; category: LogCategory };
 
 export default function App() {
   const [subject, setSubject] = useState<Subject | null>(null);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [route, setRoute] = useState<Route>('bitacora');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,10 +38,17 @@ export default function App() {
   const fabRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    getSubject(SUBJECT_ID)
-      .then(setSubject)
-      .catch((e: ApiError) => setLoadError(e));
+    listSubjects()
+      .then(setSubjects)
+      .catch((e: ApiError) => setLoadError(e))
+      .finally(() => setLoadingSubjects(false));
   }, []);
+
+  async function onOnboard(input: SubjectOnboardingInput) {
+    const created = await onboardSubject(input);
+    setSubjects((current) => [...current.filter((item) => item.subject_id !== created.subject_id), created]);
+    setSubject(created);
+  }
 
   useEffect(() => {
     if (!toast) return;
@@ -94,7 +102,7 @@ export default function App() {
     );
   }
 
-  if (!subject) {
+  if (loadingSubjects) {
     return (
       <div className="app-shell">
         <div className="app-shell__bar">
@@ -114,6 +122,10 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  if (!subject) {
+    return <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />;
   }
 
   const showFab = route === 'bitacora';

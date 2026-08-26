@@ -22,6 +22,7 @@ import type {
   PredictionRequest,
   ProfessionalSession,
   Subject,
+  SubjectOnboardingInput,
   TimelineEntry,
   TimelineResponse,
 } from '../types';
@@ -186,6 +187,36 @@ export function getSubject(subjectId: string): Promise<Subject> {
     });
   }
   return delay(subject, 260);
+}
+
+export function listSubjects(): Promise<Subject[]> {
+  return delay(Object.values(SUBJECTS), 260);
+}
+
+export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
+  const subjectId = input.display_name
+    .trim()
+    .toLocaleLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  if (!subjectId) {
+    return Promise.reject({ status: 422, code: 'validation_error', message: 'A subject name is required.' });
+  }
+  const subject: Subject = {
+    subject_id: subjectId,
+    display_name: input.display_name.trim(),
+    initials: input.display_name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(),
+    age_range: '',
+    diagnosis: '',
+    sensory_profile: input.baseline.sensory_profile ?? '',
+    timezone: input.timezone,
+    cold_start: true,
+    provenance: { ...input.provenance, synthetic: true },
+  };
+  SUBJECTS[subjectId] = subject;
+  return delay(subject);
 }
 
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
