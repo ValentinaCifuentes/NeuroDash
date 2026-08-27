@@ -26,5 +26,5 @@ venv/
 *.joblib.tmp
 .vite/
 *.tsbuildinfo
-
 node_modules/
+front/dist/: Add predictive interpretability (SHAP) reports mockup)
