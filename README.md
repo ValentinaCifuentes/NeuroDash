@@ -1,44 +1,46 @@
 # NeuraDash
 
-NeuraDash is a non-diagnostic support application for caregiver records, safe
-trend-oriented predictions, telemetry demonstrations, and collaboration with
-professionals. It combines a FastAPI backend and a React/TypeScript frontend.
+NeuraDash es una aplicación de apoyo no diagnóstico para registros de cuidadores,
+predicciones seguras orientadas a tendencias, demostraciones de telemetría y
+colaboración con profesionales. Combina un backend de FastAPI y un frontend de
+React/TypeScript.
 
-> **Safety boundary:** NeuraDash communicates uncertainty, observed
-> associations, and support options. It is not a diagnostic, causal, clinical,
-> or emergency decision-making tool. Do not use demo or synthetic data for
-> clinical decisions.
+> **Límite de seguridad:** NeuraDash comunica incertidumbre, asociaciones
+> observadas y opciones de apoyo. No es una herramienta de diagnóstico, causal,
+> clínica ni de toma de decisiones de emergencia. No utilice datos de demostración
+> ni sintéticos para tomar decisiones clínicas.
 
-## Current status
+## Estado actual
 
-The repository contains a working demo and validation pipeline. The frontend
-currently provides:
+El repositorio contiene una demostración funcional y un flujo de validación. El
+frontend ofrece actualmente:
 
-- Caregiver subject onboarding, daily records, event logging, and Evolution
-  prediction states.
-- Telemetry UI backed by a synthetic burst simulator with stable,
-  accumulated-risk, and insufficient-data profiles.
-- Planning and follow-up views, including **Planificación**, **Seguimiento**,
-  and **Sesiones**.
-- A professional view through the role switch, including the professional
-  dashboard and reporting surfaces.
-- Explicit mock and real-backend adapters using the same frontend contract.
+- Incorporación de sujetos por parte del cuidador, registros diarios, registro de
+  eventos y estados de predicción de Evolución.
+- Una interfaz de telemetría respaldada por un simulador sintético de ráfagas con
+  perfiles de estabilidad, riesgo acumulado y datos insuficientes.
+- Vistas de planificación y seguimiento, incluidas **Planificación**, **Seguimiento**
+  y **Sesiones**.
+- Una vista profesional mediante el selector de roles, que incluye el panel
+  profesional y las superficies de informes.
+- Adaptadores explícitos para el modo simulado y el backend real que utilizan el
+  mismo contrato del frontend.
 
-Some navigation entries remain intentionally non-functional placeholders (for
-example, professional search and support tickets). The ML and telemetry data
-used by the demo are synthetic or local development data; this is not a
-production deployment.
+Algunas entradas de navegación siguen siendo marcadores de posición no funcionales
+de forma intencionada (por ejemplo, la búsqueda de profesionales y los tickets de
+soporte). Los datos de ML y telemetría utilizados por la demostración son sintéticos
+o datos locales de desarrollo; esto no es un despliegue de producción.
 
-## Quick start
+## Inicio rápido
 
-### Prerequisites
+### Requisitos previos
 
 - Python 3.12 or newer
 - Node.js and npm
 
-### Install backend dependencies
+### Instalar las dependencias del backend
 
-From the repository root:
+Desde la raíz del repositorio:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -47,28 +49,28 @@ py -m pip install --upgrade pip
 py -m pip install -e ".[dev]"
 ```
 
-On macOS/Linux, use `python3.12 -m venv .venv`,
-`source .venv/bin/activate`, and `python -m pip install -e ".[dev]"`.
+En macOS/Linux, utilice `python3.12 -m venv .venv`,
+`source .venv/bin/activate` y `python -m pip install -e ".[dev]"`.
 
-### Run the backend
+### Ejecutar el backend
 
 ```powershell
 uvicorn backend.app.main:app --reload --port 8000
 ```
 
-Useful links while it is running:
+Enlaces útiles mientras está en ejecución:
 
-- Health: <http://localhost:8000/health>
-- OpenAPI documentation: <http://localhost:8000/docs>
+- Estado: <http://localhost:8000/health>
+- Documentación de OpenAPI: <http://localhost:8000/docs>
 - ReDoc: <http://localhost:8000/redoc>
 
-The API entry point is `backend.app.main:app`. Routes are grouped under
-`/api/v1`, including subjects, daily records and events, predictions,
-professional sessions, demo profiles, and telemetry.
+El punto de entrada de la API es `backend.app.main:app`. Las rutas se agrupan bajo
+`/api/v1` e incluyen sujetos, registros diarios y eventos, predicciones,
+sesiones profesionales, perfiles de demostración y telemetría.
 
-### Run the frontend
+### Ejecutar el frontend
 
-In a second terminal:
+En una segunda terminal:
 
 ```powershell
 cd front
@@ -76,11 +78,11 @@ npm install
 npm run dev
 ```
 
-Open the Vite URL, normally <http://localhost:5173>.
+Abra la URL de Vite, normalmente <http://localhost:5173>.
 
-By default, the frontend uses the in-memory fixture at
-`front/src/mocks/mockApi.ts`; it does not run the ML engine and its data is
-cleared on reload. To use the FastAPI backend instead:
+De forma predeterminada, el frontend utiliza el accesorio en memoria ubicado en
+`front/src/mocks/mockApi.ts`; no ejecuta el motor de ML y sus datos se borran al
+recargar. Para utilizar el backend de FastAPI en su lugar:
 
 ```powershell
 Copy-Item .env.example .env
@@ -88,18 +90,18 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-The development actor headers used for protected professional operations are
-not a production identity provider.
+Los encabezados del actor de desarrollo utilizados para las operaciones profesionales
+protegidas no constituyen un proveedor de identidad de producción.
 
-## Testing and validation
+## Pruebas y validación
 
-Run the backend unit and integration suite from the root:
+Ejecute la suite de pruebas unitarias y de integración del backend desde la raíz:
 
 ```powershell
 py -m pytest
 ```
 
-Run the frontend checks from `front/`:
+Ejecute las comprobaciones del frontend desde `front/`:
 
 ```powershell
 npm test -- --run
@@ -107,11 +109,11 @@ npm run typecheck
 npm run build
 ```
 
-## Reproducibility pipeline
+## Flujo de reproducibilidad
 
-The deterministic pipeline generates synthetic histories, validates their
-schemas, trains demo models, and runs an end-to-end smoke check. From the
-repository root:
+El flujo determinista genera historiales sintéticos, valida sus esquemas, entrena
+modelos de demostración y ejecuta una comprobación integral. Desde la raíz del
+repositorio:
 
 ```powershell
 python scripts/generate_mock_histories.py
@@ -122,12 +124,13 @@ python scripts/train_demo_models.py
 python scripts/smoke_demo.py
 ```
 
-PAC-A and PAC-B have sufficient synthetic history for training. PAC-C is a
-cold-start case and should safely abstain rather than produce a prediction.
-For the full explanation of generated artifacts, lineage, and expected
-outputs, see the [Reproducibility and Verification Guide](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
+PAC-A y PAC-B tienen suficiente historial sintético para el entrenamiento. PAC-C es
+un caso de inicio en frío y debe abstenerse de forma segura en lugar de producir una
+predicción. Para consultar la explicación completa de los artefactos generados, la
+procedencia y los resultados esperados, consulte la [Guía de reproducibilidad y
+verificación](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
 
-## Repository layout
+## Estructura del repositorio
 
 ```text
 backend/app/   FastAPI application, routes, schemas, and services
@@ -143,21 +146,22 @@ data/          Local demo and generated data
 models/        Local generated model artifacts
 ```
 
-## Privacy and production identity caveat
+## Aviso sobre privacidad e identidad de producción
 
-Use only synthetic or appropriately authorized data in development. Local
-JSON telemetry, demo histories, and model artifacts are not a production data
-store. Before deployment, add verified authentication, authorization and
-subject-consent controls, replace the development `X-Actor-Id` and
-`X-Actor-Role` headers, secure storage and transport, and complete an
-appropriate privacy and clinical-safety review. Predictions must remain
-non-diagnostic and uncertainty-aware.
+Utilice únicamente datos sintéticos o debidamente autorizados durante el desarrollo.
+La telemetría JSON local, los historiales de demostración y los artefactos de modelos
+no constituyen un almacén de datos de producción. Antes del despliegue, añada
+controles verificados de autenticación, autorización y consentimiento del sujeto,
+reemplace los encabezados de desarrollo `X-Actor-Id` y `X-Actor-Role`, proteja el
+almacenamiento y el transporte, y complete una revisión adecuada de privacidad y
+seguridad clínica. Las predicciones deben seguir siendo no diagnósticas y conscientes
+de la incertidumbre.
 
-## Further documentation
+## Documentación adicional
 
-- [Product source of truth](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
-- [Technical architecture](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
-- [Telemetry guide](docs/Telemetría.md)
-- [Professional dashboard](docs/NeuraDash_Dashboard_Terapeuta.md)
-- [Cases and recommendations](docs/NeuraDash_Casos_y_Recomendaciones.md)
-- [OpenSpec workflow](openspec/README.md)
+- [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
+- [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
+- [Guía de telemetría](docs/Telemetría.md)
+- [Panel profesional](docs/NeuraDash_Dashboard_Terapeuta.md)
+- [Casos y recomendaciones](docs/NeuraDash_Casos_y_Recomendaciones.md)
+- [Flujo de OpenSpec](openspec/README.md)
