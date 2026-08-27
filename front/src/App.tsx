@@ -20,7 +20,7 @@ import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placehold
 import { Telemetria } from './pages/Telemetria';
 import { Planificacion } from './pages/Planificacion';
 import { ProDashboard } from './pages/ProDashboard';
-import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
+import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
 
@@ -29,6 +29,8 @@ type SheetState = { kind: 'none' } | { kind: 'categories' } | { kind: 'event'; c
 
 export default function App() {
   const [subject, setSubject] = useState<Subject | null>(null);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [role, setRole] = useState<'family' | 'professional'>('family');
   const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [route, setRoute] = useState<Route>('bitacora');
