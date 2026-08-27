@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ProReportes } from './ProReportes';
 
 interface Props {
   onToggleRole: () => void;
@@ -6,6 +7,7 @@ interface Props {
 
 export function ProDashboard({ onToggleRole }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeView, setActiveView] = useState<'inicio' | 'reportes'>('inicio');
 
   return (
     <div className="bl-pro-layout">
@@ -50,7 +52,7 @@ export function ProDashboard({ onToggleRole }: Props) {
         {/* SIDEBAR IZQUIERDO */}
         <aside className="bl-pro-sidebar">
           <nav className="bl-pro-nav">
-            <div className="bl-pro-nav-item active">
+            <div className={`bl-pro-nav-item ${activeView === 'inicio' ? 'active' : ''}`} onClick={() => setActiveView('inicio')}>
               <span aria-hidden="true">🏠</span> Inicio
             </div>
 
@@ -67,7 +69,7 @@ export function ProDashboard({ onToggleRole }: Props) {
             <div className="bl-pro-nav-item"><span aria-hidden="true">⭐</span> Programas</div>
 
             <div className="bl-pro-nav-group">ANÁLISIS</div>
-            <div className="bl-pro-nav-item"><span aria-hidden="true">📈</span> Reportes</div>
+            <div className={`bl-pro-nav-item ${activeView === 'reportes' ? 'active' : ''}`} onClick={() => setActiveView('reportes')}><span aria-hidden="true">📈</span> Reportes</div>
             <div className="bl-pro-nav-item"><span aria-hidden="true">🏛️</span> Configuración SII</div>
             <div className="bl-pro-nav-item"><span aria-hidden="true">📄</span> Documentos Emitidos</div>
 
@@ -84,7 +86,10 @@ export function ProDashboard({ onToggleRole }: Props) {
         </aside>
 
         {/* CONTENIDO PRINCIPAL */}
-        <main className="bl-pro-main">
+        <main className="bl-pro-main" style={activeView === 'reportes' ? { padding: '1.5rem', display: 'flex', flexDirection: 'column' } : {}}>
+          {activeView === 'reportes' && <ProReportes />}
+          {activeView === 'inicio' && (
+            <>
           {/* BANNER PLAN ACTUAL */}
           <section className="bl-pro-banner">
             <div className="bl-pro-banner-left">
@@ -119,6 +124,8 @@ export function ProDashboard({ onToggleRole }: Props) {
             
             <ProCard icon="📄" iconBg="#8b5cf6" title="Informes por validar" value="0" tag="👁️ Validación" tagColor="purple" />
           </div>
+            </>
+          )}
         </main>
       </div>
     </div>
