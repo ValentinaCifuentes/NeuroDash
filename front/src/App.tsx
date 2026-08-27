@@ -17,6 +17,7 @@ import { Evolucion } from './pages/Evolucion';
 import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
 import { Telemetria } from './pages/Telemetria';
+import { ProDashboard } from './pages/ProDashboard';
 import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject } from './types';
@@ -27,6 +28,7 @@ type SheetState = { kind: 'none' } | { kind: 'categories' } | { kind: 'event'; c
 
 export default function App() {
   const [subject, setSubject] = useState<Subject | null>(null);
+  const [role, setRole] = useState<'family' | 'professional'>('family');
   const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [route, setRoute] = useState<Route>('bitacora');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -119,6 +121,10 @@ export default function App() {
 
   const showFab = route === 'bitacora';
 
+  if (role === 'professional') {
+    return <ProDashboard onToggleRole={() => setRole('family')} />;
+  }
+
   return (
     <div className="app-shell">
       <a className="bl-skip" href="#contenido">
@@ -126,7 +132,7 @@ export default function App() {
       </a>
 
       <div className="app-shell__bar">
-        <AppBar initials={subject.initials} onOpenMenu={() => setMenuOpen(true)} />
+        <AppBar initials={subject.initials} onOpenMenu={() => setMenuOpen(true)} role={role} onToggleRole={() => setRole(role === 'family' ? 'professional' : 'family')} />
       </div>
 
       <main className="app-shell__scroll" id="contenido">

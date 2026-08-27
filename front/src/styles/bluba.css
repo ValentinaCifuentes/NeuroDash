@@ -487,3 +487,340 @@ button,input,textarea,select{font-family:inherit}
 /* CTA con acción secundaria: cancelar no compite con guardar. */
 .app-cta--pair{display:flex;align-items:center;gap:var(--bl-sp-3)}
 .app-cta--pair .bl-btn--ghost{flex:0 0 auto;padding-left:var(--bl-sp-4);padding-right:var(--bl-sp-4)}
+
+/* ============================================================
+   PRO DASHBOARD LAYOUT
+   ============================================================ */
+
+.bl-pro-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f3f4f6; /* gris claro fondo principal */
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.bl-pro-header {
+  height: 56px;
+  background-color: #1e3a8a; /* azul oscuro */
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 10;
+}
+
+.bl-pro-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.bl-pro-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bl-pro-icon-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  font-size: 1.2rem;
+}
+
+.bl-pro-badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  background: white;
+  color: #1e3a8a;
+  font-size: 0.6rem;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 2px 5px;
+}
+
+.bl-pro-user-menu {
+  position: relative;
+}
+
+.bl-pro-user-btn {
+  background: none;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-align: right;
+}
+
+.bl-pro-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.bl-pro-user-info strong {
+  font-size: 0.85rem;
+}
+
+.bl-pro-user-info span {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.bl-pro-avatar {
+  background-color: #4b5563;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.bl-pro-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  color: #1f2937;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  min-width: 200px;
+  overflow: hidden;
+  z-index: 20;
+}
+
+.bl-pro-dropdown button {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.bl-pro-dropdown button:hover {
+  background-color: #f3f4f6;
+}
+
+.bl-pro-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.bl-pro-sidebar {
+  width: 250px;
+  background-color: #1e3a8a;
+  color: white;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.bl-pro-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.bl-pro-nav-group {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #93c5fd;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.bl-pro-nav-item {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #e5e7eb;
+}
+
+.bl-pro-nav-item:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.bl-pro-nav-item.active {
+  background-color: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+/* MAIN CONTENT */
+.bl-pro-main {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* BANNER */
+.bl-pro-banner {
+  background-color: #ecfdf5; /* verde claro */
+  border: 1px solid #d1fae5;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.bl-pro-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bl-pro-banner-icon {
+  background-color: #10b981;
+  color: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.bl-pro-banner-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #065f46;
+  letter-spacing: 0.05em;
+}
+
+.bl-pro-banner h2 {
+  margin: 0 0 8px 0;
+  color: #064e3b;
+  font-size: 1.5rem;
+}
+
+.bl-pro-tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.bl-pro-tag--blue { background: #dbeafe; color: #1e40af; }
+.bl-pro-tag--green { background: #d1fae5; color: #065f46; }
+.bl-pro-tag--yellow { background: #fef3c7; color: #92400e; }
+.bl-pro-tag--red { background: #fee2e2; color: #b91c1c; }
+.bl-pro-tag--purple { background: #ede9fe; color: #5b21b6; }
+.bl-pro-tag--gray { background: #f3f4f6; color: #374151; }
+.bl-pro-tag--teal { background: #ccfbf1; color: #0f766e; }
+
+.bl-pro-banner-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.bl-pro-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.bl-pro-check {
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+}
+
+.bl-pro-btn-orange {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* GRID */
+.bl-pro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.bl-pro-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bl-pro-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.bl-pro-card-title {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.bl-pro-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+}
+
+.bl-pro-card-sub {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.bl-pro-card-tag {
+  align-self: flex-start;
+  margin-top: auto;
+}
