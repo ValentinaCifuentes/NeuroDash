@@ -266,7 +266,7 @@ function adaptPrediction(prediction: BackendPrediction): Prediction {
     subject_id: prediction.subject_id,
     prediction_cutoff: prediction.prediction_cutoff,
     horizon_hours: prediction.horizon_hours,
-    risk: prediction.risk,
+    risk: adaptRisk(prediction.risk),
     confidence: adaptConfidence(prediction.confidence),
     abstained: prediction.abstained,
     factors: prediction.factors.map(adaptFactor),
@@ -275,6 +275,13 @@ function adaptPrediction(prediction: BackendPrediction): Prediction {
     provenance: prediction.provenance,
     versions: prediction.versions,
   };
+}
+
+function adaptRisk(risk: string | null): Prediction['risk'] {
+  if (risk === 'HIGH' || risk === 'ELEVATED') return 'ELEVATED';
+  if (risk === 'MEDIUM' || risk === 'MODERATE') return 'MODERATE';
+  if (risk === 'LOW') return 'LOW';
+  return null;
 }
 
 function adaptConfidence(confidence: string): ConfidenceLevel {
