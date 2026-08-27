@@ -14,10 +14,12 @@ import { getTimeline } from '../api';
 import { buildDaySummaries, dayStatus, localDay } from '../domain/aggregate';
 import type { DaySummary } from '../domain/aggregate';
 import {
+  DAY_REGULATION_CHOICES,
   HEAT_STEPS,
   SEMANTIC_BG,
   SEMANTIC_COLOR,
   SLEEP_ICON,
+  WAKE_CHOICES,
   WEEKDAY_SHORT,
   dayLabel,
 } from '../domain/catalog';
@@ -25,6 +27,7 @@ import type { Subject } from '../types';
 
 const HEATMAP_DAYS = 30;
 const TRACKING_DAYS = 5;
+const MULTIVARIABLE_DAYS = 14;
 
 export function Seguimiento({ subject, revision }: { subject: Subject; revision: number }) {
   const [days, setDays] = useState<DaySummary[] | null>(null);
@@ -52,10 +55,124 @@ export function Seguimiento({ subject, revision }: { subject: Subject; revision:
 
   return (
     <>
+      <MultivariableTimeline days={days.slice(-MULTIVARIABLE_DAYS)} />
       <Heatmap days={days} />
       <DailyTracking days={days.slice(-TRACKING_DAYS)} subject={subject} />
     </>
   );
+}
+
+/* ============================================================
+   Evolución compacta de 14 días
+   ============================================================ */
+
+function MultivariableTimeline({ days }: { days: DaySummary[] }) {
+  return (
+    <section className="bl-card">
+      <div className="bl-card__header">
+        <span className="bl-icon-tile" aria-hidden="true">
+          ⇄
+        </span>
+        <h2>Evolución de 14 días</h2>
+      </div>
+      <p className="bl-card__sub" style={{ marginTop: 0 }}>
+        Lectura rápida de sueño, despertar, regulación y eventos registrados. Un día sin registro se muestra como dato faltante.
+      </p>
+
+      <div className="app-timeline14" role="table" aria-label="Evolución de los últimos 14 días">
+        <div className="app-timeline14__row app-timeline14__row--head" role="row">
+          <span role="columnheader">Variable</span>
+          {days.map((day) => (
+            <span key={day.date} role="columnheader">
+              {day.date.slice(8, 10)}
+            </span>
+          ))}
+        </div>
+
+        <TimelineRow label="Sueño" days={days} getValue={sleepMark} />
+        <TimelineRow label="Despertar" days={days} getValue={wakeMark} />
+        <TimelineRow label="Regulación" days={days} getValue={regulationMark} />
+        <TimelineRow label="Eventos" days={days} getValue={eventMark} />
+      </div>
+
+      <div className="app-legend" aria-hidden="true">
+        <span className="app-legend__item">● dentro de lo esperado o tranquilo</span>
+        <span className="app-legend__item">◐ observar</span>
+        <span className="app-legend__item">▲ señal relevante</span>
+        <span className="app-legend__item">— sin dato</span>
+      </div>
+    </section>
+  );
+}
+
+function TimelineRow({
+  label,
+  days,
+  getValue,
+}: {
+  label: string;
+  days: DaySummary[];
+  getValue: (day: DaySummary) => TimelineMark;
+}) {
+  return (
+    <div className="app-timeline14__row" role="row">
+      <span role="rowheader">{label}</span>
+      {days.map((day) => {
+        const mark = getValue(day);
+        return (
+          <span key={day.date} className={`app-timeline14__mark app-timeline14__mark--${mark.semantic}`} role="cell">
+            <span aria-hidden="true">{mark.symbol}</span>
+            <span className="bl-sr-only">
+              {dayLabel(day.date).short}: {mark.label}
+            </span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+type TimelineMark = {
+  symbol: string;
+  label: string;
+  semantic: 'success' | 'warning' | 'danger' | 'neutral';
+};
+
+function sleepMark(day: DaySummary): TimelineMark {
+  if (!day.hasRecord || !day.sleep) return { symbol: '—', label: 'sin registro de sueño', semantic: 'neutral' };
+  if (day.sleep === 'Reparador') return { symbol: '●', label: 'sueño reparador', semantic: 'success' };
+  if (day.sleep === 'Interrumpido') return { symbol: '◐', label: 'sueño interrumpido', semantic: 'warning' };
+  return { symbol: '▲', label: 'dificultad para conciliar el sueño', semantic: 'danger' };
+}
+
+function wakeMark(day: DaySummary): TimelineMark {
+  if (!day.hasRecord || !day.wake) return { symbol: '—', label: 'sin registro de despertar', semantic: 'neutral' };
+  if (day.wake === 'Tranquilo/Alegre') return { symbol: '●', label: wakeLabel(day.wake), semantic: 'success' };
+  if (day.wake === 'Cansado/Con Sueño') return { symbol: '◐', label: wakeLabel(day.wake), semantic: 'warning' };
+  return { symbol: '▲', label: wakeLabel(day.wake), semantic: 'danger' };
+}
+
+function regulationMark(day: DaySummary): TimelineMark {
+  if (!day.hasRecord || !day.regulation) return { symbol: '—', label: 'sin cierre de regulación', semantic: 'neutral' };
+  if (day.regulation === 'Excelente') return { symbol: '●', label: regulationLabel(day.regulation), semantic: 'success' };
+  if (day.regulation === 'Estable con Apoyo') return { symbol: '◐', label: regulationLabel(day.regulation), semantic: 'warning' };
+  return { symbol: '▲', label: regulationLabel(day.regulation), semantic: 'danger' };
+}
+
+function eventMark(day: DaySummary): TimelineMark {
+  if (day.eventCount === 0) return { symbol: '●', label: 'sin eventos registrados', semantic: 'success' };
+  if ((day.maxIntensity ?? 0) >= 8 || day.eventCount >= 3) {
+    return { symbol: '▲', label: `${day.eventCount} eventos registrados`, semantic: 'danger' };
+  }
+  return { symbol: '◐', label: `${day.eventCount} eventos registrados`, semantic: 'warning' };
+}
+
+function wakeLabel(value: NonNullable<DaySummary['wake']>): string {
+  return WAKE_CHOICES.find((choice) => choice.value === value)?.label ?? value;
+}
+
+function regulationLabel(value: NonNullable<DaySummary['regulation']>): string {
+  return DAY_REGULATION_CHOICES.find((choice) => choice.value === value)?.label ?? value;
 }
 
 /* ============================================================

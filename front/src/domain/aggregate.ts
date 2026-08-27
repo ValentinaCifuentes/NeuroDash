@@ -11,7 +11,14 @@
  * no una estimación. Las pantallas lo dicen explícitamente.
  */
 
-import type { DailyRecord, DysregulationEvent, SleepQuality, TimelineEntry } from '../types';
+import type {
+  DailyRecord,
+  DayRegulationLevel,
+  DysregulationEvent,
+  SleepQuality,
+  TimelineEntry,
+  WakeMode,
+} from '../types';
 import type { Semantic } from './catalog';
 
 export interface DaySummary {
@@ -19,6 +26,8 @@ export interface DaySummary {
   date: string;
   hasRecord: boolean;
   sleep: SleepQuality | null;
+  wake: WakeMode | null;
+  regulation: DayRegulationLevel | null;
   eventCount: number;
   /** `null` cuando no hubo eventos ese día. */
   maxIntensity: number | null;
@@ -42,7 +51,16 @@ function heatBucket(eventCount: number): 0 | 1 | 2 | 3 {
 }
 
 function emptyDay(date: string): DaySummary {
-  return { date, hasRecord: false, sleep: null, eventCount: 0, maxIntensity: null, heat: 0 };
+  return {
+    date,
+    hasRecord: false,
+    sleep: null,
+    wake: null,
+    regulation: null,
+    eventCount: 0,
+    maxIntensity: null,
+    heat: 0,
+  };
 }
 
 /**
@@ -74,6 +92,8 @@ export function buildDaySummaries(
       const record = entry.payload as DailyRecord;
       day.hasRecord = true;
       day.sleep = record.sleep_quality;
+      day.wake = record.wake_mode;
+      day.regulation = record.day_regulation_level ?? null;
     } else {
       const event = entry.payload as DysregulationEvent;
       day.eventCount += 1;
