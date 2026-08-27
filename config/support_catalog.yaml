@@ -1,11 +1,97 @@
-- id: cat_sensory_1
-  category: sensory
-  sensory_profile_contains: Hypersensitive
-  description: Reduce ambient lighting and noise in the evening.
-- id: cat_habit_1
-  category: habit
-  habit_profile_contains: exercise
-  description: Engage in calm stretching before bedtime.
-- id: cat_general_1
-  category: general
-  description: Maintain a regular sleep schedule.
+- id: cat_transition_anticipate
+  case_id: routine_transition
+  category: transition
+  description: Anticipe el próximo cambio utilizando la estrategia previamente acordada para esta persona.
+  rationale: Hay señales de cambio de rutina o transición relevante; el apoyo se presenta como una opción a considerar.
+  priority: 30
+- id: cat_transition_visual
+  case_id: routine_transition
+  category: transition
+  description: Considere mostrar visualmente la secuencia de actividades y qué ocurrirá después.
+  rationale: La predictibilidad puede ser útil cuando ya forma parte de los apoyos aceptados.
+  priority: 31
+- id: cat_transition_predictability
+  case_id: routine_transition
+  category: transition
+  description: Mantenga claras las próximas actividades y reduzca cambios adicionales innecesarios cuando sea posible.
+  rationale: La recomendación evita introducir apoyos nuevos y se limita a organizar el contexto.
+  priority: 32
+- id: cat_regulation_trained
+  case_id: early_dysregulation
+  category: regulation
+  description: Considere utilizar tempranamente una estrategia de regulación previamente practicada.
+  rationale: La estrategia debe estar registrada, practicada o aprobada para esta persona.
+  requires_registered_support: true
+  priority: 30
+- id: cat_regulation_pause
+  case_id: early_dysregulation
+  category: regulation
+  description: Facilite una pausa utilizando la estrategia de regulación acordada, si corresponde.
+  rationale: La recomendación depende del plan individual o de apoyos previamente registrados.
+  requires_registered_support: true
+  priority: 31
+- id: cat_demand_adapt
+  case_id: demand_overload
+  category: demand
+  description: Considere reducir temporalmente la complejidad de la actividad o dividirla en pasos manejables.
+  rationale: Hay señales compatibles con sobrecarga frente a una demanda o actividad.
+  priority: 30
+- id: cat_demand_clear_instructions
+  case_id: demand_overload
+  category: demand
+  description: Utilice instrucciones breves y apoyos previamente definidos.
+  rationale: La recomendación se mantiene dentro de apoyos ya definidos y no introduce técnicas nuevas.
+  priority: 31
+- id: cat_demand_avoid_extra
+  case_id: demand_overload
+  category: demand
+  description: Mientras existan señales relevantes de sobrecarga, evite introducir demandas adicionales que no sean necesarias.
+  rationale: El apoyo se limita a reducir carga contextual cuando sea posible.
+  priority: 32
+- id: cat_communication_pause
+  case_id: communication_support
+  category: communication
+  description: Facilite la forma que utiliza habitualmente para solicitar una pausa.
+  rationale: Solo corresponde si la estrategia de comunicación está registrada o definida por un profesional.
+  requires_registered_support: true
+  priority: 30
+- id: cat_communication_help
+  case_id: communication_support
+  category: communication
+  description: Recuerde ofrecer acceso al recurso de comunicación utilizado para pedir ayuda.
+  rationale: La recomendación depende de un recurso previamente acordado para esta persona.
+  requires_registered_support: true
+  priority: 31
+- id: cat_reinforce_alternative
+  case_id: alternative_behavior_reinforcement
+  category: reinforcement
+  description: Refuerce positivamente el uso de la estrategia de comunicación o regulación acordada.
+  rationale: El tipo de refuerzo debe provenir del plan individual o del profesional.
+  requires_registered_support: true
+  priority: 30
+- id: cat_unclear_pattern_review
+  case_id: unclear_repeated_pattern
+  category: professional_review
+  description: Se observa un patrón repetido. Considere revisar antecedentes, contexto y posible función de la conducta antes de modificar el plan de apoyo.
+  rationale: El sistema identifica patrones, pero la interpretación funcional corresponde a evaluación profesional.
+  priority: 20
+- id: cat_caregiver_known_strategy
+  case_id: caregiver_context
+  category: caregiver
+  description: Considere aplicar la estrategia previamente acordada con el profesional para este tipo de situación.
+  rationale: La vista del cuidador no introduce instrucciones clínicas nuevas.
+  requires_registered_support: true
+  priority: 30
+- id: cat_self_regulation_learned
+  case_id: learned_self_regulation
+  category: self_regulation
+  description: Recuerde utilizar la estrategia previamente aprendida para reconocer y manejar el aumento de estrés.
+  rationale: Depende del perfil individual, comunicación y capacidades registradas.
+  requires_registered_support: true
+  priority: 30
+- id: cat_insufficient_data
+  case_id: insufficient_data
+  category: insufficient_data
+  description: No hay información suficiente para seleccionar un apoyo contextualizado.
+  rationale: Mientras se completa la información, consulte únicamente las estrategias previamente acordadas para esta persona.
+  priority: 100

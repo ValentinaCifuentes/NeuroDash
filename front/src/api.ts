@@ -20,14 +20,17 @@
  */
 
 import type {
+  ConfidenceLevel,
   DailyRecord,
   DysregulationEvent,
+  FactorDirection,
   Prediction,
   PredictionRequest,
   ProfessionalSession,
-  ProfessionalSessionDraft,
-  SessionWrite,
+  RiskLevel,
+  SupportItem,
   Subject,
+  TimelineEntry,
   TimelineResponse,
   ApiError,
   ApiErrorEnvelope,
@@ -101,7 +104,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function getSubject(subjectId: string): Promise<Subject> {
   if (USING_MOCK) return mock.getSubject(subjectId);
-  return request<Subject>(`/api/v1/subjects/${subjectId}`);
+  return request<BackendSubject>(`/api/v1/subjects/${subjectId}`).then(adaptSubject);
 }
 
 export function listSubjects(): Promise<Subject[]> {
@@ -121,7 +124,12 @@ export function getTimeline(
 ): Promise<TimelineResponse> {
   if (USING_MOCK) return mock.getTimeline(subjectId, asOf, days);
   const qs = new URLSearchParams({ as_of: asOf, days: String(days) });
-  return request<TimelineResponse>(`/api/v1/subjects/${subjectId}/timeline?${qs}`);
+  return request<BackendTimelineEntry[]>(`/api/v1/subjects/${subjectId}/timeline?${qs}`).then((entries) => ({
+    subject_id: subjectId,
+    as_of: asOf,
+    days,
+    entries: entries.map(adaptTimelineEntry),
+  }));
 }
 
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
@@ -165,10 +173,201 @@ export function saveSession(session: ProfessionalSessionDraft): Promise<Professi
  */
 export function getPrediction(req: PredictionRequest): Promise<Prediction> {
   if (USING_MOCK) return mock.getPrediction(req);
-  return request<Prediction>('/api/v1/predictions', {
+  return request<BackendPrediction>('/api/v1/predictions', {
     method: 'POST',
-    body: JSON.stringify(req),
-  });
+    body: JSON.stringify({
+      subject_id: req.subject_id,
+      prediction_cutoff: req.as_of,
+    }),
+  }).then((prediction) => adaptPrediction(prediction, req));
+}
+
+type BackendSubject = Partial<Subject> & {
+  subject_id: string;
+  sensory_context?: Record<string, unknown>;
+};
+
+type BackendTimelineEntry = Record<string, unknown>;
+
+type BackendPrediction = {
+  contract_version: string;
+  subject_id: string;
+  prediction_cutoff: string;
+  horizon_hours: number;
+  risk: string | null;
+  model_score: number | null;
+  confidence: string;
+  abstained: boolean;
+  factors: BackendFactor[];
+  missingness: BackendMissingness[];
+  supports: BackendSupport[];
+  provenance: {
+    excluded_from_core?: boolean;
+    lineage?: Record<string, unknown> | null;
+  };
+  versions: Record<string, string>;
+};
+
+type BackendFactor = {
+  factor_name?: string;
+  feature?: string;
+  contribution?: number;
+  description?: string;
+};
+
+type BackendMissingness = {
+  field?: string;
+  window?: number | string;
+  missing?: boolean;
+};
+
+type BackendSupport = {
+  id?: string;
+  description?: string;
+  source?: SupportItem['source'];
+  category?: string;
+  case_id?: string;
+  rationale?: string;
+};
+
+function adaptSubject(subject: BackendSubject): Subject {
+  const sensoryProfile =
+    subject.sensory_profile ??
+    String(subject.sensory_context?.sensory_profile ?? 'Perfil sensorial no registrado');
+  return {
+    subject_id: subject.subject_id,
+    display_name: subject.display_name ?? `Bluba ${subject.subject_id}`,
+    initials: subject.initials ?? initialsFromId(subject.subject_id),
+    age_range: subject.age_range ?? 'Edad no registrada',
+    diagnosis: subject.diagnosis ?? 'Sin diagnóstico mostrado en esta vista',
+    sensory_profile: sensoryProfile,
+  };
+}
+
+function adaptTimelineEntry(entry: BackendTimelineEntry, index: number): TimelineEntry {
+  const timestamp = String(entry.source_timestamp ?? entry.availability_timestamp ?? new Date().toISOString());
+  const kind = 'event_count' in entry ? 'daily_record' : 'event';
+  return {
+    entry_id: String(entry.id ?? `entry-${index}`),
+    kind,
+    timestamp,
+    title: kind === 'daily_record' ? 'Registro diario' : 'Evento registrado',
+    detail: summarizeTimelineEntry(entry),
+    semantic: kind === 'daily_record' ? 'info' : 'warning',
+    payload: entry as unknown as DailyRecord | DysregulationEvent,
+  };
+}
+
+function adaptPrediction(prediction: BackendPrediction, req: PredictionRequest): Prediction {
+  return {
+    contract_version: '2.0',
+    prediction_id: `${prediction.subject_id}-${prediction.prediction_cutoff}`,
+    subject_id: prediction.subject_id,
+    as_of: prediction.prediction_cutoff,
+    horizon: req.horizon,
+    risk_level: adaptRisk(prediction.risk),
+    model_score: prediction.model_score ?? 0,
+    model_version: prediction.versions.model_version ?? 'none',
+    model_family: 'backend-core',
+    confidence_level: adaptConfidence(prediction.confidence),
+    abstain: prediction.abstained,
+    abstention_reason: prediction.abstained ? 'insufficient_context' : null,
+    factors: prediction.factors.map(adaptFactor),
+    missing: prediction.missingness.filter((item) => item.missing).map(adaptMissingness),
+    priority_data_request: buildPriorityDataRequest(prediction.missingness),
+    support: prediction.supports.map(adaptSupport),
+    data_provenance: {
+      contains_synthetic_data: Boolean(prediction.provenance.lineage),
+      origins: prediction.provenance.excluded_from_core ? ['backend_core', 'school_records_excluded'] : ['backend_core'],
+    },
+    technical_metadata: {
+      engine: 'backend-core',
+      training_strategy_version: prediction.versions.policy_hash ?? 'default',
+      explainer: prediction.factors.length > 0 ? 'backend_explainer' : null,
+      confidence_ruleset_version: prediction.versions.policy_hash ?? 'default',
+      feature_schema_version: prediction.versions.code_version ?? '0.1.0',
+    },
+  };
+}
+
+function adaptRisk(risk: string | null): RiskLevel {
+  if (risk === 'ELEVATED' || risk === 'MODERATE' || risk === 'LOW') return risk;
+  return 'LOW';
+}
+
+function adaptConfidence(confidence: string): ConfidenceLevel {
+  if (confidence === 'HIGH' || confidence === 'MEDIUM' || confidence === 'LOW' || confidence === 'INSUFFICIENT') {
+    return confidence;
+  }
+  return 'INSUFFICIENT';
+}
+
+function adaptFactor(factor: BackendFactor) {
+  const contribution = Number(factor.contribution ?? 0);
+  const direction: FactorDirection = contribution >= 0 ? 'up' : 'down';
+  return {
+    code: factor.feature ?? factor.factor_name ?? 'factor',
+    label: factor.factor_name ?? 'Factor observado',
+    comparison: factor.description ?? 'Asociación observada en el historial reciente.',
+    direction,
+    window: inferWindow(factor.feature ?? factor.factor_name ?? ''),
+  };
+}
+
+function adaptMissingness(item: BackendMissingness) {
+  const field = String(item.field ?? 'dato');
+  const window = item.window ? ` en ventana ${item.window}` : '';
+  return {
+    code: `${field}-${item.window ?? 'unknown'}`,
+    label: humanize(field),
+    impact: `Falta información reciente${window}; la estimación puede tener menor respaldo.`,
+  };
+}
+
+function adaptSupport(support: BackendSupport): SupportItem {
+  return {
+    support_id: String(support.id ?? support.case_id ?? 'support'),
+    source: support.source ?? 'validated_catalog',
+    label: support.description ?? 'Apoyo contextual disponible',
+    detail: support.rationale ?? support.category ?? null,
+  };
+}
+
+function buildPriorityDataRequest(missingness: BackendMissingness[]): string | null {
+  const missing = missingness.find((item) => item.missing);
+  if (!missing?.field) return null;
+  return `Completar ${humanize(String(missing.field)).toLowerCase()} mejora la contextualización.`;
+}
+
+function inferWindow(value: string): string {
+  if (value.includes('catorce')) return '14d';
+  if (value.includes('siete')) return '7d';
+  if (value.includes('tres')) return '3d';
+  if (value.includes('ultimo') || value.includes('último')) return '1d';
+  return 'actual';
+}
+
+function humanize(value: string): string {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function initialsFromId(subjectId: string): string {
+  return subjectId
+    .split(/[-_\s]+/)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function summarizeTimelineEntry(entry: BackendTimelineEntry): string | null {
+  const parts = [
+    entry.sleep_quality !== undefined ? `Sueño: ${entry.sleep_quality}` : null,
+    entry.wake_state !== undefined ? `Despertar: ${entry.wake_state}` : null,
+    entry.event_count !== undefined ? `Eventos: ${entry.event_count}` : null,
+    entry.severity !== undefined ? `Severidad: ${entry.severity}` : null,
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(' · ') : null;
 }
 
 /** Confirms an observed outcome with a caller-generated replay identity. */

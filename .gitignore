@@ -1,9 +1,15 @@
 __pycache__/
 *.egg-info/
+
+# Frontend dependencies and build outputs
 frontend/node_modules/
 frontend/dist/
 front/node_modules/
 front/dist/
+front/dist-single/
+front/.vite/
+
+# Python/test caches
 .pytest_cache/
 .atl/
 .venv/
@@ -11,10 +17,14 @@ front/dist/
 venv/
 .mypy_cache/
 .ruff_cache/
+
+# Local environment
 .env
 .env.local
+
+# Generated artifacts
 *.joblib.tmp
 .vite/
 *.tsbuildinfo
-data/subjects/*/predictions/
-data/demo_profiles/*/predictions/
+*.log
+data/**/predictions/*.json

@@ -244,6 +244,120 @@ def test_evidence_bounded_supports() -> None:
         assert "No evidence-based supports" in supports_empty[0]["description"]
 
 
+def test_contextual_support_cases_from_recommendation_guide() -> None:
+    subject_history = [
+        {
+            "id": "hist_transition_visual",
+            "description": "Usar agenda visual de transiciones ya acordada.",
+            "category": "transition",
+            "contexts": ["transition"],
+            "effective": True,
+        },
+        {
+            "id": "hist_regulation_pause",
+            "description": "Pausa breve acordada con el profesional.",
+            "category": "regulation",
+            "contexts": ["early_dysregulation", "self_regulation"],
+            "approved_by_professional": True,
+        },
+        {
+            "id": "hist_help_card",
+            "description": "Tarjeta de ayuda registrada para pedir apoyo.",
+            "category": "communication",
+            "contexts": ["communication"],
+            "approved_by_professional": True,
+        },
+        {
+            "id": "hist_reinforcement",
+            "description": "Reconocer verbalmente el uso de la pausa acordada.",
+            "category": "reinforcement",
+            "contexts": ["alternative_behavior"],
+            "approved_by_professional": True,
+        },
+    ]
+    context = {
+        "routine_change": True,
+        "upcoming_transition": True,
+        "irritability": True,
+        "demand_overload": True,
+        "communication_need": True,
+        "alternative_behavior_used": True,
+        "repeated_unclear_pattern": True,
+        "caregiver_view": True,
+        "self_regulation_available": True,
+        "professional_plan": True,
+    }
+
+    supports = select_supports(
+        subject_history=subject_history,
+        sensory_context=context,
+        confidence=ConfidenceLevel.HIGH,
+    )
+    case_ids = {support["case_id"] for support in supports}
+
+    assert {
+        "routine_transition",
+        "early_dysregulation",
+        "demand_overload",
+        "communication_support",
+        "alternative_behavior_reinforcement",
+        "unclear_repeated_pattern",
+        "previously_effective_similar_context",
+        "caregiver_context",
+        "learned_self_regulation",
+    }.issubset(case_ids)
+    assert supports[0]["source"] == "historical_support"
+    assert supports[0]["case_id"] in {"routine_transition", "previously_effective_similar_context"}
+    assert all(support["evidence_bounded"] is True for support in supports)
+
+
+def test_support_selector_abstains_when_context_is_insufficient() -> None:
+    supports = select_supports(
+        subject_history=[],
+        sensory_context={},
+        confidence=ConfidenceLevel.INSUFFICIENT,
+        abstained=True,
+        missingness=[{"field": "wake_state", "missing": True}],
+    )
+
+    assert len(supports) == 1
+    assert supports[0]["case_id"] == "insufficient_data"
+    assert supports[0]["type"] == "fallback"
+    assert "información suficiente" in supports[0]["description"]
+
+
+def test_registered_only_supports_are_not_invented() -> None:
+    context = {
+        "communication_need": True,
+        "alternative_behavior_used": True,
+        "self_regulation_available": True,
+    }
+
+    supports = select_supports(
+        subject_history=[],
+        sensory_context=context,
+        confidence=ConfidenceLevel.HIGH,
+    )
+    case_ids = {support["case_id"] for support in supports}
+
+    assert "communication_support" not in case_ids
+    assert "alternative_behavior_reinforcement" not in case_ids
+    assert "learned_self_regulation" not in case_ids
+
+
+def test_support_copy_is_non_prescriptive_and_non_causal() -> None:
+    supports = select_supports(
+        subject_history=[],
+        sensory_context={"routine_change": True, "demand_overload": True},
+        confidence=ConfidenceLevel.HIGH,
+    )
+    forbidden_words = ["tratamiento", "diagnóstico", "causa", "provoca", "debe aplicar", "intervención correcta"]
+
+    for support in supports:
+        text = f"{support['description']} {support.get('rationale', '')}".lower()
+        assert not any(word in text for word in forbidden_words)
+
+
 def test_provenance_school_exclusion() -> None:
     # If structured school records were supplied (e.g. has_school_records=True),
     # the exclusion must be observable (excluded_from_core = True).
