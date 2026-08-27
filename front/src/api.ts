@@ -25,16 +25,18 @@ import type {
   Prediction,
   PredictionRequest,
   ProfessionalSession,
+  ProfessionalSessionDraft,
+  SessionWrite,
   Subject,
   TimelineResponse,
   ApiError,
   ApiErrorEnvelope,
-  PredictionAdapterResponse,
-  PredictionView,
+  OutcomeConfirmation,
   SubjectListResponse,
   SubjectOnboardingInput,
 } from './types';
 import * as mock from './mocks/mockApi';
+export { createSubjectId, subjectInitials } from './domain/subjectIdentity';
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
 export const USING_MOCK = BASE === '';
@@ -43,33 +45,32 @@ export function mapApiError(status: number, envelope: ApiErrorEnvelope): ApiErro
   return { status, code: envelope.code, message: envelope.message };
 }
 
-export function mapPredictionResponse(prediction: PredictionAdapterResponse): PredictionView {
+export function mapSessionProjection(session: ProfessionalSessionDraft): ProfessionalSession {
+  const { internal_notes: _internalNotes, ...projection } = session;
+  return projection;
+}
+
+export function createSessionWrite(
+  session: ProfessionalSessionDraft,
+  idempotencyKey: string,
+): SessionWrite {
+  const { session_id: _sessionId, subject_id: _subjectId, ...write } = session;
   return {
-    prediction_id: prediction.prediction_id,
-    subject_id: prediction.subject_id,
-    risk_level: prediction.risk_level,
-    confidence_level: prediction.confidence_level,
-    abstain: prediction.abstain,
-    abstention_reason: prediction.abstention_reason,
-    synthetic: prediction.data_provenance.contains_synthetic_data,
-    provenance: prediction.data_provenance.origins,
+    ...write,
+    contract_version: '2.0',
+    idempotency_key: idempotencyKey,
+    provenance: { source: 'frontend_session', synthetic: false },
   };
 }
 
-export function createSubjectId(displayName: string): string {
-  const subjectId = displayName
-    .trim()
-    .toLocaleLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-  if (!subjectId) throw new Error('A subject name is required');
-  return subjectId;
-}
-
-export function subjectInitials(displayName: string): string {
-  return displayName.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+export function getSessionActorHeaders(env: Record<string, string | undefined> = import.meta.env): {
+  'X-Actor-Id': string;
+  'X-Actor-Role': 'professional';
+} {
+  if (!env.VITE_ACTOR_ID || env.VITE_ACTOR_ROLE !== 'professional') {
+    throw new Error('A professional actor must be configured to access sessions.');
+  }
+  return { 'X-Actor-Id': env.VITE_ACTOR_ID, 'X-Actor-Role': 'professional' };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -141,17 +142,21 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
 
 export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
   if (USING_MOCK) return mock.getSessions(subjectId);
-  return request<ProfessionalSession[]>(`/api/v1/subjects/${subjectId}/sessions`);
+  return request<ProfessionalSessionDraft[]>(`/api/v1/subjects/${subjectId}/sessions`, {
+    headers: getSessionActorHeaders(),
+  }).then((sessions) => sessions.map(mapSessionProjection));
 }
 
-/** Crea o actualiza según traiga `session_id`. */
-export function saveSession(session: ProfessionalSession): Promise<ProfessionalSession> {
+/** Creates a professional session using a stable, caller-provided replay identity. */
+export function saveSession(session: ProfessionalSessionDraft): Promise<ProfessionalSession> {
   if (USING_MOCK) return mock.saveSession(session);
   const base = `/api/v1/subjects/${session.subject_id}/sessions`;
-  return request<ProfessionalSession>(
-    session.session_id ? `${base}/${session.session_id}` : base,
-    { method: session.session_id ? 'PUT' : 'POST', body: JSON.stringify(session) },
-  );
+  const idempotencyKey = session.session_id ?? crypto.randomUUID();
+  return request<ProfessionalSessionDraft>(base, {
+    method: 'POST',
+    headers: getSessionActorHeaders(),
+    body: JSON.stringify(createSessionWrite(session, idempotencyKey)),
+  }).then(mapSessionProjection);
 }
 
 /**
@@ -163,5 +168,23 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
   return request<Prediction>('/api/v1/predictions', {
     method: 'POST',
     body: JSON.stringify(req),
+  });
+}
+
+/** Confirms an observed outcome with a caller-generated replay identity. */
+export function confirmPredictionOutcome(
+  predictionId: string,
+  actualOutcome: boolean,
+  idempotencyKey: string,
+): Promise<OutcomeConfirmation> {
+  if (USING_MOCK) return mock.confirmPredictionOutcome(predictionId, actualOutcome, idempotencyKey);
+  return request<OutcomeConfirmation>(`/api/v1/predictions/${predictionId}/outcome`, {
+    method: 'POST',
+    headers: getSessionActorHeaders(),
+    body: JSON.stringify({
+      actual_outcome: actualOutcome,
+      idempotency_key: idempotencyKey,
+      provenance: { source: 'frontend_outcome', synthetic: false },
+    }),
   });
 }

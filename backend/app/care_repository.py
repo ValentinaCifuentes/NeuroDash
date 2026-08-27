@@ -1,4 +1,6 @@
 import json
+import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -54,3 +56,31 @@ class SubjectRepository:
             except json.JSONDecodeError:
                 continue
         return sorted(profiles, key=lambda profile: profile["display_name"].casefold())
+
+
+class CareRecordRepository:
+    """Subject-scoped JSON persistence with replay-key idempotency."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+
+    def _path(self, subject_id: str, collection: str) -> Path:
+        path = self.root / subject_id / f"{collection}.json"
+        if not (self.root / subject_id / "profile.json").exists():
+            raise KeyError(subject_id)
+        return path
+
+    def save(self, subject_id: str, collection: str, item: dict[str, Any], id_field: str) -> dict[str, Any]:
+        path = self._path(subject_id, collection)
+        existing = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+        for saved in existing:
+            if saved.get("idempotency_key") == item["idempotency_key"]:
+                return saved
+        item = {**item, id_field: uuid.uuid4().hex}
+        existing.append(item)
+        write_json_atomic(path, existing)
+        return item
+
+    def list(self, subject_id: str, collection: str) -> list[dict[str, Any]]:
+        path = self._path(subject_id, collection)
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []

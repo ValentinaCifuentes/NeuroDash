@@ -14,7 +14,7 @@ def prediction_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
         "contract_version": "2", "subject_id": "subject-001",
         "prediction_cutoff": "2026-08-26T12:00:00+00:00", "horizon_hours": 24,
-        "risk": None, "model_score": None, "confidence": ConfidenceLevel.INSUFFICIENT,
+        "risk": None, "confidence": ConfidenceLevel.INSUFFICIENT,
         "abstained": True, "factors": [], "missingness": [], "supports": [],
         "provenance": {"origin": "synthetic"}, "versions": {"schema": "2"},
     }
@@ -27,15 +27,16 @@ def test_prediction_contract_rejects_any_non_v2_version() -> None:
         PredictionContractV2.model_validate(prediction_payload(contract_version="3"))
 
 
-def test_prediction_contract_preserves_top_level_nullable_technical_score() -> None:
+def test_prediction_contract_assigns_a_safe_identity_when_legacy_callers_omit_one() -> None:
     contract = PredictionContractV2.model_validate(prediction_payload(model_score=0.42))
-    assert contract.model_dump(mode="json")["model_score"] == 0.42
+    assert contract.prediction_id
+    assert "model_score" not in contract.model_dump(mode="json")
     assert contract.model_dump(mode="json")["confidence"] == "INSUFFICIENT"
 
 
-def test_prediction_contract_allows_a_null_technical_score() -> None:
-    contract = PredictionContractV2.model_validate(prediction_payload())
-    assert contract.model_score is None
+def test_prediction_contract_preserves_an_explicit_snapshot_identity() -> None:
+    contract = PredictionContractV2.model_validate(prediction_payload(prediction_id="snapshot-123"))
+    assert contract.prediction_id == "snapshot-123"
     assert contract.risk is None
 
 

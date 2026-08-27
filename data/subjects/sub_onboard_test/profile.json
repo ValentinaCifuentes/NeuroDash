@@ -1,4 +1,9 @@
 {
+  "authorized_professional_ids": [],
+  "authorized_tutor_ids": [],
+  "baseline": {},
+  "contract_version": "2.0",
+  "display_name": "sub_onboard_test",
   "habitual_context": {
     "exercise": "bedtime stretching"
   },
@@ -8,6 +13,11 @@
       "id": "hist_1"
     }
   ],
+  "initials": "S",
+  "provenance": {
+    "source": "caregiver_onboarding",
+    "synthetic": false
+  },
   "sensory_context": {
     "sensory_profile": "Hypersensitive"
   },

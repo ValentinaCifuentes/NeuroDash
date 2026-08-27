@@ -1,12 +1,15 @@
+import json
 from datetime import datetime
 from typing import Any
 from pathlib import Path
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from backend.app.schemas import PredictionContractV2
+from backend.app.schemas import ActorContext, PredictionContractV2, ProvenanceV2
 from backend.app.prediction_service import make_prediction, SubjectNotFoundError
 from ml.promotion import record_prediction_outcome
+from backend.app.routes import subjects
+from backend.app.routes.subjects import get_care_actor, require_subject_access
 
 router = APIRouter(prefix="/api/v1/predictions", tags=["Predictions"])
 
@@ -19,6 +22,8 @@ class PredictionRequest(BaseModel):
 
 class OutcomeRequest(BaseModel):
     actual_outcome: bool
+    idempotency_key: str = Field(min_length=1)
+    provenance: ProvenanceV2
 
 
 @router.post("", response_model=PredictionContractV2)
@@ -54,36 +59,39 @@ def create_prediction(req: PredictionRequest) -> PredictionContractV2:
 
 def find_subject_dir_by_prediction_id(prediction_id: str) -> Path:
     proj_root = Path(__file__).resolve().parents[3]
-    
-    # Check general subjects
-    subjects_dir = proj_root / "data" / "subjects"
-    if subjects_dir.exists():
-        for path in subjects_dir.iterdir():
-            if path.is_dir() and (path / "predictions" / f"{prediction_id}.json").exists():
-                return path
-                
-    # Check demo profiles
-    demo_dir = proj_root / "data" / "demo_profiles"
-    if demo_dir.exists():
-        for path in demo_dir.iterdir():
-            if path.is_dir() and (path / "predictions" / f"{prediction_id}.json").exists():
-                return path
+
+    for subject_root in (subjects.SUBJECTS_ROOT, proj_root / "data" / "demo_profiles"):
+        if subject_root.exists():
+            for path in subject_root.iterdir():
+                if path.is_dir() and (path / "predictions" / f"{prediction_id}.json").exists():
+                    return path
                 
     raise HTTPException(status_code=404, detail=f"Prediction {prediction_id} not found.")
 
 
-@router.post("/{prediction_id}/outcome")
-def confirm_outcome(prediction_id: str, req: OutcomeRequest) -> dict[str, str]:
+@router.get("/{prediction_id}", response_model=PredictionContractV2)
+def get_prediction(prediction_id: str, actor: ActorContext = Depends(get_care_actor)) -> PredictionContractV2:
+    subject_dir = find_subject_dir_by_prediction_id(prediction_id)
+    require_subject_access(subject_dir.name, actor)
+    with open(subject_dir / "predictions" / f"{prediction_id}.json", encoding="utf-8") as snapshot_file:
+        return PredictionContractV2(**json.load(snapshot_file))
+
+
+@router.post("/{prediction_id}/outcome", status_code=201)
+def confirm_outcome(prediction_id: str, req: OutcomeRequest, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
     # 1. Find the subject directory that owns this prediction
     subject_dir = find_subject_dir_by_prediction_id(prediction_id)
+    require_subject_access(subject_dir.name, actor)
     
     # 2. Record outcome
     try:
-        record_prediction_outcome(
+        return record_prediction_outcome(
             prediction_id=prediction_id,
             actual_outcome=req.actual_outcome,
-            subject_dir=subject_dir
+            subject_dir=subject_dir,
+            actor_id=actor.actor_id,
+            idempotency_key=req.idempotency_key,
+            provenance=req.provenance.model_dump(),
         )
-        return {"status": "success", "message": f"Outcome recorded for prediction {prediction_id}."}
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Prediction {prediction_id} not found.")

@@ -15,17 +15,13 @@
  *  · Nunca se afirma que una crisis ocurrirá.
  */
 
-import { useEffect, useState } from 'react';
-import { getPrediction } from '../api';
+import { useEffect, useRef, useState } from 'react';
+import { confirmPredictionOutcome, getPrediction } from '../api';
 import { Tabs } from '../components/controls';
 import { Seguimiento } from './Seguimiento';
 import {
   CONFIDENCE_LABEL,
-  CONFIDENCE_SEMANTIC,
   RISK_LABEL,
-  RISK_SEMANTIC,
-  SEMANTIC_BG,
-  SEMANTIC_COLOR,
   formatDate,
 } from '../domain/catalog';
 import type { ApiError, Prediction, Subject } from '../types';
@@ -36,6 +32,10 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
   const [tab, setTab] = useState<TabId>('estimacion');
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
+  const [outcomeError, setOutcomeError] = useState<ApiError | null>(null);
+  const [outcomeConfirmed, setOutcomeConfirmed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const retryRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     let alive = true;
@@ -43,15 +43,18 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
     setError(null);
     getPrediction({
       subject_id: subject.subject_id,
-      as_of: new Date().toISOString(),
-      horizon: 'next_24h',
+      prediction_cutoff: new Date().toISOString(),
     })
       .then((p) => alive && setPrediction(p))
       .catch((e: ApiError) => alive && setError(e));
     return () => {
       alive = false;
     };
-  }, [subject.subject_id, revision]);
+  }, [subject.subject_id, revision, attempt]);
+
+  useEffect(() => {
+    if (error) retryRef.current?.focus();
+  }, [error]);
 
   return (
     <div className="app-shell__content">
@@ -78,13 +81,18 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
       {tab === 'estimacion' && error && (
         <div className="bl-alert bl-alert--danger" role="alert">
           <span aria-hidden="true">⚠️</span>
-          <span>{error.message}</span>
+          <span>
+            {error.message}
+            <button ref={retryRef} type="button" className="bl-btn bl-btn--secondary" onClick={() => setAttempt((value) => value + 1)}>
+              Reintentar estimación
+            </button>
+          </span>
         </div>
       )}
 
       {tab === 'estimacion' && !prediction && !error && (
         <section className="bl-card app-stack--tight" aria-busy="true">
-          <span className="bl-sr-only">Calculando la estimación</span>
+          <span className="bl-sr-only" role="status">Calculando la estimación</span>
           <div className="bl-skeleton" style={{ width: '45%', height: 22 }} />
           <div className="bl-skeleton" />
           <div className="bl-skeleton" style={{ width: '70%' }} />
@@ -93,15 +101,26 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
 
       {tab === 'estimacion' && prediction && (
         <>
-          {prediction.abstain ? (
+          {prediction.abstained ? (
             <AbstentionCard prediction={prediction} />
           ) : (
-            <RiskCard prediction={prediction} />
+            <RiskCard prediction={prediction} onConfirm={async (actualOutcome) => {
+              setOutcomeError(null);
+              try {
+                await confirmPredictionOutcome(prediction.prediction_id, actualOutcome, crypto.randomUUID());
+                setOutcomeConfirmed(true);
+              } catch (e) {
+                setOutcomeError(e as ApiError);
+              }
+            }} />
           )}
 
           {prediction.factors.length > 0 && <FactorList prediction={prediction} />}
-          {prediction.missing.length > 0 && <MissingDataCard prediction={prediction} />}
-          {prediction.support.length > 0 && <SupportCard prediction={prediction} />}
+          {prediction.missingness.length > 0 && <MissingDataCard prediction={prediction} />}
+          {prediction.supports.length > 0 && <SupportCard prediction={prediction} />}
+
+          {outcomeConfirmed && <p role="status">Resultado confirmado</p>}
+          {outcomeError && <div className="bl-alert bl-alert--danger" role="alert">{outcomeError.message}</div>}
 
           <ProvenanceNote prediction={prediction} />
         </>
@@ -114,10 +133,7 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
    Riesgo + confianza
    ============================================================ */
 
-function RiskCard({ prediction }: { prediction: Prediction }) {
-  const semantic = RISK_SEMANTIC[prediction.risk_level];
-  const confSemantic = CONFIDENCE_SEMANTIC[prediction.confidence_level];
-  const pct = Math.round(prediction.model_score * 100);
+function RiskCard({ prediction, onConfirm }: { prediction: Prediction; onConfirm: (actualOutcome: boolean) => void }) {
 
   return (
     <section className="bl-card">
@@ -135,48 +151,18 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
               color: 'var(--bl-text)',
             }}
           >
-            {RISK_LABEL[prediction.risk_level]}
+            {RISK_LABEL[prediction.risk as keyof typeof RISK_LABEL] ?? prediction.risk}
           </h2>
-          <span
-            className="bl-badge"
-            style={{
-              background: SEMANTIC_BG[semantic],
-              color: 'var(--bl-text-body)',
-            }}
-          >
-            <span
-              className="bl-dot"
-              style={{ background: SEMANTIC_COLOR[semantic], width: 10, height: 10, flex: '0 0 10px' }}
-              aria-hidden="true"
-            />
-            {pct} / 100
-          </span>
         </div>
 
-        <div
-          className="app-risk__track"
-          role="img"
-          aria-label={`Puntaje del modelo: ${pct} de 100`}
-        >
-          <div
-            className="app-risk__fill"
-            style={{ width: `${pct}%`, background: SEMANTIC_COLOR[semantic] }}
-          />
-        </div>
-
-        {/* Confianza: eje independiente del riesgo. */}
         <div className="app-row">
-          <span className="bl-badge" style={{ background: SEMANTIC_BG[confSemantic] }}>
-            <span aria-hidden="true">◎</span> {CONFIDENCE_LABEL[prediction.confidence_level]}
-          </span>
-          <span style={{ fontSize: 'var(--bl-fs-xs)', color: 'var(--bl-text-muted)' }}>
-            {prediction.model_version}
-          </span>
+          <span className="bl-badge"><span aria-hidden="true">◎</span> {CONFIDENCE_LABEL[prediction.confidence]}</span>
         </div>
 
         <p style={{ margin: 0, fontSize: 'var(--bl-fs-sm)', color: 'var(--bl-text-muted)' }}>
           Es una estimación de apoyo, no un pronóstico. No indica que vaya a ocurrir una crisis.
         </p>
+        <button type="button" onClick={() => onConfirm(true)}>Confirmar que ocurrió</button>
       </div>
     </section>
   );
@@ -202,12 +188,7 @@ function AbstentionCard({ prediction }: { prediction: Prediction }) {
         La información de hoy no alcanza para sostener una estimación. Preferimos decirlo antes que
         mostrar un número sin respaldo.
       </p>
-      {prediction.priority_data_request && (
-        <div className="bl-alert bl-alert--info">
-          <span aria-hidden="true">→</span>
-          <span>{prediction.priority_data_request}</span>
-        </div>
-      )}
+      {prediction.missingness.length > 0 && <p>{prediction.missingness[0]?.impact}</p>}
     </section>
   );
 }
@@ -263,7 +244,7 @@ function MissingDataCard({ prediction }: { prediction: Prediction }) {
         <span aria-hidden="true">◌</span> Datos que faltan
       </p>
       <div className="app-stack--tight" style={{ display: 'flex', flexDirection: 'column' }}>
-        {prediction.missing.map((item) => (
+        {prediction.missingness.map((item) => (
           <div key={item.code} className="bl-alert bl-alert--warning">
             <span aria-hidden="true">◌</span>
             <span>
@@ -272,11 +253,6 @@ function MissingDataCard({ prediction }: { prediction: Prediction }) {
           </div>
         ))}
       </div>
-      {prediction.priority_data_request && (
-        <p style={{ margin: 'var(--bl-sp-4) 0 0', fontSize: 'var(--bl-fs-sm)' }}>
-          {prediction.priority_data_request}
-        </p>
-      )}
     </section>
   );
 }
@@ -292,7 +268,7 @@ function SupportCard({ prediction }: { prediction: Prediction }) {
         <span aria-hidden="true">🧩</span> Apoyos que ya funcionaron
       </p>
       <div>
-        {prediction.support.map((item) => (
+        {prediction.supports.map((item) => (
           <div key={item.support_id} className="app-factor">
             <span className="app-factor__dir" aria-hidden="true">
               •
@@ -313,20 +289,18 @@ function SupportCard({ prediction }: { prediction: Prediction }) {
    ============================================================ */
 
 function ProvenanceNote({ prediction }: { prediction: Prediction }) {
-  const { data_provenance: prov, technical_metadata: tech } = prediction;
   return (
     <section className="bl-card" style={{ background: 'var(--bl-surface-alt)' }}>
       <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-2)' }}>
         <span aria-hidden="true">🔎</span> Procedencia
       </p>
       <p style={{ margin: 0, fontSize: 'var(--bl-fs-sm)', color: 'var(--bl-text-body)' }}>
-        {prov.contains_synthetic_data
+        {prediction.provenance.synthetic
           ? 'Esta estimación usa datos sintéticos junto a datos reales de BLUBA.'
           : 'Esta estimación usa únicamente datos reales de BLUBA.'}
       </p>
       <p style={{ margin: 'var(--bl-sp-2) 0 0', fontSize: 'var(--bl-fs-xs)', color: 'var(--bl-text-muted)' }}>
-        Origen: {prov.origins.join(', ')} · motor: {tech.engine} · explicador:{' '}
-        {tech.explainer ?? 'no aplica'} · corte: {formatDate(prediction.as_of)}
+        Origen: {String(prediction.provenance.source ?? 'no disponible')} · Corte: {formatDate(prediction.prediction_cutoff)}
       </p>
     </section>
   );

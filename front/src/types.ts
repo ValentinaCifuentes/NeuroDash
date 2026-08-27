@@ -163,16 +163,20 @@ export interface ProfessionalSession {
   objectives: string | null;
   activities: string | null;
   observations: string | null;
-  /**
-   * Comentarios internos del equipo.
-   *
-   * Nunca se muestran al tutor y nunca entran al motor, con independencia
-   * de `visible_to_tutor`.
-   */
-  internal_notes: string | null;
   visible_to_tutor: boolean;
   /** Baja lógica: una sesión inactiva no cuenta para features ni listados. */
   active: boolean;
+}
+
+/** Professional-only input. Read projections never contain `internal_notes`. */
+export interface ProfessionalSessionDraft extends ProfessionalSession {
+  internal_notes: string | null;
+}
+
+export interface SessionWrite extends Omit<ProfessionalSessionDraft, 'session_id' | 'subject_id'> {
+  contract_version: '2.0';
+  idempotency_key: string;
+  provenance: { source: string; synthetic: boolean };
 }
 
 export type ConsultationReason =
@@ -258,37 +262,30 @@ export interface TechnicalMetadata {
 }
 
 export interface Prediction {
-  contract_version: '2.0';
+  /** Caregiver-safe Contract v2 projection; technical model scores never enter the UI. */
+  contract_version: '2';
   prediction_id: string;
   subject_id: string;
-  as_of: string;
-  horizon: 'next_24h';
-
-  risk_level: RiskLevel;
-  model_score: number;
-
-  model_version: string;
-  model_family: string;
-
-  confidence_level: ConfidenceLevel;
-
-  /** `INSUFFICIENT` no es un error HTTP: llega como 200 con abstain=true. */
-  abstain: boolean;
-  abstention_reason: string | null;
-
+  prediction_cutoff: string;
+  horizon_hours: number;
+  risk: string | null;
+  confidence: ConfidenceLevel;
+  abstained: boolean;
   factors: PredictionFactor[];
-  missing: MissingDataItem[];
-  priority_data_request: string | null;
-  support: SupportItem[];
-
-  data_provenance: DataProvenance;
-  technical_metadata: TechnicalMetadata;
+  missingness: MissingDataItem[];
+  supports: SupportItem[];
+  provenance: Record<string, unknown>;
+  versions: Record<string, string>;
 }
 
 export interface PredictionRequest {
   subject_id: string;
-  as_of: string;
-  horizon: 'next_24h';
+  prediction_cutoff: string;
+}
+
+export interface OutcomeConfirmation {
+  prediction_id: string;
+  actual_outcome: boolean;
 }
 
 /* ============================================================
@@ -306,29 +303,4 @@ export interface ApiErrorEnvelope {
   code: string;
   message: string;
   details?: Record<string, string>;
-}
-
-export interface PredictionView {
-  prediction_id: string;
-  subject_id: string;
-  risk_level: RiskLevel;
-  confidence_level: ConfidenceLevel;
-  abstain: boolean;
-  abstention_reason: string | null;
-  synthetic: boolean;
-  provenance: string[];
-}
-
-export interface PredictionAdapterResponse {
-  contract_version: '2.0';
-  prediction_id: string;
-  subject_id: string;
-  as_of: string;
-  horizon: 'next_24h';
-  risk_level: RiskLevel;
-  confidence_level: ConfidenceLevel;
-  abstain: boolean;
-  abstention_reason: string | null;
-  data_provenance: DataProvenance;
-  model_score?: number;
 }

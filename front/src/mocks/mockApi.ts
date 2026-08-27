@@ -21,12 +21,14 @@ import type {
   Prediction,
   PredictionRequest,
   ProfessionalSession,
+  ProfessionalSessionDraft,
   Subject,
   SubjectOnboardingInput,
   TimelineEntry,
   TimelineResponse,
 } from '../types';
-import { CATEGORY_BY_ID, formatTime } from '../domain/catalog';
+import { CATEGORY_BY_ID, formatTime, todayIso } from '../domain/catalog';
+import { createSubjectId, subjectInitials } from '../domain/subjectIdentity';
 
 const LATENCY = 420;
 
@@ -151,7 +153,6 @@ function seedHistory(subjectId: string) {
     objectives: 'Objetivos de la sesión: reforzar las vocales y el saludo.',
     activities: 'Actividades realizadas: juego con vocales y saludar a sus compañeros.',
     observations: 'Buena disposición durante toda la sesión.',
-    internal_notes: null,
     visible_to_tutor: true,
     active: true,
   });
@@ -166,9 +167,10 @@ export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
   return delay(list, 300);
 }
 
-export function saveSession(session: ProfessionalSession): Promise<ProfessionalSession> {
+export function saveSession(session: ProfessionalSessionDraft): Promise<ProfessionalSession> {
+  const { internal_notes: _internalNotes, ...projection } = session;
   const stored: ProfessionalSession = {
-    ...session,
+    ...projection,
     session_id: session.session_id ?? `SES-${++seq}`,
   };
   const i = sessions.findIndex((s) => s.session_id === stored.session_id);
@@ -194,20 +196,16 @@ export function listSubjects(): Promise<Subject[]> {
 }
 
 export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
-  const subjectId = input.display_name
-    .trim()
-    .toLocaleLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-  if (!subjectId) {
-    return Promise.reject({ status: 422, code: 'validation_error', message: 'A subject name is required.' });
+  let subjectId: string;
+  try {
+    subjectId = createSubjectId(input.display_name);
+  } catch (error) {
+    return Promise.reject({ status: 422, code: 'validation_error', message: (error as Error).message });
   }
   const subject: Subject = {
     subject_id: subjectId,
     display_name: input.display_name.trim(),
-    initials: input.display_name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase(),
+    initials: subjectInitials(input.display_name),
     age_range: '',
     diagnosis: '',
     sensory_profile: input.baseline.sensory_profile ?? '',
@@ -307,8 +305,17 @@ export function getTimeline(
  * información insuficiente (`INSUFFICIENT` llega como HTTP 200).
  */
 export function getPrediction(req: PredictionRequest): Promise<Prediction> {
+  // Prediction cutoffs are instants, but daily records use the tutor's local
+  // calendar date. Comparing with the UTC date made today's record disappear
+  // after the local evening in Chile.
+  const cutoffDate = new Date(req.prediction_cutoff);
+  const cutoffLocalDate = Number.isNaN(cutoffDate.getTime())
+    ? todayIso()
+    : `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth() + 1).padStart(2, '0')}-${String(
+        cutoffDate.getDate(),
+      ).padStart(2, '0')}`;
   const todaysRecord = dailyRecords.find(
-    (r) => r.subject_id === req.subject_id && r.date === req.as_of.slice(0, 10),
+    (r) => r.subject_id === req.subject_id && r.date === cutoffLocalDate,
   );
   const todaysEvents = events.filter((e) => e.subject_id === req.subject_id);
   const worst = Math.max(0, ...todaysEvents.map((e) => e.intensity_value));
@@ -325,36 +332,31 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
     feature_schema_version: '0.1',
   };
   const base = {
-    contract_version: '2.0' as const,
+    contract_version: '2' as const,
     prediction_id: `pred-fixture-${++seq}`,
     subject_id: req.subject_id,
-    as_of: req.as_of,
-    horizon: 'next_24h' as const,
-    model_version: 'ui-fixture',
-    model_family: 'none',
-    data_provenance: provenance,
-    technical_metadata: technical,
+    prediction_cutoff: req.prediction_cutoff,
+    horizon_hours: 24,
+    provenance: { ...provenance, engine: technical.engine },
+    versions: { model: 'ui-fixture', contract: '2' },
   };
 
   /* Sin registro del día → abstención dura. */
   if (!todaysRecord) {
     return delay({
       ...base,
-      risk_level: 'LOW',
-      model_score: 0,
-      confidence_level: 'INSUFFICIENT',
-      abstain: true,
-      abstention_reason: 'daily_record_missing',
+      risk: null,
+      confidence: 'INSUFFICIENT',
+      abstained: true,
       factors: [],
-      missing: [
+      missingness: [
         {
           code: 'daily_record_today',
           label: 'Estado basal de hoy',
           impact: 'Sin sueño ni digestión de hoy no se puede estimar el día.',
         },
       ],
-      priority_data_request: 'Registra el estado basal de hoy para activar la estimación.',
-      support: [],
+      supports: [],
     } satisfies Prediction);
   }
 
@@ -401,13 +403,11 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
 
   return delay({
     ...base,
-    risk_level: score >= 0.6 ? 'ELEVATED' : score >= 0.35 ? 'MODERATE' : 'LOW',
-    model_score: Number(score.toFixed(2)),
-    confidence_level: todaysEvents.length > 0 ? 'MEDIUM' : 'LOW',
-    abstain: false,
-    abstention_reason: null,
+    risk: score >= 0.6 ? 'ELEVATED' : score >= 0.35 ? 'MODERATE' : 'LOW',
+    confidence: todaysEvents.length > 0 ? 'MEDIUM' : 'LOW',
+    abstained: false,
     factors: pushers.slice(0, 3),
-    missing:
+    missingness:
       todaysRecord.medication_adherence === null
         ? [
             {
@@ -417,11 +417,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
             },
           ]
         : [],
-    priority_data_request:
-      todaysEvents.length === 0
-        ? 'Registrar los episodios del día mejora la confianza de mañana.'
-        : null,
-    support: [
+    supports: [
       {
         support_id: 'SUP-003',
         source: 'historical_support',
@@ -436,4 +432,12 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       },
     ],
   } satisfies Prediction);
+}
+
+export function confirmPredictionOutcome(
+  predictionId: string,
+  actualOutcome: boolean,
+  _idempotencyKey: string,
+): Promise<{ prediction_id: string; actual_outcome: boolean }> {
+  return delay({ prediction_id: predictionId, actual_outcome: actualOutcome });
 }

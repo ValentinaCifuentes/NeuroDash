@@ -42,6 +42,7 @@ import type {
   Attendance,
   ConsultationReason,
   ProfessionalSession,
+  ProfessionalSessionDraft,
   SessionModality,
   SessionStatus,
   Subject,
@@ -55,6 +56,7 @@ interface Props {
 
 export function Sesiones({ subject, onSaved, onError }: Props) {
   const [list, setList] = useState<ProfessionalSession[] | null>(null);
+  const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [editing, setEditing] = useState<ProfessionalSession | 'new' | null>(null);
   const [revision, setRevision] = useState(0);
   // El guardado de sesiones es local a esta página: no pasa por el chrome.
@@ -63,15 +65,16 @@ export function Sesiones({ subject, onSaved, onError }: Props) {
   useEffect(() => {
     let alive = true;
     setList(null);
+    setLoadError(null);
     getSessions(subject.subject_id)
       .then((res) => alive && setList(res))
-      .catch(() => alive && setList([]));
+      .catch((reason: ApiError) => alive && setLoadError(reason));
     return () => {
       alive = false;
     };
   }, [subject.subject_id, revision]);
 
-  async function persist(session: ProfessionalSession) {
+  async function persist(session: ProfessionalSessionDraft) {
     setSaving(true);
     try {
       await saveSession(session);
@@ -108,13 +111,22 @@ export function Sesiones({ subject, onSaved, onError }: Props) {
 
       {list === null && (
         <section className="bl-card app-stack--tight" aria-busy="true">
-          <span className="bl-sr-only">Cargando sesiones</span>
+          <span className="bl-sr-only" role="status">Cargando sesiones</span>
           <div className="bl-skeleton" style={{ width: '55%' }} />
           <div className="bl-skeleton" />
         </section>
       )}
 
-      {list?.length === 0 && (
+      {loadError && (
+        <section className="bl-card" role="alert">
+          <p>{loadError.message}</p>
+          <button type="button" className="bl-btn bl-btn--secondary" onClick={() => setRevision((value) => value + 1)}>
+            Reintentar sesiones
+          </button>
+        </section>
+      )}
+
+      {!loadError && list?.length === 0 && (
         <section className="bl-card">
           <div className="bl-empty">
             <b>Aún no hay sesiones registradas</b>
@@ -211,7 +223,7 @@ interface FormProps {
   /** `null` → sesión nueva. */
   session: ProfessionalSession | null;
   saving: boolean;
-  onSave: (session: ProfessionalSession) => void;
+  onSave: (session: ProfessionalSessionDraft) => void;
   onCancel: () => void;
 }
 
@@ -235,7 +247,7 @@ function SessionForm({ subjectId, session, saving, onSave, onCancel }: FormProps
   const [objectives, setObjectives] = useState(session?.objectives ?? '');
   const [activities, setActivities] = useState(session?.activities ?? '');
   const [observations, setObservations] = useState(session?.observations ?? '');
-  const [internalNotes, setInternalNotes] = useState(session?.internal_notes ?? '');
+  const [internalNotes, setInternalNotes] = useState('');
   const [visibleToTutor, setVisibleToTutor] = useState(session?.visible_to_tutor ?? true);
   const [active, setActive] = useState(session?.active ?? true);
 

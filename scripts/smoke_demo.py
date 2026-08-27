@@ -175,7 +175,6 @@ def execute_smoke_run(
         "prediction_cutoff": prediction_cutoff.isoformat(),
         "features": features.rolling_features,
         "risk": contract.risk,
-        "model_score": contract.model_score
     }
     write_json_atomic(predictions_dir / f"{prediction_id}.json", snapshot)
     
@@ -191,7 +190,7 @@ def run_smoke_test(data_dir: Path | str, models_dir: Path | str, config_dir: Pat
     assert contract_a.subject_id == "PAC-A"
     assert contract_a.abstained is False, "PAC-A should not abstain."
     assert contract_a.risk in ["LOW", "MEDIUM", "HIGH"], f"PAC-A invalid risk tier: {contract_a.risk}"
-    assert contract_a.model_score is not None, "PAC-A model score should be present."
+    assert "model_score" not in contract_a.model_dump(mode="json")
     assert contract_a.confidence in [ConfidenceLevel.LOW, ConfidenceLevel.MEDIUM, ConfidenceLevel.HIGH], "PAC-A confidence invalid."
     print("PAC-A smoke verification passed.")
     
@@ -200,7 +199,7 @@ def run_smoke_test(data_dir: Path | str, models_dir: Path | str, config_dir: Pat
     assert contract_b.subject_id == "PAC-B"
     assert contract_b.abstained is False, "PAC-B should not abstain."
     assert contract_b.risk in ["LOW", "MEDIUM", "HIGH"], f"PAC-B invalid risk tier: {contract_b.risk}"
-    assert contract_b.model_score is not None, "PAC-B model score should be present."
+    assert "model_score" not in contract_b.model_dump(mode="json")
     assert contract_b.confidence in [ConfidenceLevel.LOW, ConfidenceLevel.MEDIUM, ConfidenceLevel.HIGH], "PAC-B confidence invalid."
     print("PAC-B smoke verification passed.")
     

@@ -1,4 +1,5 @@
 import json
+import uuid
 import os
 import tempfile
 import yaml
@@ -27,8 +28,11 @@ def write_json_atomic(path: Path, value: Any) -> None:
 def record_prediction_outcome(
     prediction_id: str,
     actual_outcome: bool,
-    subject_dir: Path
-) -> None:
+    subject_dir: Path,
+    actor_id: str,
+    idempotency_key: str,
+    provenance: dict[str, Any],
+) -> dict[str, Any]:
     """
     Manually confirms the outcome of a prediction.
     If actual_outcome is True, appends a corresponding occurrence to the training data.
@@ -42,6 +46,18 @@ def record_prediction_outcome(
 
     cutoff_str = pred_snapshot["prediction_cutoff"]
     cutoff = datetime.fromisoformat(cutoff_str)
+
+    outcomes_path = subject_dir / "outcomes.json"
+    outcomes = []
+    if outcomes_path.exists():
+        try:
+            with open(outcomes_path, "r", encoding="utf-8") as f:
+                outcomes = json.load(f)
+        except Exception:
+            outcomes = []
+    for outcome in outcomes:
+        if outcome.get("idempotency_key") == idempotency_key:
+            return outcome
 
     if actual_outcome:
         # Append an occurrence in the horizon (cutoff, cutoff + 24h]
@@ -68,22 +84,18 @@ def record_prediction_outcome(
         occurrences.append(occ_record)
         write_json_atomic(occurrences_path, occurrences)
 
-    # Save the outcome confirmation itself for reference/lineage
-    outcomes_path = subject_dir / "outcomes.json"
-    outcomes = []
-    if outcomes_path.exists():
-        try:
-            with open(outcomes_path, "r", encoding="utf-8") as f:
-                outcomes = json.load(f)
-        except Exception:
-            outcomes = []
-
-    outcomes.append({
+    outcome = {
+        "outcome_id": uuid.uuid4().hex,
         "prediction_id": prediction_id,
         "actual_outcome": actual_outcome,
-        "confirmed_at": datetime.now(timezone.utc).isoformat()
-    })
+        "confirmed_at": datetime.now(timezone.utc).isoformat(),
+        "actor_id": actor_id,
+        "idempotency_key": idempotency_key,
+        "provenance": provenance,
+    }
+    outcomes.append(outcome)
     write_json_atomic(outcomes_path, outcomes)
+    return outcome
 
 
 def evaluate_and_promote_model(

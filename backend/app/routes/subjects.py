@@ -1,14 +1,15 @@
 import re
 import zoneinfo
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from typing import Any
 from pathlib import Path
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ml.promotion import write_json_atomic
 from backend.app.prediction_service import get_subject_paths, load_subject_data, SubjectNotFoundError
-from backend.app.care_repository import SubjectRepository
+from backend.app.care_repository import CareRecordRepository, SubjectRepository
+from backend.app.schemas import ActorContext, ProvenanceV2, SessionWriteV2
 
 router = APIRouter(prefix="/api/v1/subjects", tags=["Subjects"])
 SUBJECTS_ROOT = Path(__file__).resolve().parents[3] / "data" / "subjects"
@@ -23,6 +24,8 @@ class OnboardSubjectRequest(BaseModel):
     sensory_context: dict[str, Any] = Field(default_factory=dict)
     habitual_context: dict[str, Any] = Field(default_factory=dict)
     historical_supports: list[dict[str, Any]] = Field(default_factory=list)
+    authorized_tutor_ids: list[str] = Field(default_factory=list)
+    authorized_professional_ids: list[str] = Field(default_factory=list)
 
 
 class OnboardSubjectResponse(BaseModel):
@@ -39,6 +42,54 @@ class OnboardSubjectResponse(BaseModel):
 class SubjectListResponse(BaseModel):
     contract_version: str = "2.0"
     subjects: list[OnboardSubjectResponse]
+
+
+class CareRecordWrite(BaseModel):
+    occurred_at: datetime
+    idempotency_key: str = Field(min_length=1)
+    provenance: ProvenanceV2
+    sleep_quality: str | None = None
+    gi_status: str | None = None
+    wake_mode: str | None = None
+    start_autonomy: str | None = None
+    medication_adherence: str | None = None
+    day_regulation_level: str | None = None
+
+
+class EventWrite(BaseModel):
+    occurred_at: datetime
+    idempotency_key: str = Field(min_length=1)
+    provenance: ProvenanceV2
+    event_type: str
+    intensity_value: int = Field(ge=1, le=10)
+
+
+def require_aware(value: datetime, field_name: str = "occurred_at") -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        raise HTTPException(status_code=422, detail=f"{field_name} must be a timezone-aware ISO timestamp.")
+    return value
+
+
+def care_repository() -> CareRecordRepository:
+    return CareRecordRepository(SUBJECTS_ROOT)
+
+
+def is_cutoff_eligible(item: dict[str, Any], start: datetime, cutoff: datetime) -> bool:
+    source_timestamp = datetime.fromisoformat(item["source_timestamp"])
+    availability_timestamp = datetime.fromisoformat(item["availability_timestamp"])
+    return availability_timestamp <= cutoff and start <= source_timestamp <= cutoff
+
+
+def get_care_actor(
+    x_actor_id: str | None = Header(default=None),
+    x_actor_role: str | None = Header(default=None),
+) -> ActorContext:
+    if not x_actor_id or not x_actor_role:
+        raise HTTPException(status_code=401, detail="Actor context is required.")
+    try:
+        return ActorContext(actor_id=x_actor_id, role=x_actor_role)
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail="Actor role is not authorized.") from exc
 
 
 def subject_id_from_identity(display_name: str) -> str:
@@ -75,7 +126,9 @@ def onboard_subject(req: OnboardSubjectRequest) -> OnboardSubjectResponse:
         "provenance": req.provenance,
         "sensory_context": req.sensory_context,
         "habitual_context": req.habitual_context,
-        "historical_supports": req.historical_supports
+        "historical_supports": req.historical_supports,
+        "authorized_tutor_ids": req.authorized_tutor_ids,
+        "authorized_professional_ids": req.authorized_professional_ids,
     }
 
     stored = SubjectRepository(SUBJECTS_ROOT).save(profile_data)
@@ -111,12 +164,72 @@ def get_subject(subject_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
 
 
+@router.post("/{subject_id}/daily-records", status_code=201)
+def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
+    occurred_at = require_aware(req.occurred_at)
+    item = req.model_dump(mode="json")
+    item.update({
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "author_id": actor.actor_id,
+        "source_timestamp": occurred_at.isoformat(),
+        "availability_timestamp": occurred_at.isoformat(),
+        "date": occurred_at.date().isoformat(),
+        "prediction_availability": "immediate",
+    })
+    try:
+        return care_repository().save(subject_id, "records", item, "record_id")
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+
+
+@router.post("/{subject_id}/events", status_code=201)
+def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
+    occurred_at = require_aware(req.occurred_at)
+    item = req.model_dump(mode="json")
+    item.update({
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "author_id": actor.actor_id,
+        "source_timestamp": occurred_at.isoformat(),
+        "availability_timestamp": occurred_at.isoformat(),
+        "prediction_availability": "immediate",
+    })
+    try:
+        return care_repository().save(subject_id, "occurrences", item, "event_id")
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+
+
+@router.post("/{subject_id}/end-of-day", status_code=201)
+def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
+    occurred_at = require_aware(req.occurred_at)
+    try:
+        profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    local_zone = zoneinfo.ZoneInfo(profile["timezone"])
+    local_time = occurred_at.astimezone(local_zone)
+    availability = datetime.combine(local_time.date() + timedelta(days=1), datetime.min.time(), tzinfo=local_zone)
+    item = req.model_dump(mode="json")
+    item.update({
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "author_id": actor.actor_id,
+        "source_timestamp": occurred_at.isoformat(),
+        "availability_timestamp": availability.isoformat(),
+        "date": local_time.date().isoformat(),
+        "prediction_availability": "prior_day_only",
+    })
+    return care_repository().save(subject_id, "records", item, "record_id")
+
+
 @router.get("/{subject_id}/timeline")
 def get_subject_timeline(
     subject_id: str,
     as_of: str = Query(..., description="Timezone-aware datetime string"),
     days: int = Query(7, ge=1)
-) -> list[dict[str, Any]]:
+) -> dict[str, Any]:
     # 1. Parse aware as_of
     try:
         as_of_dt = datetime.fromisoformat(as_of)
@@ -125,10 +238,11 @@ def get_subject_timeline(
     except Exception:
         raise HTTPException(status_code=422, detail="as_of must be a timezone-aware ISO timestamp.")
 
-    # 2. Load data
+    # 2. Load data from the subject-scoped repository so route storage and cutoff rules share one source.
     try:
-        _, records, _ = load_subject_data(subject_id)
-    except SubjectNotFoundError:
+        records = care_repository().list(subject_id, "records")
+        occurrences = care_repository().list(subject_id, "occurrences")
+    except KeyError:
         raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
 
     # 3. Filter cutoff-safe records in window [as_of - days, as_of]
@@ -136,16 +250,63 @@ def get_subject_timeline(
     start_time = as_of_dt - timedelta(days=days)
     
     for r in records:
-        # Check cutoff-safety
-        if r["availability_timestamp"] <= as_of_dt:
-            # Check window
-            if start_time <= r["source_timestamp"] <= as_of_dt:
-                # Convert back datetime to iso string for JSON serialization
-                r_serial = r.copy()
-                r_serial["source_timestamp"] = r["source_timestamp"].isoformat()
-                r_serial["availability_timestamp"] = r["availability_timestamp"].isoformat()
-                eligible_records.append(r_serial)
+        if is_cutoff_eligible(r, start_time, as_of_dt):
+            source_timestamp = datetime.fromisoformat(r["source_timestamp"])
+            eligible_records.append({
+                "entry_id": r["record_id"], "kind": "daily_record", "timestamp": source_timestamp.isoformat(),
+                "title": "Daily record", "detail": None, "semantic": "neutral", "payload": r,
+            })
+
+    for event in occurrences:
+        if is_cutoff_eligible(event, start_time, as_of_dt):
+            source_timestamp = datetime.fromisoformat(event["source_timestamp"])
+            eligible_records.append({
+                "entry_id": event["event_id"], "kind": "event", "timestamp": source_timestamp.isoformat(),
+                "title": event["event_type"], "detail": None, "semantic": "neutral", "payload": event,
+            })
 
     # Sort descending by source timestamp
-    eligible_records.sort(key=lambda x: x["source_timestamp"], reverse=True)
-    return eligible_records
+    eligible_records.sort(key=lambda x: x["timestamp"], reverse=True)
+    return {"subject_id": subject_id, "as_of": as_of_dt.isoformat(), "days": days, "entries": eligible_records}
+
+
+def require_subject_access(subject_id: str, actor: ActorContext) -> dict[str, Any]:
+    try:
+        profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    permitted = profile.get(f"authorized_{actor.role}_ids", [])
+    if actor.actor_id not in permitted:
+        raise HTTPException(status_code=403, detail="Actor is not authorized for this subject.")
+    return profile
+
+
+def session_projection(session: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in session.items() if key != "internal_notes"}
+
+
+@router.post("/{subject_id}/sessions", status_code=201)
+def save_session(subject_id: str, req: SessionWriteV2, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
+    require_subject_access(subject_id, actor)
+    if actor.role != "professional":
+        raise HTTPException(status_code=403, detail="Only authorized professionals can save sessions.")
+    occurred_at = require_aware(req.occurred_at)
+    item = req.model_dump(mode="json")
+    item.update({
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "author_id": actor.actor_id,
+        "source_timestamp": occurred_at.isoformat(),
+        "availability_timestamp": occurred_at.isoformat(),
+    })
+    return session_projection(care_repository().save(subject_id, "sessions", item, "session_id"))
+
+
+@router.get("/{subject_id}/sessions")
+def get_sessions(subject_id: str, actor: ActorContext = Depends(get_care_actor)) -> list[dict[str, Any]]:
+    require_subject_access(subject_id, actor)
+    sessions = care_repository().list(subject_id, "sessions")
+    visible = (session for session in sessions if session.get("active", True))
+    if actor.role == "tutor":
+        visible = (session for session in visible if session.get("visible_to_tutor", True))
+    return [session_projection(session) for session in sorted(visible, key=lambda item: item["occurred_at"], reverse=True)]

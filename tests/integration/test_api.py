@@ -164,6 +164,8 @@ def test_outcome_route(client: TestClient) -> None:
 
     # Call outcome confirmation on nonexistent prediction id
     resp_bad = client.post("/api/v1/predictions/nonexistent_pred/outcome", json={
-        "actual_outcome": True
-    })
+        "actual_outcome": True,
+        "idempotency_key": "missing-outcome",
+        "provenance": {"source": "test", "synthetic": True},
+    }, headers={"X-Actor-Id": "professional-1", "X-Actor-Role": "professional"})
     assert resp_bad.status_code == 404

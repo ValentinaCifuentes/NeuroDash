@@ -92,17 +92,17 @@ def test_reproducibility_pipeline(tmp_path: Path) -> None:
     assert contract_a.subject_id == "PAC-A"
     assert contract_a.abstained is False
     assert contract_a.risk in ["LOW", "MEDIUM", "HIGH"]
-    assert contract_a.model_score is not None
+    assert "model_score" not in contract_a.model_dump(mode="json")
     
     contract_b = execute_smoke_run("PAC-B", data_dir=data_dir, models_dir=models_dir, config_dir=config_dir)
     assert contract_b.subject_id == "PAC-B"
     assert contract_b.abstained is False
     assert contract_b.risk in ["LOW", "MEDIUM", "HIGH"]
-    assert contract_b.model_score is not None
+    assert "model_score" not in contract_b.model_dump(mode="json")
     
     # PAC-C should abstain correctly
     contract_c = execute_smoke_run("PAC-C", data_dir=data_dir, models_dir=models_dir, config_dir=config_dir)
     assert contract_c.subject_id == "PAC-C"
     assert contract_c.abstained is True
     assert contract_c.risk is None
-    assert contract_c.model_score is None
+    assert "model_score" not in contract_c.model_dump(mode="json")

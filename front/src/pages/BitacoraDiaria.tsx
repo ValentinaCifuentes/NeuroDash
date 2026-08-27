@@ -25,6 +25,7 @@ import {
 } from '../domain/catalog';
 import { getTimeline } from '../api';
 import type {
+  ApiError,
   DailyRecord,
   GiStatus,
   SleepQuality,
@@ -233,22 +234,35 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
 
 function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: number }) {
   const [entries, setEntries] = useState<TimelineEntry[] | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
     setEntries(null);
+    setError(null);
     getTimeline(subjectId, new Date().toISOString(), 1)
       .then((res) => alive && setEntries(res.entries))
-      .catch(() => alive && setEntries([]));
+      .catch((reason: ApiError) => alive && setError(reason));
     return () => {
       alive = false;
     };
-  }, [subjectId, revision]);
+  }, [subjectId, revision, attempt]);
 
   if (entries === null) {
+    if (error) {
+      return (
+        <section className="bl-card" role="alert">
+          <p>{error.message}</p>
+          <button type="button" className="bl-btn bl-btn--secondary" onClick={() => setAttempt((value) => value + 1)}>
+            Reintentar historial
+          </button>
+        </section>
+      );
+    }
     return (
       <section className="bl-card app-stack--tight" aria-busy="true">
-        <span className="bl-sr-only">Cargando el historial de hoy</span>
+        <span className="bl-sr-only" role="status">Cargando el historial de hoy</span>
         <div className="bl-skeleton" style={{ width: '55%' }} />
         <div className="bl-skeleton" />
         <div className="bl-skeleton" style={{ width: '75%' }} />

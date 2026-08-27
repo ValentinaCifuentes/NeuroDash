@@ -123,7 +123,9 @@ def make_prediction(
     sensory_context = profile.get("sensory_context", {})
     historical_supports = profile.get("historical_supports", [])
 
-    # 2. Build baseline and features
+    # 2. Build baseline and features from data available at the cutoff only.
+    records = [record for record in records if record["source_timestamp"] <= prediction_cutoff and record["availability_timestamp"] <= prediction_cutoff]
+    occurrences = [occurrence for occurrence in occurrences if occurrence["source_timestamp"] <= prediction_cutoff and occurrence["availability_timestamp"] <= prediction_cutoff]
     policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
     features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile)
@@ -160,14 +162,15 @@ def make_prediction(
     if abstain:
         # Build abstained contract response
         prov = build_provenance(subject_id, has_school_records=has_school_records, lineage=None)
+        prov["synthetic"] = bool(profile.get("provenance", {}).get("synthetic", False))
         supports = select_supports(historical_supports, sensory_context)
         
         contract = PredictionContractV2(
+            prediction_id=prediction_id,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
             horizon_hours=24,
             risk=None,
-            model_score=None,
             confidence=ConfidenceLevel.INSUFFICIENT,
             abstained=True,
             factors=[],
@@ -197,13 +200,14 @@ def make_prediction(
         
         # Build provenance
         prov = build_provenance(subject_id, has_school_records=has_school_records, lineage=metadata)
+        prov["synthetic"] = bool(profile.get("provenance", {}).get("synthetic", False))
         
         contract = PredictionContractV2(
+            prediction_id=prediction_id,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
             horizon_hours=24,
             risk=risk_tier,
-            model_score=score,
             confidence=confidence,
             abstained=False,
             factors=factors,
@@ -222,14 +226,9 @@ def make_prediction(
     predictions_dir = subject_dir / "predictions"
     predictions_dir.mkdir(parents=True, exist_ok=True)
     
-    snapshot = {
-        "prediction_id": prediction_id,
-        "subject_id": subject_id,
-        "prediction_cutoff": prediction_cutoff.isoformat(),
-        "features": features.rolling_features,
-        "risk": contract.risk,
-        "model_score": contract.model_score
-    }
+    snapshot = contract.model_dump(mode="json")
+    snapshot["inputs"] = json.loads(json.dumps({"records": records, "occurrences": occurrences}, default=str))
+    snapshot["features"] = features.rolling_features
     
     snapshot_path = predictions_dir / f"{prediction_id}.json"
     write_json_atomic(snapshot_path, snapshot)

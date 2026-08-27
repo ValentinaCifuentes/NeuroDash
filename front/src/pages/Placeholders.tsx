@@ -10,6 +10,8 @@ interface Props {
   subject: Subject;
 }
 
+const DEFERRED_FEATURE_MESSAGE = 'Esta funcionalidad está fuera del alcance actual de NeuraDash.';
+
 export function FichaInicial({ subject }: Props) {
   return (
     <div className="app-shell__content">
@@ -69,8 +71,8 @@ export function BuscarProfesionales() {
       </section>
       <section className="bl-card">
         <div className="bl-empty">
-          <b>Aún no hay profesionales vinculados</b>
-          Vincula al equipo tratante para compartir la bitácora con ellos.
+          <b>Funcionalidad no disponible</b>
+          {DEFERRED_FEATURE_MESSAGE}
         </div>
       </section>
     </div>
@@ -86,8 +88,8 @@ export function MisTickets() {
       </section>
       <section className="bl-card">
         <div className="bl-empty">
-          <b>No tienes tickets abiertos</b>
-          Cuando abras uno, aparecerá acá con su estado y respuestas.
+          <b>Funcionalidad no disponible</b>
+          {DEFERRED_FEATURE_MESSAGE}
         </div>
       </section>
     </div>

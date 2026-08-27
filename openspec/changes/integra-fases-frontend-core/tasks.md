@@ -36,7 +36,7 @@ Chain strategy: feature-branch-chain
 
 - [x] 2.1 RED: test subject creation/selection, missing-subject write rejection, atomic replay, and stable IDs in `tests/{unit,integration}/`.
 - [x] 2.2 GREEN: create `backend/app/care_repository.py` and subject routes; wire explicit onboarding/active-subject gating in `front/src/App.ts` and pages.
-- [ ] 2.3 RED: test daily records, events, end-of-day availability, local timezone closure, and prediction temporal isolation.
+- [x] 2.3 RED: test daily records, events, end-of-day availability, local timezone closure, and prediction temporal isolation.
 - [ ] 2.4 GREEN: implement subject-scoped care endpoints in `backend/app/routes/subjects.py`; wire `BitacoraDiaria.tsx`, cutoff metadata, retry-safe writes, and mock parity.
 
 ## Phase 3: Sessions and Privacy

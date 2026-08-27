@@ -118,3 +118,73 @@ All component test cases pass, confirming:
 - Mobile-responsive caregiver layout (390px viewport).
 - Absence of clinical jargon or causal statements.
 - Dynamic support rendering and proper warning states for abstained subjects.
+
+---
+
+## Integration API and Privacy Runbook
+
+Start the backend from the repository root with `uvicorn backend.app.main:app --reload --port 8000`.
+The development transport identifies a caregiver actor with `X-Actor-Id` and
+`X-Actor-Role` headers. These headers are a development adapter, not a production
+identity provider; production deployment must replace them with a verified
+identity-to-subject permission source.
+
+Care writes require a timezone-aware `occurred_at`, `idempotency_key`, and
+provenance. Use the same idempotency key when retrying a write or an outcome
+confirmation. Protected session reads and prediction reload/outcome endpoints
+require actor headers and enforce the subject authorization lists on the server.
+Session read responses never expose `internal_notes`; only an authorized
+professional may submit those notes.
+
+Predictions are created with a timezone-aware `prediction_cutoff`. Every
+prediction cutoff includes only records whose availability timestamp is at or
+before that cutoff. End-of-day records become available at the following local
+midnight, so they cannot influence an earlier snapshot. Snapshot reload and
+outcome retries preserve the original prediction identity and provenance.
+
+For the current integration checks, run:
+
+```powershell
+uv run --no-sync pytest -q
+npm --prefix front test -- --run
+npm --prefix front run typecheck
+npm --prefix front run build
+git diff --check
+git status --short -- frontend
+```
+
+`front/node_modules/`, `front/dist/`, and prediction JSON generated during local
+runs are ignored. The legacy `frontend/` directory is excluded from this change
+and must remain untouched.
+
+## Caregiver UI demo state
+
+The Vite application uses the in-memory mock adapter when `VITE_API_BASE` is
+not configured. The demo starts with subject `PAC-002` and a deterministic
+29-day history for the **Seguimiento** view. That history is intentionally
+separate from today's prediction input.
+
+To see a prediction in **Evolución**:
+
+1. Select `PAC-002`.
+2. Open **Bitácora diaria** and save today's basal state.
+3. Open **Evolución** and select **Próximas 24 horas**.
+
+Without today's basal record, the safe expected result is an abstention
+(`INSUFFICIENT`), not a fabricated risk estimate. Mock records and outcomes
+are held in browser memory and are cleared on reload. The mock prediction
+adapter compares the cutoff with the caregiver's local calendar date, while
+the API contract continues to transport timezone-aware instants.
+
+To use the FastAPI integration instead, create `front/.env` from
+`front/.env.example` and set `VITE_API_BASE=http://localhost:8000`.
+
+## SDD Integration Traceability
+
+| Tasks | Delivered behavior and evidence | Rollback boundary |
+| --- | --- | --- |
+| 1.1–1.3 | Care replay, timezone validation, timeline cutoff, and local end-of-day eligibility; FastAPI TestClient care and prediction-cutoff suites. | Care repository, subject routes, and their focused integration tests. |
+| 2.1–2.3 | Server-side session authorization/redaction and explicitly non-functional placeholders; FastAPI and RTL focused suites. | Session transport/page/tests and placeholder page/tests. |
+| 3.1–3.3 | Immutable cutoff-bound snapshots and actor-bound idempotent outcomes; prediction/outcome TestClient suite. | Prediction service/routes/schema/promotion files and prediction integration tests. |
+| 4.1–4.3 | Real/mock Contract v2 parity, safe retry/error states, and safe Evolucion rendering; Vitest/RTL plus typecheck/build. | `front/src` adapter, mocks, affected pages, and their tests. |
+| 5.1–5.3 | Bounded suite verification, runbook/hygiene checks, and final task-to-evidence review. | This runbook, release-hygiene test, SDD task/progress artifacts, and ignore rules only. |
