@@ -13,7 +13,8 @@ export type Route =
   | 'sesiones'
   | 'profesionales'
   | 'tickets'
-  | 'telemetria';
+  | 'telemetria'
+  | 'planificacion';
 
 interface NavDef {
   id: Route;
@@ -30,6 +31,7 @@ const SECTIONS: { eyebrow: string; icon: string; items: NavDef[] }[] = [
       { id: 'bitacora', label: 'Bitácora Diaria', icon: '💓' },
       { id: 'evolucion', label: 'Evolución', icon: '📈' },
       { id: 'telemetria', label: 'Telemetría', icon: '⌚' },
+      { id: 'planificacion', label: 'Planificación', icon: '🗓️' },
     ],
   },
   {

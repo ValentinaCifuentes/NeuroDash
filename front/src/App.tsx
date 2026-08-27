@@ -17,6 +17,7 @@ import { Evolucion } from './pages/Evolucion';
 import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
 import { Telemetria } from './pages/Telemetria';
+import { Planificacion } from './pages/Planificacion';
 import { ProDashboard } from './pages/ProDashboard';
 import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
@@ -159,6 +160,7 @@ export default function App() {
         {route === 'profesionales' && <BuscarProfesionales />}
         {route === 'tickets' && <MisTickets />}
         {route === 'telemetria' && <Telemetria subject={subject} />}
+        {route === 'planificacion' && <Planificacion />}
       </main>
 
       {showFab && sheet.kind === 'none' && (
