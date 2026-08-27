@@ -26,5 +26,5 @@ venv/
 *.joblib.tmp
 .vite/
 *.tsbuildinfo
-*.log
-data/**/predictions/*.json
+
+node_modules/

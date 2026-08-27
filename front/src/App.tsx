@@ -17,7 +17,8 @@ import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
 import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
-import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
+import { Telemetria } from './pages/Telemetria';
+import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
 
@@ -164,6 +165,7 @@ export default function App() {
         {route === 'ficha' && <FichaInicial subject={subject} />}
         {route === 'profesionales' && <BuscarProfesionales />}
         {route === 'tickets' && <MisTickets />}
+        {route === 'telemetria' && <Telemetria subject={subject} />}
       </main>
 
       {showFab && sheet.kind === 'none' && (
