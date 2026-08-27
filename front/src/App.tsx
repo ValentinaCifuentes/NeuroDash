@@ -18,7 +18,7 @@ import { Evolucion } from './pages/Evolucion';
 import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
 import { Telemetria } from './pages/Telemetria';
-import { getSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
+import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
 

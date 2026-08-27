@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from backend.app.routes import subjects, predictions, demo_profiles, telemetry
+from backend.app.schemas import ActorContext
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -14,7 +14,9 @@ describe('contract adapter', () => {
 
   it('maps synthetic mock responses through the same safe view contract', async () => {
     const prediction = await getPrediction({
-      subject_id: 'PAC-002',
+      // Use an isolated subject so this contract test cannot depend on records
+      // written by other mock-backed tests.
+      subject_id: 'sub_predict_test',
       prediction_cutoff: '2026-08-26T12:00:00Z',
     });
 

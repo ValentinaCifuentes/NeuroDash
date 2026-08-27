@@ -163,6 +163,7 @@ def make_prediction(
     if abstain:
         # Build abstained contract response
         prov = build_provenance(subject_id, has_school_records=has_school_records, lineage=None)
+        prov["synthetic"] = bool(profile.get("provenance", {}).get("synthetic", False))
         supports = select_supports(
             historical_supports,
             sensory_context,
