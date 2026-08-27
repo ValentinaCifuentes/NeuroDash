@@ -64,12 +64,26 @@ export function Telemetria({ subject }: Props) {
         </div>
         
         {deviceState === 'disconnected' && (
-          <div style={{ textAlign: 'center', padding: 'var(--bl-sp-4)' }}>
-            <p style={{ marginBottom: 'var(--bl-sp-4)' }}>No hay dispositivos vinculados actualmente.</p>
-            <div className="app-cta">
-              <button className="bl-btn bl-btn--primary bl-btn--block" onClick={handleSearch}>
-                <span aria-hidden="true">🔍</span> Buscar dispositivos cercanos
-              </button>
+          <div style={{ padding: 'var(--bl-sp-4)' }}>
+            <div className="bl-alert" style={{ marginBottom: 'var(--bl-sp-4)' }}>
+              <span aria-hidden="true">💡</span>
+              <div>
+                <strong>¿Por qué vincular un dispositivo?</strong>
+                <p style={{ marginTop: 'var(--bl-sp-1)', fontSize: '0.9em' }}>
+                  Los sensores ambientales y fisiológicos ayudan a NeuraDash a detectar patrones invisibles. 
+                  Al vincular un NeuraWatch, el sistema combinará los niveles de ruido ambiental y tus registros 
+                  subjetivos para generar alertas tempranas mucho más precisas, ayudando a anticipar crisis 
+                  antes de que ocurran.
+                </p>
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ marginBottom: 'var(--bl-sp-4)' }}>No hay dispositivos vinculados actualmente.</p>
+              <div className="app-cta">
+                <button className="bl-btn bl-btn--primary bl-btn--block" onClick={handleSearch}>
+                  <span aria-hidden="true">🔍</span> Buscar dispositivos cercanos
+                </button>
+              </div>
             </div>
           </div>
         )}
