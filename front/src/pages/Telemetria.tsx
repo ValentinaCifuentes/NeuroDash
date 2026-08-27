@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Subject } from '../types';
 import { simulateTelemetry } from '../api';
 
@@ -8,7 +8,9 @@ interface Props {
 
 export function Telemetria({ subject }: Props) {
   const [deviceState, setDeviceState] = useState<'disconnected' | 'searching' | 'found' | 'connected'>('disconnected');
-  const [simulating, setSimulating] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSync, setLastSync] = useState<Date | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleSearch = () => {
@@ -18,23 +20,32 @@ export function Telemetria({ subject }: Props) {
     }, 2000);
   };
 
-  const handleLink = () => {
+  const handleLink = async () => {
     setDeviceState('connected');
+    setIsOnline(true);
+    // Simular sincronización inicial automática
+    await syncData('estable');
   };
 
-  const handleSimulate = async (profile: 'estable' | 'riesgo_acumulado' | 'datos_insuficientes') => {
-    setSimulating(true);
-    setToastMessage(null);
+  const syncData = async (profile: 'estable' | 'riesgo_acumulado' | 'datos_insuficientes') => {
+    setIsSyncing(true);
     try {
-      const res = await simulateTelemetry(subject.subject_id, profile);
-      setToastMessage(`¡Éxito! ${res.stored_count} observaciones generadas.`);
+      await simulateTelemetry(subject.subject_id, profile);
+      setLastSync(new Date());
     } catch (e: any) {
-      setToastMessage(`Error: ${e.message || 'Desconocido'}`);
-    } finally {
-      setSimulating(false);
+      setToastMessage(`Error al sincronizar: ${e.message || 'Desconocido'}`);
       setTimeout(() => setToastMessage(null), 4000);
+    } finally {
+      setIsSyncing(false);
     }
   };
+
+  // Opcional: efecto para reconectar y sincronizar automáticamente si vuelve a estar en línea
+  useEffect(() => {
+    if (deviceState === 'connected' && isOnline && !lastSync) {
+      syncData('estable');
+    }
+  }, [isOnline, deviceState, lastSync]);
 
   return (
     <div className="app-shell__content">
@@ -46,23 +57,29 @@ export function Telemetria({ subject }: Props) {
       </section>
 
       <section className="bl-card">
-        <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-4)' }}>
-          <span aria-hidden="true">⌚</span> Reloj Inteligente (NeuraWatch)
-        </p>
+        <div className="bl-card__header" style={{ marginBottom: 'var(--bl-sp-4)' }}>
+          <p className="bl-eyebrow">
+            <span aria-hidden="true">⌚</span> Reloj Inteligente
+          </p>
+        </div>
         
         {deviceState === 'disconnected' && (
           <div style={{ textAlign: 'center', padding: 'var(--bl-sp-4)' }}>
             <p style={{ marginBottom: 'var(--bl-sp-4)' }}>No hay dispositivos vinculados actualmente.</p>
-            <button className="bl-button bl-button--primary" onClick={handleSearch}>
-              Buscar dispositivos cercanos
-            </button>
+            <div className="app-cta">
+              <button className="bl-btn bl-btn--primary bl-btn--block" onClick={handleSearch}>
+                <span aria-hidden="true">🔍</span> Buscar dispositivos cercanos
+              </button>
+            </div>
           </div>
         )}
 
         {deviceState === 'searching' && (
           <div style={{ textAlign: 'center', padding: 'var(--bl-sp-4)' }} aria-busy="true">
-            <div className="bl-skeleton" style={{ width: '100%', height: '40px', marginBottom: 'var(--bl-sp-2)' }} />
-            <p>Buscando señales Bluetooth...</p>
+            <div className="bl-skeleton" style={{ width: '100%', height: '44px', marginBottom: 'var(--bl-sp-2)' }} />
+            <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--bl-sp-2)' }}>
+               <span className="bl-spinner" aria-hidden="true" /> Buscando señales Bluetooth...
+            </p>
           </div>
         )}
 
@@ -71,9 +88,9 @@ export function Telemetria({ subject }: Props) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <strong>NeuraWatch v1.2</strong>
-                <div style={{ fontSize: '0.9em', color: 'var(--bl-text-muted)' }}>Señal Fuerte</div>
+                <div style={{ fontSize: '0.9em', color: 'var(--bl-text-muted)' }}>Señal Fuerte (RSSI: -45dBm)</div>
               </div>
-              <button className="bl-button bl-button--primary" onClick={handleLink}>
+              <button className="bl-btn bl-btn--primary" onClick={handleLink}>
                 Vincular
               </button>
             </div>
@@ -82,44 +99,95 @@ export function Telemetria({ subject }: Props) {
 
         {deviceState === 'connected' && (
           <div style={{ display: 'grid', gap: 'var(--bl-sp-4)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--bl-sp-2)' }}>
-              <span style={{ color: 'var(--bl-semantic-green)' }} aria-hidden="true">✅</span>
-              <strong>NeuraWatch v1.2 conectado</strong>
-            </div>
-            
-            <p style={{ fontSize: '0.95em', color: 'var(--bl-text-muted)' }}>
-              El dispositivo está listo para transmitir datos de frecuencia cardíaca, ruido ambiental y agitación.
-            </p>
-
-            <div style={{ marginTop: 'var(--bl-sp-4)' }}>
-              <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-3)' }}>Simulador de Datos</p>
-              <div style={{ display: 'flex', gap: 'var(--bl-sp-2)', flexWrap: 'wrap' }}>
-                <button 
-                  className="bl-button" 
-                  onClick={() => handleSimulate('estable')}
-                  disabled={simulating}
-                >
-                  Ráfaga: Estable
-                </button>
-                <button 
-                  className="bl-button" 
-                  onClick={() => handleSimulate('riesgo_acumulado')}
-                  disabled={simulating}
-                >
-                  Ráfaga: Riesgo Acumulado
-                </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--bl-sp-2)' }}>
+                <span className="bl-icon-tile" style={{ backgroundColor: 'var(--bl-semantic-green-bg)', color: 'var(--bl-semantic-green)' }} aria-hidden="true">⌚</span>
+                <div>
+                  <strong style={{ display: 'block' }}>NeuraWatch v1.2</strong>
+                  <span style={{ fontSize: '0.85em', color: 'var(--bl-text-muted)' }}>MAC: 00:1A:7D:DA:71:13</span>
+                </div>
               </div>
               
+              <button 
+                className="bl-btn bl-btn--ghost" 
+                onClick={() => setIsOnline(!isOnline)}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px',
+                  padding: '4px 8px',
+                  borderRadius: '16px',
+                  backgroundColor: isOnline ? '#e6f4ea' : '#fce8e6',
+                  color: isOnline ? '#137333' : '#c5221f',
+                  fontSize: '0.85em',
+                  border: 'none'
+                }}
+              >
+                <span style={{ 
+                  display: 'inline-block', 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%', 
+                  backgroundColor: isOnline ? '#137333' : '#c5221f' 
+                }} />
+                {isOnline ? 'En Línea' : 'Sin Conexión'}
+              </button>
+            </div>
+
+            {!isOnline && (
+              <div className="bl-alert bl-alert--warning" style={{ marginTop: 0 }}>
+                <span aria-hidden="true">⚠️</span>
+                <span>
+                  El dispositivo perdió la conexión con el servidor. Las lecturas se almacenarán localmente
+                  en el NeuraWatch y se sincronizarán automáticamente cuando vuelva a haber conexión.
+                </span>
+              </div>
+            )}
+            
+            <div style={{ padding: 'var(--bl-sp-3)', backgroundColor: 'var(--bl-bg-subtle)', borderRadius: '8px' }}>
+              <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-2)' }}>Estado de Sincronización</p>
+              {isSyncing ? (
+                 <p style={{ display: 'flex', alignItems: 'center', gap: 'var(--bl-sp-2)', fontSize: '0.9em', color: 'var(--bl-text-muted)' }}>
+                   <span className="bl-spinner" aria-hidden="true" /> Transmitiendo telemetría al motor...
+                 </p>
+              ) : (
+                 <p style={{ fontSize: '0.9em', color: 'var(--bl-text-muted)' }}>
+                   Última sincronización: {lastSync ? lastSync.toLocaleTimeString() : 'Nunca'}
+                 </p>
+              )}
               {toastMessage && (
-                <div className="bl-alert" style={{ marginTop: 'var(--bl-sp-3)' }}>
+                <div style={{ marginTop: 'var(--bl-sp-2)', color: 'var(--bl-semantic-red)', fontSize: '0.85em' }}>
                   {toastMessage}
                 </div>
               )}
             </div>
             
-            <div style={{ marginTop: 'var(--bl-sp-4)', textAlign: 'right' }}>
-               <button className="bl-button" onClick={() => setDeviceState('disconnected')}>
-                 Desvincular
+            <div>
+              <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-2)' }}>Variables Sensoriales Activas</p>
+              <ul style={{ 
+                margin: 0, 
+                padding: '0 0 0 var(--bl-sp-4)', 
+                color: 'var(--bl-text-muted)',
+                fontSize: '0.9em',
+                lineHeight: '1.6'
+              }}>
+                <li>Frecuencia Cardíaca (bpm)</li>
+                <li>Ruido Ambiental (dBA)</li>
+                <li>Agitación de Movimiento (g)</li>
+                <li>Luminosidad (lux)</li>
+              </ul>
+            </div>
+            
+            <div style={{ marginTop: 'var(--bl-sp-4)', textAlign: 'center' }}>
+               <button 
+                 className="bl-btn bl-btn--ghost" 
+                 style={{ color: 'var(--bl-semantic-red)' }}
+                 onClick={() => {
+                   setDeviceState('disconnected');
+                   setLastSync(null);
+                 }}
+               >
+                 Desvincular Dispositivo
                </button>
             </div>
           </div>
