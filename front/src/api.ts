@@ -27,7 +27,7 @@ import type {
   Prediction,
   PredictionRequest,
   ProfessionalSession,
-  RiskLevel,
+  ProfessionalSessionDraft,
   SupportItem,
   Subject,
   TimelineEntry,
@@ -37,6 +37,7 @@ import type {
   OutcomeConfirmation,
   SubjectListResponse,
   SubjectOnboardingInput,
+  SessionWrite,
 } from './types';
 import * as mock from './mocks/mockApi';
 export { createSubjectId, subjectInitials } from './domain/subjectIdentity';
@@ -177,9 +178,9 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
     method: 'POST',
     body: JSON.stringify({
       subject_id: req.subject_id,
-      prediction_cutoff: req.as_of,
+      prediction_cutoff: req.prediction_cutoff,
     }),
-  }).then((prediction) => adaptPrediction(prediction, req));
+  }).then(adaptPrediction);
 }
 
 type BackendSubject = Partial<Subject> & {
@@ -258,41 +259,22 @@ function adaptTimelineEntry(entry: BackendTimelineEntry, index: number): Timelin
   };
 }
 
-function adaptPrediction(prediction: BackendPrediction, req: PredictionRequest): Prediction {
+function adaptPrediction(prediction: BackendPrediction): Prediction {
   return {
-    contract_version: '2.0',
+    contract_version: '2',
     prediction_id: `${prediction.subject_id}-${prediction.prediction_cutoff}`,
     subject_id: prediction.subject_id,
-    as_of: prediction.prediction_cutoff,
-    horizon: req.horizon,
-    risk_level: adaptRisk(prediction.risk),
-    model_score: prediction.model_score ?? 0,
-    model_version: prediction.versions.model_version ?? 'none',
-    model_family: 'backend-core',
-    confidence_level: adaptConfidence(prediction.confidence),
-    abstain: prediction.abstained,
-    abstention_reason: prediction.abstained ? 'insufficient_context' : null,
+    prediction_cutoff: prediction.prediction_cutoff,
+    horizon_hours: prediction.horizon_hours,
+    risk: prediction.risk,
+    confidence: adaptConfidence(prediction.confidence),
+    abstained: prediction.abstained,
     factors: prediction.factors.map(adaptFactor),
-    missing: prediction.missingness.filter((item) => item.missing).map(adaptMissingness),
-    priority_data_request: buildPriorityDataRequest(prediction.missingness),
-    support: prediction.supports.map(adaptSupport),
-    data_provenance: {
-      contains_synthetic_data: Boolean(prediction.provenance.lineage),
-      origins: prediction.provenance.excluded_from_core ? ['backend_core', 'school_records_excluded'] : ['backend_core'],
-    },
-    technical_metadata: {
-      engine: 'backend-core',
-      training_strategy_version: prediction.versions.policy_hash ?? 'default',
-      explainer: prediction.factors.length > 0 ? 'backend_explainer' : null,
-      confidence_ruleset_version: prediction.versions.policy_hash ?? 'default',
-      feature_schema_version: prediction.versions.code_version ?? '0.1.0',
-    },
+    missingness: prediction.missingness.filter((item) => item.missing).map(adaptMissingness),
+    supports: prediction.supports.map(adaptSupport),
+    provenance: prediction.provenance,
+    versions: prediction.versions,
   };
-}
-
-function adaptRisk(risk: string | null): RiskLevel {
-  if (risk === 'ELEVATED' || risk === 'MODERATE' || risk === 'LOW') return risk;
-  return 'LOW';
 }
 
 function adaptConfidence(confidence: string): ConfidenceLevel {
@@ -331,12 +313,6 @@ function adaptSupport(support: BackendSupport): SupportItem {
     label: support.description ?? 'Apoyo contextual disponible',
     detail: support.rationale ?? support.category ?? null,
   };
-}
-
-function buildPriorityDataRequest(missingness: BackendMissingness[]): string | null {
-  const missing = missingness.find((item) => item.missing);
-  if (!missing?.field) return null;
-  return `Completar ${humanize(String(missing.field)).toLowerCase()} mejora la contextualización.`;
 }
 
 function inferWindow(value: string): string {

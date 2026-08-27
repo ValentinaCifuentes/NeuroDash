@@ -15,8 +15,8 @@
  *  · Nunca se afirma que una crisis ocurrirá.
  */
 
-import { useEffect, useState } from "react";
-import { getPrediction } from "../api";
+import { useEffect, useRef, useState } from "react";
+import { confirmPredictionOutcome, getPrediction } from "../api";
 import { Tabs } from "../components/controls";
 import {
     CONFIDENCE_LABEL,
@@ -35,6 +35,8 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
     const [tab, setTab] = useState<TabId>("estimacion");
     const [prediction, setPrediction] = useState<Prediction | null>(null);
     const [error, setError] = useState<ApiError | null>(null);
+    const [retryNonce, setRetryNonce] = useState(0);
+    const retryRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         let alive = true;
@@ -42,15 +44,18 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
         setError(null);
         getPrediction({
             subject_id: subject.subject_id,
-            as_of: new Date().toISOString(),
-            horizon: "next_24h",
+            prediction_cutoff: new Date().toISOString(),
         })
             .then(p => alive && setPrediction(p))
             .catch((e: ApiError) => alive && setError(e));
         return () => {
             alive = false;
         };
-    }, [subject.subject_id, revision]);
+    }, [subject.subject_id, revision, retryNonce]);
+
+    useEffect(() => {
+        if (error) retryRef.current?.focus();
+    }, [error]);
 
     return (
         <div className="app-shell__content">
@@ -79,6 +84,9 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
                 <div className="bl-alert bl-alert--danger" role="alert">
                     <span aria-hidden="true">⚠️</span>
                     <span>{error.message}</span>
+                    <button ref={retryRef} type="button" className="bl-btn bl-btn--ghost" onClick={() => setRetryNonce(value => value + 1)}>
+                        Reintentar estimación
+                    </button>
                 </div>
             )}
 
@@ -93,15 +101,15 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
 
             {tab === "estimacion" && prediction && (
                 <>
-                    {prediction.abstain ? (
+                    {prediction.abstained ? (
                         <AbstentionCard prediction={prediction} />
                     ) : (
                         <RiskCard prediction={prediction} />
                     )}
 
                     {prediction.factors.length > 0 && <FactorList prediction={prediction} />}
-                    {prediction.missing.length > 0 && <MissingDataCard prediction={prediction} />}
-                    {prediction.support.length > 0 && <SupportCard prediction={prediction} />}
+                    {prediction.missingness.length > 0 && <MissingDataCard prediction={prediction} />}
+                    {prediction.supports.length > 0 && <SupportCard prediction={prediction} />}
 
                     <ProvenanceNote prediction={prediction} />
                 </>
@@ -115,11 +123,13 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
    ============================================================ */
 
 function RiskCard({ prediction }: { prediction: Prediction }) {
-    const semantic = RISK_SEMANTIC[prediction.risk_level];
-    const score = scoreOutOf100(prediction.model_score);
-    const primary = riskPrimaryText(prediction.risk_level);
-    const next = riskNextStepText(prediction.risk_level, prediction.support.length > 0);
-    const confidenceHelp = confidenceText(prediction.confidence_level);
+    const [confirmed, setConfirmed] = useState(false);
+    const level = prediction.risk ?? "LOW";
+    const semantic = RISK_SEMANTIC[level as Prediction["risk"] & keyof typeof RISK_SEMANTIC];
+    const score = scoreOutOf100(level);
+    const primary = riskPrimaryText(level);
+    const next = riskNextStepText(level, prediction.supports.length > 0);
+    const confidenceHelp = confidenceText(prediction.confidence);
 
     return (
         <section className="bl-card app-risk-card">
@@ -131,7 +141,7 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
                         style={{ background: SEMANTIC_COLOR[semantic], width: 10, height: 10, flex: "0 0 10px" }}
                         aria-hidden="true"
                     />
-                    {RISK_LABEL[prediction.risk_level]}
+                    {RISK_LABEL[level]}
                 </span>
             </div>
 
@@ -145,16 +155,21 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
                     <span>Elevado</span>
                 </div>
                 <div className="app-risk-meter__track">
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--low${prediction.risk_level === "LOW" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--mid${prediction.risk_level === "MODERATE" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--high${prediction.risk_level === "ELEVATED" ? " app-risk-meter__segment--active" : ""}`} />
+                    <span className={`app-risk-meter__segment app-risk-meter__segment--low${level === "LOW" ? " app-risk-meter__segment--active" : ""}`} />
+                    <span className={`app-risk-meter__segment app-risk-meter__segment--mid${level === "MODERATE" ? " app-risk-meter__segment--active" : ""}`} />
+                    <span className={`app-risk-meter__segment app-risk-meter__segment--high${level === "ELEVATED" ? " app-risk-meter__segment--active" : ""}`} />
                     <span className="app-risk-meter__marker" style={{ left: `${score}%`, background: SEMANTIC_COLOR[semantic] }} />
                 </div>
                 <div className="app-risk-meter__foot">
                     <strong>Índice demostrativo {score} / 100</strong>
-                    <span>{CONFIDENCE_LABEL[prediction.confidence_level]} - {confidenceHelp}.</span>
+                    <span><strong>{CONFIDENCE_LABEL[prediction.confidence]}</strong> - {confidenceHelp}.</span>
                 </div>
             </div>
+            {!confirmed && <button type="button" className="bl-btn bl-btn--primary" onClick={async () => {
+                await confirmPredictionOutcome(prediction.prediction_id, true, crypto.randomUUID());
+                setConfirmed(true);
+            }}>Confirmar que ocurrió</button>}
+            {confirmed && <div role="status">Resultado confirmado</div>}
         </section>
     );
 }
@@ -179,10 +194,10 @@ function AbstentionCard({ prediction }: { prediction: Prediction }) {
                 La información de hoy no alcanza para sostener una estimación. Preferimos decirlo antes que mostrar un
                 número sin respaldo.
             </p>
-            {prediction.priority_data_request && (
+            {prediction.missingness[0] && (
                 <div className="bl-alert bl-alert--info">
                     <span aria-hidden="true">→</span>
-                    <span>{prediction.priority_data_request}</span>
+                    <span>Completa {prediction.missingness[0].label.toLowerCase()} para mejorar la lectura.</span>
                 </div>
             )}
         </section>
@@ -247,7 +262,7 @@ function MissingDataCard({ prediction }: { prediction: Prediction }) {
             <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Datos que faltan</p>
             <h2 className="app-section-title">Puede mejorar la lectura</h2>
             <div className="app-stack--tight" style={{ display: "flex", flexDirection: "column" }}>
-                {prediction.missing.map(item => (
+                {prediction.missingness.map(item => (
                     <div key={item.code} className="bl-alert bl-alert--warning">
                         <span aria-hidden="true">◌</span>
                         <span>
@@ -256,9 +271,9 @@ function MissingDataCard({ prediction }: { prediction: Prediction }) {
                     </div>
                 ))}
             </div>
-            {prediction.priority_data_request && (
+            {prediction.missingness[0] && (
                 <p style={{ margin: "var(--bl-sp-4) 0 0", fontSize: "var(--bl-fs-sm)" }}>
-                    {prediction.priority_data_request}
+                    Completa {prediction.missingness[0].label.toLowerCase()} para mejorar la lectura.
                 </p>
             )}
         </section>
@@ -275,7 +290,7 @@ function SupportCard({ prediction }: { prediction: Prediction }) {
             <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Qué puedo hacer ahora</p>
             <h2 className="app-section-title">Apoyos disponibles</h2>
             <div className="app-support-list">
-                {prediction.support.map(item => (
+                {prediction.supports.map(item => (
                     <div key={item.support_id} className="app-support-item">
                         <span className="app-support-item__dot" aria-hidden="true">•</span>
                         <span className="app-support-item__body">
@@ -289,17 +304,17 @@ function SupportCard({ prediction }: { prediction: Prediction }) {
     );
 }
 
-function scoreOutOf100(score: number): number {
-    return Math.max(0, Math.min(100, Math.round(score * 100)));
+function scoreOutOf100(level: string): number {
+    return level === "ELEVATED" ? 80 : level === "MODERATE" ? 50 : 20;
 }
 
-function riskPrimaryText(level: Prediction["risk_level"]): string {
+function riskPrimaryText(level: string): string {
     if (level === "ELEVATED") return "Conviene prestar atención hoy";
     if (level === "MODERATE") return "Hay algunas señales para observar";
     return "No aparecen señales de alerta fuertes";
 }
 
-function riskNextStepText(level: Prediction["risk_level"], hasSupport: boolean): string {
+function riskNextStepText(level: string, hasSupport: boolean): string {
     if (level === "ELEVATED") {
         return hasSupport
             ? "Revisa los apoyos disponibles y mantén el registro si aparece algún cambio durante el día."
@@ -311,7 +326,7 @@ function riskNextStepText(level: Prediction["risk_level"], hasSupport: boolean):
     return "Por ahora no aparecen señales fuertes. Mantén el registro habitual.";
 }
 
-function confidenceText(level: Prediction["confidence_level"]): string {
+function confidenceText(level: Prediction["confidence"]): string {
     if (level === "HIGH") return "datos suficientes para estimar";
     if (level === "MEDIUM") return "hay datos parciales; la lectura puede mejorar con más registros";
     if (level === "LOW") return "faltan algunos datos recientes";
@@ -363,7 +378,7 @@ function isUsefulProfileText(value: string): boolean {
    ============================================================ */
 
 function ProvenanceNote({ prediction }: { prediction: Prediction }) {
-    const { data_provenance: prov, technical_metadata: tech } = prediction;
+    const prov = prediction.provenance as { contains_synthetic_data?: boolean; origins?: string[] };
     return (
         <details className="bl-card app-details">
             <summary>Detalles de la estimación</summary>
@@ -373,8 +388,7 @@ function ProvenanceNote({ prediction }: { prediction: Prediction }) {
                     : "Usa únicamente datos reales de BLUBA."}
             </p>
             <p style={{ margin: "var(--bl-sp-2) 0 0", fontSize: "var(--bl-fs-xs)", color: "var(--bl-text-muted)" }}>
-                Origen: {prov.origins.join(", ")} · motor: {tech.engine} · explicador: {tech.explainer ?? "no aplica"} ·
-                corte: {formatDate(prediction.as_of)}
+                Origen: {(prov.origins ?? ["backend_core"]).join(", ")} · <span>Corte: {formatDate(prediction.prediction_cutoff)}</span>
             </p>
         </details>
     );

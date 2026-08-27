@@ -19,9 +19,8 @@ import { Sesiones } from './pages/Sesiones';
 import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
 import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
-import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject } from './types';
+import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
 
-const SUBJECT_ID = USING_MOCK ? 'PAC-002' : 'PAC-A';
 
 type SheetState = { kind: 'none' } | { kind: 'categories' } | { kind: 'event'; category: LogCategory };
 
