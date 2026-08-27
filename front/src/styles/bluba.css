@@ -434,14 +434,11 @@ button,input,textarea,select{font-family:inherit}
 .app-risk-meter__segment--low{background:var(--bl-success-bg);border-color:var(--bl-success-border)}
 .app-risk-meter__segment--mid{background:var(--bl-warning-bg);border-color:var(--bl-warning-border)}
 .app-risk-meter__segment--high{background:var(--bl-danger-bg);border-color:var(--bl-danger-border)}
-.app-risk-meter__marker{position:absolute;top:50%;width:18px;height:18px;border-radius:var(--bl-r-full);
-  border:3px solid var(--bl-white);box-shadow:var(--bl-sh-sm);transform:translate(-50%,-50%)}
-.app-confidence-panel{display:flex;align-items:center;justify-content:space-between;gap:var(--bl-sp-3);
-  background:var(--bl-surface-alt);border:1px solid var(--bl-border);border-radius:var(--bl-r-lg);
-  padding:var(--bl-sp-4)}
-.app-confidence-panel strong{display:block;color:var(--bl-text);font-size:var(--bl-fs-h3);margin-top:2px}
-.app-mini-label{display:block;color:var(--bl-text-muted);font-size:var(--bl-fs-xs);font-weight:var(--bl-fw-bold);
-  letter-spacing:var(--bl-ls-eyebrow);text-transform:uppercase}
+.app-risk-meter__segment--active.app-risk-meter__segment--low{background:var(--bl-success);border-color:var(--bl-success)}
+.app-risk-meter__segment--active.app-risk-meter__segment--mid{background:var(--bl-warning);border-color:var(--bl-warning)}
+.app-risk-meter__segment--active.app-risk-meter__segment--high{background:var(--bl-danger);border-color:var(--bl-danger)}
+.app-risk-meter__marker{position:absolute;top:50%;width:20px;height:20px;border-radius:var(--bl-r-full);
+  border:3px solid var(--bl-white);box-shadow:var(--bl-sh-card);transform:translate(-50%,-50%)}
 .app-fine-print{margin:0;color:var(--bl-text-muted);font-size:var(--bl-fs-xs)}
 .app-factor{display:flex;gap:var(--bl-sp-3);padding:var(--bl-sp-3) 0;
   border-bottom:1px solid var(--bl-border)}
@@ -451,6 +448,14 @@ button,input,textarea,select{font-family:inherit}
 .app-factor__dir--down{color:var(--bl-success)}
 .app-factor__label{display:block;font-weight:var(--bl-fw-semibold);color:var(--bl-text);font-size:var(--bl-fs-sm)}
 .app-factor__cmp{display:block;font-size:var(--bl-fs-xs);color:var(--bl-text-muted);margin-top:2px}
+.app-support-list{display:flex;flex-direction:column;gap:var(--bl-sp-3);margin-top:var(--bl-sp-3)}
+.app-support-item{display:flex;gap:var(--bl-sp-3);background:var(--bl-surface-alt);border:1px solid var(--bl-border);
+  border-radius:var(--bl-r-lg);padding:var(--bl-sp-4)}
+.app-support-item__dot{width:18px;flex:0 0 18px;color:var(--bl-primary-600);font-weight:var(--bl-fw-bold)}
+.app-support-item__body{min-width:0}
+.app-details{background:var(--bl-surface-alt)}
+.app-details summary{cursor:pointer;color:var(--bl-text);font-size:var(--bl-fs-sm);font-weight:var(--bl-fw-bold)}
+.app-details summary:focus-visible{outline:none;box-shadow:var(--bl-ring);border-radius:var(--bl-r-sm)}
 
 /* --- Toast anclado --- */
 .app-toast{position:absolute;left:50%;transform:translateX(-50%);z-index:60;
@@ -497,6 +502,10 @@ button,input,textarea,select{font-family:inherit}
    ============================================================ */
 .app-timeline14{display:flex;flex-direction:column;gap:var(--bl-sp-2);margin-top:var(--bl-sp-4);
   overflow-x:auto;padding-bottom:var(--bl-sp-1)}
+.app-summary-strip{display:grid;grid-template-columns:1fr;gap:var(--bl-sp-2);margin-top:var(--bl-sp-4)}
+.app-summary-strip span{background:var(--bl-surface-alt);border:1px solid var(--bl-border);border-radius:var(--bl-r-md);
+  padding:var(--bl-sp-3);font-size:var(--bl-fs-xs);color:var(--bl-text-body)}
+.app-summary-strip strong{color:var(--bl-text);font-weight:var(--bl-fw-bold)}
 .app-timeline14__row{display:grid;grid-template-columns:82px repeat(14,28px);align-items:center;gap:var(--bl-sp-1);
   width:max-content;min-width:100%}
 .app-timeline14__row>span:first-child{position:sticky;left:0;background:var(--bl-surface);z-index:1;
@@ -509,6 +518,10 @@ button,input,textarea,select{font-family:inherit}
 .app-timeline14__mark--warning{background:var(--bl-warning-bg);border-color:var(--bl-warning-border);color:#8A6D06}
 .app-timeline14__mark--danger{background:var(--bl-danger-bg);border-color:var(--bl-danger-border);color:#B91C1C}
 .app-timeline14__mark--neutral{background:var(--bl-surface-alt);border-color:var(--bl-border);color:var(--bl-text-muted)}
+
+@media (min-width:420px){
+  .app-summary-strip{grid-template-columns:repeat(3,1fr)}
+}
 
 /* ============================================================
    Seguimiento diario

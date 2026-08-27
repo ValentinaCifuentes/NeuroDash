@@ -67,6 +67,13 @@ export function Seguimiento({ subject, revision }: { subject: Subject; revision:
    ============================================================ */
 
 function MultivariableTimeline({ days }: { days: DaySummary[] }) {
+  const hasRegulation = days.some((day) => day.regulation !== null);
+  const daysWithRecord = days.filter((day) => day.hasRecord).length;
+  const daysWithEvents = days.filter((day) => day.eventCount > 0).length;
+  const sleepWatchDays = days.filter(
+    (day) => day.sleep === 'Interrumpido' || day.sleep === 'Dificultad de Conciliación',
+  ).length;
+
   return (
     <section className="bl-card">
       <div className="bl-card__header">
@@ -78,6 +85,12 @@ function MultivariableTimeline({ days }: { days: DaySummary[] }) {
       <p className="bl-card__sub" style={{ marginTop: 0 }}>
         Lectura rápida de sueño, despertar, regulación y eventos registrados. Un día sin registro se muestra como dato faltante.
       </p>
+
+      <div className="app-summary-strip" aria-label="Resumen de los últimos 14 días">
+        <span><strong>{daysWithRecord}</strong> días con registro</span>
+        <span><strong>{daysWithEvents}</strong> con eventos</span>
+        <span><strong>{sleepWatchDays}</strong> noches para observar</span>
+      </div>
 
       <div className="app-timeline14" role="table" aria-label="Evolución de los últimos 14 días">
         <div className="app-timeline14__row app-timeline14__row--head" role="row">
@@ -91,7 +104,7 @@ function MultivariableTimeline({ days }: { days: DaySummary[] }) {
 
         <TimelineRow label="Sueño" days={days} getValue={sleepMark} />
         <TimelineRow label="Despertar" days={days} getValue={wakeMark} />
-        <TimelineRow label="Regulación" days={days} getValue={regulationMark} />
+        {hasRegulation && <TimelineRow label="Regulación" days={days} getValue={regulationMark} />}
         <TimelineRow label="Eventos" days={days} getValue={eventMark} />
       </div>
 

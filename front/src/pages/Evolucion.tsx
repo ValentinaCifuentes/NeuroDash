@@ -20,7 +20,6 @@ import { getPrediction } from "../api";
 import { Tabs } from "../components/controls";
 import {
     CONFIDENCE_LABEL,
-    CONFIDENCE_SEMANTIC,
     RISK_LABEL,
     RISK_SEMANTIC,
     SEMANTIC_BG,
@@ -60,11 +59,7 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
                 <p className="bl-card__sub">
                     Vista para tutor de <strong>{subject.display_name}</strong>: qué mirar, por qué y qué hacer ahora.
                 </p>
-                <div className="app-profile-line" aria-label="Perfil del consultante">
-                    <span>{subject.age_range}</span>
-                    <span>{subject.diagnosis}</span>
-                    <span>{subject.sensory_profile}</span>
-                </div>
+                <ProfileLine subject={subject} />
             </section>
 
             {/* Dos ejes distintos: lo que viene y lo que ya pasó. */}
@@ -121,10 +116,10 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
 
 function RiskCard({ prediction }: { prediction: Prediction }) {
     const semantic = RISK_SEMANTIC[prediction.risk_level];
-    const confSemantic = CONFIDENCE_SEMANTIC[prediction.confidence_level];
     const score = scoreOutOf100(prediction.model_score);
     const primary = riskPrimaryText(prediction.risk_level);
     const next = riskNextStepText(prediction.risk_level, prediction.support.length > 0);
+    const confidenceHelp = confidenceText(prediction.confidence_level);
 
     return (
         <section className="bl-card app-risk-card">
@@ -150,30 +145,16 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
                     <span>Elevado</span>
                 </div>
                 <div className="app-risk-meter__track">
-                    <span className="app-risk-meter__segment app-risk-meter__segment--low" />
-                    <span className="app-risk-meter__segment app-risk-meter__segment--mid" />
-                    <span className="app-risk-meter__segment app-risk-meter__segment--high" />
+                    <span className={`app-risk-meter__segment app-risk-meter__segment--low${prediction.risk_level === "LOW" ? " app-risk-meter__segment--active" : ""}`} />
+                    <span className={`app-risk-meter__segment app-risk-meter__segment--mid${prediction.risk_level === "MODERATE" ? " app-risk-meter__segment--active" : ""}`} />
+                    <span className={`app-risk-meter__segment app-risk-meter__segment--high${prediction.risk_level === "ELEVATED" ? " app-risk-meter__segment--active" : ""}`} />
                     <span className="app-risk-meter__marker" style={{ left: `${score}%`, background: SEMANTIC_COLOR[semantic] }} />
                 </div>
                 <div className="app-risk-meter__foot">
                     <strong>Índice demostrativo {score} / 100</strong>
-                    <span>No es probabilidad clínica</span>
+                    <span>{CONFIDENCE_LABEL[prediction.confidence_level]} - {confidenceHelp}.</span>
                 </div>
             </div>
-
-            <div className="app-confidence-panel">
-                <div>
-                    <span className="app-mini-label">Confianza de la información</span>
-                    <strong>{CONFIDENCE_LABEL[prediction.confidence_level]}</strong>
-                </div>
-                <span className="bl-badge" style={{ background: SEMANTIC_BG[confSemantic], color: "var(--bl-text-body)" }}>
-                    Riesgo ≠ confianza
-                </span>
-            </div>
-
-            <p className="app-fine-print">
-                Estimación de apoyo. No afirma que una crisis vaya a ocurrir.
-            </p>
         </section>
     );
 }
@@ -220,10 +201,7 @@ function FactorList({ prediction }: { prediction: Prediction }) {
     return (
         <section className="bl-card">
             <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Por qué aparece así</p>
-            <h2 className="app-section-title">Señales más relevantes</h2>
-            <p className="bl-card__sub" style={{ marginTop: 0 }}>
-                Son asociaciones observadas en los datos recientes, no causas confirmadas.
-            </p>
+            <h2 className="app-section-title">Señales recientes</h2>
             <div>
                 {visibleFactors.map(factor => (
                     <div key={factor.code + factor.window} className="app-factor">
@@ -232,7 +210,7 @@ function FactorList({ prediction }: { prediction: Prediction }) {
                         </span>
                         <span>
                             <span className="app-factor__label">
-                                {factor.label}
+                                {humanizeFactorLabel(factor.label)}
                                 <span className="bl-sr-only">
                                     {factor.direction === "up" ? " · empuja hacia arriba" : " · empuja hacia abajo"}
                                 </span>
@@ -267,7 +245,7 @@ function MissingDataCard({ prediction }: { prediction: Prediction }) {
     return (
         <section className="bl-card">
             <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Datos que faltan</p>
-            <h2 className="app-section-title">Esto puede bajar la confianza</h2>
+            <h2 className="app-section-title">Puede mejorar la lectura</h2>
             <div className="app-stack--tight" style={{ display: "flex", flexDirection: "column" }}>
                 {prediction.missing.map(item => (
                     <div key={item.code} className="bl-alert bl-alert--warning">
@@ -295,17 +273,12 @@ function SupportCard({ prediction }: { prediction: Prediction }) {
     return (
         <section className="bl-card">
             <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Qué puedo hacer ahora</p>
-            <h2 className="app-section-title">Apoyos registrados previamente</h2>
-            <p className="bl-card__sub" style={{ marginTop: 0 }}>
-                Se muestran desde el historial o catálogo validado; no son una orden automática.
-            </p>
-            <div>
+            <h2 className="app-section-title">Apoyos disponibles</h2>
+            <div className="app-support-list">
                 {prediction.support.map(item => (
-                    <div key={item.support_id} className="app-factor">
-                        <span className="app-factor__dir" aria-hidden="true">
-                            •
-                        </span>
-                        <span>
+                    <div key={item.support_id} className="app-support-item">
+                        <span className="app-support-item__dot" aria-hidden="true">•</span>
+                        <span className="app-support-item__body">
                             <span className="app-factor__label">{item.label}</span>
                             {item.detail && <span className="app-factor__cmp">{item.detail}</span>}
                         </span>
@@ -329,19 +302,60 @@ function riskPrimaryText(level: Prediction["risk_level"]): string {
 function riskNextStepText(level: Prediction["risk_level"], hasSupport: boolean): string {
     if (level === "ELEVATED") {
         return hasSupport
-            ? "Revisa los apoyos sugeridos y registra cualquier episodio relevante para sostener el seguimiento."
-            : "Observa de cerca el día y registra cambios importantes para mejorar la lectura de mañana.";
+            ? "Revisa los apoyos disponibles y mantén el registro si aparece algún cambio durante el día."
+            : "Mantén el registro habitual y observa si aparecen cambios durante el día.";
     }
     if (level === "MODERATE") {
-        return "Mantén las rutinas de apoyo y completa los datos pendientes si aparecen cambios durante el día.";
+        return "Mantén las rutinas de apoyo y completa el registro si aparece algún cambio durante el día.";
     }
-    return "Continúa registrando el estado basal y los eventos si ocurren; los días tranquilos también ayudan.";
+    return "Por ahora no aparecen señales fuertes. Mantén el registro habitual.";
+}
+
+function confidenceText(level: Prediction["confidence_level"]): string {
+    if (level === "HIGH") return "datos suficientes para estimar";
+    if (level === "MEDIUM") return "hay datos parciales; la lectura puede mejorar con más registros";
+    if (level === "LOW") return "faltan algunos datos recientes";
+    return "información insuficiente para estimar";
 }
 
 function displayWindow(window: string): string {
     if (window === "actual") return "dato actual";
     if (window.endsWith("d")) return `últimos ${window}`;
     return `ventana ${window}`;
+}
+
+function humanizeFactorLabel(label: string): string {
+    return label
+        .replace(/_/g, " ")
+        .replace(/\bDel Sueno\b/i, "del sueño")
+        .replace(/\bSueno\b/i, "sueño")
+        .replace(/\bEn Los Ultimos Tres Dias\b/i, "en los últimos 3 días")
+        .replace(/\bEn Los Ultimos Siete Dias\b/i, "en los últimos 7 días")
+        .replace(/\bEn Los Ultimos Catorce Dias\b/i, "en los últimos 14 días")
+        .replace(/\bEn El Ultimo Dia\b/i, "del último día")
+        .replace(/\bUltimo\b/i, "último")
+        .replace(/\bUltimos\b/i, "últimos")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function ProfileLine({ subject }: { subject: Subject }) {
+    const items = [subject.age_range, subject.diagnosis, subject.sensory_profile].filter(isUsefulProfileText);
+    if (items.length === 0) return null;
+
+    return (
+        <div className="app-profile-line" aria-label="Perfil del consultante">
+            {items.map(item => <span key={item}>{item}</span>)}
+        </div>
+    );
+}
+
+function isUsefulProfileText(value: string): boolean {
+    const normalized = value.trim().toLowerCase();
+    return Boolean(normalized) &&
+        normalized !== "edad no registrada" &&
+        normalized !== "sin diagnóstico mostrado en esta vista" &&
+        normalized !== "perfil sensorial no registrado";
 }
 
 /* ============================================================
@@ -351,19 +365,17 @@ function displayWindow(window: string): string {
 function ProvenanceNote({ prediction }: { prediction: Prediction }) {
     const { data_provenance: prov, technical_metadata: tech } = prediction;
     return (
-        <section className="bl-card" style={{ background: "var(--bl-surface-alt)" }}>
-            <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>
-                <span aria-hidden="true">🔎</span> Procedencia
-            </p>
-            <p style={{ margin: 0, fontSize: "var(--bl-fs-sm)", color: "var(--bl-text-body)" }}>
+        <details className="bl-card app-details">
+            <summary>Detalles de la estimación</summary>
+            <p style={{ margin: "var(--bl-sp-3) 0 0", fontSize: "var(--bl-fs-sm)", color: "var(--bl-text-body)" }}>
                 {prov.contains_synthetic_data
-                    ? "Esta estimación usa datos sintéticos junto a datos reales de BLUBA."
-                    : "Esta estimación usa únicamente datos reales de BLUBA."}
+                    ? "Usa datos sintéticos junto a datos reales de BLUBA."
+                    : "Usa únicamente datos reales de BLUBA."}
             </p>
             <p style={{ margin: "var(--bl-sp-2) 0 0", fontSize: "var(--bl-fs-xs)", color: "var(--bl-text-muted)" }}>
                 Origen: {prov.origins.join(", ")} · motor: {tech.engine} · explicador: {tech.explainer ?? "no aplica"} ·
                 corte: {formatDate(prediction.as_of)}
             </p>
-        </section>
+        </details>
     );
 }
