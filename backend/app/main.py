@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
-from backend.app.routes import subjects, predictions, demo_profiles
+from backend.app.routes import subjects, predictions, demo_profiles, telemetry
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +19,7 @@ app = FastAPI(
 app.include_router(subjects.router)
 app.include_router(predictions.router)
 app.include_router(demo_profiles.router)
+app.include_router(telemetry.router)
 
 
 @app.get("/health")

@@ -24,7 +24,7 @@ policy = "Use stdlib zoneinfo; tzdata supplies portable IANA timezone data when 
 dev = ["pytest==8.3.5", "httpx==0.28.1"]
 
 [tool.setuptools]
-packages = ["engine", "backend", "backend.app"]
+packages = ["engine", "backend", "backend.app", "backend.app.routes"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

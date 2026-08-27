@@ -118,3 +118,22 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
     body: JSON.stringify(req),
   });
 }
+
+export function simulateTelemetry(subjectId: string, profile: 'estable' | 'riesgo_acumulado' | 'datos_insuficientes'): Promise<{ status: string; stored_count: number; message: string }> {
+  if (USING_MOCK) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          status: 'ok',
+          stored_count: 50,
+          message: 'Simulated burst for profile ' + profile,
+        });
+      }, 1500);
+    });
+  }
+  
+  return request<{ status: string; stored_count: number; message: string }>('/api/v1/telemetry/simulate', {
+    method: 'POST',
+    body: JSON.stringify({ subject_id: subjectId, profile, seed: Math.floor(Math.random() * 1000) }),
+  });
+}
