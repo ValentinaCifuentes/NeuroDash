@@ -22,6 +22,9 @@ venv/
 .env
 .env.local
 
+# Local prediction artifacts
+data/**/predictions/
+
 # Generated artifacts
 *.joblib.tmp
 .vite/
