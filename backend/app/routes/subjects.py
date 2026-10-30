@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from ml.promotion import write_json_atomic
 from backend.app.prediction_service import get_subject_paths, load_subject_data, SubjectNotFoundError
 from backend.app.care_repository import CareRecordRepository, SubjectRepository
-from backend.app.schemas import ActorContext, ProvenanceV2, SessionWriteV2
+from backend.app.schemas import ActorContext, ProvenanceV2
 
 router = APIRouter(prefix="/api/v1/subjects", tags=["Subjects"])
 SUBJECTS_ROOT = Path(__file__).resolve().parents[3] / "data" / "subjects"
@@ -25,7 +25,6 @@ class OnboardSubjectRequest(BaseModel):
     habitual_context: dict[str, Any] = Field(default_factory=dict)
     historical_supports: list[dict[str, Any]] = Field(default_factory=list)
     authorized_tutor_ids: list[str] = Field(default_factory=list)
-    authorized_professional_ids: list[str] = Field(default_factory=list)
 
 
 class OnboardSubjectResponse(BaseModel):
@@ -128,7 +127,6 @@ def onboard_subject(req: OnboardSubjectRequest) -> OnboardSubjectResponse:
         "habitual_context": req.habitual_context,
         "historical_supports": req.historical_supports,
         "authorized_tutor_ids": req.authorized_tutor_ids,
-        "authorized_professional_ids": req.authorized_professional_ids,
     }
 
     stored = SubjectRepository(SUBJECTS_ROOT).save(profile_data)
@@ -275,38 +273,10 @@ def require_subject_access(subject_id: str, actor: ActorContext) -> dict[str, An
         profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
-    permitted = profile.get(f"authorized_{actor.role}_ids", [])
+    if actor.role == "system":
+        return profile
+    permitted = profile.get("authorized_tutor_ids", [])
     if actor.actor_id not in permitted:
         raise HTTPException(status_code=403, detail="Actor is not authorized for this subject.")
     return profile
 
-
-def session_projection(session: dict[str, Any]) -> dict[str, Any]:
-    return {key: value for key, value in session.items() if key != "internal_notes"}
-
-
-@router.post("/{subject_id}/sessions", status_code=201)
-def save_session(subject_id: str, req: SessionWriteV2, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
-    require_subject_access(subject_id, actor)
-    if actor.role != "professional":
-        raise HTTPException(status_code=403, detail="Only authorized professionals can save sessions.")
-    occurred_at = require_aware(req.occurred_at)
-    item = req.model_dump(mode="json")
-    item.update({
-        "contract_version": "2.0",
-        "subject_id": subject_id,
-        "author_id": actor.actor_id,
-        "source_timestamp": occurred_at.isoformat(),
-        "availability_timestamp": occurred_at.isoformat(),
-    })
-    return session_projection(care_repository().save(subject_id, "sessions", item, "session_id"))
-
-
-@router.get("/{subject_id}/sessions")
-def get_sessions(subject_id: str, actor: ActorContext = Depends(get_care_actor)) -> list[dict[str, Any]]:
-    require_subject_access(subject_id, actor)
-    sessions = care_repository().list(subject_id, "sessions")
-    visible = (session for session in sessions if session.get("active", True))
-    if actor.role == "tutor":
-        visible = (session for session in visible if session.get("visible_to_tutor", True))
-    return [session_projection(session) for session in sorted(visible, key=lambda item: item["occurred_at"], reverse=True)]
