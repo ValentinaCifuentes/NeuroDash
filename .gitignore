@@ -28,3 +28,7 @@ venv/
 *.tsbuildinfo
 node_modules/
 front/dist/: Add predictive interpretability (SHAP) reports mockup)
+
+
+AGENTS.md
+PLAN.md
