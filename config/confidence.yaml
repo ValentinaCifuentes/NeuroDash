@@ -7,11 +7,3 @@
 high_threshold: 0.8
 medium_threshold: 0.6
 low_threshold: 0.4
-
-# --- TELEMETRY PLUGIN confidence settings ---
-# Used by calculate_telemetry_confidence() when the sensor layer is active.
-telemetry:
-  # Hours without a logbook entry before it's considered "stale"
-  logbook_stale_hours: 48
-  # Maximum gap (hours) between telemetry readings before continuity is broken
-  telemetry_continuity_gap_hours: 6

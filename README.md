@@ -134,12 +134,12 @@ verificación](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
 
 ```text
 backend/app/   FastAPI application, routes, schemas, and services
-engine/        Temporal features, confidence, safety, and telemetry logic
+engine/        Temporal features, confidence, safety, and prediction logic
 ml/            Dataset building, training, evaluation, and model registry
 front/         Vite/React/TypeScript caregiver and professional UI
 scripts/       Synthetic-data, training, and verification commands
 tests/         Backend unit/integration tests
-docs/          Product, architecture, telemetry, and verification guides
+docs/          Product, architecture, and verification guides
 openspec/      Spec-driven development artifacts
 config/        Runtime and model configuration
 data/          Local demo and generated data
@@ -149,7 +149,7 @@ models/        Local generated model artifacts
 ## Aviso sobre privacidad e identidad de producción
 
 Utilice únicamente datos sintéticos o debidamente autorizados durante el desarrollo.
-La telemetría JSON local, los historiales de demostración y los artefactos de modelos
+Los historiales de demostración y los artefactos de modelos locales
 no constituyen un almacén de datos de producción. Antes del despliegue, añada
 controles verificados de autenticación, autorización y consentimiento del sujeto,
 reemplace los encabezados de desarrollo `X-Actor-Id` y `X-Actor-Role`, proteja el
@@ -161,7 +161,6 @@ de la incertidumbre.
 
 - [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
 - [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
-- [Guía de telemetría](docs/Telemetría.md)
 - [Panel profesional](docs/NeuraDash_Dashboard_Terapeuta.md)
 - [Casos y recomendaciones](docs/NeuraDash_Casos_y_Recomendaciones.md)
 - [Flujo de OpenSpec](openspec/README.md)
