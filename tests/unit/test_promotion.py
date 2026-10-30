@@ -44,7 +44,7 @@ def test_manual_outcome_confirmation(tmp_path: Path) -> None:
         prediction_id=pred_id,
         actual_outcome=True,
         subject_dir=subject_dir,
-        actor_id="professional-1",
+        actor_id="tutor-1",
         idempotency_key="outcome-positive",
         provenance={"source": "test", "synthetic": True},
     )
@@ -69,7 +69,7 @@ def test_manual_outcome_confirmation(tmp_path: Path) -> None:
         prediction_id=pred_id_neg,
         actual_outcome=False,
         subject_dir=subject_dir,
-        actor_id="professional-1",
+        actor_id="tutor-1",
         idempotency_key="outcome-negative",
         provenance={"source": "test", "synthetic": True},
     )

@@ -255,24 +255,24 @@ def test_contextual_support_cases_from_recommendation_guide() -> None:
         },
         {
             "id": "hist_regulation_pause",
-            "description": "Pausa breve acordada con el profesional.",
+            "description": "Pausa breve acordada y registrada.",
             "category": "regulation",
             "contexts": ["early_dysregulation", "self_regulation"],
-            "approved_by_professional": True,
+            "type": "historical",
         },
         {
             "id": "hist_help_card",
             "description": "Tarjeta de ayuda registrada para pedir apoyo.",
             "category": "communication",
             "contexts": ["communication"],
-            "approved_by_professional": True,
+            "type": "historical",
         },
         {
             "id": "hist_reinforcement",
             "description": "Reconocer verbalmente el uso de la pausa acordada.",
             "category": "reinforcement",
             "contexts": ["alternative_behavior"],
-            "approved_by_professional": True,
+            "type": "historical",
         },
     ]
     context = {
@@ -283,9 +283,7 @@ def test_contextual_support_cases_from_recommendation_guide() -> None:
         "communication_need": True,
         "alternative_behavior_used": True,
         "repeated_unclear_pattern": True,
-        "caregiver_view": True,
         "self_regulation_available": True,
-        "professional_plan": True,
     }
 
     supports = select_supports(
@@ -303,7 +301,6 @@ def test_contextual_support_cases_from_recommendation_guide() -> None:
         "alternative_behavior_reinforcement",
         "unclear_repeated_pattern",
         "previously_effective_similar_context",
-        "caregiver_context",
         "learned_self_regulation",
     }.issubset(case_ids)
     assert supports[0]["source"] == "historical_support"

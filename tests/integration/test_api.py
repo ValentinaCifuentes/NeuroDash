@@ -167,5 +167,5 @@ def test_outcome_route(client: TestClient) -> None:
         "actual_outcome": True,
         "idempotency_key": "missing-outcome",
         "provenance": {"source": "test", "synthetic": True},
-    }, headers={"X-Actor-Id": "professional-1", "X-Actor-Role": "professional"})
+    }, headers={"X-Actor-Id": "tutor-1", "X-Actor-Role": "tutor"})
     assert resp_bad.status_code == 404
