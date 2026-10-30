@@ -1,9 +1,8 @@
 # NeuraDash
 
 NeuraDash es una aplicación de apoyo no diagnóstico para registros de cuidadores,
-predicciones seguras orientadas a tendencias, demostraciones de telemetría y
-colaboración con profesionales. Combina un backend de FastAPI y un frontend de
-React/TypeScript.
+predicciones seguras orientadas a tendencias y colaboración con profesionales.
+Combina un backend de FastAPI y un frontend de React/TypeScript.
 
 > **Límite de seguridad:** NeuraDash comunica incertidumbre, asociaciones
 > observadas y opciones de apoyo. No es una herramienta de diagnóstico, causal,
@@ -17,8 +16,6 @@ frontend ofrece actualmente:
 
 - Incorporación de sujetos por parte del cuidador, registros diarios, registro de
   eventos y estados de predicción de Evolución.
-- Una interfaz de telemetría respaldada por un simulador sintético de ráfagas con
-  perfiles de estabilidad, riesgo acumulado y datos insuficientes.
 - Vistas de planificación y seguimiento, incluidas **Planificación**, **Seguimiento**
   y **Sesiones**.
 - Una vista profesional mediante el selector de roles, que incluye el panel
@@ -28,7 +25,7 @@ frontend ofrece actualmente:
 
 Algunas entradas de navegación siguen siendo marcadores de posición no funcionales
 de forma intencionada (por ejemplo, la búsqueda de profesionales y los tickets de
-soporte). Los datos de ML y telemetría utilizados por la demostración son sintéticos
+soporte). Los datos de ML utilizados por la demostración son sintéticos
 o datos locales de desarrollo; esto no es un despliegue de producción.
 
 ## Inicio rápido
@@ -66,7 +63,7 @@ Enlaces útiles mientras está en ejecución:
 
 El punto de entrada de la API es `backend.app.main:app`. Las rutas se agrupan bajo
 `/api/v1` e incluyen sujetos, registros diarios y eventos, predicciones,
-sesiones profesionales, perfiles de demostración y telemetría.
+sesiones profesionales y perfiles de demostración.
 
 ### Ejecutar el frontend
 
