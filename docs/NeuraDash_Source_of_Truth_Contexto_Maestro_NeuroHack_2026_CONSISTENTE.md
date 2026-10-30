@@ -61,7 +61,7 @@ La hackatón debe demostrar principalmente **CORE**. CONNECT y SENSE se utilizan
 
 La decisión metodológica central es **entrenar un modelo predictivo individual por usuario**. Cada niño tendrá su propio historial, baseline, dataset supervisado y versiones de modelo. El sistema realizará predicciones con los registros diarios y, cuando se acumulen suficientes ejemplos nuevos con outcome conocido, reentrenará una nueva versión del modelo individual y solo la promoverá si supera la versión anterior según criterios de validación definidos.
 
-Los CSV entregados siguen siendo demasiado pequeños para afirmar performance clínica: contienen 4 casos, 102 registros diarios, 37 sesiones profesionales y 7 eventos explícitos de desregulación. Por ello sirven como ancla estructural y para construir el pipeline; para demostrar entrenamiento y reentrenamiento en la hackatón se podrán utilizar **historias longitudinales mockeadas explícitas por perfil demo**, sin presentarlos como evidencia clínica.
+Los CSV entregados siguen siendo demasiado pequeños para afirmar performance clínica: contienen 4 casos, 102 registros diarios, 37 sesiones de seguimiento y 7 eventos explícitos de desregulación. Por ello sirven como ancla estructural y para construir el pipeline; para demostrar entrenamiento y reentrenamiento en la hackatón se podrán utilizar **historias longitudinales mockeadas explícitas por perfil demo**, sin presentarlos como evidencia clínica.
 
 Para usuarios nuevos, NeuraDash incorpora un **cuestionario de onboarding** que construye contexto inicial y baseline provisional. El onboarding reduce el problema de cold start, pero no sustituye los ejemplos supervisados `X → y` necesarios para entrenar un modelo individual.
 
@@ -161,7 +161,7 @@ Elemento valioso, pero no necesario para el MVP actual.
 
 # 2. CONTEXTO OFICIAL DEL DESAFÍO
 
-BLUBA solicita una solución tecnológica capaz de identificar **patrones y señales tempranas asociadas a posibles episodios de desregulación**, utilizando información cotidiana registrada por familias, profesionales y equipos educativos.
+BLUBA solicita una solución tecnológica capaz de identificar **patrones y señales tempranas asociadas a posibles episodios de desregulación**, utilizando información cotidiana registrada por familias, cuidadores y equipos educativos.
 
 El desafío plantea explícitamente un horizonte de:
 
@@ -199,7 +199,7 @@ personalización, missingness y UX
 
 ## 3.1 Problema de negocio
 
-BLUBA ya permite registrar información relevante sobre el niño, incluyendo bitácora diaria, sesiones profesionales, historial y eventos de desregulación.
+BLUBA ya permite registrar información relevante sobre el niño, incluyendo bitácora diaria, historial y eventos de desregulación.
 
 El problema no es únicamente registrar una desregulación después de que ocurre.
 
@@ -292,7 +292,7 @@ Pedir más datos indiscriminadamente puede empeorar adherencia y generar todaví
 - un dispositivo médico validado;
 - una IA clínica certificada;
 - una garantía de que una desregulación ocurrirá;
-- un reemplazo de profesionales;
+- un reemplazo del criterio clínico;
 - un sistema que prescribe tratamientos;
 - una aplicación paralela a BLUBA;
 - un wearable obligatorio;
@@ -467,7 +467,6 @@ Los datos entregados contienen:
 |---|---:|---|
 | `1_casos_anonimizados.csv` | 4 | perfil y contexto individual |
 | `2_programas_y_objetivos.csv` | 10 | contexto terapéutico |
-| `3_sesiones_profesionales.csv` | 37 | señales profesionales/contextuales |
 | `4_seguimiento_diario_tutor.csv` | 102 | serie diaria principal |
 | `5_eventos_desregulacion_tutor.csv` | 7 | historial explícito de episodios |
 
@@ -629,16 +628,6 @@ estrategia_aplicada
 resultado_estrategia
 ```
 
-### Sesiones
-
-```text
-nivel_alerta_inicial
-nivel_alerta_final
-profesion
-fecha_sesion
-observaciones/contexto
-```
-
 ---
 
 ## 9.2 DERIVADAS — calculadas desde datos reales
@@ -671,10 +660,6 @@ wake_state_delta_baseline
 
 ```text
 previous_day_regulation
-```
-
-```text
-professional_alert_recent
 ```
 
 ```text
@@ -1333,14 +1318,14 @@ NeuraDash explica asociaciones y señales, no causalidad clínica.
 
 Usar:
 
-> **historial individual de apoyos + catálogo profesional/curado**
+> **historial individual de apoyos + catálogo validado/curado**
 
 No generar tratamiento libremente con un LLM.
 
 ## 19.2 Orden de prioridad
 
 1. apoyo previamente efectivo para ese niño;
-2. apoyo previamente registrado por su profesional;
+2. apoyo previamente registrado para la persona;
 3. catálogo general validado;
 4. ningún apoyo si no hay base suficiente.
 
@@ -1550,7 +1535,6 @@ Incluye:
 
 - bitácora;
 - eventos;
-- sesiones;
 - baseline;
 - memoria temporal;
 - perfil sensorial;
@@ -1950,20 +1934,20 @@ NeuraDash debe sentirse como una capacidad de BLUBA, no como otra plataforma.
 
 ## 32.1 Usuario primario
 
-**Profesional**
+**Tutor/cuidador**
 
 Razón:
 
-- puede interpretar tendencias;
-- puede revisar historial;
-- puede validar apoyos;
-- encaja con la Ficha del Consultante existente.
+- registra el estado basal diario y los eventos;
+- revisa tendencias y evolución sin interpretación clínica;
+- recibe apoyos acordados como opciones a considerar;
+- completa la información prioritaria cuando falta.
 
 **Estado:** `LOCKED como diseño del MVP`
 
 ## 32.2 Usuario secundario
 
-**Tutor/familia**
+**Familia**
 
 Funciones:
 
@@ -1972,7 +1956,7 @@ Funciones:
 - recibir indicación de que falta información;
 - revisar apoyos acordados.
 
-## 32.3 Vista profesional
+## 32.3 Vista del cuidador
 
 Debe mostrar, como mínimo:
 
@@ -2528,7 +2512,7 @@ Respuesta:
 
 Respuesta:
 
-> Priorizamos apoyos previamente registrados o validados por profesionales. NeuraDash no prescribe tratamientos de forma autónoma.
+> Priorizamos apoyos previamente registrados o validados para la persona. NeuraDash no prescribe tratamientos de forma autónoma.
 
 ---
 
@@ -2566,7 +2550,7 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 - micro-check-ins reales;
 - mayor volumen longitudinal por usuario;
 - captura de outcomes reales;
-- catálogo profesional de apoyos;
+- catálogo validado de apoyos;
 - persistencia productiva y autenticación/integración con BLUBA.
 
 ## Fase 2 — Validación de datos
@@ -2638,7 +2622,7 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 | D28 | EDA real | ROADMAP | contacto, variabilidad y riesgo de tolerancia |
 | D29 | M5Stack/ESP32 | PROVISIONAL | solo si no amenaza CORE |
 | D30 | no almacenar audio | LOCKED | privacidad |
-| D31 | usuario primario profesional | LOCKED MVP | mejor receptor de información compleja |
+| D31 | usuario primario cuidador/tutor | LOCKED MVP | registra el estado basal y revisa tendencias |
 | D32 | usuario secundario tutor/familia | LOCKED MVP | fuente de datos y micro-check-in |
 | D33 | no equiparar regulación general con evento explícito | LOCKED | evidencia directa de los CSV |
 | D34 | no claim de causalidad | LOCKED | límites científicos |
@@ -2662,7 +2646,7 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 | Outcome | desregulación moderada/severa | PROVISIONAL |
 | Horizonte | próximas 24 h | LOCKED |
 | Prediction cutoff | timestamp explícito | LOCKED |
-| Usuario primario | profesional | LOCKED |
+| Usuario primario | tutor/cuidador | LOCKED |
 | Usuario secundario | tutor/familia | LOCKED |
 | Dataset | BLUBA + sintéticos explícitos | LOCKED |
 | Validación clínica actual | no | LOCKED |
@@ -2751,7 +2735,7 @@ Todo lo demás debe resolverse internamente sin usar “OPEN” como excusa para
 12. registrar features, predicción y outcome;
 13. implementar reentrenamiento candidato + comparación con modelo activo;
 14. generar Prediction Contract;
-15. construir vista profesional y micro-check-in;
+15. construir vista del cuidador y micro-check-in;
 16. probar cold start, predicción, outcome y promoción de versión;
 17. solo entonces añadir mocks CONNECT/SENSE si queda tiempo;
 18. congelar demo, capturar evidencia y hacer QA final.
@@ -2918,7 +2902,6 @@ Este Source of Truth se construye principalmente a partir de:
 
 - `1_casos_anonimizados.csv`
 - `2_programas_y_objetivos.csv`
-- `3_sesiones_profesionales.csv`
 - `4_seguimiento_diario_tutor.csv`
 - `5_eventos_desregulacion_tutor.csv`
 

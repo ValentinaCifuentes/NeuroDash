@@ -1,7 +1,7 @@
 # NeuraDash
 
-NeuraDash es una aplicación de apoyo no diagnóstico para registros de cuidadores,
-predicciones seguras orientadas a tendencias y colaboración con profesionales.
+NeuraDash es una aplicación de apoyo no diagnóstico para registros de cuidadores y
+predicciones seguras orientadas a tendencias.
 Combina un backend de FastAPI y un frontend de React/TypeScript.
 
 > **Límite de seguridad:** NeuraDash comunica incertidumbre, asociaciones
@@ -16,16 +16,12 @@ frontend ofrece actualmente:
 
 - Incorporación de sujetos por parte del cuidador, registros diarios, registro de
   eventos y estados de predicción de Evolución.
-- Vistas de planificación y seguimiento, incluidas **Planificación**, **Seguimiento**
-  y **Sesiones**.
-- Una vista profesional mediante el selector de roles, que incluye el panel
-  profesional y las superficies de informes.
+- Vistas de planificación y seguimiento, incluidas **Planificación** y **Seguimiento**.
 - Adaptadores explícitos para el modo simulado y el backend real que utilizan el
   mismo contrato del frontend.
 
 Algunas entradas de navegación siguen siendo marcadores de posición no funcionales
-de forma intencionada (por ejemplo, la búsqueda de profesionales y los tickets de
-soporte). Los datos de ML utilizados por la demostración son sintéticos
+de forma intencionada (por ejemplo, los tickets de soporte). Los datos de ML utilizados por la demostración son sintéticos
 o datos locales de desarrollo; esto no es un despliegue de producción.
 
 ## Inicio rápido
@@ -62,8 +58,8 @@ Enlaces útiles mientras está en ejecución:
 - ReDoc: <http://localhost:8000/redoc>
 
 El punto de entrada de la API es `backend.app.main:app`. Las rutas se agrupan bajo
-`/api/v1` e incluyen sujetos, registros diarios y eventos, predicciones,
-sesiones profesionales y perfiles de demostración.
+`/api/v1` e incluyen sujetos, registros diarios y eventos, predicciones y
+perfiles de demostración.
 
 ### Ejecutar el frontend
 
@@ -87,8 +83,8 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-Los encabezados del actor de desarrollo utilizados para las operaciones profesionales
-protegidas no constituyen un proveedor de identidad de producción.
+Los encabezados del actor de desarrollo utilizados para las operaciones protegidas
+no constituyen un proveedor de identidad de producción.
 
 ## Pruebas y validación
 
@@ -133,7 +129,7 @@ verificación](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
 backend/app/   FastAPI application, routes, schemas, and services
 engine/        Temporal features, confidence, safety, and prediction logic
 ml/            Dataset building, training, evaluation, and model registry
-front/         Vite/React/TypeScript caregiver and professional UI
+front/         Vite/React/TypeScript caregiver UI
 scripts/       Synthetic-data, training, and verification commands
 tests/         Backend unit/integration tests
 docs/          Product, architecture, and verification guides
@@ -158,6 +154,5 @@ de la incertidumbre.
 
 - [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
 - [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
-- [Panel profesional](docs/NeuraDash_Dashboard_Terapeuta.md)
 - [Casos y recomendaciones](docs/NeuraDash_Casos_y_Recomendaciones.md)
 - [Flujo de OpenSpec](openspec/README.md)

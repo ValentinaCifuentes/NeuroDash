@@ -11,7 +11,7 @@ Basado en la app original de BLUBA y el Source of Truth de NeuraDash (`NeuraDash
 | Evento: Transición | Ya existente | Sin mención en el Source of Truth |
 | Evento: Dieta Sensorial | Ya existente | Sin mención directa; conceptualmente cercana al "perfil sensorial contextual" (§11) pero no absorbida |
 | Registro Rápido (botón +) | Relacionado, no duplicado | Pariente conceptual del micro-check-in adaptativo (§21), pero este último es dirigido por datos faltantes, no un botón siempre disponible |
-| Sesiones — parámetros, alerta, observaciones | Ya existente (insumo) | Coincide con variables CORE de sesión (§9.1) |
+| Sesiones — parámetros, alerta, observaciones | Ya existente | Sin relación con NeuraDash |
 | Sesiones — asistencia, pagos, visibilidad al tutor | Ya existente | Sin relación con NeuraDash |
 | Ficha Inicial | Ya existente | Complementada (no reemplazada) por el Onboarding, que es nuevo (§20) |
 | Evolución | Mejora propuesta | Pasa de reporte retrospectivo a vista con riesgo prospectivo, confianza y factores (§32.3) |
