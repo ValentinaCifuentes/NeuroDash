@@ -41,7 +41,7 @@ Chain strategy: feature-branch-chain
 
 ## Phase 3: Personal ML Lifecycle
 
-- [x] 3.1 RED: test X(T)→y(T) `(T,T+24h]`, temporal split, labels, lineage, seeded synthetic limits; GREEN: implement `ml/dataset_builder.py`, deterministic generators, and `data/bluba/`; REFACTOR: make lineage metadata explicit.
+- [x] 3.1 RED: test X(T)→y(T) `(T,T+24h]`, temporal split, labels, lineage, seeded synthetic limits; GREEN: implement `ml/dataset_builder.py`, deterministic generators, and `data/legacy_history/`; REFACTOR: make lineage metadata explicit.
 - [x] 3.2 RED: test repeated training equality, subject-local artifacts, no profile-risk branch, cold-start abstention, and registry versioning; GREEN: implement `ml/{trainer,evaluator,model_registry,inference,explain}.py`, configs, and PAC fixtures; REFACTOR: share one inference path.
 
 ## Phase 4: Safety, Outcomes, and API

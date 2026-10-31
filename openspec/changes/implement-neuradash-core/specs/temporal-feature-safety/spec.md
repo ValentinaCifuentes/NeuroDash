@@ -5,7 +5,7 @@ Prevent temporal leakage and make feature coverage inspectable.
 
 ## Requirements
 ### Requirement: Cutoff-safe features
-The system MUST normalize BLUBA data, require aware timestamps, include only records whose availability is <= cutoff, exclude future data, and use prior-day-only regulation. It MUST provide full provenance, 1/3/7/14-day features, and explicit missingness.
+The system MUST normalize source data, require aware timestamps, include only records whose availability is <= cutoff, exclude future data, and use prior-day-only regulation. It MUST provide full provenance, 1/3/7/14-day features, and explicit missingness.
 #### Scenario: Boundary
 - GIVEN a record available exactly at cutoff and another after it
 - WHEN features are built

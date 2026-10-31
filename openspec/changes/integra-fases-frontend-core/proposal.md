@@ -13,7 +13,7 @@ Make `front/` the integrated NeuraDash UI for onboarding, care records, and CORE
 - Preserve accessible loading, validation, live-status, keyboard, and focus behavior; keep mock data visibly synthetic and contract-equivalent.
 
 ### Out of Scope / Placeholders
-- Keep BLUBA-only support tickets as placeholders.
+- Keep support tickets as placeholders.
 - Exclude calendar/future events, CONNECT, SENSE, and legacy `frontend/` migration/removal.
 - Do not redesign prediction algorithms or expose end-of-day data/outcomes before their valid cutoff.
 
@@ -28,7 +28,7 @@ None; `openspec/specs/` has no existing capabilities.
 
 ## Approach
 
-Contract first: define canonical backend DTOs and errors, test them at FastAPI and adapter boundaries, then wire each slice through a thin `front/src/api.ts` adapter. `front/` remains the sole UI authority; the backend remains the prediction authority. Treat `docs/comparacion_bluba_neuradash.md` as the scope boundary: retain BLUBA records as inputs and add NeuraDash onboarding, baseline, risk, confidence, abstention, explanations, and support outcomes.
+Contract first: define canonical backend DTOs and errors, test them at FastAPI and adapter boundaries, then wire each slice through a thin `front/src/api.ts` adapter. `front/` remains the sole UI authority; the backend remains the prediction authority. Treat `docs/NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md` as the scope boundary: retain source records as inputs and add NeuraDash onboarding, baseline, risk, confidence, abstention, explanations, and support outcomes.
 
 ## Affected Areas
 
@@ -38,7 +38,7 @@ Contract first: define canonical backend DTOs and errors, test them at FastAPI a
 | `front/src/pages/` | Modified | Staged care and prediction flows |
 | `backend/app/routes/{subjects,predictions}.py` | Modified | Canonical endpoints and server authorization |
 | `backend/app/schemas.py`, `engine/schemas.py` | Modified | Versioned transport contract |
-| `docs/comparacion_bluba_neuradash.md` | Referenced | Product-scope authority |
+| `docs/NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md` | Referenced | Product-scope authority |
 
 ## Risks
 

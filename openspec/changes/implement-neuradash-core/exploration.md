@@ -1,17 +1,17 @@
 ## Exploration: Implement NeuraDash CORE
 
 ### Current State
-The repository is a documentation baseline, not an application: it contains the two authoritative NeuraDash documents, the BLUBA design-system reference, an empty `index.html`, and SDD bootstrap files. There are no Python or Node manifests, source packages, data fixtures, model artifacts, tests, CI, or configured tooling.
+The repository is a documentation baseline, not an application: it contains the two authoritative NeuraDash documents, the design-system reference, an empty `index.html`, and SDD bootstrap files. There are no Python or Node manifests, source packages, data fixtures, model artifacts, tests, CI, or configured tooling.
 
 The requested CORE is consistent with the Source of Truth and technical architecture: a single FastAPI deployment with a React/Vite frontend, per-subject trained models, transparent CSV/JSON/joblib persistence, and no IoT, LLM, deep learning, microservices, or enterprise infrastructure. The supplied architecture already provides a sound target tree; implementation should adapt it rather than rewrite correct documents.
 
 ### Affected Areas
 - `pyproject.toml`, `backend/`, `engine/`, `ml/`, `config/` — new Python modular-monolith runtime, typed contracts, temporal pipeline, ML lifecycle, and versioned configuration.
-- `data/bluba/`, `data/demo_profiles/`, `models/` — normalized source anchor, provenance-labelled PAC-A/B/C histories, reproducible datasets, artifacts, and metadata.
+- `data/legacy_history/`, `data/demo_profiles/`, `models/` — normalized source anchor, provenance-labelled PAC-A/B/C histories, reproducible datasets, artifacts, and metadata.
 - `scripts/` — deterministic source validation, demo-history generation, model training, and smoke execution.
 - `tests/` — strict-TDD unit, integration, reproducibility, and invariant tests; currently absent.
 - `frontend/` — Vite/React/TypeScript/Tailwind view consuming only Prediction Contract v2.
-- `bluba-design-system (1).html` — visual reference, not application code; extract its tokens, responsive/mobile-first hierarchy, semantic state treatment, and accessibility rules.
+- The design-system reference — visual reference, not application code; extract its tokens, responsive/mobile-first hierarchy, semantic state treatment, and accessibility rules.
 - `openspec/changes/implement-neuradash-core/exploration.md` — this exploration artifact.
 
 ### Gap Matrix
@@ -23,7 +23,7 @@ The requested CORE is consistent with the Source of Truth and technical architec
 | Personal ML | trained/versioned model per PAC | None | Complete; critical |
 | Risk/confidence/abstention | independent engines and safe contract | None | Complete; critical |
 | Outcomes and promotion | close labels, candidate comparison, gated promotion | None | Complete |
-| API and frontend | FastAPI plus BLUBA-aligned React view | None | Complete |
+| API and frontend | FastAPI plus caregiver-aligned React view | None | Complete |
 | Tests and reproducibility | pytest/httpx, Vitest/RTL, scripts | None | Complete |
 
 ### Locked Constraints and Open Decisions
@@ -31,7 +31,7 @@ The requested CORE is consistent with the Source of Truth and technical architec
 
 | Decision | Status | Proposal treatment |
 |---|---|---|
-| Outcome threshold (moderate/severe vs including mild) | OPEN-01 / provisional | Put target definition and severity mapping in versioned YAML; default to moderate/severe without claiming final BLUBA confirmation. |
+| Outcome threshold (moderate/severe vs including mild) | OPEN-01 / provisional | Put target definition and severity mapping in versioned YAML; default to moderate/severe without claiming final confirmation. |
 | Availability of `nivel_regulacion_general_dia` | OPEN-02 / critical | Default to prior-day-only; record an availability policy per source and permit same-day use only after evidence. |
 | Structured school records | OPEN-03 | Keep outside CORE; define an optional source adapter extension point. |
 | Timezone for demo records | Engineering decision needed | Require an IANA timezone per subject and reject naive timestamps at API boundaries. |
@@ -46,7 +46,7 @@ The requested CORE is consistent with the Source of Truth and technical architec
 
 2. **Add SQLite and a second boosting model in the initial MVP** — introduce database persistence and model-family benchmarking immediately.
    - Pros: richer promotion persistence and a possible later model path.
-   - Cons: expands schemas, migrations, test matrix, dependency surface, and reviewer burden without solving the hackathon's core evidence gap; boosting/SHAP introduces unnecessary complexity before a stable temporal pipeline exists.
+   - Cons: expands schemas, migrations, test matrix, dependency surface, and reviewer burden without solving the core evidence gap; boosting/SHAP introduces unnecessary complexity before a stable temporal pipeline exists.
    - Effort: High.
 
 ### Recommendation
@@ -63,7 +63,7 @@ Recommended module boundaries are `engine/` (schemas, temporal context, baseline
 | 2. Temporal engine and features | aware-time parsing, availability/cutoff filtering, baseline, 1/3/7/14d features, feature provenance, unit tests for no-leakage and missingness | 350–500 lines | High |
 | 3. Personal ML lifecycle | per-PAC dataset builder, deterministic trainer/evaluator, joblib registry/metadata, inference, score-to-level mapping, candidate promotion, reproducibility tests | 400–550 lines | High |
 | 4. Safety contract and API | confidence, abstention, non-causal explanations, support selection, Prediction Contract v2, subject/timeline/prediction/outcome/retrain routes, httpx tests | 350–500 lines | High |
-| 5. BLUBA-aligned UI | React view, PAC switcher, risk/confidence/missing/support/timeline states, accessibility, Vitest/RTL, no algorithm exposure | 350–500 lines | Medium |
+| 5. Caregiver-aligned UI | React view, PAC switcher, risk/confidence/missing/support/timeline states, accessibility, Vitest/RTL, no algorithm exposure | 350–500 lines | Medium |
 | 6. Demo hardening | executable generation/train/smoke scripts, frontend build serving, cross-stack smoke evidence, documentation only if needed by later phases | 200–350 lines | Medium |
 
 The 800-line review budget is exceeded by the overall change. Under `ask-on-risk`, proposal/tasks must explicitly request chained delivery. Each slice should remain a reviewable PR/work unit; slices 2–4 merit especially focused review because they encode safety invariants.
@@ -82,8 +82,8 @@ The 800-line review budget is exceeded by the overall change. Under `ask-on-risk
 - **Per-subject validation limits:** even synthetic datasets need positive/negative balance and chronological splits; promotion rules must abstain from false evidence when data is insufficient.
 - **Hardcoded-risk regression:** PAC selection, fixtures, score mappings, and UI demo states can accidentally encode risk; tests must trace every result through active model inference.
 - **Configuration drift:** target, threshold, feature schema, and model metadata must be versioned together to make predictions reproducible.
-- **Frontend semantics:** the BLUBA reference reserves purple for brand/action, requires text plus color, 44px targets, visible focus, reduced motion, and mobile-first layout. Clinical-risk semantics need accessible labels and must not imply diagnosis.
+- **Frontend semantics:** the design-system reference reserves purple for brand/action, requires text plus color, 44px targets, visible focus, reduced motion, and mobile-first layout. Clinical-risk semantics need accessible labels and must not imply diagnosis.
 - **Scope/review overload:** building backend, ML, API, and UI from an empty repository cannot be credibly reviewed as one 800-line unit.
 
 ### Ready for Proposal
-**Yes, with explicit risk handling.** The proposal should lock the file-backed modular-monolith MVP boundary and chained delivery, retain the documented invariants, and formalize the provisional decisions as versioned configuration. It should not silently resolve the three BLUBA questions; it should adopt conservative defaults and name confirmation as a pilot/product follow-up.
+**Yes, with explicit risk handling.** The proposal should lock the file-backed modular-monolith MVP boundary and chained delivery, retain the documented invariants, and formalize the provisional decisions as versioned configuration. It should not silently resolve the three open questions; it should adopt conservative defaults and name confirmation as a pilot/product follow-up.

@@ -2,7 +2,7 @@
 
 ## Intent
 
-Deliver a caregiver-facing BLUBA module that turns a subject's available history into a transparent, non-diagnostic 24-hour dysregulation risk estimate, independent confidence, contextual factors, provenance, and safe supports. It must demonstrate genuine per-subject ML without clinical-performance claims.
+Deliver a caregiver-facing application that turns a subject's available history into a transparent, non-diagnostic 24-hour dysregulation risk estimate, independent confidence, contextual factors, provenance, and safe supports. It must demonstrate genuine per-subject ML without clinical-performance claims.
 
 ## Scope
 
@@ -56,7 +56,7 @@ Remove the deployed module and generated artifacts; restore prior files. Retain 
 
 ## Dependencies
 
-- Source CSV structure, seeded demo fixtures, Python 3.12+, FastAPI, scikit-learn, React/Vite, and the BLUBA design reference.
+- Source CSV structure, seeded demo fixtures, Python 3.12+, FastAPI, scikit-learn, React/Vite, and the design-system reference.
 
 ## Success Criteria
 

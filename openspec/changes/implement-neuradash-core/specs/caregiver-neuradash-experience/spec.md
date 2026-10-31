@@ -1,7 +1,7 @@
 # Caregiver NeuraDash Experience Specification
 
 ## Purpose
-Provide an accessible family-facing BLUBA-aligned experience.
+Provide an accessible family-facing caregiver experience.
 
 ## Requirements
 ### Requirement: Contract-only caregiver UI
