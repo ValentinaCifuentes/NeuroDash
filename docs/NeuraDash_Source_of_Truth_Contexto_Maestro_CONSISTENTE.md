@@ -1,9 +1,8 @@
 # NeuraDash — Source of Truth y Contexto Maestro del Proyecto
-## NeuroHack 2026 — Desafío BLUBA
 
 **Equipo / solución:** NeuraDash  
 **Estado del documento:** Source of Truth operativo y técnico  
-**Propósito:** servir como contexto único para desarrollo, arquitectura, datos, UX, demo, presentación, pitch, documentación y defensa ante jurado.  
+**Propósito:** servir como contexto único para desarrollo, arquitectura, datos, UX, demo y documentación.  
 **Regla de uso:** si una idea, implementación o claim contradice este documento, debe detenerse y revisarse antes de incorporarse.  
 **Fecha de consolidación:** 26 de agosto de 2026
 
@@ -11,20 +10,20 @@
 
 # 0. RESUMEN EJECUTIVO
 
-NeuraDash es un **módulo de alerta temprana integrado a BLUBA** que transforma registros cotidianos e históricos en una **estimación personalizada de riesgo de desregulación para las próximas 24 horas**, acompañada de un **nivel independiente de confianza**, una **explicación comprensible de los factores que influyen** y **apoyos previamente registrados o validados** que pueden considerarse.
+NeuraDash es una **aplicación de alerta temprana concebida desde cero** que transforma registros cotidianos e históricos en una **estimación personalizada de riesgo de desregulación para las próximas 24 horas**, acompañada de un **nivel independiente de confianza**, una **explicación comprensible de los factores que influyen** y **apoyos previamente registrados o validados** que pueden considerarse.
 
-NeuraDash **no es una nueva aplicación independiente**, **no es una IA clínica validada**, **no afirma que una crisis ocurrirá**, **no diagnostica** y **no prescribe tratamiento**.
+NeuraDash **no es una IA clínica validada**, **no afirma que una crisis ocurrirá**, **no diagnostica** y **no prescribe tratamiento**.
 
 Su tesis central es:
 
-> BLUBA ya registra información valiosa sobre el día a día del niño, pero esa información es longitudinal, heterogénea, incompleta y difícil de interpretar anticipadamente. NeuraDash convierte ese historial en una señal prospectiva y contextualizada: aprende qué es habitual para cada niño, detecta cambios y acumulaciones relevantes, separa riesgo de confianza, explica qué cambió y permite actuar preventivamente sin ocultar incertidumbre.
+> Las familias registran a diario información valiosa sobre el día a día del niño, pero esa información es longitudinal, heterogénea, incompleta y difícil de interpretar anticipadamente. NeuraDash convierte ese historial en una señal prospectiva y contextualizada: aprende qué es habitual para cada niño, detecta cambios y acumulaciones relevantes, separa riesgo de confianza, explica qué cambió y permite actuar preventivamente sin ocultar incertidumbre.
 
 La arquitectura del proyecto se divide en tres capas:
 
 ```text
 NEURADASH CORE
 =
-datos actuales de BLUBA
+datos actuales de la persona
 +
 memoria temporal
 +
@@ -57,18 +56,18 @@ sensores especializados o ambientales opcionales
 para aportar variables que hoy dependen del registro manual
 ```
 
-La hackatón debe demostrar principalmente **CORE**. CONNECT y SENSE se utilizan como **extensión arquitectónica y demostración de escalabilidad**, no como requisito para que la solución funcione.
+El MVP debe demostrar principalmente **CORE**. CONNECT y SENSE se utilizan como **extensión arquitectónica y demostración de escalabilidad**, no como requisito para que la solución funcione.
 
 La decisión metodológica central es **entrenar un modelo predictivo individual por usuario**. Cada niño tendrá su propio historial, baseline, dataset supervisado y versiones de modelo. El sistema realizará predicciones con los registros diarios y, cuando se acumulen suficientes ejemplos nuevos con outcome conocido, reentrenará una nueva versión del modelo individual y solo la promoverá si supera la versión anterior según criterios de validación definidos.
 
-Los CSV entregados siguen siendo demasiado pequeños para afirmar performance clínica: contienen 4 casos, 102 registros diarios, 37 sesiones de seguimiento y 7 eventos explícitos de desregulación. Por ello sirven como ancla estructural y para construir el pipeline; para demostrar entrenamiento y reentrenamiento en la hackatón se podrán utilizar **historias longitudinales mockeadas explícitas por perfil demo**, sin presentarlos como evidencia clínica.
+Los CSV entregados siguen siendo demasiado pequeños para afirmar performance clínica: contienen 4 casos, 102 registros diarios, 37 sesiones de seguimiento y 7 eventos explícitos de desregulación. Por ello sirven como ancla estructural y para construir el pipeline; para demostrar entrenamiento y reentrenamiento se podrán utilizar **historias longitudinales mockeadas explícitas por perfil demo**, sin presentarlos como evidencia clínica.
 
 Para usuarios nuevos, NeuraDash incorpora un **cuestionario de onboarding** que construye contexto inicial y baseline provisional. El onboarding reduce el problema de cold start, pero no sustituye los ejemplos supervisados `X → y` necesarios para entrenar un modelo individual.
 
 Para la demo, NeuraDash utilizará:
 
 ```text
-datos BLUBA reales como ancla estructural
+datos históricos reales como ancla estructural
 +
 onboarding y baseline individual
 +
@@ -93,8 +92,8 @@ Este documento distingue explícitamente qué tipo de verdad representa cada dec
 
 Cuando exista una contradicción:
 
-1. documento oficial BLUBA / UFRO;
-2. respuesta explícita posterior de BLUBA;
+1. bases oficiales del proyecto;
+2. respuestas explícitas posteriores;
 3. datos reales entregados;
 4. evidencia científica;
 5. decisiones de producto e ingeniería del equipo;
@@ -107,7 +106,7 @@ Una idea atractiva no puede reemplazar una restricción oficial ni convertir una
 
 ### [OFICIAL]
 
-Define lo que BLUBA/UFRO pide.
+Define lo que las bases del proyecto piden.
 
 Ejemplo:
 
@@ -135,7 +134,7 @@ Define qué construye NeuraDash.
 
 Ejemplo:
 
-> NeuraDash será un módulo de BLUBA y no una aplicación independiente.
+> NeuraDash es una aplicación independiente concebida desde cero.
 
 ### [DECISIÓN DE INGENIERÍA]
 
@@ -159,11 +158,11 @@ Elemento valioso, pero no necesario para el MVP actual.
 
 ---
 
-# 2. CONTEXTO OFICIAL DEL DESAFÍO
+# 2. PLANTEAMIENTO DEL PROBLEMA
 
-BLUBA solicita una solución tecnológica capaz de identificar **patrones y señales tempranas asociadas a posibles episodios de desregulación**, utilizando información cotidiana registrada por familias, cuidadores y equipos educativos.
+El problema plantea la necesidad de una solución tecnológica capaz de identificar **patrones y señales tempranas asociadas a posibles episodios de desregulación**, utilizando información cotidiana registrada por familias, cuidadores y equipos educativos.
 
-El desafío plantea explícitamente un horizonte de:
+El problema plantea explícitamente un horizonte de:
 
 ```text
 próximas horas
@@ -180,9 +179,9 @@ La solución debe considerar además:
 - identificación de variables relevantes;
 - alertas cuando la información no sea suficiente;
 - explicaciones comprensibles y accionables;
-- viabilidad de integración futura a BLUBA.
+- viabilidad de adopción e integración futura.
 
-La presentación oficial permite utilizar **datos sintéticos o simulados que representen escenarios realistas**.
+El proyecto permite utilizar **datos sintéticos o simulados que representen escenarios realistas**.
 
 Esto justifica directamente la estrategia de NeuraDash:
 
@@ -199,7 +198,7 @@ personalización, missingness y UX
 
 ## 3.1 Problema de negocio
 
-BLUBA ya permite registrar información relevante sobre el niño, incluyendo bitácora diaria, historial y eventos de desregulación.
+Las familias ya registran información relevante sobre el niño, incluyendo bitácora diaria, historial y eventos de desregulación.
 
 El problema no es únicamente registrar una desregulación después de que ocurre.
 
@@ -267,7 +266,7 @@ Pedir más datos indiscriminadamente puede empeorar adherencia y generar todaví
 
 ## 3.3 Problem statement definitivo
 
-> **BLUBA posee información cotidiana valiosa, pero las señales relevantes son longitudinales, heterogéneas e incompletas. NeuraDash transforma ese historial en una estimación personalizada de riesgo y confianza para las próximas 24 horas, explicando qué cambió respecto del patrón habitual y qué apoyos previamente validados pueden considerarse.**
+> **Las familias poseen información cotidiana valiosa, pero las señales relevantes son longitudinales, heterogéneas e incompletas. NeuraDash transforma ese historial en una estimación personalizada de riesgo y confianza para las próximas 24 horas, explicando qué cambió respecto del patrón habitual y qué apoyos previamente validados pueden considerarse.**
 
 **Estado:** `LOCKED`
 
@@ -277,7 +276,7 @@ Pedir más datos indiscriminadamente puede empeorar adherencia y generar todaví
 
 ## 4.1 NeuraDash ES
 
-- una extensión de BLUBA;
+- una aplicación independiente;
 - un sistema de apoyo a decisiones;
 - un motor de estimación dinámica de riesgo;
 - un sistema personalizado por historial individual;
@@ -294,7 +293,7 @@ Pedir más datos indiscriminadamente puede empeorar adherencia y generar todaví
 - una garantía de que una desregulación ocurrirá;
 - un reemplazo del criterio clínico;
 - un sistema que prescribe tratamientos;
-- una aplicación paralela a BLUBA;
+- una aplicación que duplica la bitácora diaria;
 - un wearable obligatorio;
 - una arquitectura IoT cuyo valor dependa de tener hardware.
 
@@ -358,7 +357,7 @@ Elegir moderada/severa para el MVP tiene ventajas:
 - produce un target más concreto;
 - permite una narrativa preventiva más clara.
 
-Sin embargo, esta definición debe considerarse provisional hasta que BLUBA confirme qué evento quiere priorizar.
+Sin embargo, esta definición debe considerarse provisional hasta que se confirme qué evento se quiere priorizar.
 
 ## 5.3 Lo que no se debe hacer
 
@@ -386,7 +385,7 @@ evento_desregulacion
 ≈ episodio puntual
 ```
 
-Hasta confirmación de BLUBA, deben mantenerse separados.
+Hasta nueva confirmación, deben mantenerse separados.
 
 ---
 
@@ -459,7 +458,7 @@ Si no puede demostrarse que el dato estaba disponible antes del cutoff, no debe 
 
 ---
 
-# 7. INVENTARIO REAL DE DATOS BLUBA
+# 7. INVENTARIO REAL DE DATOS
 
 Los datos entregados contienen:
 
@@ -519,7 +518,7 @@ No mostrar métricas de accuracy obtenidas con estos CSV como si fueran performa
 ## 8.1 Estrategia elegida
 
 ```text
-CSV BLUBA
+CSV fuente
 como ancla estructural y contextual
 
 +
@@ -552,7 +551,7 @@ Se utilizan para:
 
 Se utilizan cuando:
 
-- una variable está contemplada por BLUBA pero no está estructurada en los CSV;
+- una variable está contemplada por el producto pero no está estructurada en los CSV;
 - necesitamos mostrar un escenario que el pequeño dataset no contiene;
 - necesitamos probar missingness;
 - necesitamos variar deliberadamente señales para demostrar comportamiento.
@@ -562,7 +561,7 @@ Todo dato sintético debe identificarse como tal.
 Ejemplo:
 
 ```yaml
-data_origin: synthetic_from_BLUBA_schema
+data_origin: synthetic_from_source_schema
 ```
 
 ## 8.4 Lo que los sintéticos sí demuestran
@@ -597,7 +596,7 @@ Las variables deben estar separadas por origen y grado de disponibilidad.
 
 ---
 
-## 9.1 CORE — disponibles ahora o directamente ancladas a BLUBA
+## 9.1 CORE — disponibles ahora o directamente ancladas a los datos fuente
 
 ### Perfil/contexto
 
@@ -685,7 +684,7 @@ Ese es el núcleo de NeuraDash.
 
 ## 9.3 SINTÉTICAS MVP
 
-Variables declaradas por BLUBA o plausibles dentro del producto, pero no estructuradas en el CSV diario entregado:
+Variables contempladas por el producto o plausibles dentro de él, pero no estructuradas en el CSV diario entregado:
 
 ```text
 cambio_rutina
@@ -1133,7 +1132,7 @@ Métricas candidatas, según cantidad de positivos:
 
 Una nueva versión no reemplaza automáticamente a la anterior. Debe pasar validación y no degradar métricas de seguridad definidas. Si no mejora de manera suficiente, se conserva el modelo activo.
 
-## Alcance de hackatón
+## Alcance del MVP
 
 Los datos actuales no permiten validar clínicamente este ciclo. La demo debe probar que el pipeline de entrenamiento, inferencia, captura de outcomes, reentrenamiento, comparación y versionado funciona.
 
@@ -1211,7 +1210,7 @@ Las bases oficiales piden explícitamente:
 - manejar missingness;
 - alertar cuando la información no sea suficiente.
 
-Por tanto, esta decisión no es ornamentación: responde directamente al desafío.
+Por tanto, esta decisión no es ornamentación: responde directamente al problema.
 
 **Estado:** `LOCKED`
 
@@ -1380,7 +1379,7 @@ y evolucionar según los registros posteriores.
 
 `LOCKED MVP`
 
-El onboarding forma parte del MVP porque reduce el cold start, inicializa el baseline y también debe existir para los perfiles demo mediante `onboarding.json`. No sustituye el entrenamiento longitudinal, pero sí forma parte del flujo que se demostrará en la hackatón.
+El onboarding forma parte del MVP porque reduce el cold start, inicializa el baseline y también debe existir para los perfiles demo mediante `onboarding.json`. No sustituye el entrenamiento longitudinal, pero sí forma parte del flujo que se demostrará.
 
 ---
 
@@ -1394,7 +1393,7 @@ La idea inicial de tres recordatorios obligatorios diarios se descarta como dise
 - fatiga;
 - menor adherencia;
 - no todos los momentos son igual de informativos;
-- BLUBA pide reducir carga de registro.
+- el proyecto pide reducir la carga de registro.
 
 ## 21.2 Diseño elegido
 
@@ -1492,7 +1491,7 @@ IoT no es innovación por sí mismo.
 
 Debe responder:
 
-> ¿Qué información aporta que BLUBA no puede obtener bien con sus registros actuales?
+> ¿Qué información aporta que el registro manual actual no puede obtener bien?
 
 ## 23.1 Regla de diseño
 
@@ -1512,7 +1511,7 @@ Un sensor merece entrar si la señal es:
 ```text
 NEURADASH CORE
 ↓
-funciona con BLUBA
+funciona de forma autónoma
 
 NEURADASH CONNECT
 ↓
@@ -1546,7 +1545,7 @@ Incluye:
 - explanation;
 - support.
 
-Este es el producto principal de la hackatón.
+Este es el producto principal.
 
 ---
 
@@ -1601,7 +1600,7 @@ cambio fisiológico respecto de baseline
 
 ## Razón comercial/técnica
 
-CONNECT evita que BLUBA tenga que:
+CONNECT evita tener que:
 
 - fabricar hardware;
 - mantener baterías;
@@ -1619,7 +1618,7 @@ Capa especializada opcional.
 
 ## 26.1 Ruido ambiental
 
-Es el sensor ambiental con mayor justificación dentro de los propios datos BLUBA.
+Es el sensor ambiental con mayor justificación dentro de los propios datos.
 
 Puede medir:
 
@@ -1779,7 +1778,7 @@ No decir:
 
 > “Nuestros sensores predicen una crisis 15–30 minutos antes.”
 
-Ese intervalo no está validado para NeuraDash/BLUBA.
+Ese intervalo no está validado para NeuraDash.
 
 ---
 
@@ -1787,7 +1786,7 @@ Ese intervalo no está validado para NeuraDash/BLUBA.
 
 ```mermaid
 flowchart LR
-    A[CSV BLUBA / historiales mockeados por perfil demo] --> B[Data Adapter]
+    A[CSV fuente / historiales mockeados por perfil demo] --> B[Data Adapter]
     O[Onboarding] --> P[Perfil + Baseline inicial]
     B --> C[Temporal Context Builder]
     C --> D[Feature Engine 1/3/7/14d]
@@ -1802,7 +1801,7 @@ flowchart LR
     G --> H
     H --> I[Support Selector]
     I --> J[Prediction Contract]
-    J --> K[NeuraDash dentro de BLUBA]
+    J --> K[NeuraDash]
     J --> OUT[Outcome Logger]
     OUT --> DS
 ```
@@ -1863,7 +1862,7 @@ Entrega un contrato estable al frontend, independiente del algoritmo concreto.
 
 ```mermaid
 flowchart LR
-    A[BLUBA CORE] --> F[Feature Fusion]
+    A[CORE de datos] --> F[Feature Fusion]
     B[Wearables / Health APIs] --> F
     C[Sensores ambientales] --> F
     D[IoT fisiológico opcional] --> F
@@ -1874,7 +1873,7 @@ flowchart LR
     P --> X[Explanation Layer]
     Q --> X
     X --> S[Support Selector]
-    S --> UI[NeuraDash / BLUBA]
+    S --> UI[NeuraDash]
 ```
 
 ---
@@ -1930,7 +1929,7 @@ Ejemplo:
 
 # 32. UX FINAL
 
-NeuraDash debe sentirse como una capacidad de BLUBA, no como otra plataforma.
+NeuraDash debe sentirse como una herramienta propia y cohesiva, no como otra plataforma.
 
 ## 32.1 Usuario primario
 
@@ -2144,7 +2143,7 @@ Secuencia objetivo:
 
 1. seleccionar `PAC-A`;
 2. mostrar brevemente su onboarding, baseline e historial mockeado;
-3. mostrar metadata del artefacto activo `model_PAC-A_v1` y dejar claro que fue entrenado antes de la presentación;
+3. mostrar metadata del artefacto activo `model_PAC-A_v1` y dejar claro que fue entrenado con anterioridad;
 4. ingresar o cargar los datos del día;
 5. ejecutar inferencia real y mostrar `risk + confidence`;
 6. abrir “¿Por qué?” y mostrar SHAP/contribuciones traducidas por el Explanation Builder;
@@ -2337,7 +2336,7 @@ ACCIÓN
 SEÑALES PASIVAS OPCIONALES
 ```
 
-Esto entrega a BLUBA una capacidad nueva:
+Esto entrega una capacidad nueva:
 
 > pasar de registrar lo que ocurrió a interpretar prospectivamente cómo está evolucionando el patrón del niño.
 
@@ -2373,80 +2372,11 @@ personalización
 
 Por tanto:
 
-> NeuraDash no es “otro dashboard”; es la capa de decisión temprana integrada a BLUBA.
+> NeuraDash no es “otro dashboard”; es la capa de decisión temprana que anticipa la evolución del patrón.
 
 ---
 
-# 42. AUDITORÍA CONTRA RÚBRICA
-
-## Preselección
-
-### Comprensión del problema — 35%
-
-NeuraDash debe demostrar:
-
-- problema raíz;
-- diferencia entre registro retrospectivo y señal prospectiva;
-- limitaciones reales de los CSV;
-- heterogeneidad individual;
-- missingness;
-- temporalidad/leakage.
-
-### Propuesta de solución — 30%
-
-Debe quedar clara:
-
-```text
-baseline
-→ memoria
-→ risk
-→ confidence
-→ explanation
-→ support
-```
-
-### Prototipo — 35%
-
-Debe existir evidencia end-to-end.
-
-No basta arquitectura.
-
----
-
-## Final
-
-### Calidad del prototipo — 40%
-
-Prioridad máxima.
-
-### Impacto y viabilidad — 25%
-
-Defensa:
-
-- utiliza BLUBA existente;
-- no requiere hardware;
-- integración progresiva;
-- IoT opcional.
-
-### Innovación — 15%
-
-Innovación defendible:
-
-```text
-personalización
-+
-uncertainty-aware decision support
-+
-sensorialidad contextual
-```
-
-### Pitch — 20%
-
-Debe demostrar, no solo explicar.
-
----
-
-# 43. AUDITORÍA HOSTIL — RESPUESTAS QUE EL EQUIPO DEBE SABER
+# 43. PREGUNTAS TÉCNICAS FRECUENTES
 
 ## “¿Cómo entrenaron modelos individuales con tan pocos datos reales?”
 
@@ -2464,7 +2394,7 @@ Respuesta:
 
 Respuesta:
 
-> Es nuestra operacionalización provisional para priorizar eventos relevantes y reducir alarm fatigue. Debe validarse con BLUBA.
+> Es nuestra operacionalización provisional para priorizar eventos relevantes y reducir alarm fatigue. Debe validarse.
 
 ## “¿Qué significa un `model_score` de 0.64?”
 
@@ -2518,7 +2448,7 @@ Respuesta:
 
 # 44. ROADMAP
 
-## Fase 0 — Hackatón
+## Fase 0 — Demo
 
 ```text
 CORE funcional
@@ -2551,7 +2481,7 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 - mayor volumen longitudinal por usuario;
 - captura de outcomes reales;
 - catálogo validado de apoyos;
-- persistencia productiva y autenticación/integración con BLUBA.
+- persistencia productiva y autenticación.
 
 ## Fase 2 — Validación de datos
 
@@ -2593,10 +2523,10 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 | ID | Decisión | Estado | Justificación |
 |---|---|---|---|
 | D01 | Nombre del equipo/proyecto: NeuraDash | LOCKED | decisión del equipo |
-| D02 | Integrado a BLUBA, no app independiente | LOCKED | menor fricción e integración con producto existente |
+| D02 | Aplicación independiente, no módulo de otra plataforma | LOCKED | producto autónomo concebido desde cero |
 | D03 | Sistema de apoyo a decisiones, no IA clínica | LOCKED | evidencia y datos actuales insuficientes para claim clínico |
-| D04 | Horizonte principal próximas 24 h | LOCKED | alineación directa con desafío |
-| D05 | Outcome moderada/severa | PROVISIONAL | útil operacionalmente, falta confirmación BLUBA |
+| D04 | Horizonte principal próximas 24 h | LOCKED | alineación directa con el problema |
+| D05 | Outcome moderada/severa | PROVISIONAL | útil operacionalmente, falta confirmación |
 | D06 | prediction_cutoff explícito | LOCKED | evita leakage |
 | D07 | usar solo datos disponibles antes del cutoff | LOCKED | requisito metodológico |
 | D08 | CSV reales + sintéticos transparentes | LOCKED | datos reales insuficientes y sintéticos permitidos |
@@ -2641,14 +2571,14 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 | Elemento | Decisión final | Estado |
 |---|---|---|
 | Nombre | NeuraDash | LOCKED |
-| Producto | módulo integrado a BLUBA | LOCKED |
+| Producto | aplicación independiente | LOCKED |
 | Problema | convertir historial en señal prospectiva | LOCKED |
 | Outcome | desregulación moderada/severa | PROVISIONAL |
 | Horizonte | próximas 24 h | LOCKED |
 | Prediction cutoff | timestamp explícito | LOCKED |
 | Usuario primario | tutor/cuidador | LOCKED |
 | Usuario secundario | tutor/familia | LOCKED |
-| Dataset | BLUBA + sintéticos explícitos | LOCKED |
+| Dataset | datos fuente + sintéticos explícitos | LOCKED |
 | Validación clínica actual | no | LOCKED |
 | Baseline | individual | LOCKED |
 | Ventanas | 1/3/7/14 días | LOCKED |
@@ -2675,7 +2605,7 @@ CONNECT/SENSE y sensorialidad simulada son opcionales y solo entran si el CORE a
 | EDA | futuro | ROADMAP |
 | M5Stack/ESP32 | demo opcional | PROVISIONAL |
 | Arquitectura | CORE primero, extensible | LOCKED |
-| UX | dentro de BLUBA | LOCKED |
+| UX | aplicación propia | LOCKED |
 | Claim clínico | prohibido | LOCKED |
 | Claim de causalidad | prohibido | LOCKED |
 
@@ -2687,7 +2617,7 @@ Mantener el número de preguntas abiertas al mínimo.
 
 ## OPEN-01
 
-> ¿Qué considera BLUBA operacionalmente una desregulación objetivo y debe una desregulación leve formar parte del indicador principal?
+> ¿Qué se considera operacionalmente una desregulación objetivo y debe una desregulación leve formar parte del indicador principal?
 
 Impacta:
 
@@ -2868,60 +2798,40 @@ NeuraDash está listo para demo cuando:
 
 ---
 
-# 52. MENSAJE DE PITCH — VERSIÓN TÉCNICA
+# 52. MENSAJE DEL PROYECTO — VERSIÓN TÉCNICA
 
-> **NeuraDash convierte la información que BLUBA ya registra en una señal prospectiva mediante un modelo predictivo propio para cada niño. El onboarding reduce el cold start; los registros diarios alimentan features y outcomes; el modelo individual predice las próximas 24 horas y, cuando existe evidencia nueva suficiente, se reentrena una versión candidata que solo reemplaza a la anterior si mejora. Risk y confidence permanecen separados, y la explicación traduce las contribuciones del modelo al contexto y baseline individual.**
+> **NeuraDash convierte la información que las familias ya registran en una señal prospectiva mediante un modelo predictivo propio para cada niño. El onboarding reduce el cold start; los registros diarios alimentan features y outcomes; el modelo individual predice las próximas 24 horas y, cuando existe evidencia nueva suficiente, se reentrena una versión candidata que solo reemplaza a la anterior si mejora. Risk y confidence permanecen separados, y la explicación traduce las contribuciones del modelo al contexto y baseline individual.**
 
 ---
 
-# 53. MENSAJE DE PITCH — VERSIÓN SIMPLE
+# 53. MENSAJE DEL PROYECTO — VERSIÓN SIMPLE
 
-> **BLUBA ya sabe qué pasó. NeuraDash ayuda a entender qué está cambiando antes de que el patrón escale, cuánto podemos confiar en esa alerta y qué apoyos ya han funcionado para ese niño.**
+> **Ya sabemos qué pasó. NeuraDash ayuda a entender qué está cambiando antes de que el patrón escale, cuánto podemos confiar en esa alerta y qué apoyos ya han funcionado para ese niño.**
 
 ---
 
 # 54. FRASE ÚNICA DEL PROYECTO
 
-> **NeuraDash es la capa de alerta temprana de BLUBA que transforma registros cotidianos en una estimación personalizada y explicable de riesgo y confianza para las próximas 24 horas, con apoyos contextualizados y sensorización opcional.**
+> **NeuraDash es la capa de alerta temprana que transforma registros cotidianos en una estimación personalizada y explicable de riesgo y confianza para las próximas 24 horas, con apoyos contextualizados y sensorización opcional.**
 
 ---
 
 # 55. FUENTES BASE DEL PROYECTO
 
-Este Source of Truth se construye principalmente a partir de:
+Este Source of Truth se construye principalmente a partir de los datos fuente del proyecto.
 
-## Oficiales
-
-- `Bases Hackatón FICA 2026 2S.pdf`
-- `3. Presentación Bases Hackatón.pdf`
-- `6. Presentación Desafío BLUBA.pdf`
-- `Neurohack 2026 - Plantilla presentación.pdf`
-- `5. Presentación BLUBA.pdf`
-
-## Datos BLUBA
+## Datos fuente
 
 - `1_casos_anonimizados.csv`
 - `2_programas_y_objetivos.csv`
 - `4_seguimiento_diario_tutor.csv`
 - `5_eventos_desregulacion_tutor.csv`
 
-## Investigación
-
-- `BLUBA_Investigacion_Cientifica_Aplicada_NeuroHack_2026_COMPLETA_CORREGIDA.md`
-
-## Estrategia y decisiones internas
-
-- `Estrategia_Datos_BLUBA_NeuroHack_2026_V2_Perfiles_Sensoriales.md`
-- `BLUBA_Sensorizacion_IoT_Extension_Motor_Predictivo_NeuroHack_2026.md`
-- `NeuroHack_2026_War_Room_PreTaller_BLUBA.md`
-- `NeuroHack_2026_Plan_Operativo_Competitivo.pdf`
-- `Prompt_Consolidacion_Discrepancias_Source_of_Truth_BLUBA_NeuroHack_2026.md`
-
 ---
 
 # 56. REGLA FINAL PARA TODO EL EQUIPO
 
-Antes de implementar, agregar al deck o mencionar una idea en el pitch, preguntar:
+Antes de implementar, agregar a la documentación o mencionar una idea, preguntar:
 
 ```text
 ¿Responde directamente al problema?
@@ -2930,7 +2840,7 @@ Antes de implementar, agregar al deck o mencionar una idea en el pitch, pregunta
 ¿Respeta el prediction_cutoff?
 ¿Mejora el MVP?
 ¿Podemos demostrarla?
-¿Podemos defenderla si el jurado la cuestiona?
+¿Podemos defenderla ante una revisión crítica?
 ```
 
 Si la respuesta es no:

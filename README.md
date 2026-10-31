@@ -110,9 +110,9 @@ repositorio:
 
 ```powershell
 python scripts/generate_mock_histories.py
-python scripts/validate_source_data.py data/bluba/PAC-A_history.json
-python scripts/validate_source_data.py data/bluba/PAC-B_history.json
-python scripts/validate_source_data.py data/bluba/PAC-C_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-A_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-B_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-C_history.json
 python scripts/train_demo_models.py
 python scripts/smoke_demo.py
 ```
@@ -152,7 +152,7 @@ de la incertidumbre.
 
 ## Documentación adicional
 
-- [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
+- [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md)
 - [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
 - [Casos y recomendaciones](docs/NeuraDash_Casos_y_Recomendaciones.md)
 - [Flujo de OpenSpec](openspec/README.md)

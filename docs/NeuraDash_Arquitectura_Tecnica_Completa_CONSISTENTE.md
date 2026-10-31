@@ -32,7 +32,7 @@ Prediction Contract
 
 El punto central es que **el frontend jamás dependerá del algoritmo concreto**. Cada usuario tendrá un `PersonalRiskModel` versionado detrás de una interfaz estable; el algoritmo podrá evolucionar con la cantidad de historial sin cambiar el contrato de producto.
 
-Esta selección es consistente con el objetivo de la hackatón: CORE debe demostrar predicción mediante ML real. Para la presentación se crearán perfiles demo con historiales longitudinales mockeados, se entrenará previamente un modelo independiente para cada perfil y la aplicación cargará esos artefactos ya entrenados para realizar inferencia real. Los datos sintéticos sustituyen únicamente el historial que todavía no existe; no sustituyen al entrenamiento ni hardcodean la predicción.
+Esta selección es consistente con el objetivo del proyecto: CORE debe demostrar predicción mediante ML real. Para la demo se crearán perfiles demo con historiales longitudinales mockeados, se entrenará previamente un modelo independiente para cada perfil y la aplicación cargará esos artefactos ya entrenados para realizar inferencia real. Los datos sintéticos sustituyen únicamente el historial que todavía no existe; no sustituyen al entrenamiento ni hardcodean la predicción.
 
 La organización, además, pide explícitamente manejar información faltante, comunicar confianza, producir explicaciones y permite escenarios sintéticos o simulados.
 
@@ -40,7 +40,7 @@ La organización, además, pide explícitamente manejar información faltante, c
 
 **[SUPUESTO]** Al menos una persona del equipo puede trabajar razonablemente con React/TypeScript y otra con Python. Si el equipo no domina frontend web, esta decisión merece reevaluarse; aun así, no recomendaría Streamlit como arquitectura final porque acoplaría demasiado UI y motor.
 
-**[OPEN]** No conocemos todavía el mecanismo de integración real de BLUBA: API, acceso a BD, módulo interno, eventos, etc. Por ello crearemos una interfaz `DataProvider` y hoy su implementación será `CsvDataProvider`.
+**[OPEN]** No conocemos todavía el mecanismo de integración real con fuentes externas: API, acceso a BD, eventos, etc. Por ello crearemos una interfaz `DataProvider` y hoy su implementación será `CsvDataProvider`.
 
 **[OPEN]** El outcome moderada/severa sigue siendo provisional. Cambiarlo deberá afectar configuración del motor/target, no frontend ni arquitectura.
 
@@ -52,7 +52,7 @@ La organización, además, pide explícitamente manejar información faltante, c
 
 | Tecnología | Función | Por qué | Qué alternativa más compleja descarto |
 |---|---|---|---|
-| **React + TypeScript + Vite** | Frontend | Rápido de construir, contrato tipado, fácil futura integración web con BLUBA | Next.js: SSR, routing server-side y full-stack no solucionan ningún problema actual |
+| **React + TypeScript + Vite** | Frontend | Rápido de construir, contrato tipado, fácil futura integración web | Next.js: SSR, routing server-side y full-stack no solucionan ningún problema actual |
 | **Tailwind CSS** | Estilos | Permite construir rápidamente una vista convincente | Design system propio: no alcanza a amortizarse |
 | **Python 3.12+** | Dominio/analítica | Excelente para procesamiento temporal y futuro ML | Node para motor analítico: posible, pero Python facilita evolución a ciencia de datos |
 | **FastAPI** | API/backend | Tipado, OpenAPI automático, integración natural con Pydantic | Django: ORM/admin/auth innecesarios; Flask: habría que montar más piezas manualmente |
@@ -109,11 +109,11 @@ No porque sean malas tecnologías, sino porque no son necesarias para demostrar 
 
 ```mermaid
 flowchart LR
-    UI["React / BLUBA-like UI"]
+    UI["React UI"]
     API["FastAPI<br/>Prediction API"]
     PS["PredictionService"]
     OB["Onboarding Service"]
-    DP["DataProvider<br/>BLUBA + demo histories"]
+    DP["DataProvider<br/>datos fuente + demo histories"]
     TC["Temporal Context Builder<br/>cutoff enforcement"]
     FB["Feature Engine<br/>1 / 3 / 7 / 14 d"]
     BL["Personal Baseline"]
@@ -149,7 +149,7 @@ flowchart LR
     FB --> DS
 ```
 
-Todo puede vivir en **un solo backend** durante la hackatón. Son módulos, no microservicios.
+Todo puede vivir en **un solo backend** durante la demo. Son módulos, no microservicios.
 
 ### Flujo de inferencia
 
@@ -180,9 +180,9 @@ predicción en T
 
 El onboarding alimenta perfil y baseline inicial. Antes de contar con suficientes ejemplos etiquetados, un usuario real nuevo debe comunicar menor madurez/confianza y no presentar todavía un modelo personal como estable.
 
-### Estrategia de demo de la hackatón
+### Estrategia de demo
 
-Para no depender de meses de uso real durante la hackatón, se crearán **perfiles demo predefinidos**, pero esos perfiles no contienen predicciones hardcodeadas. Cada perfil tendrá:
+Para no depender de meses de uso real, se crearán **perfiles demo predefinidos**, pero esos perfiles no contienen predicciones hardcodeadas. Cada perfil tendrá:
 
 ```text
 profile.json                 → características del caso ficticio
@@ -221,7 +221,7 @@ La arquitectura futura mantiene el mismo contrato y agrega fuentes, almacenamien
 
 ```mermaid
 flowchart LR
-    B["BLUBA Platform"]
+    B["Fuente de datos"]
     C["NeuraDash CONNECT"]
     S["NeuraDash SENSE"]
     TP["Temporal Data Layer"]
@@ -262,7 +262,7 @@ No se reconstruye NeuraDash: cambia la implementación/version del modelo indivi
 
 | Componente | Responsabilidad | Input | Output | No debe hacer |
 |---|---|---|---|---|
-| `Data Adapter` | Traducir BLUBA/CSV a esquema interno | CSV/BLUBA API | registros normalizados | Calcular riesgo |
+| `Data Adapter` | Traducir datos fuente/CSV a esquema interno | CSV/fuente de datos | registros normalizados | Calcular riesgo |
 | `Temporal Context Builder` | Aplicar `prediction_cutoff` y construir historia válida | registros + cutoff | contexto temporal válido | Usar datos futuros |
 | `Feature Engine` | Crear recencia, tendencias, ventanas y cobertura | contexto | `FeatureSet` | Decidir riesgo final |
 | `Personal Baseline` | Modelar patrón habitual individual | historia previa | `BaselineSnapshot` | Comparar contra estándares clínicos inventados |
@@ -327,7 +327,7 @@ neuradash/
 │   └── abstention_rules.yaml
 │
 ├── data/
-│   ├── bluba/
+│   ├── legacy_history/
 │   │   ├── 1_casos_anonimizados.csv
 │   │   ├── 2_programas_y_objetivos.csv
 │   │   ├── 4_seguimiento_diario_tutor.csv
@@ -526,7 +526,7 @@ No basta con guardar `fecha`.
 Persistir:
 
 ```text
-CSV BLUBA + historiales longitudinales mockeados por perfil demo
+CSV fuente + historiales longitudinales mockeados por perfil demo
 onboarding por usuario
 historial normalizado
 feature snapshots usados para entrenamiento/inferencia
@@ -695,8 +695,8 @@ Recomiendo extender ligeramente el contrato propuesto:
   "data_provenance": {
     "contains_synthetic_data": true,
     "origins": [
-      "BLUBA_CSV",
-      "mock_longitudinal_history_from_BLUBA_schema"
+      "source_csv",
+      "mock_longitudinal_history_from_source_schema"
     ]
   },
 
@@ -847,7 +847,7 @@ distinta explicación
 
 El riesgo **no se calcula sumando puntos manuales**. Cada perfil/usuario dispone de un modelo supervisado propio entrenado con su historial longitudinal.
 
-Para la hackatón:
+Para la demo:
 
 ```text
 perfil demo sintético
@@ -884,7 +884,7 @@ FeatureValue(
     source_timestamps=[...],
     prediction_cutoff=...,
     leakage_risk="low",
-    data_origin="mock_demo"  # o BLUBA_REAL en producción
+    data_origin="mock_demo"  # o SOURCE_REAL en producción
 )
 ```
 
@@ -998,7 +998,7 @@ valor actual - comportamiento habitual → desviación individual → feature de
 
 ## Entrenamiento de modelos demo
 
-El entrenamiento debe ejecutarse **antes de la presentación** y dejar artefactos reproducibles:
+El entrenamiento debe ejecutarse **con anterioridad** y dejar artefactos reproducibles:
 
 ```text
 PAC-A history/outcomes → dataset_A → train → model_A_v1.joblib
@@ -1057,7 +1057,7 @@ positive example count
 model stability / calibration evidence
 ```
 
-En la hackatón, los thresholds de confianza son configuración de ingeniería y deben identificarse como tales.
+En la demo, los thresholds de confianza son configuración de ingeniería y deben identificarse como tales.
 
 ## Hard abstention
 
@@ -1145,16 +1145,16 @@ Los apoyos no se generan desde el modelo predictivo. Se recuperan desde historia
 
 | Opción | Ventaja | Problema | Uso |
 |---|---|---|---|
-| CSV/JSON | Cero infraestructura, transparente, reproducible | Malo para concurrencia/escrituras | **Hackatón** |
+| CSV/JSON | Cero infraestructura, transparente, reproducible | Malo para concurrencia/escrituras | **Demo** |
 | SQLite | ACID, archivo único, SQL | Concurrencia limitada | piloto standalone pequeño |
-| PostgreSQL | robusto, concurrencia, índices, JSON, backups | más infraestructura | piloto BLUBA/producción |
+| PostgreSQL | robusto, concurrencia, índices, JSON, backups | más infraestructura | piloto/producción |
 
 ## Decisión
 
-### Hackatón
+### Demo
 
 ```text
-CSV BLUBA como ancla estructural
+CSV fuente como ancla estructural
 +
 data/demo_profiles/* con historiales mockeados
 +
@@ -1179,11 +1179,11 @@ SQLite
 
 puede bastar.
 
-Pero si el piloto se integra realmente en BLUBA y tendrá usuarios simultáneos:
+Pero si el piloto tendrá usuarios simultáneos:
 
 > iría directamente a **PostgreSQL**.
 
-No tiene mucho sentido migrar BLUBA→SQLite→Postgres solo para cumplir una etapa artificial.
+No tiene mucho sentido migrar CSV→SQLite→Postgres solo para cumplir una etapa artificial.
 
 ### Producción
 
@@ -1215,13 +1215,13 @@ No introduciría una base time-series adicional inicialmente.
 
 **Decisión:** React consume API estable.
 
-**Razón:** BLUBA podrá incorporar otra UI sin portar el motor.
+**Razón:** el producto podrá incorporar otra UI sin portar el motor.
 
 **Alternativa:** lógica en React.
 
 **Costo:** existe integración HTTP incluso en un MVP.
 
-**Evolución:** backend puede integrarse con BLUBA directamente.
+**Evolución:** backend puede integrarse con otras UI directamente.
 
 ---
 
@@ -1235,7 +1235,7 @@ ModelRegistry.load_active(subject_id)
 Trainer.train(subject_dataset)
 ```
 
-**Razón:** la variabilidad entre casos es parte central del producto. Cada perfil demo de la hackatón tendrá un modelo realmente entrenado sobre su propio historial mockeado; en producción cada usuario acumulará su historial real y tendrá sus propias versiones.
+**Razón:** la variabilidad entre casos es parte central del producto. Cada perfil demo tendrá un modelo realmente entrenado sobre su propio historial mockeado; en producción cada usuario acumulará su historial real y tendrá sus propias versiones.
 
 **Alternativa descartada:** motor heurístico común con pesos manuales o un único modelo global como predictor principal.
 
@@ -1390,7 +1390,7 @@ No introduciría Kafka automáticamente.
 | Sobreajuste por usuario | Alta | Crítico | historial mock suficiente + validación temporal + regularización | más datos reales por usuario |
 | Performance batch futura | Baja MVP | Medio futuro | cálculo on-demand | workers/precompute |
 | Privacidad de menores | Baja demo | Crítico | datos anonimizados | seguridad completa |
-| API BLUBA distinta a supuestos | Media | Alto | DataProvider abstraction | adapter real |
+| API de fuente distinta a supuestos | Media | Alto | DataProvider abstraction | adapter real |
 | Sensor interpretado causalmente | Media futura | Alto | lenguaje contextual | estudios de validación |
 
 ---
@@ -1433,7 +1433,7 @@ Se vuelve obligatorio:
 ### Separación de PII
 
 ```text
-identity service / BLUBA
+identity service
         ↓ subject_id pseudónimo
 NeuraDash analytical domain
 ```
@@ -1460,7 +1460,7 @@ backups cifrados
 
 ### Acceso
 
-BLUBA debería controlar:
+La plataforma debería controlar:
 
 ```text
 quién puede ver cada niño
@@ -1723,7 +1723,7 @@ Así el deployment final es:
 Empaquetados en:
 
 ```text
-data/bluba
+data/legacy_history
 data/demo_profiles
 models
 config
@@ -1733,7 +1733,7 @@ No dependen de internet.
 
 ---
 
-## Presentación presencial
+## Estrategia de demo
 
 Orden de prioridad:
 
@@ -1765,15 +1765,15 @@ Eso hace el deploy sustituible.
 
 | Fase | Qué cambia | Se reutiliza | Riesgo principal |
 |---|---|---|---|
-| **0 Hackatón** | historiales mockeados por perfil + entrenamiento previo real + modelos individuales preentrenados + inferencia + retraining demo | contratos y pipeline | realismo del mock y sobreajuste |
-| **1 Piloto BLUBA** | persistencia real, auth, timestamps, más historia por usuario | arquitectura completa | calidad del outcome |
+| **0 Demo** | historiales mockeados por perfil + entrenamiento previo real + modelos individuales preentrenados + inferencia + retraining demo | contratos y pipeline | realismo del mock y sobreajuste |
+| **1 Piloto** | persistencia real, auth, timestamps, más historia por usuario | arquitectura completa | calidad del outcome |
 | **2 Madurez individual** | más ejemplos y positivos por usuario | datasets/model registry | decidir cuándo cambiar de algoritmo |
 | **3 Optimización de modelos** | benchmark logística vs boosting/XGBoost u otros | interfaz PersonalRiskModel | sobreajuste/calibración |
 | **4 CONNECT** | sueño/actividad/HR | DataProvider/FeatureEngine | calidad incremental |
 | **5 SENSE** | ruido/IMU/luz/EDA | adapters/features | privacidad/ruido |
 | **6 Validación productiva** | calibración, utilidad, thresholds | plataforma completa | claims y seguridad |
 
-## Fase 0 — Hackatón
+## Fase 0 — Demo
 
 Construimos y demostramos:
 
@@ -1790,7 +1790,7 @@ outcome logging
 retraining de una nueva versión como demostración del ciclo futuro
 ```
 
-## Fase 1 — Piloto BLUBA
+## Fase 1 — Piloto
 
 Se reemplaza la persistencia de demo por almacenamiento productivo y se capturan outcomes/timestamps reales. No cambia la interfaz `PersonalRiskModel` ni el Prediction Contract.
 
@@ -1874,7 +1874,7 @@ PredictionContract
         ↓
 FastAPI
         ↓
-React / BLUBA-like UI
+React UI
 ```
 
 La demo debe probar realmente que:
@@ -1907,7 +1907,7 @@ nuevos outcomes pueden alimentar retraining
 CORE funciona sin sensores
 ```
 
-La historia de la hackatón, por tanto, no es “tenemos perfiles preconfigurados que simulan riesgo”. Es:
+La historia del proyecto, por tanto, no es “tenemos perfiles preconfigurados que simulan riesgo”. Es:
 
 > **Creamos historiales sintéticos realistas para representar meses de uso que todavía no existen, entrenamos de verdad un modelo independiente para cada perfil y usamos esos modelos preentrenados para hacer predicciones en la aplicación. En producción, el mismo ciclo utilizará los registros reales acumulados por cada usuario y generará nuevas versiones de su modelo con el tiempo.**
 
@@ -1915,11 +1915,4 @@ La historia de la hackatón, por tanto, no es “tenemos perfiles preconfigurado
 
 # Fuentes del proyecto utilizadas
 
-- `NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026.md`
-- `Bases Hackatón FICA 2026 2S.pdf`
-- `6. Presentación Desafío BLUBA.pdf`
-- `3. Presentación Bases Hackatón.pdf`
-- `NeuroHack_2026_Plan_Operativo_Competitivo(1)(1).pdf`
-- `Estrategia_Datos_BLUBA_NeuroHack_2026_V2_Perfiles_Sensoriales(1).md`
-- `BLUBA_Sensorizacion_IoT_Extension_Motor_Predictivo_NeuroHack_2026(1).md`
-- `NeuroHack_2026_War_Room_PreTaller_BLUBA(1).md`
+- `NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md`
