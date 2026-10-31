@@ -7,7 +7,7 @@ Este documento define casos de uso para el **Support Selector** de NeuraDash y l
 Las recomendaciones se plantean como **apoyos potenciales a considerar**, no como tratamientos automáticos. Deben priorizarse, en este orden:
 
 1. estrategias previamente efectivas para la persona;
-2. estrategias registradas o aprobadas por su profesional;
+2. estrategias previamente registradas para la persona;
 3. estrategias del catálogo general respaldado;
 4. ninguna recomendación específica cuando no exista base suficiente.
 
@@ -51,7 +51,7 @@ Si existen apoyos de transición previamente registrados como efectivos, deben p
 
 - irritabilidad o estado basal fuera del patrón habitual;
 - aumento progresivo de señales de estrés;
-- señales tempranas previamente reconocidas por familia o profesional;
+- señales tempranas previamente reconocidas por la familia o el cuidador;
 - mayor necesidad de apoyo que el habitual.
 
 ## Recomendaciones candidatas
@@ -77,7 +77,7 @@ NeuraDash no debe inventar una técnica de regulación. Debe recuperar una estra
 
 - aumento de dificultad durante actividades;
 - disminución de participación;
-- señal profesional reciente;
+- señal registrada reciente;
 - aumento de estrés en situaciones de demanda;
 - historial de episodios asociados a tareas o exigencias.
 
@@ -120,7 +120,7 @@ NeuraDash no debe inventar una técnica de regulación. Debe recuperar una estra
 
 ## Regla de personalización
 
-La recomendación solo debe aparecer si la estrategia de comunicación está registrada para esa persona o ha sido definida por un profesional.
+La recomendación solo debe aparecer si la estrategia de comunicación está registrada o definida previamente para esa persona.
 
 ---
 
@@ -143,7 +143,7 @@ La recomendación solo debe aparecer si la estrategia de comunicación está reg
 
 ## Regla de personalización
 
-NeuraDash no debe seleccionar por sí mismo el reforzador. El tipo de refuerzo debe provenir del plan individual o del profesional.
+NeuraDash no debe seleccionar por sí mismo el reforzador. El tipo de refuerzo debe provenir del plan individual registrado para la persona.
 
 ---
 
@@ -159,7 +159,7 @@ NeuraDash no debe seleccionar por sí mismo el reforzador. El tipo de refuerzo d
 
 ## Recomendación principal
 
-### Solicitar revisión funcional profesional
+### Solicitar revisión de antecedentes y contexto
 > Se observa un patrón repetido. Considere revisar antecedentes, contexto y posible función de la conducta antes de modificar el plan de apoyo.
 
 ## Qué NO debe hacer NeuraDash
@@ -171,7 +171,7 @@ No debe concluir automáticamente:
 - “el sueño explica el episodio”;
 - “esta intervención es la correcta”.
 
-El sistema identifica patrones; la interpretación funcional corresponde a evaluación profesional.
+El sistema identifica patrones; la interpretación funcional debe basarse en los antecedentes y el contexto registrados.
 
 ---
 
@@ -203,14 +203,14 @@ Este tipo de recomendación debe tener mayor prioridad que una recomendación ge
 ## Señales posibles
 
 - el usuario actual es tutor o familiar;
-- existe un plan de apoyo definido por un profesional;
+- existe un plan de apoyo previamente definido;
 - el cuidador ha sido entrenado en determinadas estrategias;
 - existen apoyos domésticos registrados.
 
 ## Recomendaciones candidatas
 
 ### Mostrar estrategias ya conocidas
-> Considere aplicar la estrategia previamente acordada con el profesional para este tipo de situación.
+> Considere aplicar la estrategia previamente acordada para este tipo de situación.
 
 ### Recordar un apoyo registrado
 > En situaciones similares se ha registrado como útil: **[apoyo]**.

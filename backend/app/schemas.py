@@ -18,7 +18,7 @@ class ApiErrorEnvelope(BaseModel):
 
 class ActorContext(BaseModel):
     actor_id: str
-    role: Literal["tutor", "professional", "system"]
+    role: Literal["tutor", "system"]
 
 
 class ProvenanceV2(BaseModel):
@@ -32,33 +32,6 @@ class CareWriteV2(BaseModel):
     occurred_at: datetime
     idempotency_key: str = Field(min_length=1)
     provenance: ProvenanceV2
-
-    @field_validator("occurred_at")
-    @classmethod
-    def require_aware_timestamp(cls, value: datetime) -> datetime:
-        if value.tzinfo is None or value.utcoffset() is None:
-            raise ValueError("occurred_at must be timezone-aware")
-        return value
-
-
-class SessionWriteV2(BaseModel):
-    occurred_at: datetime
-    idempotency_key: str = Field(min_length=1)
-    provenance: ProvenanceV2
-    professional: str = Field(min_length=1)
-    consultation_reason: str = Field(min_length=1)
-    modality: str = Field(min_length=1)
-    duration_minutes: int = Field(gt=0)
-    attendance: str = Field(min_length=1)
-    paid: bool
-    status: str = Field(min_length=1)
-    alert_level: str = Field(min_length=1)
-    objectives: str | None = None
-    activities: str | None = None
-    observations: str | None = None
-    internal_notes: str | None = None
-    visible_to_tutor: bool = True
-    active: bool = True
 
     @field_validator("occurred_at")
     @classmethod

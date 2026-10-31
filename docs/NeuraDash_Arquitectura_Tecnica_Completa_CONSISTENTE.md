@@ -330,7 +330,6 @@ neuradash/
 │   ├── bluba/
 │   │   ├── 1_casos_anonimizados.csv
 │   │   ├── 2_programas_y_objetivos.csv
-│   │   ├── 3_sesiones_profesionales.csv
 │   │   ├── 4_seguimiento_diario_tutor.csv
 │   │   └── 5_eventos_desregulacion_tutor.csv
 │   └── demo_profiles/
@@ -448,7 +447,6 @@ Subject
 SensoryProfile
 DailyRecord
 DysregulationEvent
-ProfessionalSession
 ProgramGoal
 SupportStrategy
 SupportHistory
@@ -490,9 +488,8 @@ WearableObservation
 | `SensoryProfile` | `sensory_profile_id` | modalidad, patrón, texto original | assessed_at | N:1 Subject | MVP |
 | `DailyRecord` | `daily_record_id` | sleep, wake, GI, medication, regulation | `source_timestamp`, `availability_timestamp` | N:1 Subject | MVP |
 | `DysregulationEvent` | `event_id` | type, intensity, trigger, support, result | `event_timestamp` | N:1 Subject | MVP |
-| `ProfessionalSession` | `session_id` | profession, alerts, observations | `session_timestamp` | N:1 Subject | MVP |
-| `ProgramGoal` | `goal_id` | area, objective, professional, status | updated_at | N:1 Subject | MVP/contexto |
-| `SupportStrategy` | `support_id` | label, source, professional validation | validated_at | N:M Subject | MVP |
+| `ProgramGoal` | `goal_id` | area, objective, status | updated_at | N:1 Subject | MVP/contexto |
+| `SupportStrategy` | `support_id` | label, source, validation | validated_at | N:M Subject | MVP |
 | `SupportHistory` | `support_history_id` | support, context, outcome | used_at | Subject+Support | MVP |
 | `BaselineSnapshot` | derived id | modality baselines, maturity | `as_of` | Subject | derivado |
 | `FeatureSnapshot` | derived id | feature values + metadata | `as_of` | Subject | derivado |
@@ -901,7 +898,6 @@ sleep_quality_delta_baseline
 sleep_trend_3d / 7d
 wake_state_delta_baseline
 previous_day_regulation
-professional_alert_recent
 day_coverage_3d / 7d
 baseline_maturity
 variables de onboarding/contexto seleccionadas
@@ -986,7 +982,6 @@ Ejemplo:
 ```text
 event_count → 1/3/7/14
 sleep trend → 3/7
-professional alert → 7
 time_since_event → continuo
 coverage → 3/7
 ```
@@ -1469,7 +1464,7 @@ BLUBA debería controlar:
 
 ```text
 quién puede ver cada niño
-qué profesional pertenece al caso
+quién es el cuidador a cargo
 qué puede hacer la familia
 ```
 

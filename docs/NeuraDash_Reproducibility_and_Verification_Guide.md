@@ -131,10 +131,9 @@ identity-to-subject permission source.
 
 Care writes require a timezone-aware `occurred_at`, `idempotency_key`, and
 provenance. Use the same idempotency key when retrying a write or an outcome
-confirmation. Protected session reads and prediction reload/outcome endpoints
-require actor headers and enforce the subject authorization lists on the server.
-Session read responses never expose `internal_notes`; only an authorized
-professional may submit those notes.
+confirmation. Prediction reload and outcome endpoints require actor headers and
+enforce the subject authorization lists on the server. The supported actor roles
+are `tutor` (the caregiver) and `system`.
 
 Predictions are created with a timezone-aware `prediction_cutoff`. Every
 prediction cutoff includes only records whose availability timestamp is at or
@@ -184,7 +183,7 @@ To use the FastAPI integration instead, create `front/.env` from
 | Tasks | Delivered behavior and evidence | Rollback boundary |
 | --- | --- | --- |
 | 1.1–1.3 | Care replay, timezone validation, timeline cutoff, and local end-of-day eligibility; FastAPI TestClient care and prediction-cutoff suites. | Care repository, subject routes, and their focused integration tests. |
-| 2.1–2.3 | Server-side session authorization/redaction and explicitly non-functional placeholders; FastAPI and RTL focused suites. | Session transport/page/tests and placeholder page/tests. |
+| 2.1–2.3 | Caregiver-only actor model (`tutor`/`system`) with subject authorization; server-side role validation and privacy checks. | Subject routes, schemas, and their focused integration tests. |
 | 3.1–3.3 | Immutable cutoff-bound snapshots and actor-bound idempotent outcomes; prediction/outcome TestClient suite. | Prediction service/routes/schema/promotion files and prediction integration tests. |
 | 4.1–4.3 | Real/mock Contract v2 parity, safe retry/error states, and safe Evolucion rendering; Vitest/RTL plus typecheck/build. | `front/src` adapter, mocks, affected pages, and their tests. |
 | 5.1–5.3 | Bounded suite verification, runbook/hygiene checks, and final task-to-evidence review. | This runbook, release-hygiene test, SDD task/progress artifacts, and ignore rules only. |

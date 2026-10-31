@@ -57,7 +57,7 @@ def select_supports(
     Select evidence-bounded supports without prescribing treatment.
 
     Priority order:
-    1. Previously effective or professional-approved subject supports.
+    1. Previously effective subject supports.
     2. Contextual recommendations from the validated catalog.
     3. Explicit insufficient-data message when contextualization is unsafe.
     """
@@ -72,7 +72,7 @@ def select_supports(
     selected = list(historical)
 
     if any(entry.get("case_id") for entry in catalog):
-        registered_cases = _registered_cases(subject_history, context)
+        registered_cases = _registered_cases(subject_history)
         if any(item.get("effective") is True for item in subject_history) and signals:
             signals.add("previously_effective_similar_context")
             selected.extend(_effective_history_recommendations(subject_history))
@@ -194,10 +194,10 @@ def _history_case(item: dict[str, Any], signals: set[str]) -> str:
     return next(iter(signals), "previously_effective_similar_context") if item.get("effective") is True else "historical_support"
 
 
-def _registered_cases(subject_history: list[dict[str, Any]], context: dict[str, Any]) -> set[str]:
+def _registered_cases(subject_history: list[dict[str, Any]]) -> set[str]:
     cases = set()
     for item in subject_history:
-        if not (item.get("approved_by_professional") or item.get("effective") or item.get("type") == "historical"):
+        if not (item.get("effective") or item.get("type") == "historical"):
             continue
         contexts = item.get("contexts", [])
         if isinstance(contexts, str):
@@ -209,8 +209,6 @@ def _registered_cases(subject_history: list[dict[str, Any]], context: dict[str, 
         category_case = CONTEXT_ALIASES.get(str(item.get("category", "")).lower())
         if category_case:
             cases.add(category_case)
-    if context.get("professional_plan") is True and context.get("caregiver_view") is True:
-        cases.add("caregiver_context")
     return cases
 
 

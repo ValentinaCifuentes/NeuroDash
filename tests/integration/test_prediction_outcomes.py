@@ -8,7 +8,7 @@ from backend.app.routes import predictions, subjects
 
 
 def _headers() -> dict[str, str]:
-    return {"X-Actor-Id": "professional-1", "X-Actor-Role": "professional"}
+    return {"X-Actor-Id": "tutor-1", "X-Actor-Role": "tutor"}
 
 
 def _onboard(client: TestClient) -> str:
@@ -16,7 +16,6 @@ def _onboard(client: TestClient) -> str:
         "subject_id": "prediction-subject",
         "display_name": "Prediction Subject",
         "timezone": "America/Santiago",
-        "authorized_professional_ids": ["professional-1"],
         "authorized_tutor_ids": ["tutor-1"],
     })
     assert response.status_code == 201
@@ -121,7 +120,7 @@ def test_outcome_confirmation_requires_actor_and_replays_persisted_lineage(tmp_p
         "subject_id": subject_id,
         "prediction_cutoff": "2026-08-26T12:00:00-04:00",
     }).json()
-    payload = {"actual_outcome": True, "idempotency_key": "outcome-1", "provenance": {"source": "professional", "synthetic": False}}
+    payload = {"actual_outcome": True, "idempotency_key": "outcome-1", "provenance": {"source": "tutor", "synthetic": False}}
 
     denied = client.post(f"/api/v1/predictions/{prediction['prediction_id']}/outcome", json=payload)
     first = client.post(f"/api/v1/predictions/{prediction['prediction_id']}/outcome", json=payload, headers=_headers())
@@ -130,7 +129,7 @@ def test_outcome_confirmation_requires_actor_and_replays_persisted_lineage(tmp_p
     assert denied.status_code == 401
     assert first.status_code == replay.status_code == 201
     assert first.json()["outcome_id"] == replay.json()["outcome_id"]
-    assert first.json()["actor_id"] == "professional-1"
+    assert first.json()["actor_id"] == "tutor-1"
     assert first.json()["prediction_id"] == prediction["prediction_id"]
     reloaded = client.get(f"/api/v1/predictions/{prediction['prediction_id']}", headers=_headers())
     assert reloaded.status_code == 200
