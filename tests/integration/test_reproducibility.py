@@ -52,15 +52,15 @@ def test_reproducibility_pipeline(tmp_path: Path) -> None:
     generate_subject_history("PAC-C", days=2, seed=1003, out_dir=data_dir) # Insufficient
     
     # Assert histories were generated
-    assert (data_dir / "bluba" / "PAC-A_history.json").exists()
-    assert (data_dir / "bluba" / "PAC-B_history.json").exists()
-    assert (data_dir / "bluba" / "PAC-C_history.json").exists()
+    assert (data_dir / "legacy_history" / "PAC-A_history.json").exists()
+    assert (data_dir / "legacy_history" / "PAC-B_history.json").exists()
+    assert (data_dir / "legacy_history" / "PAC-C_history.json").exists()
     
     # Step 2: Validate generated source data
     from scripts.validate_source_data import validate_schema
-    assert validate_schema(data_dir / "bluba" / "PAC-A_history.json") is True
-    assert validate_schema(data_dir / "bluba" / "PAC-B_history.json") is True
-    assert validate_schema(data_dir / "bluba" / "PAC-C_history.json") is True
+    assert validate_schema(data_dir / "legacy_history" / "PAC-A_history.json") is True
+    assert validate_schema(data_dir / "legacy_history" / "PAC-B_history.json") is True
+    assert validate_schema(data_dir / "legacy_history" / "PAC-C_history.json") is True
     
     # Step 3: Train models
     from scripts.train_demo_models import train_subject_model

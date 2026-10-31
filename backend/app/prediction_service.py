@@ -62,8 +62,8 @@ def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, A
     occurrences = []
 
     if is_demo:
-        # Load from data/bluba/{subject_id}_history.json
-        history_path = proj_root / "data" / "bluba" / f"{subject_id}_history.json"
+        # Load from data/legacy_history/{subject_id}_history.json
+        history_path = proj_root / "data" / "legacy_history" / f"{subject_id}_history.json"
         if history_path.exists():
             with open(history_path, "r", encoding="utf-8") as f:
                 history = json.load(f)

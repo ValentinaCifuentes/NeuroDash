@@ -19,7 +19,7 @@ def load_subject_data_from_dir(subject_id: str, data_dir: Path) -> tuple[dict[st
     with open(profile_path, "r", encoding="utf-8") as f:
         profile = json.load(f)
         
-    history_path = data_dir / "bluba" / f"{subject_id}_history.json"
+    history_path = data_dir / "legacy_history" / f"{subject_id}_history.json"
     if not history_path.exists():
         raise FileNotFoundError(f"History not found for {subject_id} at {history_path}")
         

@@ -41,7 +41,7 @@ def execute_smoke_run(
     with open(profile_path, "r", encoding="utf-8") as f:
         profile = json.load(f)
         
-    history_path = d_dir / "bluba" / f"{subject_id}_history.json"
+    history_path = d_dir / "legacy_history" / f"{subject_id}_history.json"
     with open(history_path, "r", encoding="utf-8") as f:
         history = json.load(f)
         

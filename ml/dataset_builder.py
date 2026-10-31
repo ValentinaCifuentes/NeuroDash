@@ -187,11 +187,11 @@ def generate_synthetic_history(
 
 def populate_demo_fixtures(project_root: Path | str) -> None:
     """
-    Populates data/bluba/ and data/demo_profiles/ with mock profiles and histories.
+    Populates data/legacy_history/ and data/demo_profiles/ with mock profiles and histories.
     """
     root = Path(project_root)
-    bluba_dir = root / "data" / "bluba"
-    bluba_dir.mkdir(parents=True, exist_ok=True)
+    legacy_history_dir = root / "data" / "legacy_history"
+    legacy_history_dir.mkdir(parents=True, exist_ok=True)
     
     profiles = {
         "PAC-A": {
@@ -235,8 +235,8 @@ def populate_demo_fixtures(project_root: Path | str) -> None:
             
         history_serialized = serialize_dt(history)
         
-        # Save history to data/bluba/PAC-X_history.json
-        history_path = bluba_dir / f"{pid}_history.json"
+        # Save history to data/legacy_history/PAC-X_history.json
+        history_path = legacy_history_dir / f"{pid}_history.json"
         with open(history_path, "w", encoding="utf-8") as f:
             json.dump(history_serialized, f, indent=2, sort_keys=True)
             

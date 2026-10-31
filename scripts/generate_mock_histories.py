@@ -27,7 +27,7 @@ def generate_subject_history(
 ) -> None:
     """
     Generates a mock history and profile JSON for a given subject ID.
-    Saves history to {out_dir}/bluba/{subject_id}_history.json
+    Saves history to {out_dir}/legacy_history/{subject_id}_history.json
     Saves profile to {out_dir}/demo_profiles/{subject_id}/profile.json
     """
     out_path = Path(out_dir)
@@ -72,9 +72,9 @@ def generate_subject_history(
     history_serialized = serialize_dt(history)
     
     # Write history JSON
-    bluba_dir = out_path / "bluba"
-    bluba_dir.mkdir(parents=True, exist_ok=True)
-    history_file = bluba_dir / f"{subject_id}_history.json"
+    legacy_history_dir = out_path / "legacy_history"
+    legacy_history_dir.mkdir(parents=True, exist_ok=True)
+    history_file = legacy_history_dir / f"{subject_id}_history.json"
     with open(history_file, "w", encoding="utf-8") as f:
         json.dump(history_serialized, f, indent=2, sort_keys=True)
         
