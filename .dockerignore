@@ -1,0 +1,17 @@
+.git
+.venv
+venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.claude
+.env
+.env.*
+front
+frontend
+docs
+openspec
+tests
+node_modules

@@ -86,6 +86,33 @@ npm run dev
 Los encabezados del actor de desarrollo utilizados para las operaciones protegidas
 no constituyen un proveedor de identidad de producción.
 
+### Ejecutar con Docker
+
+Requiere Docker con Compose. Desde la raíz del repositorio:
+
+```bash
+docker compose up --build
+```
+
+- Frontend: <http://localhost:8080> (nginx reenvía `/api` al backend)
+- Backend: <http://localhost:8000/docs>
+
+`data/` y `models/` se guardan en los volúmenes `neuradash-data` y
+`neuradash-models`, por lo que los cambios sobreviven a los reinicios. Para volver
+a los datos del repositorio, use `docker compose down -v`.
+
+El frontend se compila con `VITE_API_BASE=http://localhost:8080`. Si lo sirve desde
+otra URL, o quiere habilitar las sesiones profesionales, defina las variables antes
+de compilar (por ejemplo en un `.env` en la raíz):
+
+```bash
+VITE_API_BASE=http://mi-servidor:8080
+VITE_ACTOR_ID=pro-demo
+VITE_ACTOR_ROLE=professional
+```
+
+Con `VITE_API_BASE=` vacío, la UI usa el mock en memoria.
+
 ## Pruebas y validación
 
 Ejecute la suite de pruebas unitarias y de integración del backend desde la raíz:
