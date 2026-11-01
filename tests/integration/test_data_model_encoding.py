@@ -1,0 +1,151 @@
+"""Tests de Fase 0: codificación texto -> número, severidad y event_count diario."""
+from pathlib import Path
+import json
+
+from fastapi.testclient import TestClient
+
+from backend.app.main import app
+from backend.app.routes import subjects
+
+
+def _onboard(client: TestClient, timezone: str = "America/Santiago") -> str:
+    response = client.post("/api/v1/subjects", json={
+        "display_name": "Alex Rivera",
+        "timezone": timezone,
+        "baseline": {},
+        "provenance": {"source": "caregiver_onboarding", "synthetic": False},
+    })
+    assert response.status_code == 201
+    return response.json()["subject_id"]
+
+
+def _headers() -> dict[str, str]:
+    return {"X-Actor-Id": "tutor-1", "X-Actor-Role": "tutor"}
+
+
+def test_daily_record_encodes_text_to_raw_and_numeric_to_root(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    payload = {
+        "occurred_at": "2026-08-26T07:30:00-04:00",
+        "idempotency_key": "daily-encoded-1",
+        "provenance": {"source": "caregiver", "synthetic": False},
+        "sleep_quality": "Reparador",
+        "wake_mode": "Tranquilo/Alegre",
+        "start_autonomy": "Por sí solo",
+        "medication_adherence": "Sí",
+        "gi_status": "Normal",
+    }
+
+    saved = client.post(
+        f"/api/v1/subjects/{subject_id}/daily-records", json=payload, headers=_headers()
+    ).json()
+
+    # Contraparte numérica en la raíz con nombre estable.
+    assert saved["sleep_quality"] == 8
+    assert saved["wake_state"] == 2
+    assert saved["start_autonomy_level"] == 0
+    assert saved["medication_taken"] == 1
+    assert saved["gi_level"] == 0
+
+    # Texto original conservado en raw.
+    assert saved["raw"] == {
+        "sleep_quality": "Reparador",
+        "wake_mode": "Tranquilo/Alegre",
+        "start_autonomy": "Por sí solo",
+        "medication_adherence": "Sí",
+        "gi_status": "Normal",
+    }
+
+    # Los nombres de texto antiguos no quedan en la raíz.
+    for legacy_field in ("wake_mode", "start_autonomy", "medication_adherence", "gi_status"):
+        assert legacy_field not in saved
+
+
+def test_medication_no_aplica_omits_numeric_field(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    saved = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T07:30:00-04:00",
+        "idempotency_key": "daily-no-aplica",
+        "provenance": {"source": "caregiver", "synthetic": False},
+        "medication_adherence": "No Aplica",
+    }, headers=_headers()).json()
+
+    assert saved["raw"]["medication_adherence"] == "No Aplica"
+    assert "medication_taken" not in saved
+
+
+def test_end_of_day_encodes_regulation_level(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    saved = client.post(f"/api/v1/subjects/{subject_id}/end-of-day", json={
+        "occurred_at": "2026-08-26T20:00:00-04:00",
+        "idempotency_key": "eod-encoded",
+        "provenance": {"source": "caregiver", "synthetic": False},
+        "day_regulation_level": "Desregulación Frecuente",
+    }, headers=_headers()).json()
+
+    assert saved["day_regulation_level_num"] == 2
+    assert saved["raw"]["day_regulation_level"] == "Desregulación Frecuente"
+
+
+def test_dysregulation_events_get_severity_label(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    def save_event(event_type: str, intensity: int) -> dict:
+        return client.post(f"/api/v1/subjects/{subject_id}/events", json={
+            "occurred_at": "2026-08-26T10:00:00-04:00",
+            "idempotency_key": f"evt-{event_type}-{intensity}",
+            "provenance": {"source": "caregiver", "synthetic": False},
+            "event_type": event_type,
+            "intensity_value": intensity,
+        }, headers=_headers()).json()
+
+    assert save_event("Desregulación Emocional", 9)["severity"] == "severe"
+    assert save_event("Desregulación Emocional", 4)["severity"] == "moderate"
+    assert save_event("Desregulación Emocional", 2)["severity"] == "mild"
+
+    # Las demás categorías no generan etiqueta de severidad.
+    assert "severity" not in save_event("Alimentación", 5)
+    assert "severity" not in save_event("Transición de Actividad", 6)
+
+
+def test_event_count_aggregation_by_local_day(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client, timezone="America/Santiago")
+
+    def post_event(at: str, event_type: str, intensity: int, key: str) -> None:
+        response = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+            "occurred_at": at,
+            "idempotency_key": key,
+            "provenance": {"source": "caregiver", "synthetic": False},
+            "event_type": event_type,
+            "intensity_value": intensity,
+        }, headers=_headers())
+        assert response.status_code == 201
+
+    post_event("2026-08-26T10:00:00-04:00", "Desregulación Emocional", 9, "e1")
+    post_event("2026-08-26T14:00:00-04:00", "Alimentación", 3, "e2")
+    post_event("2026-08-26T16:00:00-04:00", "Desregulación Emocional", 4, "e3")
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    day_record = next(r for r in records if r["date"] == "2026-08-26")
+    assert day_record["event_count"] == 3
+    assert day_record["dysregulation_count"] == 2
+    assert day_record["max_intensity"] == 9
+
+    # Un nuevo día genera su propio registro mínimo.
+    post_event("2026-08-27T09:00:00-04:00", "Alimentación", 2, "e4")
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    assert next(r for r in records if r["date"] == "2026-08-27")["event_count"] == 1
+    assert next(r for r in records if r["date"] == "2026-08-26")["event_count"] == 3
