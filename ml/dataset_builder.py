@@ -1,5 +1,6 @@
 from datetime import datetime, timezone as dt_timezone, timedelta
 import json
+import math
 from pathlib import Path
 import random
 import zoneinfo
@@ -119,6 +120,10 @@ def build_dataset(
     return X_train, y_train, X_test, y_test, lineage
 
 
+def _clip(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
 def generate_synthetic_history(
     subject_id: str,
     days: int,
@@ -127,64 +132,93 @@ def generate_synthetic_history(
 ) -> dict[str, Any]:
     """
     Generates a deterministic synthetic history of daily records and occurrence events.
-    Tracks lineage metadata explicitly.
+
+    The data is driven by a hidden "dysregulation load" (an autocorrelated process in
+    [0, 1]): every numeric feature is a noisy function of that load, and the probability
+    of a moderate/severe crisis later that day is a logistic function of the same load.
+    Because the load is persistent across days, *past* records are genuinely predictive
+    of *today's* crisis, so the model has real signal to learn (it beats a naive baseline).
     """
     rng = random.Random(seed)
-    
-    # Start date in the past
+
     tz = zoneinfo.ZoneInfo(timezone)
     start_date = datetime(2026, 8, 1, 12, 0, 0, tzinfo=tz)
-    
-    records = []
-    occurrences = []
-    
+
+    records: list[dict[str, Any]] = []
+    occurrences: list[dict[str, Any]] = []
+
+    load = 0.5  # latent dysregulation load in [0, 1]
+
     for d in range(days):
         current_time = start_date + timedelta(days=d)
-        
-        # Generate daily record
-        # Metric ranges:
-        # sleep_quality: 4.0 - 10.0
-        # wake_state: 3.0 - 9.0
-        # event_count: 0 - 5
-        sleep_quality = rng.uniform(4.0, 10.0)
-        wake_state = rng.uniform(3.0, 9.0)
-        event_count = rng.randint(0, 5)
-        
+
+        # 1. Evolve latent load: strongly autocorrelated (persistent) around 0.5.
+        #    A high load today makes a high load tomorrow likely, which is what lets
+        #    past features anticipate a future crisis.
+        load = _clip(0.5 + 0.85 * (load - 0.5) + 0.20 * rng.gauss(0.0, 1.0), 0.0, 1.0)
+
+        # 2. Numeric features as noisy functions of load (higher load -> worse state).
+        #    Noise is deliberately small so the load signal dominates.
+        sleep_quality = round(_clip(10.0 - 5.5 * load + 0.35 * rng.gauss(0.0, 1.0), 4.0, 10.0), 2)
+        wake_state = round(_clip(2.0 + 6.5 * load + 0.35 * rng.gauss(0.0, 1.0), 2.0, 9.0), 2)
+        event_count = max(0, int(round(6.0 * load + 0.5 * rng.gauss(0.0, 1.0))))
+        dysregulation_count = min(
+            event_count,
+            max(0, int(round(3.0 * load + 0.3 * rng.gauss(0.0, 1.0))))
+        )
+        max_intensity = int(_clip(round(1.0 + 9.0 * load + 0.5 * rng.gauss(0.0, 1.0)), 1, 10))
+        start_autonomy_level = int(_clip(round(2.0 * load + 0.3 * rng.gauss(0.0, 1.0)), 0, 2))
+        medication_taken = 1 if rng.random() > 0.30 * load else 0
+        gi_level = int(_clip(round(2.0 * load + 0.3 * rng.gauss(0.0, 1.0)), 0, 2))
+        day_regulation_level_num = int(_clip(round(2.0 * load + 0.3 * rng.gauss(0.0, 1.0)), 0, 2))
+
         record = {
             "id": f"rec_{subject_id}_{d}",
             "subject_id": subject_id,
             "source_timestamp": current_time,
             "availability_timestamp": current_time,
-            "sleep_quality": round(sleep_quality, 2),
-            "wake_state": round(wake_state, 2),
-            "event_count": event_count
+            "sleep_quality": sleep_quality,
+            "wake_state": wake_state,
+            "event_count": event_count,
+            "dysregulation_count": dysregulation_count,
+            "max_intensity": max_intensity,
+            "start_autonomy_level": start_autonomy_level,
+            "medication_taken": medication_taken,
+            "gi_level": gi_level,
+            "day_regulation_level_num": day_regulation_level_num,
         }
         records.append(record)
-        
-        # Generate occurrences with a low probability (e.g. 15%)
-        if rng.random() < 0.15:
-            # Events happen within the 8h prediction horizon after the noon cutoff
-            # (13:00–20:00 local), so a daily record at noon can anticipate them.
+
+        # 3. Crisis occurrence (moderate/severe) later that day, driven by the load.
+        #    Occurrences fall within the 8h horizon after the noon cutoff (13:00–20:00).
+        #    Steep logistic keeps the base rate realistic (~15–20%) while remaining
+        #    strongly dependent on the load.
+        p_crisis = 1.0 / (1.0 + math.exp(-8.0 * (load - 0.7)))
+        if rng.random() < p_crisis:
             occ_hour = rng.randint(1, 8)
             occ_time = current_time + timedelta(hours=occ_hour)
-            avail_time = occ_time + timedelta(hours=2) # 2 hours notification delay
-            severity = rng.choice(["mild", "moderate", "severe"])
-            
+            avail_time = occ_time + timedelta(hours=2)  # 2 hours notification delay
+            severity = "severe" if load > 0.72 else "moderate"
+            intensity_value = int(_clip(round(1.0 + 9.0 * load + rng.gauss(0.0, 0.8)), 1, 10))
+
             occurrence = {
                 "id": f"occ_{subject_id}_{d}",
                 "subject_id": subject_id,
                 "source_timestamp": occ_time,
                 "availability_timestamp": avail_time,
-                "severity": severity
+                "severity": severity,
+                "event_type": "Desregulación Emocional",
+                "intensity_value": intensity_value,
             }
             occurrences.append(occurrence)
-            
+
     lineage = {
         "seed": seed,
         "generator_name": "synthetic_history_generator",
+        "generator_version": "2.0-load-driven",
         "data_generation_timestamp": datetime.now(dt_timezone.utc).isoformat()
     }
-    
+
     return {
         "records": records,
         "occurrences": occurrences,

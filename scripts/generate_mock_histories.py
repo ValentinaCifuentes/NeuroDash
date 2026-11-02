@@ -95,10 +95,10 @@ def generate_subject_history(
 
 def generate_all_histories(out_dir: Path | str) -> None:
     """Generates default PAC-A, PAC-B, and PAC-C histories."""
-    # PAC-A: 30 days (sufficient)
-    generate_subject_history("PAC-A", days=30, seed=1001, out_dir=out_dir)
-    # PAC-B: 30 days (sufficient)
-    generate_subject_history("PAC-B", days=30, seed=1002, out_dir=out_dir)
+    # PAC-A: 90 days (sufficient to train a per-subject model with real signal)
+    generate_subject_history("PAC-A", days=90, seed=1001, out_dir=out_dir)
+    # PAC-B: 90 days (sufficient to train a per-subject model with real signal)
+    generate_subject_history("PAC-B", days=90, seed=1002, out_dir=out_dir)
     # PAC-C: 2 days (insufficient for training, to trigger cold-start/abstention)
     generate_subject_history("PAC-C", days=2, seed=1003, out_dir=out_dir)
 
