@@ -463,12 +463,21 @@ function adaptSupport(support: BackendSupport): SupportItem {
   };
 }
 
+/**
+ * Ventana de un factor según su nombre de variable (`FEATURE_VARIABLE_NAMES` en
+ * `engine/explanation.py`): `…_un_dia`, `…_dos_dias`, `…_tres_dias`, etc. Las
+ * desviaciones frente a la línea base no tienen ventana y quedan como `actual`.
+ */
+const WINDOW_BY_SUFFIX: Array<[string, string]> = [
+  ['_catorce_dias', '14d'],
+  ['_siete_dias', '7d'],
+  ['_tres_dias', '3d'],
+  ['_dos_dias', '2d'],
+  ['_un_dia', '1d'],
+];
+
 function inferWindow(value: string): string {
-  if (value.includes('catorce')) return '14d';
-  if (value.includes('siete')) return '7d';
-  if (value.includes('tres')) return '3d';
-  if (value.includes('ultimo') || value.includes('último')) return '1d';
-  return 'actual';
+  return WINDOW_BY_SUFFIX.find(([suffix]) => value.endsWith(suffix))?.[1] ?? 'actual';
 }
 
 function humanize(value: string): string {

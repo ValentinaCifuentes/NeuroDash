@@ -6,8 +6,11 @@ import {
   buildEventWrite,
   getActorHeaders,
   toLocalIsoString,
+  adaptPrediction,
+  type BackendPrediction,
   type BackendTimelineResponse,
 } from './api';
+import PREDICTION_FIXTURE from './test/fixtures/prediction-contract.json';
 import type { DailyRecord, DysregulationEvent } from './types';
 
 /** Forma real de `GET /subjects/{id}/timeline` (`routes/subjects.py › get_subject_timeline`). */
@@ -299,5 +302,66 @@ describe('prediction id round trip (I4)', () => {
     expect(fetchMock.mock.calls[1][0]).toBe(
       'http://api.test/api/v1/predictions/3f2a9c0d4b7e4e1f9a6b2c8d0e1f2a3b/outcome',
     );
+  });
+});
+
+describe('factors and missingness from a real engine contract (I7)', () => {
+  // Generado con `python scripts/export_contract_fixture.py`: predicción real de PAC-A
+  // con los factores de todas las familias de variables que nombra el motor.
+  const fixture = PREDICTION_FIXTURE as unknown as BackendPrediction;
+
+  it('maps every factor to a readable Spanish label, its variable code and a direction', () => {
+    const prediction = adaptPrediction(fixture);
+
+    expect(prediction.factors).toHaveLength(fixture.factors.length);
+    for (const factor of prediction.factors) {
+      expect(factor.label).not.toBe('Factor observado');
+      expect(factor.label).not.toMatch(/_/);
+      expect(factor.code).toMatch(/^[a-z_]+$/);
+      expect(factor.comparison).toMatch(/^La variable reciente /);
+    }
+    expect(new Set(prediction.factors.map((factor) => factor.direction))).toEqual(new Set(['up', 'down']));
+  });
+
+  it('covers the new variable families of the encoded Bitácora and events', () => {
+    const codes = adaptPrediction(fixture).factors.map((factor) => factor.code);
+
+    for (const family of ['autonomia_inicio_dia', 'medicacion', 'digestion', 'regulacion_dia', 'desregulaciones', 'intensidad_maxima']) {
+      expect(codes.some((code) => code.includes(family))).toBe(true);
+    }
+  });
+
+  it('infers the window from the variable name, including the one-day window', () => {
+    const windowOf = (code: string) => adaptPrediction(fixture).factors.find((factor) => factor.code === code)?.window;
+
+    expect(windowOf('calidad_sueno_promedio_un_dia')).toBe('1d');
+    expect(windowOf('conteo_registros_dos_dias')).toBe('2d');
+    expect(windowOf('intensidad_maxima_promedio_tres_dias')).toBe('3d');
+    expect(windowOf('desregulaciones_promedio_siete_dias')).toBe('7d');
+    expect(windowOf('estado_despertar_promedio_catorce_dias')).toBe('14d');
+    expect(windowOf('desviacion_digestion_linea_base')).toBe('actual');
+  });
+
+  it('reads the missingness keys the engine sends and keeps only the missing ones', () => {
+    for (const item of fixture.missingness) {
+      expect(Object.keys(item).sort()).toEqual(['field', 'missing', 'window']);
+    }
+    const withGap = {
+      ...fixture,
+      missingness: [...fixture.missingness, { window: 7, field: 'sleep_quality', missing: true }],
+    };
+
+    const missing = adaptPrediction(withGap).missingness;
+
+    expect(missing).toHaveLength(fixture.missingness.filter((item) => item.missing).length + 1);
+    expect(missing.at(-1)).toMatchObject({ code: 'sleep_quality-7' });
+  });
+
+  it('keeps the contract fields the screens rely on', () => {
+    const prediction = adaptPrediction(fixture);
+
+    expect(prediction).toMatchObject({ subject_id: 'PAC-A', horizon_hours: 8, abstained: false });
+    expect(prediction.risk).not.toBeNull();
+    expect(prediction.supports.every((support) => support.label && support.support_id)).toBe(true);
   });
 });
