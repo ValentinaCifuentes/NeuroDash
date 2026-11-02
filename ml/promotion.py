@@ -9,6 +9,7 @@ from typing import Any
 
 from ml.model_registry import ModelRegistry, ModelAbstentionError
 from ml.evaluator import evaluate_model
+from engine.schemas import HORIZON_HOURS
 
 
 def write_json_atomic(path: Path, value: Any) -> None:
@@ -60,9 +61,11 @@ def record_prediction_outcome(
             return outcome
 
     if actual_outcome:
-        # Append an occurrence in the horizon (cutoff, cutoff + 24h]
-        # Let's say it happens exactly 12 hours after the prediction cutoff
-        occ_time = cutoff + timedelta(hours=12)
+        # Append an occurrence inside the horizon (cutoff, cutoff + horizon_hours].
+        # Place it at the midpoint of the horizon so it is always a valid positive
+        # label for the prediction cutoff that produced it.
+        horizon_hours = int(pred_snapshot.get("horizon_hours", HORIZON_HOURS))
+        occ_time = cutoff + timedelta(hours=horizon_hours / 2)
         
         occ_record = {
             "id": f"occ_{prediction_id}",

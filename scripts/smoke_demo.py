@@ -19,7 +19,7 @@ from ml.explain import explain_prediction
 from ml.promotion import write_json_atomic
 
 from backend.app.schemas import PredictionContractV2
-from engine.schemas import ConfidenceLevel, CONTRACT_VERSION
+from engine.schemas import ConfidenceLevel, CONTRACT_VERSION, HORIZON_HOURS
 
 
 def execute_smoke_run(
@@ -120,7 +120,7 @@ def execute_smoke_run(
             contract_version=CONTRACT_VERSION,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=None,
             model_score=None,
             confidence=ConfidenceLevel.INSUFFICIENT,
@@ -170,7 +170,7 @@ def execute_smoke_run(
             contract_version=CONTRACT_VERSION,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=risk_tier,
             model_score=score,
             confidence=confidence,

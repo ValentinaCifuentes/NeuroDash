@@ -19,7 +19,7 @@ from ml.explain import explain_prediction
 from ml.promotion import write_json_atomic
 
 from backend.app.schemas import PredictionContractV2
-from engine.schemas import ConfidenceLevel
+from engine.schemas import ConfidenceLevel, HORIZON_HOURS
 
 
 class SubjectNotFoundError(ValueError):
@@ -179,7 +179,7 @@ def make_prediction(
             prediction_id=prediction_id,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=None,
             confidence=ConfidenceLevel.INSUFFICIENT,
             abstained=True,
@@ -226,7 +226,7 @@ def make_prediction(
             prediction_id=prediction_id,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=risk_tier,
             confidence=confidence,
             abstained=False,

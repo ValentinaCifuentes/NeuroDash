@@ -5,3 +5,5 @@ seed: 42
 penalty: "l2"
 C: 1.0
 solver: "liblinear"
+# Horizonte de predicción (horas). Fuente de verdad en engine/schemas.py: HORIZON_HOURS.
+horizon_hours: 8
