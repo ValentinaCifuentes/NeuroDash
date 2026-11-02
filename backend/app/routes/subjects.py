@@ -270,6 +270,9 @@ def get_subject(subject_id: str) -> dict[str, Any]:
 @router.post("/{subject_id}/daily-records", status_code=201)
 def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
     occurred_at = require_aware(req.occurred_at)
+    # El día del registro es el día local del infante (zona del perfil), igual que en
+    # el cierre del día y en los conteos de eventos, para que todo caiga en el mismo registro.
+    local_zone = zoneinfo.ZoneInfo(subject_profile(subject_id)["timezone"])
     item = _encode_care_record(req)
     item.update({
         "contract_version": "2.0",
@@ -277,7 +280,7 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
         "author_id": actor.actor_id,
         "source_timestamp": occurred_at.isoformat(),
         "availability_timestamp": occurred_at.isoformat(),
-        "date": occurred_at.date().isoformat(),
+        "date": occurred_at.astimezone(local_zone).date().isoformat(),
         "prediction_availability": "immediate",
     })
     return care_repository(subject_id).save(subject_id, "records", item, "record_id")

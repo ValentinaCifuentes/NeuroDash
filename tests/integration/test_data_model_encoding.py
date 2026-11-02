@@ -149,3 +149,27 @@ def test_event_count_aggregation_by_local_day(tmp_path: Path, monkeypatch) -> No
     records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
     assert next(r for r in records if r["date"] == "2026-08-27")["event_count"] == 1
     assert next(r for r in records if r["date"] == "2026-08-26")["event_count"] == 3
+
+
+def test_daily_record_date_uses_the_profile_timezone_not_the_device_offset(tmp_path: Path, monkeypatch) -> None:
+    """P3: 22:30 en Santiago llega como 01:30 UTC del día siguiente si el dispositivo está en UTC."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client, timezone="America/Santiago")
+    provenance = {"source": "caregiver", "synthetic": False}
+
+    record = client.post(f"/api/v1/subjects/{subject_id}/daily-records", headers=_headers(), json={
+        "occurred_at": "2026-11-03T01:30:00+00:00", "idempotency_key": "late-basal",
+        "provenance": provenance, "sleep_quality": "Reparador",
+    })
+    event = client.post(f"/api/v1/subjects/{subject_id}/events", headers=_headers(), json={
+        "occurred_at": "2026-11-02T22:45:00-03:00", "idempotency_key": "late-event",
+        "provenance": provenance, "event_type": "Desregulación Emocional", "intensity_value": 5,
+    })
+
+    assert record.status_code == event.status_code == 201
+    assert record.json()["date"] == "2026-11-02"
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    # El evento del mismo día local suma sus conteos al registro basal, sin crear otro.
+    assert len(records) == 1
+    assert records[0]["event_count"] == 1
