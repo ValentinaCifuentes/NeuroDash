@@ -1,56 +1,56 @@
 from typing import Any
 
 FEATURE_DISPLAY_NAMES = {
-    "sleep_quality_mean_1d": "calidad del sueno en el ultimo dia",
-    "sleep_quality_mean_3d": "calidad del sueno en los ultimos tres dias",
-    "sleep_quality_mean_7d": "calidad del sueno en los ultimos siete dias",
-    "sleep_quality_mean_14d": "calidad del sueno en los ultimos catorce dias",
-    "wake_state_mean_1d": "estado al despertar en el ultimo dia",
-    "wake_state_mean_3d": "estado al despertar en los ultimos tres dias",
-    "wake_state_mean_7d": "estado al despertar en los ultimos siete dias",
-    "wake_state_mean_14d": "estado al despertar en los ultimos catorce dias",
-    "event_count_mean_1d": "conteo de eventos en el ultimo dia",
-    "event_count_mean_3d": "conteo de eventos en los ultimos tres dias",
-    "event_count_mean_7d": "conteo de eventos en los ultimos siete dias",
-    "event_count_mean_14d": "conteo de eventos en los ultimos catorce dias",
-    "record_count_1d": "conteo de registros en el ultimo dia",
-    "record_count_2d": "conteo de registros en los ultimos dos dias",
-    "record_count_3d": "conteo de registros en los ultimos tres dias",
-    "record_count_7d": "conteo de registros en los ultimos siete dias",
-    "record_count_14d": "conteo de registros en los ultimos catorce dias",
-    "sleep_quality_delta_baseline": "desviacion de calidad del sueno frente a la linea base",
-    "wake_state_delta_baseline": "desviacion del estado al despertar frente a la linea base",
-    "event_count_delta_baseline": "desviacion del conteo de eventos frente a la linea base",
-    "start_autonomy_level_mean_1d": "autonomia al inicio del dia en el ultimo dia",
-    "start_autonomy_level_mean_3d": "autonomia al inicio del dia en los ultimos tres dias",
-    "start_autonomy_level_mean_7d": "autonomia al inicio del dia en los ultimos siete dias",
-    "start_autonomy_level_mean_14d": "autonomia al inicio del dia en los ultimos catorce dias",
-    "start_autonomy_level_delta_baseline": "desviacion de la autonomia al inicio del dia frente a la linea base",
-    "medication_taken_mean_1d": "toma de medicacion en el ultimo dia",
-    "medication_taken_mean_3d": "toma de medicacion en los ultimos tres dias",
-    "medication_taken_mean_7d": "toma de medicacion en los ultimos siete dias",
-    "medication_taken_mean_14d": "toma de medicacion en los ultimos catorce dias",
-    "medication_taken_delta_baseline": "desviacion de la toma de medicacion frente a la linea base",
-    "gi_level_mean_1d": "nivel de digestion en el ultimo dia",
-    "gi_level_mean_3d": "nivel de digestion en los ultimos tres dias",
-    "gi_level_mean_7d": "nivel de digestion en los ultimos siete dias",
-    "gi_level_mean_14d": "nivel de digestion en los ultimos catorce dias",
-    "gi_level_delta_baseline": "desviacion del nivel de digestion frente a la linea base",
-    "day_regulation_level_num_mean_1d": "nivel de regulacion del dia en el ultimo dia",
-    "day_regulation_level_num_mean_3d": "nivel de regulacion del dia en los ultimos tres dias",
-    "day_regulation_level_num_mean_7d": "nivel de regulacion del dia en los ultimos siete dias",
-    "day_regulation_level_num_mean_14d": "nivel de regulacion del dia en los ultimos catorce dias",
-    "day_regulation_level_num_delta_baseline": "desviacion del nivel de regulacion del dia frente a la linea base",
-    "dysregulation_count_mean_1d": "conteo de desregulaciones en el ultimo dia",
-    "dysregulation_count_mean_3d": "conteo de desregulaciones en los ultimos tres dias",
-    "dysregulation_count_mean_7d": "conteo de desregulaciones en los ultimos siete dias",
-    "dysregulation_count_mean_14d": "conteo de desregulaciones en los ultimos catorce dias",
-    "dysregulation_count_delta_baseline": "desviacion del conteo de desregulaciones frente a la linea base",
-    "max_intensity_mean_1d": "intensidad maxima de eventos en el ultimo dia",
-    "max_intensity_mean_3d": "intensidad maxima de eventos en los ultimos tres dias",
-    "max_intensity_mean_7d": "intensidad maxima de eventos en los ultimos siete dias",
-    "max_intensity_mean_14d": "intensidad maxima de eventos en los ultimos catorce dias",
-    "max_intensity_delta_baseline": "desviacion de la intensidad maxima de eventos frente a la linea base",
+    "sleep_quality_mean_1d": "calidad del sueño en el último día",
+    "sleep_quality_mean_3d": "calidad del sueño en los últimos tres días",
+    "sleep_quality_mean_7d": "calidad del sueño en los últimos siete días",
+    "sleep_quality_mean_14d": "calidad del sueño en los últimos catorce días",
+    "wake_state_mean_1d": "estado al despertar en el último día",
+    "wake_state_mean_3d": "estado al despertar en los últimos tres días",
+    "wake_state_mean_7d": "estado al despertar en los últimos siete días",
+    "wake_state_mean_14d": "estado al despertar en los últimos catorce días",
+    "event_count_mean_1d": "conteo de eventos en el último día",
+    "event_count_mean_3d": "conteo de eventos en los últimos tres días",
+    "event_count_mean_7d": "conteo de eventos en los últimos siete días",
+    "event_count_mean_14d": "conteo de eventos en los últimos catorce días",
+    "record_count_1d": "conteo de registros en el último día",
+    "record_count_2d": "conteo de registros en los últimos dos días",
+    "record_count_3d": "conteo de registros en los últimos tres días",
+    "record_count_7d": "conteo de registros en los últimos siete días",
+    "record_count_14d": "conteo de registros en los últimos catorce días",
+    "sleep_quality_delta_baseline": "desviación de calidad del sueño frente a la línea base",
+    "wake_state_delta_baseline": "desviación del estado al despertar frente a la línea base",
+    "event_count_delta_baseline": "desviación del conteo de eventos frente a la línea base",
+    "start_autonomy_level_mean_1d": "autonomía al inicio del día en el último día",
+    "start_autonomy_level_mean_3d": "autonomía al inicio del día en los últimos tres días",
+    "start_autonomy_level_mean_7d": "autonomía al inicio del día en los últimos siete días",
+    "start_autonomy_level_mean_14d": "autonomía al inicio del día en los últimos catorce días",
+    "start_autonomy_level_delta_baseline": "desviación de la autonomía al inicio del día frente a la línea base",
+    "medication_taken_mean_1d": "toma de medicación en el último día",
+    "medication_taken_mean_3d": "toma de medicación en los últimos tres días",
+    "medication_taken_mean_7d": "toma de medicación en los últimos siete días",
+    "medication_taken_mean_14d": "toma de medicación en los últimos catorce días",
+    "medication_taken_delta_baseline": "desviación de la toma de medicación frente a la línea base",
+    "gi_level_mean_1d": "nivel de digestión en el último día",
+    "gi_level_mean_3d": "nivel de digestión en los últimos tres días",
+    "gi_level_mean_7d": "nivel de digestión en los últimos siete días",
+    "gi_level_mean_14d": "nivel de digestión en los últimos catorce días",
+    "gi_level_delta_baseline": "desviación del nivel de digestión frente a la línea base",
+    "day_regulation_level_num_mean_1d": "nivel de regulación del día en el último día",
+    "day_regulation_level_num_mean_3d": "nivel de regulación del día en los últimos tres días",
+    "day_regulation_level_num_mean_7d": "nivel de regulación del día en los últimos siete días",
+    "day_regulation_level_num_mean_14d": "nivel de regulación del día en los últimos catorce días",
+    "day_regulation_level_num_delta_baseline": "desviación del nivel de regulación del día frente a la línea base",
+    "dysregulation_count_mean_1d": "conteo de desregulaciones en el último día",
+    "dysregulation_count_mean_3d": "conteo de desregulaciones en los últimos tres días",
+    "dysregulation_count_mean_7d": "conteo de desregulaciones en los últimos siete días",
+    "dysregulation_count_mean_14d": "conteo de desregulaciones en los últimos catorce días",
+    "dysregulation_count_delta_baseline": "desviación del conteo de desregulaciones frente a la línea base",
+    "max_intensity_mean_1d": "intensidad máxima de eventos en el último día",
+    "max_intensity_mean_3d": "intensidad máxima de eventos en los últimos tres días",
+    "max_intensity_mean_7d": "intensidad máxima de eventos en los últimos siete días",
+    "max_intensity_mean_14d": "intensidad máxima de eventos en los últimos catorce días",
+    "max_intensity_delta_baseline": "desviación de la intensidad máxima de eventos frente a la línea base",
 }
 
 FEATURE_VARIABLE_NAMES = {
@@ -144,15 +144,16 @@ def _normalize_unknown_feature(feature: str) -> str:
     return translated
 
 
-def _title_spanish(text: str) -> str:
-    return " ".join(word.capitalize() for word in text.split())
+def _sentence_case(text: str) -> str:
+    """Mayúscula solo al inicio, como se escribe en español («Calidad del sueño…»)."""
+    return text[:1].upper() + text[1:]
 
 def generate_non_causal_factors(
     explanations: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
     """
-    Traduce contribuciones de variables crudas a explicaciones no causales en espanol.
-    Evita lenguaje causal o diagnostico.
+    Traduce contribuciones de variables crudas a explicaciones no causales en español.
+    Evita lenguaje causal o diagnóstico.
     """
     factors = []
     for exp in explanations:
@@ -166,12 +167,12 @@ def generate_non_causal_factors(
         if contribution > 0:
             description = f"La variable reciente {display_name} ({value:.1f}) se asocia con un aumento en los patrones observados."
         elif contribution < 0:
-            description = f"La variable reciente {display_name} ({value:.1f}) se asocia con una disminucion en los patrones observados."
+            description = f"La variable reciente {display_name} ({value:.1f}) se asocia con una disminución en los patrones observados."
         else:
-            description = f"La variable reciente {display_name} ({value:.1f}) no muestra una asociacion activa con los patrones observados."
+            description = f"La variable reciente {display_name} ({value:.1f}) no muestra una asociación activa con los patrones observados."
              
         factors.append({
-            "factor_name": _title_spanish(display_name),
+            "factor_name": _sentence_case(display_name),
             "feature": variable_name,
             "contribution": float(contribution),
             "description": description

@@ -150,10 +150,10 @@ def test_non_causal_factors() -> None:
         assert "contribution" in factor
         assert "factor_name" in factor
         assert factor["factor_name"] in [
-            "Calidad Del Sueno En Los Ultimos Tres Dias",
-            "Estado Al Despertar En Los Ultimos Siete Dias",
-            "Conteo De Eventos En Los Ultimos Tres Dias",
-            "Conteo De Registros En Los Ultimos Dos Dias",
+            "Calidad del sueño en los últimos tres días",
+            "Estado al despertar en los últimos siete días",
+            "Conteo de eventos en los últimos tres días",
+            "Conteo de registros en los últimos dos días",
         ]
         assert factor["feature"] in [
             "calidad_sueno_promedio_tres_dias",
