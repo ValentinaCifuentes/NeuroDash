@@ -24,6 +24,7 @@ import type {
   DailyRecord,
   DysregulationEvent,
   FactorDirection,
+  MissingDataItem,
   Prediction,
   PredictionRequest,
   ProfessionalSession,
@@ -419,7 +420,7 @@ export function adaptPrediction(prediction: BackendPrediction): Prediction {
     confidence: adaptConfidence(prediction.confidence),
     abstained: prediction.abstained,
     factors: prediction.factors.map(adaptFactor),
-    missingness: prediction.missingness.filter((item) => item.missing).map(adaptMissingness),
+    missingness: adaptMissingness(prediction.missingness),
     supports: prediction.supports.map(adaptSupport),
     provenance: prediction.provenance,
     versions: prediction.versions,
@@ -452,14 +453,53 @@ function adaptFactor(factor: BackendFactor) {
   };
 }
 
-function adaptMissingness(item: BackendMissingness) {
-  const field = String(item.field ?? 'dato');
-  const window = item.window ? ` en ventana ${item.window}` : '';
-  return {
-    code: `${field}-${item.window ?? 'unknown'}`,
-    label: humanize(field),
-    impact: `Falta información reciente${window}; la estimación puede tener menor respaldo.`,
-  };
+/**
+ * Campos que cuentan para la confianza: espejo de `core_fields` en
+ * `config/confidence.yaml` (un test del backend comprueba que coincidan).
+ * Los demás campos son opcionales: ayudan a la lectura, pero no la bloquean.
+ */
+export const CORE_FIELDS = ['sleep_quality', 'wake_state', 'event_count'];
+
+/** Nombre en español de cada campo numérico que el motor reporta en `missingness`. */
+const MISSING_FIELD_LABELS: Record<string, string> = {
+  sleep_quality: 'Calidad del sueño',
+  wake_state: 'Estado al despertar',
+  event_count: 'Registro de eventos',
+  start_autonomy_level: 'Autonomía al inicio del día',
+  medication_taken: 'Medicación',
+  gi_level: 'Digestión',
+  day_regulation_level_num: 'Regulación del día',
+  dysregulation_count: 'Desregulaciones',
+  max_intensity: 'Intensidad de los eventos',
+};
+
+/**
+ * El motor manda una entrada por campo y por ventana (1, 3, 7 y 14 días).
+ * Para la persona basta una por campo: se agrupa y se informa la ventana más
+ * larga sin datos (si falta en 7 días, también falta en 1 y 3). Primero van
+ * los campos que cuentan para la confianza.
+ */
+function adaptMissingness(items: BackendMissingness[]): MissingDataItem[] {
+  const widestGap = new Map<string, number>();
+  for (const item of items) {
+    if (!item.missing || !item.field) continue;
+    const window = Number(item.window) || 0;
+    widestGap.set(item.field, Math.max(widestGap.get(item.field) ?? 0, window));
+  }
+  return [...widestGap.entries()]
+    .map(([field, days]) => {
+      const isCore = CORE_FIELDS.includes(field);
+      const period = days <= 1 ? 'el último día' : `los últimos ${days} días`;
+      return {
+        code: field,
+        label: MISSING_FIELD_LABELS[field] ?? sentenceCase(field.replace(/_/g, ' ')),
+        impact: isCore
+          ? `Sin registros en ${period}. Cuenta para la confianza de la estimación.`
+          : `Sin registros en ${period}. Es opcional: ayuda a la lectura, pero no baja la confianza.`,
+        is_core: isCore,
+      };
+    })
+    .sort((a, b) => Number(b.is_core) - Number(a.is_core));
 }
 
 function adaptSupport(support: BackendSupport): SupportItem {
@@ -488,8 +528,8 @@ function inferWindow(value: string): string {
   return WINDOW_BY_SUFFIX.find(([suffix]) => value.endsWith(suffix))?.[1] ?? 'actual';
 }
 
-function humanize(value: string): string {
-  return value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+function sentenceCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function initialsFromId(subjectId: string): string {

@@ -371,8 +371,52 @@ describe('factors and missingness from a real engine contract (I7)', () => {
 
     const missing = adaptPrediction(withGap).missingness;
 
-    expect(missing).toHaveLength(fixture.missingness.filter((item) => item.missing).length + 1);
-    expect(missing.at(-1)).toMatchObject({ code: 'sleep_quality-7' });
+    expect(missing.map((item) => item.code)).toContain('sleep_quality');
+  });
+
+  it('shows each missing field once, in Spanish, with its widest gap (P10)', () => {
+    const gaps = [1, 3, 7].map((window) => ({ window, field: 'sleep_quality', missing: true }));
+    const prediction = adaptPrediction({
+      ...fixture,
+      missingness: [...gaps, { window: 14, field: 'sleep_quality', missing: false }],
+    });
+
+    expect(prediction.missingness).toEqual([{
+      code: 'sleep_quality',
+      label: 'Calidad del sueño',
+      impact: 'Sin registros en los últimos 7 días. Cuenta para la confianza de la estimación.',
+      is_core: true,
+    }]);
+  });
+
+  it('lists the fields that count for confidence first and marks the optional ones', () => {
+    const prediction = adaptPrediction({
+      ...fixture,
+      missingness: [
+        { window: 1, field: 'medication_taken', missing: true },
+        { window: 1, field: 'wake_state', missing: true },
+        { window: 3, field: 'new_engine_field', missing: true },
+      ],
+    });
+
+    expect(prediction.missingness.map((item) => [item.label, item.is_core])).toEqual([
+      ['Estado al despertar', true],
+      ['Medicación', false],
+      ['New engine field', false],
+    ]);
+    expect(prediction.missingness[1].impact).toBe(
+      'Sin registros en el último día. Es opcional: ayuda a la lectura, pero no baja la confianza.',
+    );
+  });
+
+  it('has a Spanish label for every field the engine reports', () => {
+    const labels = adaptPrediction({
+      ...fixture,
+      missingness: fixture.missingness.map((item) => ({ ...item, missing: true })),
+    }).missingness.map((item) => item.label);
+
+    expect(labels).toHaveLength(new Set(fixture.missingness.map((item) => item.field)).size);
+    for (const label of labels) expect(label).not.toMatch(/_|^[A-Z][a-z]+ [A-Z]/);
   });
 
   it('keeps the contract fields the screens rely on', () => {

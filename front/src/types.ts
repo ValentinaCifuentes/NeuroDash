@@ -246,6 +246,8 @@ export interface MissingDataItem {
   code: string;
   label: string;
   impact: string;
+  /** true si el campo cuenta para la confianza (`core_fields`); false si es opcional. */
+  is_core?: boolean;
 }
 
 export interface SupportItem {

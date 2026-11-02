@@ -60,3 +60,17 @@ def test_the_frontend_fixture_matches_the_current_factor_names() -> None:
 
     assert fixture["factors"] == generate_non_causal_factors(explanations)
     assert fixture["horizon_hours"] == 8
+
+
+def test_frontend_core_fields_mirror_the_confidence_config() -> None:
+    """`CORE_FIELDS` en front/src/api.ts debe copiar `core_fields` de config/confidence.yaml."""
+    import re
+
+    import yaml
+
+    config = yaml.safe_load((PROJECT_ROOT / "config" / "confidence.yaml").read_text(encoding="utf-8"))
+    api_source = (PROJECT_ROOT / "front" / "src" / "api.ts").read_text(encoding="utf-8")
+    match = re.search(r"export const CORE_FIELDS = \[([^\]]*)\]", api_source)
+
+    assert match, "CORE_FIELDS no está en front/src/api.ts"
+    assert re.findall(r"'([a-z_]+)'", match.group(1)) == config["core_fields"]
