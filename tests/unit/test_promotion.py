@@ -49,7 +49,7 @@ def test_manual_outcome_confirmation(tmp_path: Path) -> None:
         provenance={"source": "test", "synthetic": True},
     )
     
-    # Must append an occurrence with severity "moderate" or "severe" within the 24h horizon
+    # Must append an occurrence with severity "moderate" or "severe" within the 8h horizon
     with open(occurrences_path, "r", encoding="utf-8") as f:
         occurrences = json.load(f)
         

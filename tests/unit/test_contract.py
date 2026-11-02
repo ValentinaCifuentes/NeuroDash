@@ -13,7 +13,7 @@ from engine.schemas import ConfidenceLevel
 def prediction_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
         "contract_version": "2", "subject_id": "subject-001",
-        "prediction_cutoff": "2026-08-26T12:00:00+00:00", "horizon_hours": 24,
+        "prediction_cutoff": "2026-08-26T12:00:00+00:00", "horizon_hours": 8,
         "risk": None, "confidence": ConfidenceLevel.INSUFFICIENT,
         "abstained": True, "factors": [], "missingness": [], "supports": [],
         "provenance": {"origin": "synthetic"}, "versions": {"schema": "2"},
