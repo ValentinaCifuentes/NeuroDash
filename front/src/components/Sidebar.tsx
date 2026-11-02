@@ -5,30 +5,29 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { Icon, type IconName } from './icons';
 
 export type Route = 'ficha' | 'bitacora' | 'evolucion' | 'tickets' | 'planificacion';
 
 interface NavDef {
   id: Route;
   label: string;
-  icon: string;
+  icon: IconName;
 }
 
-const SECTIONS: { eyebrow: string; icon: string; items: NavDef[] }[] = [
+const SECTIONS: { eyebrow: string; items: NavDef[] }[] = [
   {
     eyebrow: 'Infante',
-    icon: '👤',
     items: [
-      { id: 'ficha', label: 'Ficha Inicial', icon: '🪪' },
-      { id: 'bitacora', label: 'Bitácora Diaria', icon: '💓' },
-      { id: 'evolucion', label: 'Evolución', icon: '📈' },
-      { id: 'planificacion', label: 'Planificación', icon: '🗓️' },
+      { id: 'ficha', label: 'Ficha Inicial', icon: 'profile' },
+      { id: 'bitacora', label: 'Bitácora Diaria', icon: 'journal' },
+      { id: 'evolucion', label: 'Evolución', icon: 'evolution' },
+      { id: 'planificacion', label: 'Planificación', icon: 'calendar' },
     ],
   },
   {
     eyebrow: 'Soporte',
-    icon: '🎧',
-    items: [{ id: 'tickets', label: 'Mis Tickets', icon: '🎫' }],
+    items: [{ id: 'tickets', label: 'Mis Tickets', icon: 'support' }],
   },
 ];
 
@@ -83,7 +82,7 @@ export function Sidebar({ open, current, subjectName, onNavigate, onClose }: Pro
               onClick={onClose}
               aria-label="Cerrar menú"
             >
-              ✕
+              <Icon name="close" size={20} />
             </button>
           </div>
 
@@ -92,7 +91,7 @@ export function Sidebar({ open, current, subjectName, onNavigate, onClose }: Pro
           {SECTIONS.map((section) => (
             <div key={section.eyebrow}>
               <p className="bl-sidebar__section">
-                <span aria-hidden="true">{section.icon}</span> {section.eyebrow}
+                {section.eyebrow}
               </p>
               {section.items.map((item) => (
                 <a
@@ -106,7 +105,7 @@ export function Sidebar({ open, current, subjectName, onNavigate, onClose }: Pro
                   }}
                 >
                   <span className="bl-navitem__icon" aria-hidden="true">
-                    {item.icon}
+                    <Icon name={item.icon} size={20} />
                   </span>
                   {item.label}
                 </a>

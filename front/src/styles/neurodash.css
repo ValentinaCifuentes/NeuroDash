@@ -282,3 +282,9 @@ body {
   display: inline-block;
   vertical-align: middle;
 }
+
+/* --- Íconos SVG (components/icons.tsx): toman el color del texto --- */
+.nd-icon {
+  display: inline-block;
+  vertical-align: middle;
+}

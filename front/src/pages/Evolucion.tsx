@@ -31,6 +31,7 @@ import {
 import { ShapeMark } from "../components/marks";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
+import { Icon } from "../components/icons";
 
 type TabId = "estimacion" | "seguimiento";
 
@@ -76,8 +77,8 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
                 active={tab}
                 onChange={setTab}
                 tabs={[
-                    { id: "estimacion", label: "Próximas 24 h", icon: "🔭" },
-                    { id: "seguimiento", label: "Seguimiento", icon: "🗓️" },
+                    { id: "estimacion", label: "Próximas 24 h" },
+                    { id: "seguimiento", label: "Seguimiento" },
                 ]}
             />
 
@@ -85,7 +86,7 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
 
             {tab === "estimacion" && error && (
                 <div className="bl-alert bl-alert--danger" role="alert">
-                    <span aria-hidden="true">⚠️</span>
+                    <Icon name="alert" size={18} />
                     <span>{error.message}</span>
                     <button ref={retryRef} type="button" className="bl-btn bl-btn--ghost" onClick={() => setRetryNonce(value => value + 1)}>
                         Reintentar estimación
@@ -177,7 +178,7 @@ function AbstentionCard({ prediction }: { prediction: Prediction }) {
     return (
         <section className="bl-card">
             <p className="bl-eyebrow" style={{ margin: 0 }}>
-                <span aria-hidden="true">🔭</span> Próximas 24 horas
+                Próximas 24 horas
             </p>
             <h2
                 style={{
@@ -195,7 +196,7 @@ function AbstentionCard({ prediction }: { prediction: Prediction }) {
             </p>
             {prediction.missingness[0] && (
                 <div className="bl-alert bl-alert--info">
-                    <span aria-hidden="true">→</span>
+                    <Icon name="info" size={18} />
                     <span>Completa {prediction.missingness[0].label.toLowerCase()} para mejorar la lectura.</span>
                 </div>
             )}
@@ -220,7 +221,7 @@ function FactorList({ prediction }: { prediction: Prediction }) {
                 {visibleFactors.map(factor => (
                     <div key={factor.code + factor.window} className="app-factor">
                         <span className={`app-factor__dir app-factor__dir--${factor.direction}`} aria-hidden="true">
-                            {factor.direction === "up" ? "↑" : "↓"}
+                            <Icon name={factor.direction === "up" ? "arrowUp" : "arrowDown"} size={16} strokeWidth={2.4} />
                         </span>
                         <span>
                             <span className="app-factor__label">
@@ -263,7 +264,7 @@ function MissingDataCard({ prediction }: { prediction: Prediction }) {
             <div className="app-stack--tight" style={{ display: "flex", flexDirection: "column" }}>
                 {prediction.missingness.map(item => (
                     <div key={item.code} className="bl-alert bl-alert--warning">
-                        <span aria-hidden="true">◌</span>
+                        <Icon name="plus" size={16} strokeWidth={2.6} />
                         <span>
                             <b>{item.label}.</b> {item.impact}
                         </span>

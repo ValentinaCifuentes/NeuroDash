@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Icon } from '../components/icons';
+import { ShapeMark } from '../components/marks';
 
 // Datos Mockeados de planes
 const INITIAL_PLANS = [
@@ -84,7 +86,7 @@ export function Planificacion() {
             </span>
           </div>
           <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--bl-text-light)' }}>
-            <span aria-hidden="true">🗓️</span> {plan.date}
+            <Icon name="calendar" size={14} style={{ verticalAlign: '-2px' }} /> {plan.date}
           </p>
           
           <div style={{ marginTop: '0.5rem' }}>
@@ -94,7 +96,11 @@ export function Planificacion() {
               backgroundColor: plan.impactType === 'danger' ? '#fee2e2' : plan.impactType === 'safe' ? '#d1fae5' : '#fef3c7',
               color: plan.impactType === 'danger' ? '#b91c1c' : plan.impactType === 'safe' ? '#065f46' : '#92400e'
             }}>
-              {plan.impactType === 'danger' ? '⚠️' : plan.impactType === 'safe' ? '💚' : '⚡'} 
+              <ShapeMark
+                shape={plan.impactType === 'danger' ? 'triangle' : plan.impactType === 'safe' ? 'circle' : 'diamond'}
+                color="currentColor"
+                size={10}
+              />
               Impacto esperado: {plan.impactTag}
             </span>
           </div>
@@ -118,7 +124,9 @@ export function Planificacion() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Añadir Evento</h2>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.2rem' }}>✕</button>
+              <button type="button" aria-label="Cerrar" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', minWidth: 'var(--nd-tap)', minHeight: 'var(--nd-tap)', color: 'var(--nd-ink-2)' }}>
+                <Icon name="close" size={18} />
+              </button>
             </div>
 
             <form onSubmit={handleAdd} className="app-stack">

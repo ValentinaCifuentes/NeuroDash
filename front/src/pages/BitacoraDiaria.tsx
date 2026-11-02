@@ -36,6 +36,7 @@ import type {
   TimelineEntry,
   WakeMode,
 } from '../types';
+import { Icon } from '../components/icons';
 
 type TabId = 'basal' | 'historial';
 
@@ -89,8 +90,8 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
           active={tab}
           onChange={setTab}
           tabs={[
-            { id: 'basal', label: 'Mi Día (Estado Basal)', icon: '⚙️' },
-            { id: 'historial', label: 'Historial de Hoy', icon: '↺' },
+            { id: 'basal', label: 'Mi Día (Estado Basal)' },
+            { id: 'historial', label: 'Historial de Hoy' },
           ]}
         />
 
@@ -100,7 +101,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
             <section className="bl-card">
               <div className="bl-card__header">
                 <span className="bl-icon-tile" aria-hidden="true">
-                  💓
+                  <Icon name="journal" size={20} />
                 </span>
                 <h2>¿Cómo estuvo el día de hoy?</h2>
               </div>
@@ -108,7 +109,6 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
               <div className="app-stack">
                 <OptionGroup
                   eyebrow="Descanso nocturno"
-                  eyebrowIcon="🛏️"
                   legend="¿Cómo durmió anoche?"
                   choices={SLEEP_CHOICES}
                   value={sleep}
@@ -116,7 +116,6 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
                 />
                 <OptionGroup
                   eyebrow="Forma de despertar"
-                  eyebrowIcon="☀️"
                   legend="¿Cómo despertó el día de hoy?"
                   choices={WAKE_CHOICES}
                   value={wake}
@@ -124,7 +123,6 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
                 />
                 <OptionGroup
                   eyebrow="La transición / autonomía"
-                  eyebrowIcon="🏃"
                   legend="¿Necesitó ayuda para iniciar el día?"
                   choices={START_AUTONOMY_CHOICES}
                   value={autonomy}
@@ -135,7 +133,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
 
             <section className="bl-card">
               <p className="bl-eyebrow" style={{ margin: 0 }}>
-                <span aria-hidden="true">💊</span> Tratamiento
+                Tratamiento
               </p>
               <h2
                 style={{
@@ -159,14 +157,14 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
                 onClick={() => setMedNotApplicable((v) => !v)}
               >
                 {medNotApplicable
-                  ? '✓ Marcado como «No aplica»'
+                  ? 'Marcado como «No aplica»'
                   : 'No aplica para este infante'}
               </button>
             </section>
 
             <section className="bl-card">
               <p className="bl-eyebrow" style={{ margin: 0 }}>
-                <span aria-hidden="true">🩺</span> Digestión
+                Digestión
               </p>
               <h2
                 style={{
@@ -190,7 +188,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
                     <ShapeMark shape={choiceShape(choice)} color={SEMANTIC_COLOR[choice.dot!]} />
                     <span className="bl-option__label">{choice.label}</span>
                     <span className="bl-option__mark" aria-hidden="true">
-                      ✓
+                      <Icon name="check" size={14} strokeWidth={3} />
                     </span>
                   </button>
                 ))}
@@ -216,7 +214,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
               </>
             ) : (
               <>
-                <span aria-hidden="true">🔒</span> Guardar Estado Basal
+                <Icon name="lock" size={18} /> Guardar Estado Basal
               </>
             )}
           </button>
@@ -282,7 +280,7 @@ function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: nu
   return (
     <section className="bl-card">
       <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-4)' }}>
-        <span aria-hidden="true">↺</span> {entries.length} registro
+        <Icon name="history" size={14} /> {entries.length} registro
         {entries.length === 1 ? '' : 's'} hoy
       </p>
       <ul className="app-log__list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -296,7 +294,7 @@ function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: nu
               }}
               aria-hidden="true"
             >
-              {entry.kind === 'daily_record' ? '💓' : '⚡'}
+              <Icon name={entry.kind === 'daily_record' ? 'journal' : 'bolt'} size={18} />
             </span>
             <div className="app-log__body">
               <div className="app-log__head">

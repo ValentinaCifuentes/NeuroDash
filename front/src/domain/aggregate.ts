@@ -117,22 +117,21 @@ export function buildDaySummaries(
 export interface DayStatus {
   semantic: Semantic;
   label: string;
-  icon: string;
 }
 
 export function dayStatus(day: DaySummary): DayStatus {
   if (!day.hasRecord && day.eventCount === 0) {
-    return { semantic: 'neutral', label: 'Sin registro', icon: '—' };
+    return { semantic: 'neutral', label: 'Sin registro' };
   }
   if ((day.maxIntensity ?? 0) >= 8 || day.eventCount >= 5) {
-    return { semantic: 'danger', label: 'Día intenso', icon: '⚠️' };
+    return { semantic: 'danger', label: 'Día intenso' };
   }
   if (
     (day.maxIntensity ?? 0) >= 4 ||
     day.eventCount >= 3 ||
     day.sleep === 'Dificultad de Conciliación'
   ) {
-    return { semantic: 'warning', label: 'Con altibajos', icon: '⚠️' };
+    return { semantic: 'warning', label: 'Con altibajos' };
   }
-  return { semantic: 'success', label: 'Día tranquilo', icon: '✓' };
+  return { semantic: 'success', label: 'Día tranquilo' };
 }

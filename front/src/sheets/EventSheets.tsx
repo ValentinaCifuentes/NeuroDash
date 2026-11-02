@@ -21,6 +21,7 @@ import {
 } from '../domain/catalog';
 import type { CategorySelect } from '../domain/catalog';
 import type { DysregulationEvent, LogCategory, StrategyOutcome } from '../types';
+import { Icon } from '../components/icons';
 
 /* ============================================================
    1. Sheet de categorías
@@ -47,7 +48,7 @@ export function CategorySheet({ onPick, onClose, returnFocusTo }: CategorySheetP
             onClick={() => onPick(cat.id)}
           >
             <span className="bl-cat__icon" aria-hidden="true">
-              {cat.icon}
+              <Icon name={cat.icon} size={22} />
             </span>
             <span className="bl-cat__name">{cat.name}</span>
             <span className="bl-cat__desc">{cat.desc}</span>
@@ -157,7 +158,7 @@ export function EventSheet({
     <BottomSheet
       title={
         <h2 className="bl-sheet__title bl-sheet__title--lead">
-          <span aria-hidden="true">{cat.icon}</span> Registrar {cat.name}
+          <Icon name={cat.icon} size={20} /> Registrar {cat.name}
         </h2>
       }
       onBack={onBack}
@@ -187,7 +188,7 @@ export function EventSheet({
       <div className="bl-quick" style={{ marginTop: 'var(--bl-sp-4)' }}>
         <div className="bl-quick__text">
           <b>
-            <span aria-hidden="true">⚡</span> Registro rápido
+            <Icon name="bolt" size={16} /> Registro rápido
           </b>
           <span>{form.quickHint}</span>
         </div>

@@ -20,6 +20,7 @@ import { Planificacion } from './pages/Planificacion';
 import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
+import { Icon } from './components/icons';
 
 
 type SheetState = { kind: 'none' } | { kind: 'categories' } | { kind: 'event'; category: LogCategory };
@@ -95,7 +96,7 @@ export default function App() {
       <div className="app-shell">
         <div className="app-shell__content">
           <div className="bl-alert bl-alert--danger" role="alert">
-            <span aria-hidden="true">⚠️</span>
+            <Icon name="alert" size={18} />
             <span>{loadError.message}</span>
           </div>
         </div>

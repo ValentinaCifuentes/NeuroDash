@@ -23,6 +23,7 @@ import type {
   WakeMode,
   DayRegulationLevel,
 } from '../types';
+import type { IconName } from '../components/icons';
 
 export type Semantic = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 
@@ -134,7 +135,7 @@ export interface CategoryDef {
   id: LogCategory;
   name: string;
   desc: string;
-  icon: string;
+  icon: IconName;
   /** Clase modificadora del design system: bl-cat--food | crisis | trans | sens */
   modifier: 'food' | 'crisis' | 'trans' | 'sens';
   semantic: Semantic;
@@ -147,7 +148,7 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'alimentacion',
     name: 'Alimentación',
     desc: 'Comidas, hidratación y colaciones',
-    icon: '🍏',
+    icon: 'food',
     modifier: 'food',
     semantic: 'success',
     eventType: 'Alimentación',
@@ -156,7 +157,7 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'desregulacion',
     name: 'Desregulación',
     desc: 'Crisis, conductas y desbordes',
-    icon: '⚡',
+    icon: 'bolt',
     modifier: 'crisis',
     semantic: 'danger',
     eventType: 'Desregulación Emocional',
@@ -165,7 +166,7 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'transicion',
     name: 'Transición',
     desc: 'Cambios de actividad o entorno',
-    icon: '⇄',
+    icon: 'transition',
     modifier: 'trans',
     semantic: 'warning',
     eventType: 'Transición de Actividad',
@@ -174,7 +175,7 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'sensorial',
     name: 'Dieta Sensorial',
     desc: 'Apoyos, estímulos y descompresión',
-    icon: '🎧',
+    icon: 'sensory',
     modifier: 'sens',
     semantic: 'info',
     eventType: 'Dieta Sensorial',

@@ -5,6 +5,7 @@
  */
 
 import type { Subject } from '../types';
+import { Icon } from '../components/icons';
 
 interface Props {
   subject: Subject;
@@ -24,7 +25,7 @@ export function FichaInicial({ subject }: Props) {
 
       <section className="bl-card">
         <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-4)' }}>
-          <span aria-hidden="true">🪪</span> Contexto clínico
+          Contexto clínico
         </p>
         <dl style={{ margin: 0, display: 'grid', gap: 'var(--bl-sp-4)' }}>
           <Row label="Identificador" value={subject.subject_id} />
@@ -35,7 +36,7 @@ export function FichaInicial({ subject }: Props) {
       </section>
 
       <div className="bl-alert bl-alert--info">
-        <span aria-hidden="true">ℹ️</span>
+        <Icon name="info" size={18} />
         <span>
           El perfil sensorial entra al motor como ejes continuos, no como etiqueta, para que el
           aprendizaje pueda cruzarse entre casos.

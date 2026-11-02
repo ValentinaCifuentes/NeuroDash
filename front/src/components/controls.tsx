@@ -10,13 +10,14 @@ import type { ReactNode } from 'react';
 import type { Choice, Semantic } from '../domain/catalog';
 import { SEMANTIC_COLOR, choiceShape, intensitySemantic, intensityWord } from '../domain/catalog';
 import { LevelBars, ShapeMark } from './marks';
+import { Icon } from './icons';
 
 /* ============================================================
    Tabs segmentados · máximo dos vistas (§2.4)
    ============================================================ */
 
 interface TabsProps<T extends string> {
-  tabs: { id: T; label: string; icon?: string }[];
+  tabs: { id: T; label: string }[];
   active: T;
   onChange: (id: T) => void;
   label: string;
@@ -33,7 +34,6 @@ export function Tabs<T extends string>({ tabs, active, onChange, label }: TabsPr
           aria-selected={active === tab.id}
           onClick={() => onChange(tab.id)}
         >
-          {tab.icon && <span aria-hidden="true">{tab.icon}</span>}
           {tab.label}
         </button>
       ))}
@@ -48,7 +48,6 @@ export function Tabs<T extends string>({ tabs, active, onChange, label }: TabsPr
 interface OptionGroupProps<T extends string> {
   /** Eyebrow del dominio clínico: DESCANSO NOCTURNO, DIGESTIÓN… */
   eyebrow?: string;
-  eyebrowIcon?: string;
   /** La pregunta concreta. */
   legend: string;
   choices: Choice<T>[];
@@ -66,7 +65,6 @@ interface OptionGroupProps<T extends string> {
 
 export function OptionGroup<T extends string>({
   eyebrow,
-  eyebrowIcon,
   legend,
   choices,
   value,
@@ -91,7 +89,6 @@ export function OptionGroup<T extends string>({
     <>
       {eyebrow && (
         <p className="bl-eyebrow" style={{ margin: 0 }}>
-          {eyebrowIcon && <span aria-hidden="true">{eyebrowIcon}</span>}
           {eyebrow}
         </p>
       )}
@@ -123,7 +120,7 @@ export function OptionGroup<T extends string>({
               {choice.level && <LevelBars level={choice.level} />}
               <span className="bl-option__label">{choice.label}</span>
               <span className="bl-option__mark" aria-hidden="true">
-                ✓
+                <Icon name="check" size={14} strokeWidth={3} />
               </span>
             </button>
           );

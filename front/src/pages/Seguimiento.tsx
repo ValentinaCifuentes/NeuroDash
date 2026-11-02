@@ -27,6 +27,7 @@ import {
 } from '../domain/catalog';
 import { LevelBars, ShapeMark } from '../components/marks';
 import type { Subject } from '../types';
+import { Icon } from '../components/icons';
 
 const HEATMAP_DAYS = 30;
 const TRACKING_DAYS = 5;
@@ -81,7 +82,7 @@ function MultivariableTimeline({ days }: { days: DaySummary[] }) {
     <section className="bl-card">
       <div className="bl-card__header">
         <span className="bl-icon-tile" aria-hidden="true">
-          ⇄
+          <Icon name="evolution" size={20} />
         </span>
         <h2>Evolución de 14 días</h2>
       </div>
@@ -237,7 +238,7 @@ function Heatmap({ days }: { days: DaySummary[] }) {
     <section className="bl-card">
       <div className="bl-card__header">
         <span className="bl-icon-tile" aria-hidden="true">
-          ▦
+          <Icon name="calendar" size={20} />
         </span>
         <h2>Mapa de calor mensual</h2>
       </div>
@@ -342,7 +343,7 @@ function DailyTracking({ days, subject }: { days: DaySummary[]; subject: Subject
     <section className="bl-card">
       <div className="bl-card__header">
         <span className="bl-icon-tile" aria-hidden="true">
-          🗓️
+          <Icon name="history" size={20} />
         </span>
         <h2>Últimos {days.length} días</h2>
       </div>

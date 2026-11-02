@@ -6,6 +6,7 @@
 
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { Icon } from './icons';
 
 /* ============================================================
    Bottom sheet
@@ -63,11 +64,11 @@ export function BottomSheet({ title, onClose, onBack, children, returnFocusTo }:
           <div className="bl-sheet__grabber" aria-hidden="true" />
           {onBack && (
             <button className="bl-sheet__back" onClick={onBack} aria-label="Volver a categorías">
-              ←
+              <Icon name="back" size={18} />
             </button>
           )}
           <button ref={closeRef} className="bl-sheet__close" onClick={onClose} aria-label="Cerrar">
-            ✕
+            <Icon name="close" size={18} />
           </button>
           {title}
           {children}
@@ -96,7 +97,7 @@ export function Fab({ onClick, aboveCta, innerRef }: FabProps) {
         onClick={onClick}
         aria-label="Registrar un evento"
       >
-        +
+        <Icon name="plus" size={24} strokeWidth={2.4} />
       </button>
     </div>
   );
@@ -110,7 +111,7 @@ export function Toast({ message }: { message: string }) {
   return (
     <div className="app-toast">
       <p className="bl-toast" role="status" aria-live="polite" style={{ margin: 0 }}>
-        <span aria-hidden="true">✓</span> {message}
+        <Icon name="check" size={16} strokeWidth={2.6} /> {message}
       </p>
     </div>
   );
