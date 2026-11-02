@@ -125,12 +125,9 @@ export function getTimeline(
 ): Promise<TimelineResponse> {
   if (USING_MOCK) return mock.getTimeline(subjectId, asOf, days);
   const qs = new URLSearchParams({ as_of: asOf, days: String(days) });
-  return request<BackendTimelineEntry[]>(`/api/v1/subjects/${subjectId}/timeline?${qs}`).then((entries) => ({
-    subject_id: subjectId,
-    as_of: asOf,
-    days,
-    entries: entries.map(adaptTimelineEntry),
-  }));
+  return request<BackendTimelineResponse>(`/api/v1/subjects/${subjectId}/timeline?${qs}`).then(
+    adaptTimelineResponse,
+  );
 }
 
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
@@ -188,7 +185,23 @@ type BackendSubject = Partial<Subject> & {
   sensory_context?: Record<string, unknown>;
 };
 
-type BackendTimelineEntry = Record<string, unknown>;
+/** `GET /subjects/{id}/timeline` (`routes/subjects.py › get_subject_timeline`). */
+export type BackendTimelineResponse = {
+  subject_id: string;
+  as_of: string;
+  days: number;
+  entries: BackendTimelineEntry[];
+};
+
+export type BackendTimelineEntry = {
+  entry_id: string;
+  kind: 'daily_record' | 'event';
+  timestamp: string;
+  title: string;
+  detail: string | null;
+  semantic: TimelineEntry['semantic'];
+  payload: Record<string, unknown>;
+};
 
 type BackendPrediction = {
   contract_version: string;
@@ -245,17 +258,30 @@ function adaptSubject(subject: BackendSubject): Subject {
   };
 }
 
-function adaptTimelineEntry(entry: BackendTimelineEntry, index: number): TimelineEntry {
-  const timestamp = String(entry.source_timestamp ?? entry.availability_timestamp ?? new Date().toISOString());
-  const kind = 'event_count' in entry ? 'daily_record' : 'event';
+export function adaptTimelineResponse(response: BackendTimelineResponse): TimelineResponse {
   return {
-    entry_id: String(entry.id ?? `entry-${index}`),
+    subject_id: response.subject_id,
+    as_of: response.as_of,
+    days: response.days,
+    entries: response.entries.map(adaptTimelineEntry),
+  };
+}
+
+/**
+ * El backend ya clasifica cada entrada (`kind`) y separa el dato guardado en
+ * `payload`. Un registro diario también puede traer `event_count`, así que el
+ * tipo nunca se infiere de los campos.
+ */
+function adaptTimelineEntry(entry: BackendTimelineEntry): TimelineEntry {
+  const { kind, payload } = entry;
+  return {
+    entry_id: entry.entry_id,
     kind,
-    timestamp,
-    title: kind === 'daily_record' ? 'Registro diario' : 'Evento registrado',
-    detail: summarizeTimelineEntry(entry),
+    timestamp: entry.timestamp,
+    title: kind === 'daily_record' ? 'Registro diario' : String(payload.event_type ?? 'Evento registrado'),
+    detail: summarizeTimelineEntry(payload),
     semantic: kind === 'daily_record' ? 'info' : 'warning',
-    payload: entry as unknown as DailyRecord | DysregulationEvent,
+    payload: payload as unknown as DailyRecord | DysregulationEvent,
   };
 }
 
@@ -343,7 +369,7 @@ function initialsFromId(subjectId: string): string {
     .toUpperCase();
 }
 
-function summarizeTimelineEntry(entry: BackendTimelineEntry): string | null {
+function summarizeTimelineEntry(entry: Record<string, unknown>): string | null {
   const parts = [
     entry.sleep_quality !== undefined ? `Sueño: ${entry.sleep_quality}` : null,
     entry.wake_state !== undefined ? `Despertar: ${entry.wake_state}` : null,
