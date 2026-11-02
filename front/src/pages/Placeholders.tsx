@@ -62,23 +62,6 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function BuscarProfesionales() {
-  return (
-    <div className="app-shell__content">
-      <section className="bl-card">
-        <h1 className="bl-card__title">Buscar Profesionales</h1>
-        <p className="bl-card__sub">Red de apoyo del consultante</p>
-      </section>
-      <section className="bl-card">
-        <div className="bl-empty">
-          <b>Funcionalidad no disponible</b>
-          {DEFERRED_FEATURE_MESSAGE}
-        </div>
-      </section>
-    </div>
-  );
-}
-
 export function MisTickets() {
   return (
     <div className="app-shell__content">

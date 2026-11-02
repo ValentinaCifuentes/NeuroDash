@@ -1,20 +1,12 @@
 /**
  * Sidebar · 280px, primary-500, overlay sobre `--bl-overlay`.
- * Secciones con eyebrow: CONSULTANTE / RED / SOPORTE.
+ * Secciones con eyebrow: CONSULTANTE / SOPORTE.
  * El ítem actual usa `aria-current="page"` (fondo blanco 45%, texto 800).
  */
 
 import { useEffect, useRef } from 'react';
 
-export type Route =
-  | 'ficha'
-  | 'bitacora'
-  | 'evolucion'
-  | 'sesiones'
-  | 'profesionales'
-  | 'tickets'
-  | 'telemetria'
-  | 'planificacion';
+export type Route = 'ficha' | 'bitacora' | 'evolucion' | 'tickets' | 'planificacion';
 
 interface NavDef {
   id: Route;
@@ -30,16 +22,7 @@ const SECTIONS: { eyebrow: string; icon: string; items: NavDef[] }[] = [
       { id: 'ficha', label: 'Ficha Inicial', icon: '🪪' },
       { id: 'bitacora', label: 'Bitácora Diaria', icon: '💓' },
       { id: 'evolucion', label: 'Evolución', icon: '📈' },
-      { id: 'telemetria', label: 'Telemetría', icon: '⌚' },
       { id: 'planificacion', label: 'Planificación', icon: '🗓️' },
-    ],
-  },
-  {
-    eyebrow: 'Red',
-    icon: '🔗',
-    items: [
-      { id: 'sesiones', label: 'Sesiones', icon: '🗂️' },
-      { id: 'profesionales', label: 'Buscar Profesionales', icon: '🔍' },
     ],
   },
   {

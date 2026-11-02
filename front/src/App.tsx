@@ -15,11 +15,8 @@ import { Fab, Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
 import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
-import { Sesiones } from './pages/Sesiones';
-import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
-import { Telemetria } from './pages/Telemetria';
+import { FichaInicial, MisTickets } from './pages/Placeholders';
 import { Planificacion } from './pages/Planificacion';
-import { ProDashboard } from './pages/ProDashboard';
 import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
@@ -31,7 +28,6 @@ export default function App() {
   const [subject, setSubject] = useState<Subject | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
-  const [role, setRole] = useState<'family' | 'professional'>('family');
   const [loadError, setLoadError] = useState<ApiError | null>(null);
   const [route, setRoute] = useState<Route>('bitacora');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -135,10 +131,6 @@ export default function App() {
 
   const showFab = route === 'bitacora';
 
-  if (role === 'professional') {
-    return <ProDashboard onToggleRole={() => setRole('family')} />;
-  }
-
   return (
     <div className="app-shell">
       <a className="bl-skip" href="#contenido">
@@ -146,7 +138,7 @@ export default function App() {
       </a>
 
       <div className="app-shell__bar">
-        <AppBar initials={subject.initials} onOpenMenu={() => setMenuOpen(true)} role={role} onToggleRole={() => setRole(role === 'family' ? 'professional' : 'family')} />
+        <AppBar initials={subject.initials} onOpenMenu={() => setMenuOpen(true)} />
       </div>
 
       <main className="app-shell__scroll" id="contenido">
@@ -159,20 +151,8 @@ export default function App() {
           />
         )}
         {route === 'evolucion' && <Evolucion subject={subject} revision={revision} />}
-        {route === 'sesiones' && (
-          <Sesiones
-            subject={subject}
-            onSaved={(message) => {
-              setRevision((r) => r + 1);
-              setToast(message);
-            }}
-            onError={setToast}
-          />
-        )}
         {route === 'ficha' && <FichaInicial subject={subject} />}
-        {route === 'profesionales' && <BuscarProfesionales />}
         {route === 'tickets' && <MisTickets />}
-        {route === 'telemetria' && <Telemetria subject={subject} />}
         {route === 'planificacion' && <Planificacion />}
       </main>
 
