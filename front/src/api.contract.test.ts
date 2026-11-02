@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { adaptTimelineResponse, type BackendTimelineResponse } from './api';
+import {
+  adaptTimelineResponse,
+  buildDailyRecordWrite,
+  buildEventWrite,
+  toLocalIsoString,
+  type BackendTimelineResponse,
+} from './api';
+import type { DailyRecord, DysregulationEvent } from './types';
 
 /** Forma real de `GET /subjects/{id}/timeline` (`routes/subjects.py › get_subject_timeline`). */
 const TIMELINE_FIXTURE: BackendTimelineResponse = {
@@ -95,5 +102,80 @@ describe('timeline readable texts (I8)', () => {
 
     expect(timeline.entries[0].payload).toMatchObject({ sleep_quality: null, wake_mode: null });
     expect(timeline.entries[0].detail).toBe('Eventos del día: 2 · Intensidad máx.: 3/10');
+  });
+});
+
+describe('care write payloads (I2)', () => {
+  const record: DailyRecord = {
+    subject_id: 'pac-real',
+    date: '2026-11-02',
+    sleep_quality: 'Reparador',
+    wake_mode: 'Cansado/Con Sueño',
+    start_autonomy: 'Con alarma',
+    medication_adherence: 'No Aplica',
+    gi_status: 'Normal',
+  };
+
+  const event: DysregulationEvent = {
+    event_id: 'local-1',
+    subject_id: 'pac-real',
+    occurred_at: '2026-11-02T18:30:00.000Z',
+    event_type: 'Desregulación Emocional',
+    intensity_band: 'Moderada (4-7)',
+    intensity_value: 6,
+    trigger: 'Ruido',
+    strategy_applied: null,
+    strategy_outcome: null,
+    qualitative_outcome: null,
+    sensory_activity: null,
+    notes: null,
+    quick_capture: false,
+  };
+
+  it('formats timestamps with the local offset so the backend keeps the local day', () => {
+    const date = new Date(2026, 10, 2, 22, 15, 0);
+    const iso = toLocalIsoString(date);
+
+    expect(iso).toMatch(/^2026-11-02T22:15:00[+-]\d{2}:\d{2}$/);
+    expect(new Date(iso).getTime()).toBe(date.getTime());
+  });
+
+  it('sends the fields CareRecordWrite requires plus the Bitácora texts', () => {
+    const body = buildDailyRecordWrite(record, new Date(2026, 10, 2, 8, 0, 0), 'key-1');
+
+    expect(body).toEqual({
+      occurred_at: toLocalIsoString(new Date(2026, 10, 2, 8, 0, 0)),
+      idempotency_key: 'key-1',
+      provenance: { source: 'tutor_app', synthetic: false },
+      sleep_quality: 'Reparador',
+      wake_mode: 'Cansado/Con Sueño',
+      start_autonomy: 'Con alarma',
+      medication_adherence: 'No Aplica',
+      gi_status: 'Normal',
+      day_regulation_level: null,
+    });
+  });
+
+  it('generates a fresh idempotency key for each write when none is given', () => {
+    const first = buildDailyRecordWrite(record);
+    const second = buildDailyRecordWrite(record);
+
+    expect(first.idempotency_key).toBeTruthy();
+    expect(first.idempotency_key).not.toBe(second.idempotency_key);
+  });
+
+  it('sends the event with the fields EventWrite requires and keeps the same instant', () => {
+    const body = buildEventWrite(event, 'key-2');
+
+    expect(body).toMatchObject({
+      idempotency_key: 'key-2',
+      provenance: { source: 'tutor_app', synthetic: false },
+      event_type: 'Desregulación Emocional',
+      intensity_value: 6,
+      trigger: 'Ruido',
+    });
+    expect(new Date(body.occurred_at).toISOString()).toBe(event.occurred_at);
+    expect(body).not.toHaveProperty('subject_id');
+    expect(body).not.toHaveProperty('event_id');
   });
 });

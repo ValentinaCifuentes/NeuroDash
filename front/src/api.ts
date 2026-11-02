@@ -130,19 +130,73 @@ export function getTimeline(
   );
 }
 
+/**
+ * ISO con el desfase local (`2026-11-02T22:15:00-03:00`) en vez de UTC (`…Z`).
+ * El backend toma la fecha del registro diario de `occurred_at.date()`: en UTC,
+ * un registro hecho en Chile después de las 21:00 caería en el día siguiente.
+ */
+export function toLocalIsoString(date: Date): string {
+  const pad = (n: number) => String(Math.trunc(Math.abs(n))).padStart(2, '0');
+  const offset = -date.getTimezoneOffset();
+  const sign = offset >= 0 ? '+' : '-';
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
+    `${sign}${pad(offset / 60)}:${pad(offset % 60)}`
+  );
+}
+
+/** Campos que el backend exige en toda escritura de cuidado (`CareRecordWrite`, `EventWrite`). */
+export type CareWriteMeta = {
+  occurred_at: string;
+  idempotency_key: string;
+  provenance: { source: 'tutor_app'; synthetic: false };
+};
+
+export function buildCareWrite(occurredAt: Date, idempotencyKey: string = crypto.randomUUID()): CareWriteMeta {
+  return {
+    occurred_at: toLocalIsoString(occurredAt),
+    idempotency_key: idempotencyKey,
+    provenance: { source: 'tutor_app', synthetic: false },
+  };
+}
+
+/** Cuerpo de `POST /daily-records`: solo los textos de la Bitácora; el backend los codifica. */
+export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(), idempotencyKey?: string) {
+  return {
+    ...buildCareWrite(now, idempotencyKey),
+    sleep_quality: record.sleep_quality,
+    wake_mode: record.wake_mode,
+    start_autonomy: record.start_autonomy,
+    medication_adherence: record.medication_adherence,
+    gi_status: record.gi_status,
+    day_regulation_level: record.day_regulation_level ?? null,
+  };
+}
+
+/**
+ * Cuerpo de `POST /events`. Viaja el evento completo: hoy el backend solo
+ * guarda `event_type` e `intensity_value` y descarta el resto sin error; el
+ * detalle se conservará cuando se amplíe `EventWrite` [PCD Fase 2].
+ */
+export function buildEventWrite(event: DysregulationEvent, idempotencyKey?: string) {
+  const { subject_id: _subjectId, event_id: _eventId, occurred_at, ...fields } = event;
+  return { ...fields, ...buildCareWrite(new Date(occurred_at), idempotencyKey) };
+}
+
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
   if (USING_MOCK) return mock.saveDailyRecord(record);
-  return request<DailyRecord>(`/api/v1/subjects/${record.subject_id}/daily-records`, {
+  return request<Record<string, unknown>>(`/api/v1/subjects/${record.subject_id}/daily-records`, {
     method: 'POST',
-    body: JSON.stringify(record),
-  });
+    body: JSON.stringify(buildDailyRecordWrite(record)),
+  }).then(adaptDailyRecordPayload);
 }
 
 export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent> {
   if (USING_MOCK) return mock.saveEvent(event);
   return request<DysregulationEvent>(`/api/v1/subjects/${event.subject_id}/events`, {
     method: 'POST',
-    body: JSON.stringify(event),
+    body: JSON.stringify(buildEventWrite(event)),
   });
 }
 
