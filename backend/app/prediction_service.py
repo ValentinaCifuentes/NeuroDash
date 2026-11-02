@@ -28,6 +28,8 @@ class SubjectNotFoundError(ValueError):
 
 
 LEGACY_HISTORY_DIR = Path(__file__).resolve().parents[2] / "data" / "legacy_history"
+# Modelos entrenados por infante. Constante de módulo para que los tests la redirijan.
+MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
 
 
 def _read_json_list(path: Path) -> list[dict[str, Any]]:
@@ -139,9 +141,7 @@ def make_prediction(
     features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile)
 
     # 3. Model registry
-    proj_root = Path(__file__).resolve().parents[2]
-    models_dir = proj_root / "models"
-    registry = ModelRegistry(base_dir=models_dir)
+    registry = ModelRegistry(base_dir=MODELS_DIR)
 
     # Check active model
     active_model_exists = True

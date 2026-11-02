@@ -25,12 +25,15 @@ venv/
 # Local prediction artifacts
 data/**/predictions/
 
+# Infantes creados al usar la app en local (datos reales o de prueba): no se versionan
+data/subjects/*
+!data/subjects/.gitkeep
+
 # Generated artifacts
 *.joblib.tmp
 .vite/
 *.tsbuildinfo
 node_modules/
-front/dist/: Add predictive interpretability (SHAP) reports mockup)
 
 
 AGENTS.md

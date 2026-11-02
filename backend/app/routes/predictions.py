@@ -58,9 +58,7 @@ def create_prediction(req: PredictionRequest) -> PredictionContractV2:
 
 
 def find_subject_dir_by_prediction_id(prediction_id: str) -> Path:
-    proj_root = Path(__file__).resolve().parents[3]
-
-    for subject_root in (subjects.SUBJECTS_ROOT, proj_root / "data" / "demo_profiles"):
+    for subject_root in (subjects.SUBJECTS_ROOT, subjects.DEMO_PROFILES_ROOT):
         if subject_root.exists():
             for path in subject_root.iterdir():
                 if path.is_dir() and (path / "predictions" / f"{prediction_id}.json").exists():
