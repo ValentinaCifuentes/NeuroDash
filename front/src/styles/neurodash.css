@@ -164,3 +164,101 @@ body {
   --bl-sh-sheet: var(--nd-sh-sheet);
   --bl-ring: var(--nd-ring);
 }
+
+/* ==========================================================================
+   Movimiento y materiales
+   Criterio: el movimiento confirma lo que hizo la persona, nunca la hace esperar.
+   - Presionar: escala a 0.97 en 140 ms con salida suave (sin rebote).
+   - Hojas inferiores: suben desde abajo en ~300 ms, sin rebote.
+   - Barra inferior: material translúcido con desenfoque.
+   ========================================================================== */
+
+/* --- Presionar (cualquier control tocable) --- */
+.nd-press {
+  transition: transform var(--nd-dur-press) var(--nd-ease-out);
+}
+.nd-press:active {
+  transform: scale(0.97);
+}
+
+/* Controles heredados: mismo gesto, sin esperar a su rediseño. */
+.bl-btn,
+.bl-option,
+.bl-cat,
+.app-fab {
+  transition: transform var(--nd-dur-press) var(--nd-ease-out),
+    background-color var(--nd-dur-press) var(--nd-ease-out),
+    border-color var(--nd-dur-press) var(--nd-ease-out);
+}
+.bl-btn:active,
+.bl-option:active,
+.bl-cat:active,
+.app-fab:active {
+  transform: scale(0.97);
+}
+/* El «levantar al pasar el mouse» se pega en pantallas táctiles: solo con mouse real. */
+.bl-cat:hover {
+  transform: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .bl-cat:hover {
+    box-shadow: var(--nd-sh-card);
+  }
+}
+
+/* --- Hojas inferiores y paneles --- */
+@keyframes nd-sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes nd-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.nd-sheet,
+.app-sheet-wrap {
+  animation: nd-sheet-up var(--nd-dur-sheet) var(--nd-ease-out);
+}
+.nd-overlay,
+.app-overlay {
+  animation: nd-fade-in var(--nd-dur-sheet) var(--nd-ease-out);
+}
+.app-drawer {
+  animation-duration: var(--nd-dur-sheet);
+  animation-timing-function: var(--nd-ease-out);
+}
+
+/* --- Barra inferior translúcida (Fase 4: BottomNav) --- */
+.nd-bar {
+  background: rgba(253, 245, 247, 0.86);
+  box-shadow: 0 -0.5px 0 var(--nd-hairline);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nd-bar { background: var(--nd-surface-alt); }
+}
+
+/* --- Preferencias del sistema --- */
+@media (prefers-reduced-motion: reduce) {
+  /* Sin escala ni desplazamiento: el cambio de estado (color, check) basta. */
+  .nd-press:active,
+  .bl-btn:active,
+  .bl-option:active,
+  .bl-cat:active,
+  .app-fab:active {
+    transform: none;
+  }
+  .nd-sheet,
+  .app-sheet-wrap,
+  .app-drawer {
+    animation: nd-fade-in 1ms linear;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .nd-bar {
+    background: var(--nd-surface-alt);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
