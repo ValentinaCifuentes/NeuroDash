@@ -273,8 +273,11 @@ export type BackendTimelineEntry = {
   payload: Record<string, unknown>;
 };
 
-type BackendPrediction = {
+/** `PredictionContractV2` (`backend/app/schemas.py`). */
+export type BackendPrediction = {
   contract_version: string;
+  /** Id con el que el backend guarda la predicción (`predictions/{id}.json`). */
+  prediction_id: string;
   subject_id: string;
   prediction_cutoff: string;
   horizon_hours: number;
@@ -392,10 +395,15 @@ function adaptDailyRecordPayload(payload: Record<string, unknown>): DailyRecord 
   };
 }
 
-function adaptPrediction(prediction: BackendPrediction): Prediction {
+/**
+ * El `prediction_id` siempre viene del backend: «Confirmar que ocurrió» lo usa
+ * para encontrar la predicción guardada, así que un id armado en el front
+ * nunca la encontraría.
+ */
+export function adaptPrediction(prediction: BackendPrediction): Prediction {
   return {
     contract_version: '2',
-    prediction_id: `${prediction.subject_id}-${prediction.prediction_cutoff}`,
+    prediction_id: prediction.prediction_id,
     subject_id: prediction.subject_id,
     prediction_cutoff: prediction.prediction_cutoff,
     horizon_hours: prediction.horizon_hours,
