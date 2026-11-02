@@ -1,10 +1,10 @@
 {
   "contract_version": "2",
-  "prediction_id": "a7088f9ccc424559b2cffce2497ac5a7",
+  "prediction_id": "529259393e8b48b19df749b7df62b411",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-10-30T08:00:00-04:00",
   "horizon_hours": 8,
-  "risk": "LOW",
+  "risk": "MEDIUM",
   "confidence": "HIGH",
   "abstained": false,
   "factors": [
@@ -312,12 +312,22 @@
   "missingness": [
     {
       "window": 1,
-      "field": "dysregulation_count",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 1,
-      "field": "max_intensity",
+      "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -332,12 +342,12 @@
     },
     {
       "window": 1,
-      "field": "wake_state",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 1,
-      "field": "start_autonomy_level",
+      "field": "dysregulation_count",
       "missing": false
     },
     {
@@ -346,23 +356,23 @@
       "missing": false
     },
     {
-      "window": 1,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 1,
+      "window": 3,
       "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 3,
-      "field": "dysregulation_count",
+      "field": "wake_state",
       "missing": false
     },
     {
       "window": 3,
-      "field": "max_intensity",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -377,12 +387,12 @@
     },
     {
       "window": 3,
-      "field": "wake_state",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 3,
-      "field": "start_autonomy_level",
+      "field": "dysregulation_count",
       "missing": false
     },
     {
@@ -391,23 +401,23 @@
       "missing": false
     },
     {
-      "window": 3,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 3,
+      "window": 7,
       "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 7,
-      "field": "dysregulation_count",
+      "field": "wake_state",
       "missing": false
     },
     {
       "window": 7,
-      "field": "max_intensity",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -422,12 +432,12 @@
     },
     {
       "window": 7,
-      "field": "wake_state",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 7,
-      "field": "start_autonomy_level",
+      "field": "dysregulation_count",
       "missing": false
     },
     {
@@ -436,23 +446,23 @@
       "missing": false
     },
     {
-      "window": 7,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 7,
+      "window": 14,
       "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 14,
-      "field": "dysregulation_count",
+      "field": "wake_state",
       "missing": false
     },
     {
       "window": 14,
-      "field": "max_intensity",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -467,27 +477,17 @@
     },
     {
       "window": 14,
-      "field": "wake_state",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 14,
-      "field": "start_autonomy_level",
+      "field": "dysregulation_count",
       "missing": false
     },
     {
       "window": 14,
       "field": "event_count",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "day_regulation_level_num",
       "missing": false
     }
   ],
@@ -523,13 +523,14 @@
       "C": 1.0,
       "penalty": "l2",
       "solver": "liblinear",
-      "samples_count": 19,
-      "positives_count": 5,
-      "negatives_count": 14,
+      "samples_count": 79,
+      "positives_count": 31,
+      "negatives_count": 48,
       "lineage": {
-        "split_cutoff": "2026-08-23T12:00:00-04:00",
+        "split_cutoff": "2026-10-22T12:00:00-04:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-08-26T17:22:01.616452+00:00",
+        "data_generation_timestamp": "2026-11-02T06:33:27.081126+00:00",
+        "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",
           "exclusion_policy": "conservative"

@@ -230,7 +230,7 @@ def run_smoke_test(data_dir: Path | str, models_dir: Path | str, config_dir: Pat
     assert contract_c.subject_id == "PAC-C"
     assert contract_c.abstained is True, "PAC-C should abstain."
     assert contract_c.risk is None, "PAC-C risk should be None."
-    assert contract_c.model_score is None, "PAC-C model score should be None."
+    assert "model_score" not in contract_c.model_dump(mode="json")
     assert contract_c.confidence == ConfidenceLevel.INSUFFICIENT, "PAC-C confidence should be INSUFFICIENT."
     print("PAC-C smoke verification passed (successfully abstained).")
     
