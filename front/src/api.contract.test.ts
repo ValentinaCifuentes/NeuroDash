@@ -89,6 +89,23 @@ describe('timeline readable texts (I8)', () => {
     expect(record.detail).not.toContain('Sueño: 8');
   });
 
+  it('titles a confirmed crisis (no event_type) with the title the backend sends', () => {
+    const timeline = adaptTimelineResponse({
+      ...TIMELINE_FIXTURE,
+      // Forma real: ocurrencia que crea record_prediction_outcome (ml/promotion.py).
+      entries: [{
+        entry_id: 'occ_pred-1', kind: 'event', timestamp: '2026-11-02T16:00:00+00:00',
+        title: 'Crisis confirmada', detail: null, semantic: 'neutral',
+        payload: {
+          id: 'occ_pred-1', subject_id: 'PAC-A', severity: 'moderate',
+          source_timestamp: '2026-11-02T16:00:00+00:00', availability_timestamp: '2026-11-02T16:00:00+00:00',
+        },
+      }],
+    });
+
+    expect(timeline.entries[0]).toMatchObject({ title: 'Crisis confirmada', detail: 'Gravedad: moderada' });
+  });
+
   it('summarizes an event with its intensity and severity in Spanish', () => {
     const [event] = adaptTimelineResponse(TIMELINE_FIXTURE).entries;
 

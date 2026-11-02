@@ -369,7 +369,9 @@ function adaptTimelineEntry(entry: BackendTimelineEntry): TimelineEntry {
     entry_id: entry.entry_id,
     kind: 'event',
     timestamp: entry.timestamp,
-    title: event.event_type ?? 'Evento registrado',
+    // Una crisis confirmada con «Confirmar que ocurrió» no tiene event_type; el
+    // backend ya la titula («Crisis confirmada»), así que se usa su título.
+    title: event.event_type ?? entry.title ?? 'Evento registrado',
     detail: summarizeEvent(event),
     semantic: 'warning',
     payload: event,
