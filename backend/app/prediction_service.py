@@ -27,6 +27,26 @@ class SubjectNotFoundError(ValueError):
     pass
 
 
+LEGACY_HISTORY_DIR = Path(__file__).resolve().parents[2] / "data" / "legacy_history"
+
+
+def _read_json_list(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_legacy_history(subject_id: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Historial sintético de un perfil demo (`data/legacy_history/{id}_history.json`), sin parsear."""
+    history_path = LEGACY_HISTORY_DIR / f"{subject_id}_history.json"
+    if not history_path.exists():
+        return [], []
+    with open(history_path, "r", encoding="utf-8") as f:
+        history = json.load(f)
+    return history.get("records", []), history.get("occurrences", [])
+
+
 def get_subject_paths(subject_id: str) -> tuple[Path, bool]:
     """
     Returns the path to the subject directory and a boolean indicating if it's a demo subject.
@@ -51,35 +71,22 @@ def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, A
     Loads subject profile, historical records, and occurrences.
     """
     subject_dir, is_demo = get_subject_paths(subject_id)
-    proj_root = Path(__file__).resolve().parents[2]
 
     # Load profile
     profile_path = subject_dir / "profile.json"
     with open(profile_path, "r", encoding="utf-8") as f:
         profile = json.load(f)
 
-    records = []
-    occurrences = []
+    records: list[dict[str, Any]] = []
+    occurrences: list[dict[str, Any]] = []
 
     if is_demo:
-        # Load from data/legacy_history/{subject_id}_history.json
-        history_path = proj_root / "data" / "legacy_history" / f"{subject_id}_history.json"
-        if history_path.exists():
-            with open(history_path, "r", encoding="utf-8") as f:
-                history = json.load(f)
-                records = history.get("records", [])
-                occurrences = history.get("occurrences", [])
-    else:
-        # Load from subject directory
-        records_path = subject_dir / "records.json"
-        if records_path.exists():
-            with open(records_path, "r", encoding="utf-8") as f:
-                records = json.load(f)
-        
-        occurrences_path = subject_dir / "occurrences.json"
-        if occurrences_path.exists():
-            with open(occurrences_path, "r", encoding="utf-8") as f:
-                occurrences = json.load(f)
+        # Una demo une su historial sintético con lo que se registre en la app
+        # (Bitácora, eventos y crisis confirmadas), guardado en su propia carpeta.
+        records, occurrences = load_legacy_history(subject_id)
+
+    records = records + _read_json_list(subject_dir / "records.json")
+    occurrences = occurrences + _read_json_list(subject_dir / "occurrences.json")
 
     # Convert timestamps to aware datetimes
     def parse_dt(dt_str: str) -> datetime:

@@ -5,7 +5,7 @@ from datetime import datetime, timezone as dt_timezone
 from typing import Any
 
 # Import synthetic generator from our ML package
-from ml.dataset_builder import generate_synthetic_history
+from ml.dataset_builder import DEMO_TUTOR_ID, generate_synthetic_history
 
 
 def serialize_dt(obj: Any) -> Any:
@@ -83,9 +83,13 @@ def generate_subject_history(
     profile_dir.mkdir(parents=True, exist_ok=True)
     profile_data = {
         "subject_id": subject_id,
+        "display_name": subject_id,
         "timezone": meta["timezone"],
         "sensory_context": meta["sensory_context"],
-        "historical_supports": meta["historical_supports"]
+        "historical_supports": meta["historical_supports"],
+        "provenance": {"source": "synthetic_demo", "synthetic": True},
+        # Actor fijo del frontend (VITE_ACTOR_ID); permite confirmar resultados en la demo.
+        "authorized_tutor_ids": [DEMO_TUTOR_ID],
     }
     with open(profile_dir / "profile.json", "w", encoding="utf-8") as f:
         json.dump(profile_data, f, indent=2, sort_keys=True)

@@ -1,5 +1,13 @@
 {
+  "authorized_tutor_ids": [
+    "tutor-demo"
+  ],
+  "display_name": "PAC-C",
   "historical_supports": [],
+  "provenance": {
+    "source": "synthetic_demo",
+    "synthetic": true
+  },
   "sensory_context": {
     "sensory_profile": "Buscador sensorial"
   },

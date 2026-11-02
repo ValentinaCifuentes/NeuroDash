@@ -226,6 +226,11 @@ def generate_synthetic_history(
     }
 
 
+# Actor fijo del frontend (`VITE_ACTOR_ID` por defecto). Va en `authorized_tutor_ids`
+# de los perfiles demo para que la demo pueda confirmar resultados.
+DEMO_TUTOR_ID = "tutor-demo"
+
+
 def populate_demo_fixtures(project_root: Path | str) -> None:
     """
     Populates data/legacy_history/ and data/demo_profiles/ with mock profiles and histories.
@@ -287,8 +292,11 @@ def populate_demo_fixtures(project_root: Path | str) -> None:
         
         profile_data = {
             "subject_id": pid,
+            "display_name": pid,
             "timezone": info["timezone"],
-            "sensory_context": info["sensory_context"]
+            "sensory_context": info["sensory_context"],
+            "provenance": {"source": "synthetic_demo", "synthetic": True},
+            "authorized_tutor_ids": [DEMO_TUTOR_ID],
         }
         
         with open(profile_dir / "profile.json", "w", encoding="utf-8") as f:

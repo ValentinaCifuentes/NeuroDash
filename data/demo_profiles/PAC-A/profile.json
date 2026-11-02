@@ -1,4 +1,8 @@
 {
+  "authorized_tutor_ids": [
+    "tutor-demo"
+  ],
+  "display_name": "PAC-A",
   "historical_supports": [
     {
       "description": "Weighted blanket in evening.",
@@ -6,6 +10,10 @@
       "type": "historical"
     }
   ],
+  "provenance": {
+    "source": "synthetic_demo",
+    "synthetic": true
+  },
   "sensory_context": {
     "sensory_profile": "Hipersensible"
   },

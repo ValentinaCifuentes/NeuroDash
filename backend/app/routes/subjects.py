@@ -9,12 +9,15 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ml.promotion import write_json_atomic
-from backend.app.prediction_service import get_subject_paths, load_subject_data, SubjectNotFoundError
+from backend.app.prediction_service import load_legacy_history, load_subject_data, SubjectNotFoundError
 from backend.app.care_repository import CareRecordRepository, SubjectRepository
 from backend.app.schemas import ActorContext, ProvenanceV2
 
 router = APIRouter(prefix="/api/v1/subjects", tags=["Subjects"])
 SUBJECTS_ROOT = Path(__file__).resolve().parents[3] / "data" / "subjects"
+# Perfiles demo (PAC-A/B/C): mismo formato de `profile.json`, historial sintético
+# aparte en `data/legacy_history/`. Se listan y se pueden consultar como cualquier infante.
+DEMO_PROFILES_ROOT = Path(__file__).resolve().parents[3] / "data" / "demo_profiles"
 
 
 class OnboardSubjectRequest(BaseModel):
@@ -142,8 +145,25 @@ def require_aware(value: datetime, field_name: str = "occurred_at") -> datetime:
     return value
 
 
-def care_repository() -> CareRecordRepository:
-    return CareRecordRepository(SUBJECTS_ROOT)
+def subject_root(subject_id: str) -> Path:
+    """Carpeta raíz donde vive el infante: los reales primero, luego las demos."""
+    for root in (SUBJECTS_ROOT, DEMO_PROFILES_ROOT):
+        if (root / subject_id / "profile.json").exists():
+            return root
+    raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+
+
+def is_demo_subject(subject_id: str) -> bool:
+    return subject_root(subject_id) == DEMO_PROFILES_ROOT
+
+
+def care_repository(subject_id: str) -> CareRecordRepository:
+    """Registros y eventos se guardan en la carpeta del infante, sea real o demo."""
+    return CareRecordRepository(subject_root(subject_id))
+
+
+def subject_profile(subject_id: str) -> dict[str, Any]:
+    return SubjectRepository(subject_root(subject_id)).get(subject_id)
 
 
 def is_cutoff_eligible(item: dict[str, Any], start: datetime, cutoff: datetime) -> bool:
@@ -217,9 +237,21 @@ def onboard_subject(req: OnboardSubjectRequest) -> OnboardSubjectResponse:
     )
 
 
+def _demo_selection_profiles() -> list[dict[str, Any]]:
+    """Perfiles demo para la selección, siempre marcados como sintéticos."""
+    demos = []
+    for profile in SubjectRepository(DEMO_PROFILES_ROOT).list():
+        demos.append({**profile, "provenance": {**profile["provenance"], "synthetic": True}})
+    return demos
+
+
 @router.get("", response_model=SubjectListResponse)
 def list_subjects() -> SubjectListResponse:
-    return SubjectListResponse(subjects=[OnboardSubjectResponse(**profile) for profile in SubjectRepository(SUBJECTS_ROOT).list()])
+    real = SubjectRepository(SUBJECTS_ROOT).list()
+    real_ids = {profile["subject_id"] for profile in real}
+    # Los infantes reales primero; una demo con el mismo id que uno real no se duplica.
+    demos = [profile for profile in _demo_selection_profiles() if profile["subject_id"] not in real_ids]
+    return SubjectListResponse(subjects=[OnboardSubjectResponse(**profile) for profile in real + demos])
 
 
 @router.get("/{subject_id}")
@@ -248,10 +280,7 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
         "date": occurred_at.date().isoformat(),
         "prediction_availability": "immediate",
     })
-    try:
-        return care_repository().save(subject_id, "records", item, "record_id")
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    return care_repository(subject_id).save(subject_id, "records", item, "record_id")
 
 
 @router.post("/{subject_id}/events", status_code=201)
@@ -268,10 +297,7 @@ def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(g
         "availability_timestamp": occurred_at.isoformat(),
         "prediction_availability": "immediate",
     })
-    try:
-        saved = care_repository().save(subject_id, "occurrences", item, "event_id")
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    saved = care_repository(subject_id).save(subject_id, "occurrences", item, "event_id")
     _refresh_daily_event_counts(subject_id, occurred_at, actor.actor_id)
     return saved
 
@@ -279,10 +305,7 @@ def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(g
 @router.post("/{subject_id}/end-of-day", status_code=201)
 def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
     occurred_at = require_aware(req.occurred_at)
-    try:
-        profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    profile = subject_profile(subject_id)
     local_zone = zoneinfo.ZoneInfo(profile["timezone"])
     local_time = occurred_at.astimezone(local_zone)
     availability = datetime.combine(local_time.date() + timedelta(days=1), datetime.min.time(), tzinfo=local_zone)
@@ -296,7 +319,7 @@ def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext =
         "date": local_time.date().isoformat(),
         "prediction_availability": "prior_day_only",
     })
-    return care_repository().save(subject_id, "records", item, "record_id")
+    return care_repository(subject_id).save(subject_id, "records", item, "record_id")
 
 
 def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_id: str) -> None:
@@ -305,14 +328,11 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
     Si no existe un registro diario para el día local del evento, crea uno mínimo
     para que el motor pueda consumir el conteo como variable.
     """
-    try:
-        profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    profile = subject_profile(subject_id)
     local_zone = zoneinfo.ZoneInfo(profile["timezone"])
     local_date_str = occurred_at.astimezone(local_zone).date().isoformat()
 
-    repo = care_repository()
+    repo = care_repository(subject_id)
     occurrences = repo.list(subject_id, "occurrences")
     records = repo.list(subject_id, "records")
 
@@ -365,7 +385,7 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
             **counts,
         })
 
-    write_json_atomic(SUBJECTS_ROOT / subject_id / "records.json", records)
+    write_json_atomic(subject_root(subject_id) / subject_id / "records.json", records)
 
 
 @router.get("/{subject_id}/timeline")
@@ -383,11 +403,14 @@ def get_subject_timeline(
         raise HTTPException(status_code=422, detail="as_of must be a timezone-aware ISO timestamp.")
 
     # 2. Load data from the subject-scoped repository so route storage and cutoff rules share one source.
-    try:
-        records = care_repository().list(subject_id, "records")
-        occurrences = care_repository().list(subject_id, "occurrences")
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    #    A demo also shows its synthetic history, the same one the model reads.
+    repo = care_repository(subject_id)
+    records = repo.list(subject_id, "records")
+    occurrences = repo.list(subject_id, "occurrences")
+    if is_demo_subject(subject_id):
+        legacy_records, legacy_occurrences = load_legacy_history(subject_id)
+        records = legacy_records + records
+        occurrences = legacy_occurrences + occurrences
 
     # 3. Filter cutoff-safe records in window [as_of - days, as_of]
     eligible_records = []
@@ -397,7 +420,7 @@ def get_subject_timeline(
         if is_cutoff_eligible(r, start_time, as_of_dt):
             source_timestamp = datetime.fromisoformat(r["source_timestamp"])
             eligible_records.append({
-                "entry_id": r["record_id"], "kind": "daily_record", "timestamp": source_timestamp.isoformat(),
+                "entry_id": r.get("record_id") or r.get("id"), "kind": "daily_record", "timestamp": source_timestamp.isoformat(),
                 "title": "Daily record", "detail": None, "semantic": "neutral", "payload": r,
             })
 
@@ -405,20 +428,18 @@ def get_subject_timeline(
         if is_cutoff_eligible(event, start_time, as_of_dt):
             source_timestamp = datetime.fromisoformat(event["source_timestamp"])
             eligible_records.append({
-                "entry_id": event["event_id"], "kind": "event", "timestamp": source_timestamp.isoformat(),
-                "title": event["event_type"], "detail": None, "semantic": "neutral", "payload": event,
+                "entry_id": event.get("event_id") or event.get("id"), "kind": "event",
+                "timestamp": source_timestamp.isoformat(),
+                "title": event.get("event_type", "Crisis confirmada"), "detail": None, "semantic": "neutral", "payload": event,
             })
 
-    # Sort descending by source timestamp
-    eligible_records.sort(key=lambda x: x["timestamp"], reverse=True)
+    # Sort descending by source timestamp (as instants: entries can carry different UTC offsets)
+    eligible_records.sort(key=lambda x: datetime.fromisoformat(x["timestamp"]), reverse=True)
     return {"subject_id": subject_id, "as_of": as_of_dt.isoformat(), "days": days, "entries": eligible_records}
 
 
 def require_subject_access(subject_id: str, actor: ActorContext) -> dict[str, Any]:
-    try:
-        profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
-    except KeyError:
-        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    profile = subject_profile(subject_id)
     if actor.role == "system":
         return profile
     permitted = profile.get("authorized_tutor_ids", [])

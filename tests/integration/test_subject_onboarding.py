@@ -9,6 +9,7 @@ from backend.app.routes import subjects
 
 def test_onboarding_creates_a_selectable_cold_start_subject(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(subjects, "DEMO_PROFILES_ROOT", tmp_path / "no-demos")
     client = TestClient(app)
     payload = {
         "display_name": "Alex Rivera",
@@ -38,6 +39,7 @@ def test_onboarding_creates_a_selectable_cold_start_subject(tmp_path: Path, monk
 
 def test_replaying_onboarding_keeps_the_same_subject_id(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(subjects, "DEMO_PROFILES_ROOT", tmp_path / "no-demos")
     client = TestClient(app)
     payload = {
         "display_name": "Alex Rivera",
@@ -56,6 +58,7 @@ def test_replaying_onboarding_keeps_the_same_subject_id(tmp_path: Path, monkeypa
 
 def test_onboarding_normalizes_an_existing_legacy_profile(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(subjects, "DEMO_PROFILES_ROOT", tmp_path / "no-demos")
     legacy_dir = tmp_path / "legacy-subject"
     legacy_dir.mkdir()
     (legacy_dir / "profile.json").write_text(json.dumps({"subject_id": "legacy-subject", "timezone": "UTC"}), encoding="utf-8")
@@ -75,6 +78,7 @@ def test_onboarding_normalizes_an_existing_legacy_profile(tmp_path: Path, monkey
 
 def test_subject_list_returns_a_safe_selection_for_a_legacy_profile(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(subjects, "DEMO_PROFILES_ROOT", tmp_path / "no-demos")
     legacy_dir = tmp_path / "legacy-subject"
     legacy_dir.mkdir()
     (legacy_dir / "profile.json").write_text(json.dumps({"subject_id": "legacy-subject", "timezone": "UTC"}), encoding="utf-8")
