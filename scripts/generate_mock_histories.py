@@ -1,7 +1,8 @@
+import argparse
 import json
 import sys
 from pathlib import Path
-from datetime import datetime, timezone as dt_timezone
+from datetime import date, datetime, timedelta, timezone as dt_timezone
 from typing import Any
 
 # Import synthetic generator from our ML package
@@ -23,7 +24,8 @@ def generate_subject_history(
     subject_id: str,
     days: int,
     seed: int,
-    out_dir: Path | str
+    out_dir: Path | str,
+    end_date: date | None = None,
 ) -> None:
     """
     Generates a mock history and profile JSON for a given subject ID.
@@ -66,7 +68,8 @@ def generate_subject_history(
         subject_id=subject_id,
         days=days,
         seed=seed,
-        timezone=meta["timezone"]
+        timezone=meta["timezone"],
+        end_date=end_date,
     )
     
     history_serialized = serialize_dt(history)
@@ -97,17 +100,32 @@ def generate_subject_history(
     print(f"Generated {days} days of history and profile for '{subject_id}' under {out_path}.")
 
 
-def generate_all_histories(out_dir: Path | str) -> None:
-    """Generates default PAC-A, PAC-B, and PAC-C histories."""
-    # PAC-A: 90 days (sufficient to train a per-subject model with real signal)
-    generate_subject_history("PAC-A", days=90, seed=1001, out_dir=out_dir)
-    # PAC-B: 90 days (sufficient to train a per-subject model with real signal)
-    generate_subject_history("PAC-B", days=90, seed=1002, out_dir=out_dir)
-    # PAC-C: 2 days (insufficient for training, to trigger cold-start/abstention)
-    generate_subject_history("PAC-C", days=2, seed=1003, out_dir=out_dir)
+# (días de historial, semilla) por demo. Las semillas fijan cómo termina cada
+# historial, y con eso el estado que muestra la demo:
+#   PAC-A → riesgo elevado · PAC-B → riesgo bajo · PAC-C → sin estimación (2 días).
+DEMO_HISTORIES = {
+    "PAC-A": (90, 1020),
+    "PAC-B": (90, 1004),
+    "PAC-C": (2, 1003),
+}
+
+
+def generate_all_histories(out_dir: Path | str, end_date: date | None = None) -> None:
+    """Generates default PAC-A, PAC-B, and PAC-C histories ending on `end_date`."""
+    for subject_id, (days, seed) in DEMO_HISTORIES.items():
+        generate_subject_history(subject_id, days=days, seed=seed, out_dir=out_dir, end_date=end_date)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Genera los historiales sintéticos de las demos.")
+    parser.add_argument(
+        "--end-date",
+        type=date.fromisoformat,
+        default=date.today() - timedelta(days=1),
+        help="Día del último registro (AAAA-MM-DD). Por defecto, ayer: la demo muestra datos recientes "
+             "el día en que se genera. Para una presentación, usar el día anterior a la fecha de la demo.",
+    )
+    args = parser.parse_args()
     proj_root = Path(__file__).resolve().parents[1]
     data_dir = proj_root / "data"
-    generate_all_histories(data_dir)
+    generate_all_histories(data_dir, end_date=args.end_date)

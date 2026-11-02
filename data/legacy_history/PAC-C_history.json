@@ -1,24 +1,24 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-02T00:44:28.041850+00:00",
+    "data_generation_timestamp": "2026-11-02T07:34:13.916579+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1003
   },
   "occurrences": [
     {
-      "availability_timestamp": "2026-08-02T21:00:00-05:00",
+      "availability_timestamp": "2026-11-01T21:00:00-06:00",
       "event_type": "Desregulaci\u00f3n Emocional",
       "id": "occ_PAC-C_1",
       "intensity_value": 4,
       "severity": "moderate",
-      "source_timestamp": "2026-08-02T19:00:00-05:00",
+      "source_timestamp": "2026-11-01T19:00:00-06:00",
       "subject_id": "PAC-C"
     }
   ],
   "records": [
     {
-      "availability_timestamp": "2026-08-01T12:00:00-05:00",
+      "availability_timestamp": "2026-10-31T12:00:00-05:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 1,
@@ -27,13 +27,13 @@
       "max_intensity": 4,
       "medication_taken": 1,
       "sleep_quality": 8.29,
-      "source_timestamp": "2026-08-01T12:00:00-05:00",
+      "source_timestamp": "2026-10-31T12:00:00-05:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-C",
       "wake_state": 3.96
     },
     {
-      "availability_timestamp": "2026-08-02T12:00:00-05:00",
+      "availability_timestamp": "2026-11-01T12:00:00-06:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 3,
@@ -42,7 +42,7 @@
       "max_intensity": 5,
       "medication_taken": 0,
       "sleep_quality": 8.11,
-      "source_timestamp": "2026-08-02T12:00:00-05:00",
+      "source_timestamp": "2026-11-01T12:00:00-06:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-C",
       "wake_state": 4.46

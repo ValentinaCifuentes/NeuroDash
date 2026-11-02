@@ -122,6 +122,24 @@ VITE_API_BASE= docker compose up --build -d frontend
 Para volver a la API real, compile otra vez sin definir la variable
 (`docker compose up --build -d`).
 
+### Antes de una demo: refrescar PAC-A/B/C
+
+El historial sintético de las demos termina en una fecha fija (por defecto, el día
+anterior a cuando se generó). Unos días después, las ventanas de 1–14 días quedan sin
+datos y PAC-A y PAC-B pasan a «Sin estimación». El día anterior a la presentación,
+genere el historial con la fecha de término y reentrene:
+
+```bash
+python scripts/generate_mock_histories.py --end-date 2026-11-20
+python scripts/train_demo_models.py
+python scripts/smoke_demo.py
+```
+
+Antes de entrenar, borre `models/PAC-A` y `models/PAC-B`, para que el modelo nuevo sea
+la versión 1. Después reconstruya con datos limpios: `docker compose down -v` y
+`docker compose up --build -d`. Estados esperados: **PAC-A** riesgo elevado,
+**PAC-B** riesgo bajo, **PAC-C** sin estimación (lo verifica `tests/unit/test_demo_states.py`).
+
 ## Pruebas y validación
 
 Ejecute la suite de pruebas unitarias y de integración del backend desde la raíz:

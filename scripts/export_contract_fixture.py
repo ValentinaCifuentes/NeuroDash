@@ -13,7 +13,7 @@ No guarda la copia de la predicción en `data/`: escribe solo el fixture.
 
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -24,12 +24,18 @@ from backend.app import prediction_service  # noqa: E402
 from engine.explanation import FEATURE_DISPLAY_NAMES, generate_non_causal_factors  # noqa: E402
 
 FIXTURE_PATH = PROJECT_ROOT / "front" / "src" / "test" / "fixtures" / "prediction-contract.json"
-CUTOFF = datetime.fromisoformat("2026-10-30T08:00:00-04:00")
+
+
+def demo_cutoff(subject_id: str = "PAC-A") -> datetime:
+    """La mañana siguiente al último registro de la demo: el momento en que se muestra."""
+    records, _ = prediction_service.load_legacy_history(subject_id)
+    last = max(datetime.fromisoformat(record["source_timestamp"]) for record in records)
+    return (last + timedelta(days=1)).replace(hour=10, minute=0)
 
 
 def build_fixture() -> dict:
     with patch.object(prediction_service, "write_json_atomic"):
-        _, contract = prediction_service.make_prediction("PAC-A", CUTOFF)
+        _, contract = prediction_service.make_prediction("PAC-A", demo_cutoff())
     fixture = contract.model_dump(mode="json")
     # Contribución alterna para cubrir las dos direcciones (↑ y ↓) del front.
     explanations = [

@@ -6,7 +6,6 @@ faltante (`adaptMissingness`). Estos tests fijan esas claves del lado del motor.
 """
 
 import json
-from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -39,10 +38,10 @@ def test_every_variable_the_tutor_feeds_has_a_readable_and_a_variable_name() -> 
 
 
 def test_a_real_pac_a_prediction_sends_the_keys_the_frontend_reads() -> None:
+    from scripts.export_contract_fixture import demo_cutoff
+
     with patch.object(prediction_service, "write_json_atomic"):
-        _, contract = prediction_service.make_prediction(
-            "PAC-A", datetime.fromisoformat("2026-10-30T08:00:00-04:00")
-        )
+        _, contract = prediction_service.make_prediction("PAC-A", demo_cutoff())
 
     assert contract.factors, "PAC-A should not abstain at this cutoff"
     assert all(set(factor) == FACTOR_KEYS for factor in contract.factors)

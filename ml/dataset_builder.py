@@ -1,4 +1,4 @@
-from datetime import datetime, timezone as dt_timezone, timedelta
+from datetime import date, datetime, timezone as dt_timezone, timedelta
 import json
 import math
 from pathlib import Path
@@ -128,7 +128,8 @@ def generate_synthetic_history(
     subject_id: str,
     days: int,
     seed: int,
-    timezone: str = "UTC"
+    timezone: str = "UTC",
+    end_date: date | None = None,
 ) -> dict[str, Any]:
     """
     Generates a deterministic synthetic history of daily records and occurrence events.
@@ -138,11 +139,19 @@ def generate_synthetic_history(
     of a moderate/severe crisis later that day is a logistic function of the same load.
     Because the load is persistent across days, *past* records are genuinely predictive
     of *today's* crisis, so the model has real signal to learn (it beats a naive baseline).
+
+    `end_date` fija el día del último registro (las demos usan «ayer», para que el
+    historial sea reciente cuando se muestran). Sin ella, el historial empieza el
+    2026-08-01. La secuencia de valores depende solo de `seed` y `days`, no de las fechas.
     """
     rng = random.Random(seed)
 
     tz = zoneinfo.ZoneInfo(timezone)
-    start_date = datetime(2026, 8, 1, 12, 0, 0, tzinfo=tz)
+    if end_date is None:
+        start_date = datetime(2026, 8, 1, 12, 0, 0, tzinfo=tz)
+    else:
+        first_day = end_date - timedelta(days=days - 1)
+        start_date = datetime(first_day.year, first_day.month, first_day.day, 12, 0, 0, tzinfo=tz)
 
     records: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
