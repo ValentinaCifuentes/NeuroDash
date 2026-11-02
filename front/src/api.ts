@@ -35,7 +35,6 @@ import type {
   ApiError,
   ApiErrorEnvelope,
   OutcomeConfirmation,
-  SubjectListResponse,
   SubjectOnboardingInput,
   SessionWrite,
 } from './types';
@@ -122,14 +121,18 @@ export function getSubject(subjectId: string): Promise<Subject> {
 
 export function listSubjects(): Promise<Subject[]> {
   if (USING_MOCK) return mock.listSubjects();
-  return request<SubjectListResponse>('/api/v1/subjects').then((response) => response.subjects);
+  // La lista del backend solo trae los datos de selección; adaptSubject completa
+  // los campos de perfil que las pantallas leen (edad, diagnóstico, perfil sensorial).
+  return request<{ subjects: BackendSubject[] }>('/api/v1/subjects').then((response) =>
+    response.subjects.map(adaptSubject),
+  );
 }
 
 export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
   if (USING_MOCK) return mock.onboardSubject(input);
   // Quien crea el perfil queda autorizado para confirmar sus resultados (`require_subject_access`).
   const body = { ...input, authorized_tutor_ids: [getActorHeaders()['X-Actor-Id']] };
-  return request<Subject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(body) });
+  return request<BackendSubject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(body) }).then(adaptSubject);
 }
 
 export function getTimeline(
@@ -328,6 +331,9 @@ function adaptSubject(subject: BackendSubject): Subject {
     age_range: subject.age_range ?? 'Edad no registrada',
     diagnosis: subject.diagnosis ?? 'Sin diagnóstico mostrado en esta vista',
     sensory_profile: sensoryProfile,
+    timezone: subject.timezone,
+    cold_start: subject.cold_start,
+    provenance: subject.provenance,
   };
 }
 

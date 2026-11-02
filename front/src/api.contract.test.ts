@@ -210,7 +210,8 @@ describe('requests against the real API carry the tutor actor (I3, I4)', () => {
     vi.stubEnv('VITE_API_BASE', 'http://api.test');
     vi.stubEnv('VITE_ACTOR_ID', 'tutor-7');
     vi.stubEnv('VITE_ACTOR_ROLE', 'tutor');
-    const fetchMock = vi.fn(async () => new Response('{}', { status: 201 }));
+    // Cuerpo mínimo válido para cualquier escritura (la creación de perfil devuelve al menos subject_id).
+    const fetchMock = vi.fn(async () => new Response('{"subject_id":"alex"}', { status: 201 }));
     vi.stubGlobal('fetch', fetchMock);
     vi.resetModules();
     const api = await import('./api');
@@ -363,5 +364,39 @@ describe('factors and missingness from a real engine contract (I7)', () => {
     expect(prediction).toMatchObject({ subject_id: 'PAC-A', horizon_hours: 8, abstained: false });
     expect(prediction.risk).not.toBeNull();
     expect(prediction.supports.every((support) => support.label && support.support_id)).toBe(true);
+  });
+});
+
+describe('subject list from the real API (Fase 1 · paso 9)', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it('fills the profile fields the screens read, which the selection list does not send', async () => {
+    vi.stubEnv('VITE_API_BASE', 'http://api.test');
+    // Forma real de `GET /subjects` (`OnboardSubjectResponse`): sin edad, diagnóstico ni perfil sensorial.
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      contract_version: '2.0',
+      subjects: [{
+        contract_version: '2.0', subject_id: 'PAC-A', display_name: 'PAC-A', initials: 'P',
+        timezone: 'America/New_York', cold_start: true, provisional_baseline: {},
+        provenance: { source: 'synthetic_demo', synthetic: true },
+      }],
+    }), { status: 200 })));
+    vi.resetModules();
+    const api = await import('./api');
+
+    const [subject] = await api.listSubjects();
+
+    expect(subject).toMatchObject({
+      subject_id: 'PAC-A',
+      age_range: 'Edad no registrada',
+      diagnosis: expect.any(String),
+      sensory_profile: expect.any(String),
+      timezone: 'America/New_York',
+      provenance: { synthetic: true },
+    });
   });
 });
