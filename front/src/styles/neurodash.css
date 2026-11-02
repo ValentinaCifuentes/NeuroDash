@@ -1,0 +1,166 @@
+/* ==========================================================================
+   NeuroDash · neurodash.css
+   Sistema visual del Prototipo final (paleta «Cerezo y pizarra»).
+
+   1. Tokens `--nd-*`: la única fuente de color, radio, sombra y tipografía
+      para las pantallas nuevas.
+   2. Puente `--bl-*`: mientras las pantallas se rediseñan (Fase 5), las
+      clases heredadas de bluba.css leen estos valores. Se borra junto con
+      bluba.css al terminar la Fase 5.
+
+   Contraste (WCAG AA) verificado para texto:
+     tinta / tinta-2 / muted sobre superficie y fondo ≥ 5.1:1
+     acento sobre superficie 5.7:1 · blanco sobre acento 5.7:1
+     textos de riesgo sobre su fondo ≥ 5.8:1
+   Excepción: `--nd-muted` sobre `--nd-neutral` da 4.36:1 → ahí usar `--nd-ink-2`.
+   ========================================================================== */
+
+:root {
+  /* --- Superficies y texto --- */
+  --nd-bg: #FCEFF2;               /* fondo de pantalla (rosa cerezo) */
+  --nd-surface: #FFFFFF;          /* tarjetas */
+  --nd-surface-alt: #FDF5F7;      /* barra inferior opaca, bloques internos */
+  --nd-ink: #1F2430;              /* títulos y texto principal */
+  --nd-ink-2: #4C4F5C;            /* texto secundario */
+  --nd-muted: #6A6470;            /* etiquetas, eyebrows, pestañas inactivas */
+  --nd-neutral: #EFDCE3;          /* fondo del control segmentado, arcos vacíos */
+  --nd-neutral-2: #F3E4E9;
+  --nd-line: rgba(31, 36, 48, 0.12);       /* separadores */
+  --nd-hairline: rgba(31, 36, 48, 0.14);   /* borde superior de la barra */
+  --nd-border: #EBD5DD;           /* borde de opciones y chips sin elegir */
+  --nd-border-strong: #D9C2CB;    /* círculo de radio sin marcar */
+  --nd-switch-off: #E0C9D1;
+  --nd-chevron: #9A8F96;          /* solo ícono (3.1:1) */
+  --nd-overlay: rgba(31, 36, 48, 0.45);
+
+  /* --- Acento (frambuesa): acciones y selección --- */
+  --nd-accent: #C2255C;
+  --nd-accent-pressed: #9E1C4A;
+  --nd-accent-soft: #F8D4DF;      /* fondo de opción elegida y de apoyos */
+  --nd-accent-ink: #7A1438;       /* texto sobre accent-soft */
+  --nd-accent-eyebrow: #8E1D45;
+  --nd-on-accent: #FFFFFF;
+
+  /* --- Riesgo: tres niveles que difieren en tono y luminosidad --- */
+  --nd-risk-low: #2F80C2;
+  --nd-risk-low-bg: #E3EFF9;
+  --nd-risk-low-fg: #1F5E92;
+  --nd-risk-mid: #E99A2C;
+  --nd-risk-mid-bg: #FCEFD9;
+  --nd-risk-mid-fg: #7A4E0C;
+  --nd-risk-high: #8F1220;
+  --nd-risk-high-bg: #F6DDE0;
+  --nd-risk-high-fg: #8F1220;
+
+  /* --- Dato faltante («Puede mejorar la lectura») --- */
+  --nd-missing-bg: #FEF6E8;
+  --nd-missing-border: #EBC98F;
+  --nd-missing: #B8741A;          /* solo ícono (3.5:1) */
+
+  /* --- Calendario: escala frambuesa --- */
+  --nd-heat-0: var(--nd-surface);
+  --nd-heat-1: #F8D4DF;
+  --nd-heat-2: #E77FA3;
+  --nd-heat-3: #C2255C;
+
+  /* --- Radios --- */
+  --nd-r-segment: 9px;            /* pestaña dentro del segmentado */
+  --nd-r-icon: 10px;              /* fondo de ícono en filas */
+  --nd-r-sm: 12px;                /* segmentado, chips cuadrados */
+  --nd-r-md: 14px;                /* botones */
+  --nd-r-lg: 16px;                /* opciones, CTA, bloques internos */
+  --nd-r-xl: 20px;                /* listas de navegación */
+  --nd-r-2xl: 24px;               /* tarjetas */
+  --nd-r-3xl: 28px;               /* tarjeta principal, hojas */
+  --nd-r-full: 999px;
+
+  /* --- Sombras --- */
+  --nd-sh-card: 0 1px 2px rgba(31, 36, 48, 0.04), 0 8px 24px rgba(31, 36, 48, 0.06);
+  --nd-sh-hero: 0 1px 2px rgba(31, 36, 48, 0.04), 0 12px 32px rgba(31, 36, 48, 0.08);
+  --nd-sh-tab: 0 1px 3px rgba(31, 36, 48, 0.12);
+  --nd-sh-avatar: 0 1px 2px rgba(31, 36, 48, 0.08), 0 0 0 0.5px rgba(31, 36, 48, 0.08);
+  --nd-sh-cta: 0 6px 16px rgba(194, 37, 92, 0.28);
+  --nd-sh-fab: 0 6px 16px rgba(31, 36, 48, 0.25);
+  --nd-sh-sheet: 0 -8px 32px rgba(31, 36, 48, 0.18);
+  --nd-ring: 0 0 0 3px rgba(194, 37, 92, 0.35);
+
+  /* --- Tipografía: la del sistema (SF en Apple, Segoe/Roboto en el resto) --- */
+  --nd-font: -apple-system, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  --nd-fs-title: 34px;            /* título de pantalla */
+  --nd-fs-h1: 24px;               /* título de la tarjeta de riesgo */
+  --nd-fs-h2: 22px;
+  --nd-fs-h3: 20px;               /* título de tarjeta */
+  --nd-fs-lead: 17px;
+  --nd-fs-body: 15px;
+  --nd-fs-sm: 14px;
+  --nd-fs-xs: 13px;
+  --nd-fs-eyebrow: 12px;
+  --nd-fs-tab: 11px;              /* etiqueta de la barra inferior */
+  --nd-ls-title: -0.022em;
+  --nd-ls-h1: -0.018em;
+  --nd-ls-h2: -0.015em;
+  --nd-ls-h3: -0.012em;
+  --nd-ls-eyebrow: 0.06em;
+  --nd-lh-tight: 1.15;
+  --nd-lh-normal: 1.45;
+
+  /* --- Interacción --- */
+  --nd-tap: 44px;                 /* área táctil mínima */
+  --nd-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --nd-dur-press: 140ms;
+  --nd-dur-sheet: 300ms;
+}
+
+/* --- Base --- */
+html,
+body {
+  background: var(--nd-bg);
+  color: var(--nd-ink);
+  font-family: var(--nd-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Puente bluba → NeuroDash (temporal, se borra con bluba.css en la Fase 5)
+   Solo color, tipografía, radios y sombras: el tamaño de letra y el espaciado
+   de las pantallas heredadas no cambian hasta que cada una se rediseñe.
+   ========================================================================== */
+:root {
+  --bl-primary-50: var(--nd-surface-alt);
+  --bl-primary-100: var(--nd-accent-soft);
+  --bl-primary-200: #F0B3C6;
+  --bl-primary-300: var(--nd-heat-2);
+  --bl-primary-400: #D4487A;
+  --bl-primary-500: var(--nd-accent);
+  --bl-primary-600: var(--nd-accent);
+  --bl-primary-700: var(--nd-accent-pressed);
+  --bl-primary-800: var(--nd-accent-ink);
+
+  --bl-bg: var(--nd-bg);
+  --bl-surface: var(--nd-surface);
+  --bl-surface-alt: var(--nd-surface-alt);
+  --bl-border: var(--nd-border);
+  --bl-border-strong: var(--nd-border-strong);
+  --bl-text: var(--nd-ink);
+  --bl-text-body: var(--nd-ink-2);
+  --bl-text-muted: var(--nd-muted);   /* el gris anterior (#8A8CA0) no llegaba a 4.5:1 */
+  --bl-overlay: var(--nd-overlay);
+
+  /* El diseño final no usa verde: «bien» se muestra con el azul de riesgo bajo. */
+  --bl-success: var(--nd-risk-low);   --bl-success-bg: var(--nd-risk-low-bg);   --bl-success-border: #BFD9EE;
+  --bl-warning: var(--nd-risk-mid);   --bl-warning-bg: var(--nd-risk-mid-bg);   --bl-warning-border: var(--nd-missing-border);
+  --bl-danger: var(--nd-risk-high);   --bl-danger-bg: var(--nd-risk-high-bg);   --bl-danger-border: #EBB8BF;
+  --bl-info: var(--nd-ink-2);         --bl-info-bg: var(--nd-neutral-2);        --bl-info-border: var(--nd-border);
+  --bl-neutral-chip: var(--nd-neutral);
+
+  --bl-font: var(--nd-font);
+
+  --bl-r-xl: var(--nd-r-2xl);
+  --bl-r-2xl: var(--nd-r-3xl);
+
+  --bl-sh-card: var(--nd-sh-card);
+  --bl-sh-lg: var(--nd-sh-hero);
+  --bl-sh-fab: var(--nd-sh-fab);
+  --bl-sh-sheet: var(--nd-sh-sheet);
+  --bl-ring: var(--nd-ring);
+}
