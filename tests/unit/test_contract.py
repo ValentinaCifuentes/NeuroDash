@@ -40,10 +40,18 @@ def test_prediction_contract_preserves_an_explicit_snapshot_identity() -> None:
     assert contract.risk is None
 
 
-def test_frontend_transport_type_matches_contract_v2_score_boundary() -> None:
-    source = Path("frontend/src/types.ts").read_text(encoding="utf-8")
-    assert "export interface PredictionContractV2" in source
-    assert "model_score: number | null" in source
+def test_model_score_never_crosses_the_contract_boundary() -> None:
+    """El puntaje técnico del modelo no viaja al front ni existe en sus tipos."""
+    import re
+
+    assert "model_score" not in PredictionContractV2.model_fields
+    types_source = Path("front/src/types.ts").read_text(encoding="utf-8")
+    api_source = Path("front/src/api.ts").read_text(encoding="utf-8")
+    prediction_type = re.search(r"export interface Prediction \{(.*?)\n\}", types_source, re.S)
+    backend_type = re.search(r"export type BackendPrediction = \{(.*?)\n\};", api_source, re.S)
+    assert prediction_type and backend_type
+    assert "model_score" not in prediction_type.group(1)
+    assert "model_score" not in backend_type.group(1)
 
 
 def test_provider_reads_csv_and_appends_audit_atomically(tmp_path: Path) -> None:

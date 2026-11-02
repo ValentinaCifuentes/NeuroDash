@@ -10,7 +10,7 @@
  */
 
 /* ============================================================
-   1. Entidades BLUBA (ancladas a los CSV entregados)
+   1. Entidades de dominio (ancladas a los CSV de origen)
    ============================================================ */
 
 /** `1_casos_anonimizados.csv` */
@@ -38,7 +38,7 @@ export interface SubjectListResponse {
   subjects: Subject[];
 }
 
-/** `4_seguimiento_diario_tutor.csv` — un registro por consultante y día */
+/** `4_seguimiento_diario_tutor.csv` — un registro por infante y día */
 export interface DailyRecord {
   record_id?: string;                 // id_registro_diario  → "REG-014"
   subject_id: string;                 // id_caso
@@ -48,7 +48,7 @@ export interface DailyRecord {
   /**
    * autonomia_inicio_dia.
    *
-   * Extensión al CSV de BLUBA: la columna no existe en
+   * Extensión al CSV de origen: la columna no existe en
    * `4_seguimiento_diario_tutor.csv`. Se captura en la mañana, así que sí
    * es utilizable como feature del mismo día (a diferencia de
    * `day_regulation_level`).

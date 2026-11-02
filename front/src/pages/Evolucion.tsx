@@ -1,5 +1,5 @@
 /**
- * Evolución · superficie de NeuraDash CORE dentro de BLUBA.
+ * Evolución · superficie de NeuroDash CORE.
  *
  * Renderiza el Prediction Contract v2 tal cual llega. El frontend no
  * calcula riesgo, no infiere confianza y no decide abstención: solo
@@ -359,7 +359,7 @@ function ProfileLine({ subject }: { subject: Subject }) {
     if (items.length === 0) return null;
 
     return (
-        <div className="app-profile-line" aria-label="Perfil del consultante">
+        <div className="app-profile-line" aria-label="Perfil del infante">
             {items.map(item => <span key={item}>{item}</span>)}
         </div>
     );
@@ -378,14 +378,16 @@ function isUsefulProfileText(value: string): boolean {
    ============================================================ */
 
 function ProvenanceNote({ prediction }: { prediction: Prediction }) {
-    const prov = prediction.provenance as { contains_synthetic_data?: boolean; origins?: string[] };
+    // El backend envía `synthetic`; el mock, `contains_synthetic_data`.
+    const prov = prediction.provenance as { synthetic?: boolean; contains_synthetic_data?: boolean; origins?: string[] };
+    const synthetic = prov.synthetic ?? prov.contains_synthetic_data ?? false;
     return (
         <details className="bl-card app-details">
             <summary>Detalles de la estimación</summary>
             <p style={{ margin: "var(--bl-sp-3) 0 0", fontSize: "var(--bl-fs-sm)", color: "var(--bl-text-body)" }}>
-                {prov.contains_synthetic_data
-                    ? "Usa datos sintéticos junto a datos reales de BLUBA."
-                    : "Usa únicamente datos reales de BLUBA."}
+                {synthetic
+                    ? "Estimación de demostración: usa datos sintéticos."
+                    : "Usa los datos registrados para este infante."}
             </p>
             <p style={{ margin: "var(--bl-sp-2) 0 0", fontSize: "var(--bl-fs-xs)", color: "var(--bl-text-muted)" }}>
                 Origen: {(prov.origins ?? ["backend_core"]).join(", ")} · <span>Corte: {formatDate(prediction.prediction_cutoff)}</span>

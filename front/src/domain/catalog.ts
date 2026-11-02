@@ -1,7 +1,7 @@
 /**
  * Catálogo de dominio.
  *
- * Une el vocabulario clínico de los CSV de BLUBA con las etiquetas que ve
+ * Une el vocabulario clínico de los CSV de origen con las etiquetas que ve
  * el tutor. Regla: el `value` es siempre el literal del CSV (lo que viaja
  * al motor); el `label` es lenguaje de tutor (lo que se muestra).
  *

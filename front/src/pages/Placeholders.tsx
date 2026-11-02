@@ -1,6 +1,6 @@
 /**
- * Rutas del menú que existen en BLUBA pero quedan fuera del alcance de
- * NeuraDash. Se resuelven con estado vacío en vez de enlace muerto:
+ * Rutas del menú que quedan fuera del alcance actual de
+ * NeuroDash. Se resuelven con estado vacío en vez de enlace muerto:
  * "el vacío invita a actuar" (§3.2).
  */
 
@@ -10,7 +10,7 @@ interface Props {
   subject: Subject;
 }
 
-const DEFERRED_FEATURE_MESSAGE = 'Esta funcionalidad está fuera del alcance actual de NeuraDash.';
+const DEFERRED_FEATURE_MESSAGE = 'Esta funcionalidad está fuera del alcance actual de NeuroDash.';
 
 export function FichaInicial({ subject }: Props) {
   return (

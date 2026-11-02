@@ -158,7 +158,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
               >
                 {medNotApplicable
                   ? '✓ Marcado como «No aplica»'
-                  : 'No aplica para este consultante'}
+                  : 'No aplica para este infante'}
               </button>
             </section>
 

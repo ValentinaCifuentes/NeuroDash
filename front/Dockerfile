@@ -1,4 +1,4 @@
-# Frontend NeuraDash: build de Vite servido por nginx
+# Frontend NeuroDash: build de Vite servido por nginx
 FROM node:20-alpine AS build
 WORKDIR /app
 

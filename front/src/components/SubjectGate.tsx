@@ -24,7 +24,7 @@ export function SubjectGate({ subjects, onSelect, onOnboard }: SubjectGateProps)
         provenance: { source: 'caregiver_onboarding', synthetic: false },
       });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'No se pudo crear el consultante. Inténtalo otra vez.');
+      setError(reason instanceof Error ? reason.message : 'No se pudo crear el infante. Inténtalo otra vez.');
     } finally {
       setSaving(false);
     }
@@ -33,8 +33,8 @@ export function SubjectGate({ subjects, onSelect, onOnboard }: SubjectGateProps)
   return (
     <main className="app-shell__scroll" id="contenido">
       <section className="bl-card app-stack--tight" aria-labelledby="subject-gate-title">
-        <h1 id="subject-gate-title">Selecciona un consultante</h1>
-        <p>Elige un consultante antes de registrar información o solicitar una estimación.</p>
+        <h1 id="subject-gate-title">Selecciona un infante</h1>
+        <p>Elige un infante antes de registrar información o solicitar una estimación.</p>
         {error && <p role="alert">{error}</p>}
         {subjects.map((subject) => (
           <button key={subject.subject_id} type="button" onClick={() => onSelect(subject)}>
@@ -42,11 +42,11 @@ export function SubjectGate({ subjects, onSelect, onOnboard }: SubjectGateProps)
           </button>
         ))}
         {!creating ? (
-          <button type="button" onClick={() => setCreating(true)}>Crear consultante</button>
+          <button type="button" onClick={() => setCreating(true)}>Crear infante</button>
         ) : (
           <div className="app-stack--tight">
             <label>
-              Nombre del consultante
+              Nombre del infante
               <input value={name} onChange={(event) => setName(event.target.value)} />
             </label>
             <button type="button" disabled={saving} onClick={submit}>Guardar y seleccionar</button>

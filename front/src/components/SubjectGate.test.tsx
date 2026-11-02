@@ -14,7 +14,7 @@ describe('SubjectGate', () => {
       />,
     );
 
-    expect(screen.getByText('Selecciona un consultante')).toBeInTheDocument();
+    expect(screen.getByText('Selecciona un infante')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Alex Rivera' }));
     expect(selected).toEqual(['alex-rivera']);
   });
@@ -22,7 +22,7 @@ describe('SubjectGate', () => {
   it('announces a safe onboarding validation error without selecting a subject', async () => {
     render(<SubjectGate subjects={[]} onSelect={() => undefined} onOnboard={async () => { throw new Error('A subject name is required'); }} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Crear consultante' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Crear infante' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar y seleccionar' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('A subject name is required');

@@ -1,10 +1,10 @@
-# NeuraDash
+# NeuroDash
 
-NeuraDash es una aplicación de apoyo no diagnóstico para registros de cuidadores y
+NeuroDash es una aplicación de apoyo no diagnóstico para registros de cuidadores y
 predicciones seguras orientadas a tendencias.
 Combina un backend de FastAPI y un frontend de React/TypeScript.
 
-> **Límite de seguridad:** NeuraDash comunica incertidumbre, asociaciones
+> **Límite de seguridad:** NeuroDash comunica incertidumbre, asociaciones
 > observadas y opciones de apoyo. No es una herramienta de diagnóstico, causal,
 > clínica ni de toma de decisiones de emergencia. No utilice datos de demostración
 > ni sintéticos para tomar decisiones clínicas.

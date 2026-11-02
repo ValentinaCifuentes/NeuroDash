@@ -12,7 +12,8 @@
  * El `data_provenance` de cada respuesta mockeada lo declara explícitamente
  * con `engine: "ui_fixture"` para que sea imposible confundirlos en pantalla.
  *
- * Semilla: `data/bluba/*.csv` (PAC-002, julio 2026).
+ * Semilla: un infante de ejemplo (PAC-002) con el esquema de los CSV de origen.
+ * Alinearla con las demos PAC-A/B/C del backend es parte de la Fase 6 (I9).
  */
 
 import type {
@@ -141,7 +142,7 @@ export function getSubject(subjectId: string): Promise<Subject> {
     return Promise.reject({
       status: 404,
       code: 'subject_not_found',
-      message: 'No encontramos a este consultante. Vuelve al listado e inténtalo otra vez.',
+      message: 'No encontramos a este infante. Vuelve al listado e inténtalo otra vez.',
     });
   }
   return delay(subject, 260);
@@ -278,7 +279,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
 
   const provenance = {
     contains_synthetic_data: true,
-    origins: ['ui_fixture', 'BLUBA_CSV_schema'],
+    origins: ['ui_fixture'],
   };
   const technical = {
     engine: 'ui_fixture',

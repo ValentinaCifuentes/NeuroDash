@@ -416,7 +416,7 @@ button,input,textarea,select{font-family:inherit}
 .app-log__meta{margin:4px 0 0;font-size:var(--bl-fs-sm);color:var(--bl-text-body)}
 .app-log__list{display:flex;flex-direction:column;gap:var(--bl-sp-3)}
 
-/* --- Estimación (NeuraDash): barra de riesgo --- */
+/* --- Estimación (NeuroDash): barra de riesgo --- */
 .app-risk{display:flex;flex-direction:column;gap:var(--bl-sp-3)}
 .app-risk__track{height:8px;border-radius:var(--bl-r-full);background:var(--bl-border);overflow:hidden}
 .app-risk__fill{height:100%;border-radius:var(--bl-r-full);

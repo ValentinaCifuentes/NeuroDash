@@ -11,9 +11,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("neuradash")
 
 app = FastAPI(
-    title="NeuraDash CORE API",
+    title="NeuroDash CORE API",
     version="2.0.0",
-    description="FastAPI implementation of NeuraDash CORE prediction and outcomes lifecycle API."
+    description="FastAPI implementation of NeuroDash CORE prediction and outcomes lifecycle API."
 )
 
 # Register routers

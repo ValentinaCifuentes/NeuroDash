@@ -1,6 +1,6 @@
 /**
  * Sidebar · 280px, primary-500, overlay sobre `--bl-overlay`.
- * Secciones con eyebrow: CONSULTANTE / SOPORTE.
+ * Secciones con eyebrow: INFANTE / SOPORTE.
  * El ítem actual usa `aria-current="page"` (fondo blanco 45%, texto 800).
  */
 
@@ -16,7 +16,7 @@ interface NavDef {
 
 const SECTIONS: { eyebrow: string; icon: string; items: NavDef[] }[] = [
   {
-    eyebrow: 'Consultante',
+    eyebrow: 'Infante',
     icon: '👤',
     items: [
       { id: 'ficha', label: 'Ficha Inicial', icon: '🪪' },

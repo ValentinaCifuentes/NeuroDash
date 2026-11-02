@@ -41,6 +41,23 @@ describe('Evolucion', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Resultado confirmado');
   });
 
+  it('tells the tutor when a prediction comes from synthetic demo data (backend `synthetic` flag)', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, provenance: { subject_id: 'PAC-A', synthetic: true } });
+
+    render(<Evolucion subject={subject} revision={0} />);
+
+    expect(await screen.findByText('Estimación de demostración: usa datos sintéticos.')).toBeInTheDocument();
+    expect(screen.queryByText(/datos reales/i)).not.toBeInTheDocument();
+  });
+
+  it('describes real data without naming another product', async () => {
+    vi.mocked(getPrediction).mockResolvedValue(prediction);
+
+    render(<Evolucion subject={subject} revision={0} />);
+
+    expect(await screen.findByText('Usa los datos registrados para este infante.')).toBeInTheDocument();
+  });
+
   it('shows an explicit abstention without an invented risk or outcome action', async () => {
     vi.mocked(getPrediction).mockResolvedValue({ ...prediction, risk: null, confidence: 'INSUFFICIENT', abstained: true });
 

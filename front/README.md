@@ -1,7 +1,7 @@
-# Bluba · Bitácora Diaria — frontend NeuraDash
+# Bluba · Bitácora Diaria — frontend NeuroDash
 
 Frontend de la app **Bitácora Diaria** de BLUBA, con la superficie de
-**NeuraDash CORE** (pantalla *Evolución*) integrada dentro del mismo producto.
+**NeuroDash CORE** (pantalla *Evolución*) integrada dentro del mismo producto.
 
 Construido sobre `bluba-lineamientos.md` + `bluba-design-system.html`, y alineado
 al stack y a la estructura de repo de `NeuraDash_Arquitectura_Tecnica_Completa`.
@@ -58,7 +58,7 @@ src/
 └── App.tsx                   Chrome + navegación
 ```
 
-Corresponde a `frontend/` en el árbol del documento técnico. `RiskCard`,
+Reemplaza al `frontend/` del árbol del documento técnico (esa versión anterior se eliminó). `RiskCard`,
 `ConfidenceBadge`, `FactorList`, `MissingDataCard` y `SupportCard` viven dentro
 de `pages/Evolucion.tsx` porque ninguno se reutiliza fuera de esa pantalla;
 extraerlos a archivos propios es un `git mv` cuando aparezca el segundo consumidor.

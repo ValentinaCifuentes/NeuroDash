@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP contra la API de NeuraDash CORE.
+ * Cliente HTTP contra la API de NeuroDash CORE.
  *
  * Regla de arquitectura (D2): el frontend jamás depende del algoritmo.
  * Solo conoce estos endpoints y el Prediction Contract v2.
@@ -245,7 +245,6 @@ export type BackendPrediction = {
   prediction_cutoff: string;
   horizon_hours: number;
   risk: string | null;
-  model_score: number | null;
   confidence: string;
   abstained: boolean;
   factors: BackendFactor[];
@@ -286,7 +285,7 @@ function adaptSubject(subject: BackendSubject): Subject {
     String(subject.sensory_context?.sensory_profile ?? 'Perfil sensorial no registrado');
   return {
     subject_id: subject.subject_id,
-    display_name: subject.display_name ?? `Bluba ${subject.subject_id}`,
+    display_name: subject.display_name ?? subject.subject_id,
     initials: subject.initials ?? initialsFromId(subject.subject_id),
     age_range: subject.age_range ?? 'Edad no registrada',
     diagnosis: subject.diagnosis ?? 'Sin diagnóstico mostrado en esta vista',

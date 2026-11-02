@@ -108,7 +108,7 @@ def validate_schema(file_path: Path | str) -> bool:
         print("Error: 'lineage' must be a JSON object.")
         return False
 
-    print(f"Success: File '{path.name}' is valid under the NeuraDash CORE schemas.")
+    print(f"Success: File '{path.name}' is valid under the NeuroDash CORE schemas.")
     return True
 
 

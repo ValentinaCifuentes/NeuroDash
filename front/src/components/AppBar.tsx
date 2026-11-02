@@ -18,7 +18,7 @@ export function AppBar({ initials, onOpenMenu }: Props) {
       </button>
 
       <span className="bl-appbar__brand">
-        <span aria-hidden="true">♡</span> Bluba
+        <span aria-hidden="true">♡</span> NeuroDash
       </span>
 
       <span className="bl-appbar__user" style={{ marginLeft: 'auto' }}>

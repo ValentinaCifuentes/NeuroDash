@@ -1,4 +1,4 @@
-# Backend NeuraDash (FastAPI)
+# Backend NeuroDash (FastAPI)
 # El código resuelve config/, data/ y models/ con rutas relativas a __file__,
 # así que se ejecuta desde el árbol de fuentes (/app) sin instalar el proyecto.
 FROM python:3.12-slim
