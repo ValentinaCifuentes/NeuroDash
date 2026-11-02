@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { OptionGroup, Switch, Tabs } from '../components/controls';
 import {
   GI_CHOICES,
+  choiceShape,
   SEMANTIC_BG,
   SEMANTIC_COLOR,
   SLEEP_CHOICES,
@@ -23,6 +24,7 @@ import {
   formatTime,
   todayIso,
 } from '../domain/catalog';
+import { ShapeMark } from '../components/marks';
 import { getTimeline } from '../api';
 import type {
   ApiError,
@@ -185,11 +187,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
                     className="bl-option"
                     onClick={() => setGi(choice.value)}
                   >
-                    <span
-                      className="bl-dot"
-                      style={{ background: SEMANTIC_COLOR[choice.dot!] }}
-                      aria-hidden="true"
-                    />
+                    <ShapeMark shape={choiceShape(choice)} color={SEMANTIC_COLOR[choice.dot!]} />
                     <span className="bl-option__label">{choice.label}</span>
                     <span className="bl-option__mark" aria-hidden="true">
                       ✓

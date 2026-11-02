@@ -262,3 +262,23 @@ body {
     backdrop-filter: none;
   }
 }
+
+/* ==========================================================================
+   Marcas sin emoji (components/marks.tsx)
+   ========================================================================== */
+.nd-levelbars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 12px;
+  flex: 0 0 auto;
+}
+.nd-levelbars__bar {
+  display: block;
+  width: 5px;
+  border-radius: 2px;
+}
+.nd-shape {
+  display: inline-block;
+  vertical-align: middle;
+}

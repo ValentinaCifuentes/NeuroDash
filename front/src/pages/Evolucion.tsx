@@ -24,8 +24,11 @@ import {
     RISK_SEMANTIC,
     SEMANTIC_BG,
     SEMANTIC_COLOR,
+    RISK_SHAPE,
+    SEMANTIC_FG,
     formatDate,
 } from "../domain/catalog";
+import { ShapeMark } from "../components/marks";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
 
@@ -135,12 +138,8 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
         <section className="bl-card app-risk-card">
             <div className="app-card-heading">
                 <p className="bl-eyebrow" style={{ margin: 0 }}>Próximas 24 horas</p>
-                <span className="bl-badge" style={{ background: SEMANTIC_BG[semantic], color: "var(--bl-text-body)" }}>
-                    <span
-                        className="bl-dot"
-                        style={{ background: SEMANTIC_COLOR[semantic], width: 10, height: 10, flex: "0 0 10px" }}
-                        aria-hidden="true"
-                    />
+                <span className="bl-badge" style={{ background: SEMANTIC_BG[semantic], color: SEMANTIC_FG[semantic] }}>
+                    <ShapeMark shape={RISK_SHAPE[level] ?? "circle"} color={SEMANTIC_COLOR[semantic]} size={11} />
                     {RISK_LABEL[level]}
                 </span>
             </div>

@@ -8,7 +8,8 @@
 import { useId, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { Choice, Semantic } from '../domain/catalog';
-import { SEMANTIC_COLOR, intensitySemantic, intensityWord } from '../domain/catalog';
+import { SEMANTIC_COLOR, choiceShape, intensitySemantic, intensityWord } from '../domain/catalog';
+import { LevelBars, ShapeMark } from './marks';
 
 /* ============================================================
    Tabs segmentados · máximo dos vistas (§2.4)
@@ -118,14 +119,8 @@ export function OptionGroup<T extends string>({
               onClick={() => onChange(choice.value)}
               onKeyDown={(e) => onKeyDown(e, i)}
             >
-              {choice.dot && (
-                <span
-                  className="bl-dot"
-                  style={{ background: SEMANTIC_COLOR[choice.dot] }}
-                  aria-hidden="true"
-                />
-              )}
-              {choice.icon && <span aria-hidden="true">{choice.icon}</span>}
+              {choice.dot && <ShapeMark shape={choiceShape(choice)} color={SEMANTIC_COLOR[choice.dot]} />}
+              {choice.level && <LevelBars level={choice.level} />}
               <span className="bl-option__label">{choice.label}</span>
               <span className="bl-option__mark" aria-hidden="true">
                 ✓
@@ -191,7 +186,7 @@ export function IntensitySlider({ value, onChange }: IntensityProps) {
           style={
             semantic === 'danger'
               ? { background: 'var(--bl-danger)', color: '#fff' }
-              : { background: 'var(--bl-warning-bg)', color: '#8A6D06' }
+              : { background: 'var(--nd-risk-mid-bg)', color: 'var(--nd-risk-mid-fg)' }
           }
         >
           {value} / 10 · {intensityWord(value)}

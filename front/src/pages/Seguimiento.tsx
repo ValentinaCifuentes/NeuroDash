@@ -18,11 +18,14 @@ import {
   HEAT_STEPS,
   SEMANTIC_BG,
   SEMANTIC_COLOR,
-  SLEEP_ICON,
+  SLEEP_LEVEL,
+  SEMANTIC_FG,
+  SEMANTIC_SHAPE,
   WAKE_CHOICES,
   WEEKDAY_SHORT,
   dayLabel,
 } from '../domain/catalog';
+import { LevelBars, ShapeMark } from '../components/marks';
 import type { Subject } from '../types';
 
 const HEATMAP_DAYS = 30;
@@ -284,7 +287,7 @@ function Heatmap({ days }: { days: DaySummary[] }) {
                     </span>
                     {cell.sleep && (
                       <span className="app-heat__sleep" aria-hidden="true">
-                        {SLEEP_ICON[cell.sleep]}
+                        <LevelBars level={SLEEP_LEVEL[cell.sleep]} />
                       </span>
                     )}
                     <span className="bl-sr-only">
@@ -314,9 +317,9 @@ function Heatmap({ days }: { days: DaySummary[] }) {
         </div>
         <div className="app-legend__group">
           <span className="app-legend__title">Sueño</span>
-          {(Object.keys(SLEEP_ICON) as (keyof typeof SLEEP_ICON)[]).map((key) => (
+          {(Object.keys(SLEEP_LEVEL) as (keyof typeof SLEEP_LEVEL)[]).map((key) => (
             <span key={key} className="app-legend__item">
-              {SLEEP_ICON[key]} {key === 'Dificultad de Conciliación' ? 'Difícil' : key}
+              <LevelBars level={SLEEP_LEVEL[key]} /> {key === 'Dificultad de Conciliación' ? 'Difícil' : key}
             </span>
           ))}
         </div>
@@ -363,19 +366,10 @@ function DailyTracking({ days, subject }: { days: DaySummary[]; subject: Subject
                   className="bl-badge"
                   style={{
                     background: SEMANTIC_BG[status.semantic],
-                    color: 'var(--bl-text-body)',
+                    color: SEMANTIC_FG[status.semantic],
                   }}
                 >
-                  <span
-                    className="bl-dot"
-                    style={{
-                      background: SEMANTIC_COLOR[status.semantic],
-                      width: 10,
-                      height: 10,
-                      flex: '0 0 10px',
-                    }}
-                    aria-hidden="true"
-                  />
+                  <ShapeMark shape={SEMANTIC_SHAPE[status.semantic]} color={SEMANTIC_COLOR[status.semantic]} size={11} />
                   {status.label}
                 </span>
               </div>
@@ -384,7 +378,7 @@ function DailyTracking({ days, subject }: { days: DaySummary[]; subject: Subject
                 <span className="app-chip">
                   {day.sleep ? (
                     <>
-                      <span aria-hidden="true">{SLEEP_ICON[day.sleep]}</span>
+                      <LevelBars level={SLEEP_LEVEL[day.sleep]} />
                       {day.sleep === 'Dificultad de Conciliación' ? 'Difícil' : day.sleep}
                     </>
                   ) : (
