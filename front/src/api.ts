@@ -273,15 +273,52 @@ export function adaptTimelineResponse(response: BackendTimelineResponse): Timeli
  * tipo nunca se infiere de los campos.
  */
 function adaptTimelineEntry(entry: BackendTimelineEntry): TimelineEntry {
-  const { kind, payload } = entry;
+  if (entry.kind === 'daily_record') {
+    const record = adaptDailyRecordPayload(entry.payload);
+    return {
+      entry_id: entry.entry_id,
+      kind: 'daily_record',
+      timestamp: entry.timestamp,
+      title: 'Registro diario',
+      detail: summarizeDailyRecord(record),
+      semantic: 'info',
+      payload: record,
+    };
+  }
+  const event = entry.payload as unknown as DysregulationEvent & { severity?: string };
   return {
     entry_id: entry.entry_id,
-    kind,
+    kind: 'event',
     timestamp: entry.timestamp,
-    title: kind === 'daily_record' ? 'Registro diario' : String(payload.event_type ?? 'Evento registrado'),
-    detail: summarizeTimelineEntry(payload),
-    semantic: kind === 'daily_record' ? 'info' : 'warning',
-    payload: payload as unknown as DailyRecord | DysregulationEvent,
+    title: event.event_type ?? 'Evento registrado',
+    detail: summarizeEvent(event),
+    semantic: 'warning',
+    payload: event,
+  };
+}
+
+/**
+ * El backend guarda cada respuesta de la Bitácora dos veces: el número que usa
+ * el modelo en la raíz (`sleep_quality: 8`) y el texto que eligió el tutor en
+ * `raw` (`raw.sleep_quality: "Reparador"`). La interfaz trabaja con el texto,
+ * así que aquí se reconstruye el `DailyRecord` desde `raw`.
+ */
+function adaptDailyRecordPayload(payload: Record<string, unknown>): DailyRecord {
+  const raw = (payload.raw ?? {}) as Partial<Record<keyof DailyRecord, string>>;
+  const count = (value: unknown) => (typeof value === 'number' ? value : undefined);
+  return {
+    record_id: payload.record_id as string | undefined,
+    subject_id: String(payload.subject_id ?? ''),
+    date: String(payload.date ?? ''),
+    sleep_quality: (raw.sleep_quality ?? null) as DailyRecord['sleep_quality'],
+    wake_mode: (raw.wake_mode ?? null) as DailyRecord['wake_mode'],
+    start_autonomy: (raw.start_autonomy ?? null) as DailyRecord['start_autonomy'],
+    medication_adherence: (raw.medication_adherence ?? null) as DailyRecord['medication_adherence'],
+    gi_status: (raw.gi_status ?? null) as DailyRecord['gi_status'],
+    day_regulation_level: (raw.day_regulation_level ?? null) as DailyRecord['day_regulation_level'],
+    event_count: count(payload.event_count),
+    dysregulation_count: count(payload.dysregulation_count),
+    max_intensity: count(payload.max_intensity),
   };
 }
 
@@ -369,14 +406,35 @@ function initialsFromId(subjectId: string): string {
     .toUpperCase();
 }
 
-function summarizeTimelineEntry(entry: Record<string, unknown>): string | null {
-  const parts = [
-    entry.sleep_quality !== undefined ? `Sueño: ${entry.sleep_quality}` : null,
-    entry.wake_state !== undefined ? `Despertar: ${entry.wake_state}` : null,
-    entry.event_count !== undefined ? `Eventos: ${entry.event_count}` : null,
-    entry.severity !== undefined ? `Severidad: ${entry.severity}` : null,
-  ].filter(Boolean);
-  return parts.length > 0 ? parts.join(' · ') : null;
+const SEVERITY_LABEL: Record<string, string> = { mild: 'leve', moderate: 'moderada', severe: 'severa' };
+
+function joinParts(parts: Array<string | null | undefined | false>): string | null {
+  const present = parts.filter(Boolean);
+  return present.length > 0 ? present.join(' · ') : null;
+}
+
+function summarizeDailyRecord(record: DailyRecord): string | null {
+  const events = record.event_count
+    ? `Eventos del día: ${record.event_count}` +
+      (record.dysregulation_count ? ` (${record.dysregulation_count} de desregulación)` : '') +
+      (record.max_intensity ? ` · Intensidad máx.: ${record.max_intensity}/10` : '')
+    : null;
+  return joinParts([
+    record.sleep_quality && `Sueño: ${record.sleep_quality}`,
+    record.wake_mode && `Despertar: ${record.wake_mode}`,
+    record.start_autonomy && `Inicio del día: ${record.start_autonomy}`,
+    record.gi_status && `Digestión: ${record.gi_status}`,
+    record.medication_adherence && `Medicación: ${record.medication_adherence}`,
+    record.day_regulation_level && `Regulación del día: ${record.day_regulation_level}`,
+    events,
+  ]);
+}
+
+function summarizeEvent(event: DysregulationEvent & { severity?: string }): string | null {
+  return joinParts([
+    typeof event.intensity_value === 'number' && `Intensidad: ${event.intensity_value}/10`,
+    event.severity && `Gravedad: ${SEVERITY_LABEL[event.severity] ?? event.severity}`,
+  ]);
 }
 
 /** Confirms an observed outcome with a caller-generated replay identity. */

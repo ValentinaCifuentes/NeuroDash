@@ -60,3 +60,40 @@ describe('timeline contract (I1, I6)', () => {
     expect(record.payload).toMatchObject({ record_id: 'rec-1', event_count: 1 });
   });
 });
+
+describe('timeline readable texts (I8)', () => {
+  it('rebuilds the daily record with the texts the tutor chose, not the model numbers', () => {
+    const [, record] = adaptTimelineResponse(TIMELINE_FIXTURE).entries;
+
+    expect(record.payload).toMatchObject({
+      sleep_quality: 'Reparador',
+      wake_mode: 'Tranquilo/Alegre',
+      start_autonomy: null,
+      dysregulation_count: 1,
+      max_intensity: 6,
+    });
+    expect(record.detail).toBe(
+      'Sueño: Reparador · Despertar: Tranquilo/Alegre · Eventos del día: 1 (1 de desregulación) · Intensidad máx.: 6/10',
+    );
+    expect(record.detail).not.toContain('Sueño: 8');
+  });
+
+  it('summarizes an event with its intensity and severity in Spanish', () => {
+    const [event] = adaptTimelineResponse(TIMELINE_FIXTURE).entries;
+
+    expect(event.detail).toBe('Intensidad: 6/10 · Gravedad: moderada');
+  });
+
+  it('leaves a counts-only record (created by the backend for an event) without basal texts', () => {
+    const timeline = adaptTimelineResponse({
+      ...TIMELINE_FIXTURE,
+      entries: [{
+        ...TIMELINE_FIXTURE.entries[1],
+        payload: { record_id: 'rec-2', date: '2026-11-02', event_count: 2, dysregulation_count: 0, max_intensity: 3 },
+      }],
+    });
+
+    expect(timeline.entries[0].payload).toMatchObject({ sleep_quality: null, wake_mode: null });
+    expect(timeline.entries[0].detail).toBe('Eventos del día: 2 · Intensidad máx.: 3/10');
+  });
+});

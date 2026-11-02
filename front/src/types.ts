@@ -65,6 +65,13 @@ export interface DailyRecord {
    * en el cierre de jornada y el motor solo la consume desde T-1.
    */
   day_regulation_level?: DayRegulationLevel | null;
+  /**
+   * Conteos que el backend recalcula al guardar cada evento del día
+   * (`_refresh_daily_event_counts`). Solo vienen en lecturas, nunca se envían.
+   */
+  event_count?: number;
+  dysregulation_count?: number;
+  max_intensity?: number;
 }
 
 /** `5_eventos_desregulacion_tutor.csv` */
