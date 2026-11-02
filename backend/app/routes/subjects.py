@@ -1,4 +1,6 @@
 import re
+import unicodedata
+import uuid
 import zoneinfo
 from datetime import datetime, timedelta
 from typing import Any
@@ -61,6 +63,77 @@ class EventWrite(BaseModel):
     provenance: ProvenanceV2
     event_type: str
     intensity_value: int = Field(ge=1, le=10)
+
+
+DYREGULATION_EVENT_TYPE = "Desregulación Emocional"
+
+# Texto -> número para los campos de la Bitácora. El texto original se conserva
+# en `raw: {...}` y el número queda en la raíz con un nombre estable que el
+# motor (`engine/features.py`) agrega automáticamente.
+SLEEP_QUALITY_MAP = {"Reparador": 8, "Interrumpido": 5, "Dificultad de Conciliación": 2}
+WAKE_STATE_MAP = {
+    "Tranquilo/Alegre": 2,
+    "Cansado/Con Sueño": 5,
+    "Cansado": 5,
+    "Irritable/Llorando": 8,
+}
+START_AUTONOMY_MAP = {"Por sí solo": 0, "Con alarma": 1, "Con insistencia": 2}
+MEDICATION_MAP = {"Sí": 1, "No": 0}  # "No Aplica" queda fuera a propósito
+GI_LEVEL_MAP = {"Normal": 0, "Estreñimiento": 1, "Diarrea": 2}
+DAY_REGULATION_MAP = {"Excelente": 0, "Estable con Apoyo": 1, "Desregulación Frecuente": 2}
+
+
+def _normalize_label(value: str) -> str:
+    """Normaliza una etiqueta para matching robusto: sin tildes, minúsculas y espacios colapsados."""
+    decomposed = unicodedata.normalize("NFKD", value)
+    ascii_value = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return " ".join(ascii_value.casefold().split())
+
+
+def _normalized_map(mapping: dict[str, int]) -> dict[str, int]:
+    return {_normalize_label(label): number for label, number in mapping.items()}
+
+
+# (campo del request, nombre numérico estable, mapa normalizado texto -> número)
+_CARE_FIELD_ENCODINGS: list[tuple[str, str, dict[str, int]]] = [
+    ("sleep_quality", "sleep_quality", _normalized_map(SLEEP_QUALITY_MAP)),
+    ("wake_mode", "wake_state", _normalized_map(WAKE_STATE_MAP)),
+    ("start_autonomy", "start_autonomy_level", _normalized_map(START_AUTONOMY_MAP)),
+    ("medication_adherence", "medication_taken", _normalized_map(MEDICATION_MAP)),
+    ("gi_status", "gi_level", _normalized_map(GI_LEVEL_MAP)),
+    ("day_regulation_level", "day_regulation_level_num", _normalized_map(DAY_REGULATION_MAP)),
+]
+
+
+def _encode_care_record(req: CareRecordWrite) -> dict[str, Any]:
+    """Codifica los campos de texto de un registro: texto a `raw` y número a la raíz."""
+    item: dict[str, Any] = {
+        "occurred_at": req.occurred_at.isoformat(),
+        "idempotency_key": req.idempotency_key,
+        "provenance": req.provenance.model_dump(mode="json"),
+    }
+    raw: dict[str, Any] = {}
+    for request_field, numeric_field, mapping in _CARE_FIELD_ENCODINGS:
+        value = getattr(req, request_field)
+        if value is None:
+            continue
+        raw[request_field] = value
+        number = mapping.get(_normalize_label(value))
+        if number is not None:
+            # Un texto no reconocido (o "No Aplica") no genera campo numérico,
+            # para no contaminar la cobertura ni el conteo.
+            item[numeric_field] = number
+    if raw:
+        item["raw"] = raw
+    return item
+
+
+def severity_from_intensity(intensity_value: int) -> str:
+    if intensity_value <= 3:
+        return "mild"
+    if intensity_value <= 7:
+        return "moderate"
+    return "severe"
 
 
 def require_aware(value: datetime, field_name: str = "occurred_at") -> datetime:
@@ -165,7 +238,7 @@ def get_subject(subject_id: str) -> dict[str, Any]:
 @router.post("/{subject_id}/daily-records", status_code=201)
 def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
     occurred_at = require_aware(req.occurred_at)
-    item = req.model_dump(mode="json")
+    item = _encode_care_record(req)
     item.update({
         "contract_version": "2.0",
         "subject_id": subject_id,
@@ -185,6 +258,8 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
 def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
     occurred_at = require_aware(req.occurred_at)
     item = req.model_dump(mode="json")
+    if req.event_type == DYREGULATION_EVENT_TYPE:
+        item["severity"] = severity_from_intensity(req.intensity_value)
     item.update({
         "contract_version": "2.0",
         "subject_id": subject_id,
@@ -194,9 +269,11 @@ def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(g
         "prediction_availability": "immediate",
     })
     try:
-        return care_repository().save(subject_id, "occurrences", item, "event_id")
+        saved = care_repository().save(subject_id, "occurrences", item, "event_id")
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    _refresh_daily_event_counts(subject_id, occurred_at, actor.actor_id)
+    return saved
 
 
 @router.post("/{subject_id}/end-of-day", status_code=201)
@@ -209,7 +286,7 @@ def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext =
     local_zone = zoneinfo.ZoneInfo(profile["timezone"])
     local_time = occurred_at.astimezone(local_zone)
     availability = datetime.combine(local_time.date() + timedelta(days=1), datetime.min.time(), tzinfo=local_zone)
-    item = req.model_dump(mode="json")
+    item = _encode_care_record(req)
     item.update({
         "contract_version": "2.0",
         "subject_id": subject_id,
@@ -220,6 +297,75 @@ def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext =
         "prediction_availability": "prior_day_only",
     })
     return care_repository().save(subject_id, "records", item, "record_id")
+
+
+def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_id: str) -> None:
+    """Recalcula event_count/dysregulation_count/max_intensity en el registro diario local.
+
+    Si no existe un registro diario para el día local del evento, crea uno mínimo
+    para que el motor pueda consumir el conteo como variable.
+    """
+    try:
+        profile = SubjectRepository(SUBJECTS_ROOT).get(subject_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
+    local_zone = zoneinfo.ZoneInfo(profile["timezone"])
+    local_date_str = occurred_at.astimezone(local_zone).date().isoformat()
+
+    repo = care_repository()
+    occurrences = repo.list(subject_id, "occurrences")
+    records = repo.list(subject_id, "records")
+
+    def _local_date(timestamp: str) -> str:
+        return datetime.fromisoformat(timestamp).astimezone(local_zone).date().isoformat()
+
+    day_occurrences = [occ for occ in occurrences if _local_date(occ["source_timestamp"]) == local_date_str]
+
+    event_count = len(day_occurrences)
+    dysregulation_count = sum(
+        1 for occ in day_occurrences if occ.get("event_type") == DYREGULATION_EVENT_TYPE
+    )
+    intensities = [
+        occ["intensity_value"]
+        for occ in day_occurrences
+        if isinstance(occ.get("intensity_value"), (int, float))
+    ]
+    max_intensity = max(intensities) if intensities else 0
+
+    # Prefiere el registro basal ("immediate") de ese día; si no, cualquiera del día.
+    target: dict[str, Any] | None = None
+    for record in records:
+        if record.get("date") != local_date_str:
+            continue
+        if record.get("prediction_availability") == "immediate":
+            target = record
+            break
+        if target is None:
+            target = record
+
+    counts = {
+        "event_count": event_count,
+        "dysregulation_count": dysregulation_count,
+        "max_intensity": max_intensity,
+    }
+
+    if target is not None:
+        target.update(counts)
+    else:
+        records.append({
+            "contract_version": "2.0",
+            "subject_id": subject_id,
+            "author_id": author_id,
+            "idempotency_key": f"event-count:{subject_id}:{local_date_str}",
+            "record_id": uuid.uuid4().hex,
+            "source_timestamp": occurred_at.isoformat(),
+            "availability_timestamp": occurred_at.isoformat(),
+            "date": local_date_str,
+            "prediction_availability": "immediate",
+            **counts,
+        })
+
+    write_json_atomic(SUBJECTS_ROOT / subject_id / "records.json", records)
 
 
 @router.get("/{subject_id}/timeline")
