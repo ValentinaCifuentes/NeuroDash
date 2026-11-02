@@ -112,7 +112,15 @@ VITE_ACTOR_ID=tutor-demo
 VITE_ACTOR_ROLE=tutor
 ```
 
-Con `VITE_API_BASE=` vacío, la UI usa el mock en memoria.
+Con `VITE_API_BASE` definida vacía, la UI usa el mock en memoria y no llama al
+backend. Sirve como respaldo sin red para una demo:
+
+```bash
+VITE_API_BASE= docker compose up --build -d frontend
+```
+
+Para volver a la API real, compile otra vez sin definir la variable
+(`docker compose up --build -d`).
 
 ## Pruebas y validación
 
