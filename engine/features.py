@@ -115,7 +115,11 @@ def build_features(
                     "missing": False
                 })
             else:
-                rolling_features[feat_name] = None
+                # Rellena el agregado faltante con la línea base del infante en lugar
+                # de dejarlo en None (que el entrenador imputa a 0). Así "sin datos"
+                # no se confunde con un valor real (p. ej. "0 eventos"). Solo cae a
+                # None en arranque en frío, cuando aún no hay línea base.
+                rolling_features[feat_name] = baseline.modality_baselines.get(modality)
                 missingness.append({
                     "window": window,
                     "field": modality,

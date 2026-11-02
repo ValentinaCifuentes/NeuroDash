@@ -7,3 +7,12 @@
 high_threshold: 0.8
 medium_threshold: 0.6
 low_threshold: 0.4
+
+# --- Core fields for coverage ---
+# Coverage is measured only over these fields so that optional Bitácora fields
+# (autonomía, medicación, digestión, regulación) do not artificially dilute
+# confidence when they are missing.
+core_fields:
+  - sleep_quality
+  - wake_state
+  - event_count
