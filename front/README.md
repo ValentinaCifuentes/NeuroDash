@@ -54,7 +54,7 @@ src/
 ├── pages/
 │   ├── BitacoraDiaria.tsx    Mi Día (estado basal) + Historial de Hoy
 │   ├── Evolucion.tsx         Prediction Contract v2 renderizado
-│   └── Placeholders.tsx      Ficha Inicial, Profesionales, Tickets
+│   └── Placeholders.tsx      Ficha Inicial, Tickets
 └── App.tsx                   Chrome + navegación
 ```
 

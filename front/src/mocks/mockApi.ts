@@ -20,8 +20,6 @@ import type {
   DysregulationEvent,
   Prediction,
   PredictionRequest,
-  ProfessionalSession,
-  ProfessionalSessionDraft,
   Subject,
   SubjectOnboardingInput,
   TimelineEntry,
@@ -53,7 +51,6 @@ const dailyRecords: DailyRecord[] = [];
 const events: DysregulationEvent[] = [];
 let seq = 100;
 
-const sessions: ProfessionalSession[] = [];
 
 /* ============================================================
    Semilla longitudinal de 30 días
@@ -134,50 +131,9 @@ function seedHistory(subjectId: string) {
       });
     }
   }
-
-  const lastWeek = new Date();
-  lastWeek.setDate(lastWeek.getDate() - 4);
-  lastWeek.setHours(15, 0, 0, 0);
-  sessions.push({
-    session_id: 'SES-001',
-    subject_id: subjectId,
-    occurred_at: lastWeek.toISOString(),
-    professional: 'Pamela Neira Neira',
-    consultation_reason: 'Evaluación',
-    modality: 'Presencial',
-    duration_minutes: 45,
-    attendance: 'Presente',
-    paid: false,
-    status: 'Atendida',
-    alert_level: 'Medio',
-    objectives: 'Objetivos de la sesión: reforzar las vocales y el saludo.',
-    activities: 'Actividades realizadas: juego con vocales y saludar a sus compañeros.',
-    observations: 'Buena disposición durante toda la sesión.',
-    visible_to_tutor: true,
-    active: true,
-  });
 }
 
 seedHistory('PAC-002');
-
-export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
-  const list = sessions
-    .filter((s) => s.subject_id === subjectId && s.active)
-    .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at));
-  return delay(list, 300);
-}
-
-export function saveSession(session: ProfessionalSessionDraft): Promise<ProfessionalSession> {
-  const { internal_notes: _internalNotes, ...projection } = session;
-  const stored: ProfessionalSession = {
-    ...projection,
-    session_id: session.session_id ?? `SES-${++seq}`,
-  };
-  const i = sessions.findIndex((s) => s.session_id === stored.session_id);
-  if (i >= 0) sessions[i] = stored;
-  else sessions.push(stored);
-  return delay(stored);
-}
 
 export function getSubject(subjectId: string): Promise<Subject> {
   const subject = SUBJECTS[subjectId];

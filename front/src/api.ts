@@ -4,15 +4,14 @@
  * Regla de arquitectura (D2): el frontend jamás depende del algoritmo.
  * Solo conoce estos endpoints y el Prediction Contract v2.
  *
+ *   GET  /api/v1/subjects
+ *   POST /api/v1/subjects
  *   GET  /api/v1/subjects/{id}
  *   GET  /api/v1/subjects/{id}/timeline?as_of=...&days=...
  *   POST /api/v1/subjects/{id}/daily-records
  *   POST /api/v1/subjects/{id}/events
- *   GET  /api/v1/subjects/{id}/sessions
- *   PUT  /api/v1/subjects/{id}/sessions/{session_id}
- *   POST /api/v1/subjects/{id}/sessions
  *   POST /api/v1/predictions
- *   POST /api/v1/demo/profiles/{profile_id}/predict
+ *   POST /api/v1/predictions/{prediction_id}/outcome
  *
  * Si `VITE_API_BASE` no está definido, se usa `mocks/mockApi` para que la
  * UI corra sola durante el desarrollo del frontend. El mock respeta el
@@ -27,8 +26,6 @@ import type {
   MissingDataItem,
   Prediction,
   PredictionRequest,
-  ProfessionalSession,
-  ProfessionalSessionDraft,
   SupportItem,
   Subject,
   TimelineEntry,
@@ -37,7 +34,6 @@ import type {
   ApiErrorEnvelope,
   OutcomeConfirmation,
   SubjectOnboardingInput,
-  SessionWrite,
 } from './types';
 import * as mock from './mocks/mockApi';
 export { createSubjectId, subjectInitials } from './domain/subjectIdentity';
@@ -47,24 +43,6 @@ export const USING_MOCK = BASE === '';
 
 export function mapApiError(status: number, envelope: ApiErrorEnvelope): ApiError {
   return { status, code: envelope.code, message: envelope.message };
-}
-
-export function mapSessionProjection(session: ProfessionalSessionDraft): ProfessionalSession {
-  const { internal_notes: _internalNotes, ...projection } = session;
-  return projection;
-}
-
-export function createSessionWrite(
-  session: ProfessionalSessionDraft,
-  idempotencyKey: string,
-): SessionWrite {
-  const { session_id: _sessionId, subject_id: _subjectId, ...write } = session;
-  return {
-    ...write,
-    contract_version: '2.0',
-    idempotency_key: idempotencyKey,
-    provenance: { source: 'frontend_session', synthetic: false },
-  };
 }
 
 export type ActorRole = 'tutor' | 'system';
@@ -218,25 +196,6 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
     headers: getActorHeaders(),
     body: JSON.stringify(buildEventWrite(event)),
   });
-}
-
-export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
-  if (USING_MOCK) return mock.getSessions(subjectId);
-  return request<ProfessionalSessionDraft[]>(`/api/v1/subjects/${subjectId}/sessions`, {
-    headers: getActorHeaders(),
-  }).then((sessions) => sessions.map(mapSessionProjection));
-}
-
-/** Creates a professional session using a stable, caller-provided replay identity. */
-export function saveSession(session: ProfessionalSessionDraft): Promise<ProfessionalSession> {
-  if (USING_MOCK) return mock.saveSession(session);
-  const base = `/api/v1/subjects/${session.subject_id}/sessions`;
-  const idempotencyKey = session.session_id ?? crypto.randomUUID();
-  return request<ProfessionalSessionDraft>(base, {
-    method: 'POST',
-    headers: getActorHeaders(),
-    body: JSON.stringify(createSessionWrite(session, idempotencyKey)),
-  }).then(mapSessionProjection);
 }
 
 /**
@@ -587,24 +546,5 @@ export function confirmPredictionOutcome(
       idempotency_key: idempotencyKey,
       provenance: { source: 'frontend_outcome', synthetic: false },
     }),
-  });
-}
-
-export function simulateTelemetry(subjectId: string, profile: 'estable' | 'riesgo_acumulado' | 'datos_insuficientes'): Promise<{ status: string; stored_count: number; message: string }> {
-  if (USING_MOCK) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          status: 'ok',
-          stored_count: 50,
-          message: 'Simulated burst for profile ' + profile,
-        });
-      }, 1500);
-    });
-  }
-  
-  return request<{ status: string; stored_count: number; message: string }>('/api/v1/telemetry/simulate', {
-    method: 'POST',
-    body: JSON.stringify({ subject_id: subjectId, profile, seed: Math.floor(Math.random() * 1000) }),
   });
 }
