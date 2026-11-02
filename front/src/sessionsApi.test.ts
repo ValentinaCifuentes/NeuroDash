@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createSessionWrite, getSessionActorHeaders, mapSessionProjection } from './api';
+import { createSessionWrite, mapSessionProjection } from './api';
 import type { ProfessionalSession } from './types';
 
 const session: ProfessionalSession = {
@@ -38,10 +38,5 @@ describe('session transport adapter', () => {
       internal_notes: 'Private clinical note',
     });
     expect(write).not.toHaveProperty('session_id');
-  });
-
-  it('sends the configured professional actor context at the server trust boundary', () => {
-    expect(getSessionActorHeaders({ VITE_ACTOR_ID: 'professional-1', VITE_ACTOR_ROLE: 'professional' }))
-      .toEqual({ 'X-Actor-Id': 'professional-1', 'X-Actor-Role': 'professional' });
   });
 });

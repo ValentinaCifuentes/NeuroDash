@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   adaptTimelineResponse,
   buildDailyRecordWrite,
   buildEventWrite,
+  getActorHeaders,
   toLocalIsoString,
   type BackendTimelineResponse,
 } from './api';
@@ -177,5 +178,78 @@ describe('care write payloads (I2)', () => {
     expect(new Date(body.occurred_at).toISOString()).toBe(event.occurred_at);
     expect(body).not.toHaveProperty('subject_id');
     expect(body).not.toHaveProperty('event_id');
+  });
+});
+
+describe('actor headers (I3, I4)', () => {
+  it('defaults to the fixed demo tutor when nothing is configured', () => {
+    expect(getActorHeaders({})).toEqual({ 'X-Actor-Id': 'tutor-demo', 'X-Actor-Role': 'tutor' });
+  });
+
+  it('uses the configured actor', () => {
+    expect(getActorHeaders({ VITE_ACTOR_ID: 'tutor-7', VITE_ACTOR_ROLE: 'system' }))
+      .toEqual({ 'X-Actor-Id': 'tutor-7', 'X-Actor-Role': 'system' });
+  });
+
+  it('rejects a role the backend would refuse', () => {
+    expect(() => getActorHeaders({ VITE_ACTOR_ROLE: 'professional' })).toThrow('VITE_ACTOR_ROLE');
+  });
+});
+
+describe('requests against the real API carry the tutor actor (I3, I4)', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  async function loadRealApi() {
+    vi.stubEnv('VITE_API_BASE', 'http://api.test');
+    vi.stubEnv('VITE_ACTOR_ID', 'tutor-7');
+    vi.stubEnv('VITE_ACTOR_ROLE', 'tutor');
+    const fetchMock = vi.fn(async () => new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.resetModules();
+    const api = await import('./api');
+    expect(api.USING_MOCK).toBe(false);
+    const call = (i: number) => {
+      const [url, init] = fetchMock.mock.calls[i] as unknown as [string, RequestInit];
+      return { url, headers: init.headers as Record<string, string>, body: JSON.parse(String(init.body)) };
+    };
+    return { api, call };
+  }
+
+  const tutorHeaders = { 'X-Actor-Id': 'tutor-7', 'X-Actor-Role': 'tutor' };
+
+  it('sends the actor when saving a daily record, an event and an outcome', async () => {
+    const { api, call } = await loadRealApi();
+
+    await api.saveDailyRecord({
+      subject_id: 'pac-real', date: '2026-11-02', sleep_quality: 'Reparador', wake_mode: null,
+      start_autonomy: null, medication_adherence: 'Sí', gi_status: 'Normal',
+    });
+    await api.saveEvent({
+      subject_id: 'pac-real', occurred_at: '2026-11-02T18:30:00.000Z', event_type: 'Alimentación',
+      intensity_band: 'Leve (1-3)', intensity_value: 2, trigger: null, strategy_applied: null,
+      strategy_outcome: null, qualitative_outcome: 'Adecuada', sensory_activity: null, notes: null,
+      quick_capture: true,
+    });
+    await api.confirmPredictionOutcome('pred-1', true, 'key-3');
+
+    expect(call(0).url).toBe('http://api.test/api/v1/subjects/pac-real/daily-records');
+    expect(call(1).url).toBe('http://api.test/api/v1/subjects/pac-real/events');
+    expect(call(2).url).toBe('http://api.test/api/v1/predictions/pred-1/outcome');
+    for (const i of [0, 1, 2]) expect(call(i).headers).toMatchObject(tutorHeaders);
+  });
+
+  it('authorizes the creating tutor on a new subject', async () => {
+    const { api, call } = await loadRealApi();
+
+    await api.onboardSubject({
+      display_name: 'Alex', timezone: 'America/Santiago', baseline: {},
+      provenance: { source: 'caregiver_onboarding', synthetic: false },
+    });
+
+    expect(call(0).body.authorized_tutor_ids).toEqual(['tutor-7']);
   });
 });

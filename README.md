@@ -101,14 +101,15 @@ docker compose up --build
 `neuradash-models`, por lo que los cambios sobreviven a los reinicios. Para volver
 a los datos del repositorio, use `docker compose down -v`.
 
-El frontend se compila con `VITE_API_BASE=http://localhost:8080`. Si lo sirve desde
-otra URL, o quiere habilitar las sesiones profesionales, defina las variables antes
-de compilar (por ejemplo en un `.env` en la raíz):
+El frontend se compila con `VITE_API_BASE=http://localhost:8080` y guarda como el
+tutor fijo `tutor-demo` (la autenticación está fuera de alcance). Si lo sirve desde
+otra URL, o quiere otro actor, defina las variables antes de compilar (por ejemplo
+en un `.env` en la raíz). El backend solo acepta los roles `tutor` y `system`:
 
 ```bash
 VITE_API_BASE=http://mi-servidor:8080
-VITE_ACTOR_ID=pro-demo
-VITE_ACTOR_ROLE=professional
+VITE_ACTOR_ID=tutor-demo
+VITE_ACTOR_ROLE=tutor
 ```
 
 Con `VITE_API_BASE=` vacío, la UI usa el mock en memoria.

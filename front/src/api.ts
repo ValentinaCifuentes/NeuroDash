@@ -67,14 +67,26 @@ export function createSessionWrite(
   };
 }
 
-export function getSessionActorHeaders(env: Record<string, string | undefined> = import.meta.env): {
+export type ActorRole = 'tutor' | 'system';
+
+export const DEFAULT_ACTOR_ID = 'tutor-demo';
+
+/**
+ * Identidad con la que el front escribe en el backend (`get_care_actor`).
+ *
+ * La autenticación queda fuera de alcance (D2): el actor es fijo y se define
+ * al compilar con `VITE_ACTOR_ID` / `VITE_ACTOR_ROLE`. Sin configurar, se usa
+ * `tutor-demo` con rol `tutor`. El backend solo acepta `tutor` o `system`.
+ */
+export function getActorHeaders(env: Record<string, string | undefined> = import.meta.env): {
   'X-Actor-Id': string;
-  'X-Actor-Role': 'professional';
+  'X-Actor-Role': ActorRole;
 } {
-  if (!env.VITE_ACTOR_ID || env.VITE_ACTOR_ROLE !== 'professional') {
-    throw new Error('A professional actor must be configured to access sessions.');
+  const role = env.VITE_ACTOR_ROLE || 'tutor';
+  if (role !== 'tutor' && role !== 'system') {
+    throw new Error(`VITE_ACTOR_ROLE debe ser "tutor" o "system" (recibido: "${role}").`);
   }
-  return { 'X-Actor-Id': env.VITE_ACTOR_ID, 'X-Actor-Role': 'professional' };
+  return { 'X-Actor-Id': env.VITE_ACTOR_ID || DEFAULT_ACTOR_ID, 'X-Actor-Role': role };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -115,7 +127,9 @@ export function listSubjects(): Promise<Subject[]> {
 
 export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
   if (USING_MOCK) return mock.onboardSubject(input);
-  return request<Subject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(input) });
+  // Quien crea el perfil queda autorizado para confirmar sus resultados (`require_subject_access`).
+  const body = { ...input, authorized_tutor_ids: [getActorHeaders()['X-Actor-Id']] };
+  return request<Subject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(body) });
 }
 
 export function getTimeline(
@@ -188,6 +202,7 @@ export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
   if (USING_MOCK) return mock.saveDailyRecord(record);
   return request<Record<string, unknown>>(`/api/v1/subjects/${record.subject_id}/daily-records`, {
     method: 'POST',
+    headers: getActorHeaders(),
     body: JSON.stringify(buildDailyRecordWrite(record)),
   }).then(adaptDailyRecordPayload);
 }
@@ -196,6 +211,7 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
   if (USING_MOCK) return mock.saveEvent(event);
   return request<DysregulationEvent>(`/api/v1/subjects/${event.subject_id}/events`, {
     method: 'POST',
+    headers: getActorHeaders(),
     body: JSON.stringify(buildEventWrite(event)),
   });
 }
@@ -203,7 +219,7 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
 export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
   if (USING_MOCK) return mock.getSessions(subjectId);
   return request<ProfessionalSessionDraft[]>(`/api/v1/subjects/${subjectId}/sessions`, {
-    headers: getSessionActorHeaders(),
+    headers: getActorHeaders(),
   }).then((sessions) => sessions.map(mapSessionProjection));
 }
 
@@ -214,7 +230,7 @@ export function saveSession(session: ProfessionalSessionDraft): Promise<Professi
   const idempotencyKey = session.session_id ?? crypto.randomUUID();
   return request<ProfessionalSessionDraft>(base, {
     method: 'POST',
-    headers: getSessionActorHeaders(),
+    headers: getActorHeaders(),
     body: JSON.stringify(createSessionWrite(session, idempotencyKey)),
   }).then(mapSessionProjection);
 }
@@ -500,7 +516,7 @@ export function confirmPredictionOutcome(
   if (USING_MOCK) return mock.confirmPredictionOutcome(predictionId, actualOutcome, idempotencyKey);
   return request<OutcomeConfirmation>(`/api/v1/predictions/${predictionId}/outcome`, {
     method: 'POST',
-    headers: getSessionActorHeaders(),
+    headers: getActorHeaders(),
     body: JSON.stringify({
       actual_outcome: actualOutcome,
       idempotency_key: idempotencyKey,
