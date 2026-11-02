@@ -1,78 +1,64 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-08-26T17:21:51.493659+00:00",
+    "data_generation_timestamp": "2026-11-02T00:44:09.652406+00:00",
     "generator_name": "synthetic_history_generator",
     "seed": 1001
   },
   "occurrences": [
     {
-      "availability_timestamp": "2026-08-09T07:00:00-04:00",
+      "availability_timestamp": "2026-08-08T19:00:00-04:00",
       "id": "occ_PAC-A_7",
       "severity": "moderate",
-      "source_timestamp": "2026-08-09T05:00:00-04:00",
+      "source_timestamp": "2026-08-08T17:00:00-04:00",
       "subject_id": "PAC-A"
     },
     {
-      "availability_timestamp": "2026-08-11T04:00:00-04:00",
+      "availability_timestamp": "2026-08-10T16:00:00-04:00",
       "id": "occ_PAC-A_9",
       "severity": "severe",
-      "source_timestamp": "2026-08-11T02:00:00-04:00",
+      "source_timestamp": "2026-08-10T14:00:00-04:00",
       "subject_id": "PAC-A"
     },
     {
-      "availability_timestamp": "2026-08-16T11:00:00-04:00",
+      "availability_timestamp": "2026-08-15T20:00:00-04:00",
       "id": "occ_PAC-A_14",
-      "severity": "severe",
-      "source_timestamp": "2026-08-16T09:00:00-04:00",
-      "subject_id": "PAC-A"
-    },
-    {
-      "availability_timestamp": "2026-08-18T10:00:00-04:00",
-      "id": "occ_PAC-A_16",
-      "severity": "severe",
-      "source_timestamp": "2026-08-18T08:00:00-04:00",
-      "subject_id": "PAC-A"
-    },
-    {
-      "availability_timestamp": "2026-08-21T08:00:00-04:00",
-      "id": "occ_PAC-A_19",
-      "severity": "severe",
-      "source_timestamp": "2026-08-21T06:00:00-04:00",
-      "subject_id": "PAC-A"
-    },
-    {
-      "availability_timestamp": "2026-08-25T06:00:00-04:00",
-      "id": "occ_PAC-A_23",
       "severity": "moderate",
-      "source_timestamp": "2026-08-25T04:00:00-04:00",
+      "source_timestamp": "2026-08-15T18:00:00-04:00",
       "subject_id": "PAC-A"
     },
     {
-      "availability_timestamp": "2026-08-26T04:00:00-04:00",
+      "availability_timestamp": "2026-08-16T17:00:00-04:00",
+      "id": "occ_PAC-A_15",
+      "severity": "mild",
+      "source_timestamp": "2026-08-16T15:00:00-04:00",
+      "subject_id": "PAC-A"
+    },
+    {
+      "availability_timestamp": "2026-08-25T16:00:00-04:00",
       "id": "occ_PAC-A_24",
       "severity": "mild",
-      "source_timestamp": "2026-08-26T02:00:00-04:00",
+      "source_timestamp": "2026-08-25T14:00:00-04:00",
       "subject_id": "PAC-A"
     },
     {
-      "availability_timestamp": "2026-08-29T08:00:00-04:00",
+      "availability_timestamp": "2026-08-28T20:00:00-04:00",
       "id": "occ_PAC-A_27",
       "severity": "severe",
-      "source_timestamp": "2026-08-29T06:00:00-04:00",
+      "source_timestamp": "2026-08-28T18:00:00-04:00",
       "subject_id": "PAC-A"
     },
     {
-      "availability_timestamp": "2026-08-30T06:00:00-04:00",
+      "availability_timestamp": "2026-08-29T18:00:00-04:00",
       "id": "occ_PAC-A_28",
       "severity": "mild",
-      "source_timestamp": "2026-08-30T04:00:00-04:00",
+      "source_timestamp": "2026-08-29T16:00:00-04:00",
       "subject_id": "PAC-A"
     },
     {
-      "availability_timestamp": "2026-08-31T12:00:00-04:00",
+      "availability_timestamp": "2026-08-30T16:00:00-04:00",
       "id": "occ_PAC-A_29",
-      "severity": "mild",
-      "source_timestamp": "2026-08-31T10:00:00-04:00",
+      "severity": "moderate",
+      "source_timestamp": "2026-08-30T14:00:00-04:00",
       "subject_id": "PAC-A"
     }
   ],
@@ -214,93 +200,93 @@
     },
     {
       "availability_timestamp": "2026-08-16T12:00:00-04:00",
-      "event_count": 5,
+      "event_count": 3,
       "id": "rec_PAC-A_15",
-      "sleep_quality": 6.16,
+      "sleep_quality": 4.13,
       "source_timestamp": "2026-08-16T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 3.13
+      "wake_state": 7.02
     },
     {
       "availability_timestamp": "2026-08-17T12:00:00-04:00",
-      "event_count": 1,
+      "event_count": 5,
       "id": "rec_PAC-A_16",
-      "sleep_quality": 6.71,
+      "sleep_quality": 4.73,
       "source_timestamp": "2026-08-17T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 6.84
+      "wake_state": 5.85
     },
     {
       "availability_timestamp": "2026-08-18T12:00:00-04:00",
       "event_count": 0,
       "id": "rec_PAC-A_17",
-      "sleep_quality": 8.93,
+      "sleep_quality": 5.55,
       "source_timestamp": "2026-08-18T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 4.55
+      "wake_state": 8.97
     },
     {
       "availability_timestamp": "2026-08-19T12:00:00-04:00",
-      "event_count": 3,
+      "event_count": 4,
       "id": "rec_PAC-A_18",
-      "sleep_quality": 4.18,
+      "sleep_quality": 4.7,
       "source_timestamp": "2026-08-19T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 7.68
+      "wake_state": 4.21
     },
     {
       "availability_timestamp": "2026-08-20T12:00:00-04:00",
-      "event_count": 0,
+      "event_count": 2,
       "id": "rec_PAC-A_19",
-      "sleep_quality": 7.34,
+      "sleep_quality": 6.23,
       "source_timestamp": "2026-08-20T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 8.37
+      "wake_state": 3.41
     },
     {
       "availability_timestamp": "2026-08-21T12:00:00-04:00",
-      "event_count": 3,
+      "event_count": 2,
       "id": "rec_PAC-A_20",
-      "sleep_quality": 5.88,
+      "sleep_quality": 6.85,
       "source_timestamp": "2026-08-21T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 3.17
+      "wake_state": 7.71
     },
     {
       "availability_timestamp": "2026-08-22T12:00:00-04:00",
-      "event_count": 3,
+      "event_count": 2,
       "id": "rec_PAC-A_21",
-      "sleep_quality": 9.41,
+      "sleep_quality": 8.83,
       "source_timestamp": "2026-08-22T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 4.98
+      "wake_state": 5.94
     },
     {
       "availability_timestamp": "2026-08-23T12:00:00-04:00",
-      "event_count": 1,
+      "event_count": 0,
       "id": "rec_PAC-A_22",
-      "sleep_quality": 9.2,
+      "sleep_quality": 7.25,
       "source_timestamp": "2026-08-23T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 5.0
+      "wake_state": 7.24
     },
     {
       "availability_timestamp": "2026-08-24T12:00:00-04:00",
       "event_count": 1,
       "id": "rec_PAC-A_23",
-      "sleep_quality": 9.45,
+      "sleep_quality": 4.76,
       "source_timestamp": "2026-08-24T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 3.76
+      "wake_state": 4.1
     },
     {
       "availability_timestamp": "2026-08-25T12:00:00-04:00",
       "event_count": 2,
       "id": "rec_PAC-A_24",
-      "sleep_quality": 7.34,
+      "sleep_quality": 5.52,
       "source_timestamp": "2026-08-25T12:00:00-04:00",
       "subject_id": "PAC-A",
-      "wake_state": 8.92
+      "wake_state": 8.3
     },
     {
       "availability_timestamp": "2026-08-26T12:00:00-04:00",

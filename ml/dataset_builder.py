@@ -8,6 +8,7 @@ from typing import Any
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import build_baseline, BaselineSnapshot
 from engine.features import build_features
+from engine.schemas import HORIZON_HOURS
 
 
 def build_training_example(
@@ -16,12 +17,13 @@ def build_training_example(
     baseline: BaselineSnapshot,
     cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
-    timezone: str = "UTC"
+    timezone: str = "UTC",
+    horizon_hours: int = HORIZON_HOURS
 ) -> tuple[dict[str, float | None], bool]:
     """
     Builds a training example (X, y) for a given timezone-aware cutoff T.
     X represents the rolling features as of cutoff T.
-    y is True if there is a moderate or severe occurrence in the horizon (T, T + 24h].
+    y is True if there is a moderate or severe occurrence in the horizon (T, T + horizon_hours].
     """
     # 1. Build features as of cutoff T
     feat_set = build_features(
@@ -33,9 +35,9 @@ def build_training_example(
     )
     
     # 2. Determine label y
-    # Horizon is (cutoff, cutoff + 24h]
+    # Horizon is (cutoff, cutoff + horizon_hours]
     horizon_start = cutoff
-    horizon_end = cutoff + timedelta(hours=24)
+    horizon_end = cutoff + timedelta(hours=horizon_hours)
     
     label = False
     if occurrences:
@@ -44,7 +46,7 @@ def build_training_example(
             if not isinstance(src_ts, datetime):
                 continue
             
-            # Occurrence must be strictly after cutoff and <= cutoff + 24h
+            # Occurrence must be strictly after cutoff and within the horizon
             if horizon_start < src_ts <= horizon_end:
                 severity = str(occ.get("severity", "")).lower()
                 if severity in ("moderate", "severe"):
@@ -61,7 +63,8 @@ def build_dataset(
     split_cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
     timezone: str = "UTC",
-    subject_id: str = "unknown"
+    subject_id: str = "unknown",
+    horizon_hours: int = HORIZON_HOURS
 ) -> tuple[
     list[dict[str, float | None]],
     list[bool],
@@ -91,7 +94,8 @@ def build_dataset(
             baseline=baseline,
             cutoff=cutoff,
             policy=pol,
-            timezone=timezone
+            timezone=timezone,
+            horizon_hours=horizon_hours
         )
         
         if cutoff < split_cutoff:
@@ -105,6 +109,7 @@ def build_dataset(
         "split_cutoff": split_cutoff.isoformat(),
         "subject_id": subject_id,
         "data_generation_timestamp": datetime.now(dt_timezone.utc).isoformat(),
+        "horizon_hours": horizon_hours,
         "policy": {
             "daily_regulation": pol.daily_regulation,
             "exclusion_policy": pol.exclusion_policy
@@ -158,7 +163,9 @@ def generate_synthetic_history(
         
         # Generate occurrences with a low probability (e.g. 15%)
         if rng.random() < 0.15:
-            occ_hour = rng.randint(13, 23)
+            # Events happen within the 8h prediction horizon after the noon cutoff
+            # (13:00–20:00 local), so a daily record at noon can anticipate them.
+            occ_hour = rng.randint(1, 8)
             occ_time = current_time + timedelta(hours=occ_hour)
             avail_time = occ_time + timedelta(hours=2) # 2 hours notification delay
             severity = rng.choice(["mild", "moderate", "severe"])
