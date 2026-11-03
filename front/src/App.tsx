@@ -126,7 +126,11 @@ export default function App() {
   }
 
   if (!subject) {
-    return <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />;
+    return (
+      <div className="app-shell">
+        <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />
+      </div>
+    );
   }
 
   return (

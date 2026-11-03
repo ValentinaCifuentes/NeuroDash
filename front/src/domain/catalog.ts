@@ -549,3 +549,100 @@ export const NO_DISCOMFORT = 'No';
 export const ROUTINE_CHANGE_OPTIONS = ['No', 'Visita', 'Salida', 'Cambio de horario', 'Feriado'];
 
 export const SCHOOL_ATTENDANCE_OPTIONS = ['Sí', 'Medio día', 'No'];
+
+/* ============================================================
+   Perfil inicial en 3 pasos (screens/Final-Perfil-1..3.html)
+   ============================================================
+   Destinos según el plan de datos §6.1: todo va a `habitual_context`,
+   salvo el perfil sensorial (`sensory_context`) y las estrategias que
+   funcionan (`historical_supports`). */
+
+export interface ProfileQuestion {
+  key: string;
+  title: string;
+  hint: string;
+  mode: 'single' | 'multiple';
+  options: string[];
+}
+
+export const PROFILE_STEP_1: ProfileQuestion[] = [
+  {
+    key: 'age_range',
+    title: 'Edad',
+    hint: 'En rangos, para proteger su identidad.',
+    mode: 'single',
+    options: ['2 a 5 años', '6 a 8 años', '9 a 12 años', '13 a 17 años', 'Prefiero no decir'],
+  },
+  {
+    key: 'neurodivergence',
+    title: 'Tipo de neurodivergencia',
+    hint: 'Ayuda a mostrar apoyos pensados para su perfil.',
+    mode: 'single',
+    options: ['TEA', 'TDAH', 'TEA y TDAH', 'Otra', 'Prefiero no decir'],
+  },
+  {
+    key: 'support_level',
+    title: 'Nivel de apoyo',
+    hint: 'Según el diagnóstico, si lo conoces.',
+    mode: 'single',
+    options: ['Nivel 1', 'Nivel 2', 'Nivel 3', 'No lo sé'],
+  },
+  {
+    key: 'communication',
+    title: '¿Cómo se comunica?',
+    hint: 'Puedes marcar varias.',
+    mode: 'multiple',
+    options: ['Habla con frases', 'Frases cortas', 'Pocas palabras', 'No verbal', 'Usa pictogramas o tablet'],
+  },
+];
+
+export const PROFILE_STEP_2: ProfileQuestion[] = [
+  {
+    key: 'dysregulation_frequency',
+    title: '¿Con qué frecuencia se desregula?',
+    hint: 'Sirve como punto de partida mientras se acumula historial.',
+    mode: 'single',
+    options: ['Casi a diario', 'Varias veces por semana', 'Una vez por semana', 'Menos seguido'],
+  },
+  {
+    key: 'early_signs',
+    title: 'Señales tempranas',
+    hint: 'Lo que notas antes de una crisis. Las verás cada día en la Bitácora.',
+    mode: 'multiple',
+    options: [...DEFAULT_EARLY_SIGNS, 'Otra'],
+  },
+  {
+    key: 'triggers',
+    title: 'Gatillantes frecuentes',
+    hint: 'Puedes marcar varios.',
+    mode: 'multiple',
+    options: [
+      'Ruido',
+      'Cambios de rutina',
+      'Transiciones',
+      'Hambre o sueño',
+      'Esperas',
+      'Lugares con mucha gente',
+      'Tareas o exigencias',
+      'Texturas o comidas',
+    ],
+  },
+  {
+    key: 'risk_times',
+    title: 'Momentos del día con más riesgo',
+    hint: 'Ayuda a ubicar la alerta en las horas correctas.',
+    mode: 'multiple',
+    options: ['Mañana', 'Salida del colegio', 'Tarde', 'Noche', 'Al cambiar de actividad'],
+  },
+];
+
+export const PROFILE_SUPPORT_OPTIONS = [
+  'Espacio seguro',
+  'Presión profunda',
+  'Música o audífonos',
+  'Anticipación visual',
+  'Objeto de apego',
+  'Movimiento o columpio',
+  'Masticables',
+  'Tiempo a solas',
+];

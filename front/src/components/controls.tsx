@@ -85,7 +85,7 @@ interface ChoiceTilesProps<T extends string> {
   /** La pregunta; nombra el grupo para el lector de pantalla. */
   legend: string;
   /** `section`: 16 px (Bitácora, escalas); `field`: 13 px gris (detalle de una hoja). */
-  legendStyle?: 'section' | 'field';
+  legendStyle?: 'section' | 'field' | 'card';
   choices: Choice<T>[];
   value: T | null;
   onChange: (value: T) => void;
@@ -202,7 +202,7 @@ export function ShapeList<T extends string>({ label, choices, value, onChange }:
 
 type ChipGroupProps = {
   legend: string;
-  legendStyle?: 'section' | 'field';
+  legendStyle?: 'section' | 'field' | 'card';
   hint?: string;
   options: string[];
 } & (

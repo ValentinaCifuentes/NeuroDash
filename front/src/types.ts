@@ -31,6 +31,13 @@ export interface SubjectOnboardingInput {
   timezone: string;
   baseline: Record<string, string>;
   provenance: { source: string; synthetic: boolean };
+  /* Perfil inicial en 3 pasos (plan de datos §6.1). Solo viaja lo respondido. */
+  /** Edad, neurodivergencia, apoyo, comunicación, frecuencia, señales, gatillantes, momentos. */
+  habitual_context?: Record<string, string | string[]>;
+  /** Canal sensorial → −1 (busca menos) · 0 (típico) · 1 (le molesta). */
+  sensory_context?: Record<string, number>;
+  /** Estrategias que funcionan; alimentan «Qué puedo hacer ahora». */
+  historical_supports?: { id: string; description: string; type: 'historical'; effective: true }[];
 }
 
 export interface SubjectListResponse {
