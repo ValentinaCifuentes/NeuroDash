@@ -150,18 +150,27 @@ la versión 1. Después reconstruya con datos limpios: `docker compose down -v` 
 
 ## Pruebas y validación
 
-Ejecute la suite de pruebas unitarias y de integración del backend desde la raíz:
+Un solo comando corre todo: pruebas del backend y, en el front, tipos, pruebas y
+build. Desde la raíz:
 
-```powershell
-py -m pytest
+```bash
+bash scripts/check.sh            # todo
+bash scripts/check.sh backend    # solo el backend
+bash scripts/check.sh front      # solo el front
 ```
 
-Ejecute las comprobaciones del frontend desde `front/`:
+Si en su Python no están las dependencias de desarrollo, el backend se prueba dentro
+de la imagen de Docker (`neuradash-backend`) con el repo en solo lectura: no hay que
+instalar nada. El front necesita Node 20.
 
-```powershell
-npm test -- --run
-npm run typecheck
-npm run build
+GitHub corre lo mismo en cada push y pull request (`.github/workflows/tests.yml`) y
+marca el commit con ✓ o ✗.
+
+Por separado, sin el script:
+
+```bash
+uv sync --extra dev && uv run pytest          # backend (o: py -m pytest)
+cd front && npm run typecheck && npx vitest run && npm run build
 ```
 
 ## Flujo de reproducibilidad

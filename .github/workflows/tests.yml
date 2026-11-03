@@ -1,0 +1,43 @@
+# Pruebas de NeuroDash en cada push y pull request.
+# Lo mismo que `bash scripts/check.sh` en local: backend (pytest) y front
+# (tipos, pruebas y build). Si algo falla, GitHub marca el commit con ✗.
+name: Pruebas
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12" # la misma del Dockerfile
+      # Versiones exactas de uv.lock, con el extra «dev» (pytest, httpx).
+      - run: uv sync --frozen --extra dev --no-install-project
+      - run: uv run --no-sync python -m pytest -q -p no:cacheprovider
+
+  front:
+    name: Front (tipos, pruebas y build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20 # la misma del Dockerfile del front
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx vitest run
+      - run: npm run build
