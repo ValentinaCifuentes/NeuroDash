@@ -58,6 +58,15 @@ describe('Evolucion', () => {
     expect(await screen.findByText('Usa los datos registrados para este infante.')).toBeInTheDocument();
   });
 
+  it('takes the horizon from the contract, not from a hardcoded 24 h', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, horizon_hours: 8 });
+
+    render(<Evolucion subject={subject} revision={0} />);
+
+    expect(await screen.findByText('Próximas 8 horas')).toBeInTheDocument();
+    expect(screen.queryByText('Próximas 24 horas')).not.toBeInTheDocument();
+  });
+
   it('shows an explicit abstention without an invented risk or outcome action', async () => {
     vi.mocked(getPrediction).mockResolvedValue({ ...prediction, risk: null, confidence: 'INSUFFICIENT', abstained: true });
 

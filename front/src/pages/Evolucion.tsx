@@ -20,15 +20,10 @@ import { confirmPredictionOutcome, getPrediction } from "../api";
 import { SegmentedTabs } from "../components/controls";
 import {
     CONFIDENCE_LABEL,
-    RISK_LABEL,
-    RISK_SEMANTIC,
-    SEMANTIC_BG,
-    SEMANTIC_COLOR,
-    RISK_SHAPE,
-    SEMANTIC_FG,
     formatDate,
 } from "../domain/catalog";
-import { ShapeMark } from "../components/marks";
+import { ConfidenceChip, RiskBadge } from "../components/badges";
+import { RiskGauge, type RiskLevel } from "../components/RiskGauge";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
 import { Icon } from "../components/icons";
@@ -120,43 +115,23 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
 
 function RiskCard({ prediction }: { prediction: Prediction }) {
     const [confirmed, setConfirmed] = useState(false);
-    const level = prediction.risk ?? "LOW";
-    const semantic = RISK_SEMANTIC[level as Prediction["risk"] & keyof typeof RISK_SEMANTIC];
-    const score = scoreOutOf100(level);
+    const level = (prediction.risk ?? "LOW") as RiskLevel;
     const primary = riskPrimaryText(level);
     const next = riskNextStepText(level, prediction.supports.length > 0);
-    const confidenceHelp = confidenceText(prediction.confidence);
 
     return (
-        <section className="bl-card app-risk-card">
+        <section className="bl-card app-risk-card" aria-labelledby="estimacion-titulo">
             <div className="app-card-heading">
-                <p className="bl-eyebrow" style={{ margin: 0 }}>Próximas 24 horas</p>
-                <span className="bl-badge" style={{ background: SEMANTIC_BG[semantic], color: SEMANTIC_FG[semantic] }}>
-                    <ShapeMark shape={RISK_SHAPE[level] ?? "circle"} color={SEMANTIC_COLOR[semantic]} size={11} />
-                    {RISK_LABEL[level]}
-                </span>
+                <p className="bl-eyebrow" style={{ margin: 0 }}>{horizonEyebrow(prediction)}</p>
+                <RiskBadge risk={level} />
             </div>
 
-            <h2 className="app-answer-title">{primary}</h2>
-            <p className="app-answer-copy">{next}</p>
+            <RiskGauge risk={level} confidenceLabel={CONFIDENCE_LABEL[prediction.confidence]} />
 
-            <div className="app-risk-meter" role="img" aria-label={`Índice demostrativo ${score} de 100`}>
-                <div className="app-risk-meter__labels" aria-hidden="true">
-                    <span>Bajo</span>
-                    <span>Medio</span>
-                    <span>Elevado</span>
-                </div>
-                <div className="app-risk-meter__track">
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--low${level === "LOW" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--mid${level === "MODERATE" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--high${level === "ELEVATED" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className="app-risk-meter__marker" style={{ left: `${score}%`, background: SEMANTIC_COLOR[semantic] }} />
-                </div>
-                <div className="app-risk-meter__foot">
-                    <strong>Índice demostrativo {score} / 100</strong>
-                    <span><strong>{CONFIDENCE_LABEL[prediction.confidence]}</strong> - {confidenceHelp}.</span>
-                </div>
-            </div>
+            <h2 id="estimacion-titulo" className="app-answer-title" style={{ textAlign: "center" }}>{primary}</h2>
+            <p className="app-answer-copy" style={{ textAlign: "center" }}>{next}</p>
+            <ConfidenceChip level={prediction.confidence} />
+
             {!confirmed && <button type="button" className="bl-btn bl-btn--primary" onClick={async () => {
                 await confirmPredictionOutcome(prediction.prediction_id, true, crypto.randomUUID());
                 setConfirmed(true);
@@ -166,23 +141,23 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
     );
 }
 
+/** «Próximas 8 horas»: el horizonte sale del contrato, nunca se escribe a mano. */
+function horizonEyebrow(prediction: Prediction): string {
+    return `Próximas ${prediction.horizon_hours} horas`;
+}
+
 function AbstentionCard({ prediction }: { prediction: Prediction }) {
     return (
         <section className="bl-card">
-            <p className="bl-eyebrow" style={{ margin: 0 }}>
-                Próximas 24 horas
-            </p>
-            <h2
-                style={{
-                    margin: "var(--bl-sp-3) 0 var(--bl-sp-2)",
-                    fontSize: "var(--bl-fs-h1)",
-                    fontWeight: 800,
-                    color: "var(--bl-text)",
-                }}
-            >
+            <div className="app-card-heading">
+                <p className="bl-eyebrow" style={{ margin: 0 }}>{horizonEyebrow(prediction)}</p>
+                <ConfidenceChip level="INSUFFICIENT" />
+            </div>
+            <RiskGauge risk={null} abstained />
+            <h2 className="app-answer-title" style={{ textAlign: "center" }}>
                 Todavía no hay estimación
             </h2>
-            <p style={{ margin: "0 0 var(--bl-sp-4)", color: "var(--bl-text-body)" }}>
+            <p className="app-answer-copy" style={{ textAlign: "center" }}>
                 La información de hoy no alcanza para sostener una estimación. Preferimos decirlo antes que mostrar un
                 número sin respaldo.
             </p>
@@ -296,10 +271,6 @@ function SupportCard({ prediction }: { prediction: Prediction }) {
     );
 }
 
-function scoreOutOf100(level: string): number {
-    return level === "ELEVATED" ? 80 : level === "MODERATE" ? 50 : 20;
-}
-
 function riskPrimaryText(level: string): string {
     if (level === "ELEVATED") return "Conviene prestar atención hoy";
     if (level === "MODERATE") return "Hay algunas señales para observar";
@@ -316,13 +287,6 @@ function riskNextStepText(level: string, hasSupport: boolean): string {
         return "Mantén las rutinas de apoyo y completa el registro si aparece algún cambio durante el día.";
     }
     return "Por ahora no aparecen señales fuertes. Mantén el registro habitual.";
-}
-
-function confidenceText(level: Prediction["confidence"]): string {
-    if (level === "HIGH") return "datos suficientes para estimar";
-    if (level === "MEDIUM") return "hay datos parciales; la lectura puede mejorar con más registros";
-    if (level === "LOW") return "faltan algunos datos recientes";
-    return "información insuficiente para estimar";
 }
 
 function displayWindow(window: string): string {

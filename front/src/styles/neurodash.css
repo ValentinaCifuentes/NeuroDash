@@ -660,3 +660,44 @@ body {
 .nd-chip[aria-checked='true'] .nd-icon {
   color: var(--nd-accent);
 }
+
+/* ==========================================================================
+   Estimación (Fase 4 · paso 3): RiskGauge, RiskBadge, ConfidenceChip
+   ========================================================================== */
+.nd-gauge {
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+.nd-gauge svg {
+  max-width: 100%;
+  height: auto;
+}
+.nd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px 5px 9px;
+  border-radius: var(--nd-r-full);
+  font-size: var(--nd-fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.nd-confidence {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-bg);
+  font-size: var(--nd-fs-xs);
+  font-weight: 600;
+  color: var(--nd-ink);
+}
+.nd-confidence--insufficient {
+  align-self: auto;
+  padding: 5px 11px 5px 9px;
+  background: var(--nd-neutral-2);
+  color: var(--nd-ink-2);
+}
