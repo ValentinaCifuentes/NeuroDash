@@ -37,7 +37,7 @@ interface CategorySheetProps {
 export function CategorySheet({ onPick, onClose, returnFocusTo }: CategorySheetProps) {
   return (
     <BottomSheet
-      title={<h2 className="bl-sheet__title">¿Qué deseas registrar?</h2>}
+      title="¿Qué deseas registrar?"
       onClose={onClose}
       returnFocusTo={returnFocusTo}
     >
@@ -158,11 +158,8 @@ export function EventSheet({
 
   return (
     <BottomSheet
-      title={
-        <h2 className="bl-sheet__title bl-sheet__title--lead">
-          <Icon name={cat.icon} size={20} /> Registrar {cat.name}
-        </h2>
-      }
+      title={`Registrar ${cat.name}`}
+      titleIcon={{ name: cat.icon, color: cat.color }}
       onBack={onBack}
       onClose={onClose}
       returnFocusTo={returnFocusTo}

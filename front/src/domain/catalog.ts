@@ -137,6 +137,9 @@ export interface CategoryDef {
   name: string;
   desc: string;
   icon: IconName;
+  /** Cuadro del ícono y fondo de la tarjeta (screens/Final-Registro-Categorias.html). */
+  color: string;
+  tint: string;
   /** Clase modificadora del design system: bl-cat--food | crisis | trans | sens */
   modifier: 'food' | 'crisis' | 'trans' | 'sens';
   semantic: Semantic;
@@ -150,6 +153,8 @@ export const CATEGORIES: CategoryDef[] = [
     name: 'Alimentación',
     desc: 'Comidas, hidratación y colaciones',
     icon: 'food',
+    color: 'var(--nd-risk-low)',
+    tint: 'var(--nd-risk-low-bg)',
     modifier: 'food',
     semantic: 'success',
     eventType: 'Alimentación',
@@ -159,6 +164,8 @@ export const CATEGORIES: CategoryDef[] = [
     name: 'Desregulación',
     desc: 'Crisis, conductas y desbordes',
     icon: 'bolt',
+    color: 'var(--nd-risk-high)',
+    tint: 'var(--nd-risk-high-bg)',
     modifier: 'crisis',
     semantic: 'danger',
     eventType: 'Desregulación Emocional',
@@ -168,6 +175,8 @@ export const CATEGORIES: CategoryDef[] = [
     name: 'Transición',
     desc: 'Cambios de actividad o entorno',
     icon: 'transition',
+    color: 'var(--nd-missing)',
+    tint: 'var(--nd-risk-mid-bg)',
     modifier: 'trans',
     semantic: 'warning',
     eventType: 'Transición de Actividad',
@@ -177,6 +186,8 @@ export const CATEGORIES: CategoryDef[] = [
     name: 'Dieta Sensorial',
     desc: 'Apoyos, estímulos y descompresión',
     icon: 'sensory',
+    color: '#5B6478',  /* pizarra */
+    tint: '#ECEEF3',
     modifier: 'sens',
     semantic: 'info',
     eventType: 'Dieta Sensorial',

@@ -444,9 +444,6 @@ body {
 .app-shell--nav .app-fab--above-cta {
   bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-3) + var(--nd-nav-h));
 }
-.app-shell--nav .app-toast {
-  bottom: calc(var(--bl-sp-4) + var(--nd-nav-h));
-}
 
 /* ==========================================================================
    Controles de selección (Fase 4 · paso 2) — medidas de screens/Final-Bitacora
@@ -892,4 +889,127 @@ body {
   width: 12px;
   height: 12px;
   border-radius: var(--nd-r-full);
+}
+
+/* ==========================================================================
+   Hojas, aviso y botón + (Fase 4 · paso 5) — screens/Final-Registro-*.html,
+   Final-Bitacora-Historial.html
+   ========================================================================== */
+.nd-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  max-height: calc(100% - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 10px var(--nd-screen-pad-x) calc(40px + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--nd-r-3xl) var(--nd-r-3xl) 0 0;
+  background: var(--nd-surface);
+  box-shadow: 0 -12px 40px rgba(31, 36, 48, 0.18);
+}
+.nd-sheet__grabber {
+  align-self: center;
+  width: 36px;
+  height: 5px;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-switch-off);
+}
+.nd-sheet__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nd-sheet__title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--nd-fs-h2);
+  font-weight: 700;
+  letter-spacing: var(--nd-ls-h2);
+  color: var(--nd-ink);
+}
+.nd-sheet__title--icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--nd-fs-h3);
+  letter-spacing: var(--nd-ls-h3);
+}
+.nd-sheet__titleicon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--nd-r-segment);
+  color: var(--nd-on-accent);
+}
+.nd-sheet__round {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--nd-tap);
+  width: var(--nd-tap);
+  height: var(--nd-tap);
+  border: 0;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-bg);
+  color: var(--nd-ink-2);
+  cursor: pointer;
+}
+.nd-sheet__round:focus-visible,
+.nd-fab:focus-visible {
+  outline: none;
+  box-shadow: var(--nd-ring);
+}
+
+/* Botón + : círculo de tinta oscura, no de acento (la acción principal es el CTA). */
+.nd-fab {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-ink);
+  color: var(--nd-on-accent);
+  box-shadow: var(--nd-sh-fab);
+  cursor: pointer;
+}
+.app-shell--nav .app-fab {
+  right: var(--nd-screen-pad-x);
+  bottom: calc(20px + var(--nd-nav-h));
+}
+/* Con CTA anclado (Bitácora · Mi Día), por encima del CTA. En la Fase 5 el + pasa
+   al lado del CTA, como en screens/Final-Bitacora.html. */
+.app-shell--nav .app-fab--above-cta {
+  bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-3) + var(--nd-nav-h));
+}
+
+/* Aviso: píldora oscura arriba, lejos de los pulgares y del CTA. */
+.nd-toast-wrap {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 60;
+  transform: translateX(-50%);
+  max-width: calc(100% - 2 * var(--nd-screen-pad-x));
+  animation: nd-fade-in var(--nd-dur-sheet) var(--nd-ease-out);
+}
+.nd-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 11px 18px 11px 14px;
+  border-radius: var(--nd-r-full);
+  background: rgba(31, 36, 48, 0.92);
+  box-shadow: 0 10px 30px rgba(31, 36, 48, 0.25);
+  font-size: var(--nd-fs-sm);
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
 }

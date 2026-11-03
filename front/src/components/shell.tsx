@@ -4,28 +4,32 @@
  * El sheet atrapa el foco, cierra con Esc y devuelve el foco al FAB (§3.4).
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { Icon } from './icons';
+import { Icon, type IconName } from './icons';
 
 /* ============================================================
    Bottom sheet
    ============================================================ */
 
 interface SheetProps {
-  title: ReactNode;
-  /** Icono a la izquierda del título; el sheet de detalle lo usa. */
+  /** Título de la hoja; también la nombra para el lector de pantalla. */
+  title: string;
+  /** Ícono de la categoría en un cuadro de su color (hojas de registro). */
+  titleIcon?: { name: IconName; color: string };
   onClose: () => void;
-  /** Si se entrega, aparece la flecha de volver. */
+  /** Si se entrega, aparece el botón de volver. */
   onBack?: () => void;
+  backLabel?: string;
   children: ReactNode;
   /** Elemento que recupera el foco al cerrar. */
   returnFocusTo?: React.RefObject<HTMLElement>;
 }
 
-export function BottomSheet({ title, onClose, onBack, children, returnFocusTo }: SheetProps) {
+export function BottomSheet({ title, titleIcon, onClose, onBack, backLabel = 'Volver a categorías', children, returnFocusTo }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -58,21 +62,28 @@ export function BottomSheet({ title, onClose, onBack, children, returnFocusTo }:
 
   return (
     <>
-      <button className="app-overlay" aria-label="Cerrar" onClick={onClose} />
-      <div className="app-sheet-wrap" ref={panelRef}>
-        <div className="bl-sheet" role="dialog" aria-modal="true" aria-label={typeof title === 'string' ? title : 'Registro'}>
-          <div className="bl-sheet__grabber" aria-hidden="true" />
+      <button className="nd-overlay app-overlay" aria-label="Cerrar" onClick={onClose} />
+      <div className="nd-sheet" ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+        <span className="nd-sheet__grabber" aria-hidden="true" />
+        <div className="nd-sheet__header">
           {onBack && (
-            <button className="bl-sheet__back" onClick={onBack} aria-label="Volver a categorías">
-              <Icon name="back" size={18} />
+            <button type="button" className="nd-sheet__round nd-press" onClick={onBack} aria-label={backLabel}>
+              <Icon name="back" size={16} strokeWidth={2.4} />
             </button>
           )}
-          <button ref={closeRef} className="bl-sheet__close" onClick={onClose} aria-label="Cerrar">
-            <Icon name="close" size={18} />
+          <h2 id={titleId} className={`nd-sheet__title${titleIcon ? ' nd-sheet__title--icon' : ''}`}>
+            {titleIcon && (
+              <span className="nd-sheet__titleicon" style={{ background: titleIcon.color }} aria-hidden="true">
+                <Icon name={titleIcon.name} size={16} />
+              </span>
+            )}
+            {title}
+          </h2>
+          <button ref={closeRef} type="button" className="nd-sheet__round nd-press" onClick={onClose} aria-label="Cerrar">
+            <Icon name="close" size={16} strokeWidth={2.4} />
           </button>
-          {title}
-          {children}
         </div>
+        {children}
       </div>
     </>
   );
@@ -93,7 +104,7 @@ export function Fab({ onClick, aboveCta, innerRef }: FabProps) {
     <div className={`app-fab${aboveCta ? ' app-fab--above-cta' : ''}`}>
       <button
         ref={innerRef}
-        className="bl-fab"
+        className="nd-fab nd-press"
         onClick={onClick}
         aria-label="Registrar un evento"
       >
@@ -109,9 +120,13 @@ export function Fab({ onClick, aboveCta, innerRef }: FabProps) {
 
 export function Toast({ message }: { message: string }) {
   return (
-    <div className="app-toast">
-      <p className="bl-toast" role="status" aria-live="polite" style={{ margin: 0 }}>
-        <Icon name="check" size={16} strokeWidth={2.6} /> {message}
+    <div className="nd-toast-wrap">
+      <p className="nd-toast" role="status" aria-live="polite">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="11" fill="var(--nd-accent-soft)" />
+          <path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="var(--nd-heat-ink-2)" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        {message}
       </p>
     </div>
   );
