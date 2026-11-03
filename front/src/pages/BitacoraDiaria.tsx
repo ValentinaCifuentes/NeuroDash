@@ -22,8 +22,6 @@ import {
   PHYSICAL_DISCOMFORT_OPTIONS,
   ROUTINE_CHANGE_OPTIONS,
   SCHOOL_ATTENDANCE_OPTIONS,
-  SEMANTIC_BG,
-  SEMANTIC_COLOR,
   SLEEP_CHOICES,
   SLEEP_HOURS_OPTIONS,
   START_AUTONOMY_CHOICES,
@@ -32,6 +30,7 @@ import {
   todayIso,
 } from '../domain/catalog';
 import { getTimeline } from '../api';
+import { todayRows } from '../domain/history';
 import type {
   ApiError,
   DailyRecord,
@@ -259,60 +258,54 @@ function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: nu
   if (entries === null) {
     if (error) {
       return (
-        <section className="bl-card" role="alert">
-          <p>{error.message}</p>
-          <button type="button" className="bl-btn bl-btn--secondary" onClick={() => setAttempt((value) => value + 1)}>
+        <section className="nd-card nd-history" role="alert">
+          <p className="nd-history__message">{error.message}</p>
+          <button type="button" className="nd-button-outline nd-press" onClick={() => setAttempt((value) => value + 1)}>
             Reintentar historial
           </button>
         </section>
       );
     }
     return (
-      <section className="bl-card app-stack--tight" aria-busy="true">
-        <span className="bl-sr-only" role="status">Cargando el historial de hoy</span>
-        <div className="bl-skeleton" style={{ width: '55%' }} />
-        <div className="bl-skeleton" />
-        <div className="bl-skeleton" style={{ width: '75%' }} />
+      <section className="nd-card nd-history" aria-busy="true">
+        <span className="nd-sr-only" role="status">Cargando el historial de hoy</span>
+        <div className="nd-skeleton" style={{ width: '40%' }} />
+        <div className="nd-skeleton nd-skeleton--row" />
+        <div className="nd-skeleton nd-skeleton--row" />
       </section>
     );
   }
 
-  if (entries.length === 0) {
+  const rows = todayRows(entries, todayIso());
+
+  if (rows.length === 0) {
     return (
-      <section className="bl-card">
-        <div className="bl-empty">
-          <b>Aún no hay registros de hoy</b>
-          Guarda el estado basal o toca <span aria-hidden="true">+</span> para anotar un evento.
-        </div>
+      <section className="nd-card nd-history nd-history--empty">
+        <p className="nd-history__title">Aún no hay registros de hoy</p>
+        <p className="nd-history__message">Guarda el estado basal o toca + para anotar un evento.</p>
       </section>
     );
   }
 
   return (
-    <section className="bl-card">
-      <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-4)' }}>
-        <Icon name="history" size={14} /> {entries.length} registro
-        {entries.length === 1 ? '' : 's'} hoy
-      </p>
-      <ul className="app-log__list" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-        {entries.map((entry) => (
-          <li key={entry.entry_id} className="app-log">
-            <span
-              className="app-log__icon"
-              style={{
-                background: SEMANTIC_BG[entry.semantic],
-                color: SEMANTIC_COLOR[entry.semantic],
-              }}
-              aria-hidden="true"
-            >
-              <Icon name={entry.kind === 'daily_record' ? 'journal' : 'bolt'} size={18} />
+    <section className="nd-card nd-history" aria-labelledby="hist-titulo">
+      <h2 id="hist-titulo" className="nd-eyebrow nd-eyebrow--flat">
+        {rows.length} {rows.length === 1 ? 'registro' : 'registros'} hoy
+      </h2>
+      <ul className="nd-history__list">
+        {rows.map((row) => (
+          <li key={row.id} className="nd-history__row">
+            <span className="nd-history__icon" style={{ background: row.tint, color: row.color }} aria-hidden="true">
+              <Icon name={row.icon} size={18} />
             </span>
-            <div className="app-log__body">
-              <div className="app-log__head">
-                <span className="app-log__title">{entry.title}</span>
-                <span className="app-log__time">{formatTime(entry.timestamp)}</span>
+            <div className="nd-history__body">
+              <div className="nd-history__head">
+                <span className="nd-history__name">{row.title}</span>
+                <time className="nd-history__time" dateTime={row.timestamp}>
+                  {formatTime(row.timestamp)}
+                </time>
               </div>
-              {entry.detail && <p className="app-log__meta">{entry.detail}</p>}
+              {row.summary && <p className="nd-history__summary">{row.summary}</p>}
             </div>
           </li>
         ))}

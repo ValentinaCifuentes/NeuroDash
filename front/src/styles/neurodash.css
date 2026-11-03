@@ -1668,3 +1668,115 @@ body {
   font-weight: 600;
   color: var(--nd-ink-2);
 }
+
+/* ============================================================
+   Bitácora · Historial de Hoy (screens/Final-Bitacora-Historial.html)
+   ============================================================ */
+.nd-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.nd-history {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nd-history--empty {
+  gap: 4px;
+}
+.nd-history__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--nd-ink);
+}
+.nd-history__message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--nd-ink-2);
+}
+.nd-history .nd-button-outline {
+  margin-top: 10px;
+}
+.nd-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.nd-history__row {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid rgba(31, 36, 48, 0.12);
+}
+.nd-history__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.nd-history__icon {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nd-history__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.nd-history__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.nd-history__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nd-ink);
+}
+.nd-history__time {
+  font-size: 13px;
+  color: var(--nd-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.nd-history__summary {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--nd-ink-2);
+}
+.nd-skeleton {
+  height: 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #F4E6EB 0%, #FBF1F4 50%, #F4E6EB 100%);
+  background-size: 200% 100%;
+  animation: nd-shimmer 1.4s ease-in-out infinite;
+}
+.nd-skeleton--row {
+  height: 52px;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+@keyframes nd-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nd-skeleton { animation: none; }
+}
