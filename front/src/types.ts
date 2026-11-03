@@ -166,6 +166,24 @@ export type StrategyOutcome =
   | 'Regulación Parcial'
   | 'Sin Regulación';
 
+/**
+ * Evento planificado (pestaña Planificación). Por ahora es un mock que vive
+ * en el navegador (D6); el backend llega en [PCD Fase 4] con la variable
+ * `planned_stressful_event_8h`.
+ */
+export interface PlannedEvent {
+  id: string;
+  subject_id: string;
+  title: string;
+  /** ISO con offset local. */
+  starts_at: string;
+  category: PlannedCategory | null;
+  expectation: PlannedExpectation | null;
+}
+
+export type PlannedCategory = 'Salud' | 'Social' | 'Escolar' | 'Rutina';
+export type PlannedExpectation = 'Agradable' | 'Neutro' | 'Estresante' | 'Desagradable';
+
 /** Categorías del sheet de registro. Resuelven a `EventType`. */
 export type LogCategory = 'alimentacion' | 'desregulacion' | 'transicion' | 'sensorial';
 

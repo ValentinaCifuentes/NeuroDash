@@ -1,179 +1,146 @@
-import { useState } from 'react';
+/**
+ * Planificación (screens/Final-Planificacion.html y -Nuevo.html).
+ *
+ * Agenda de lo que viene, con la expectativa de cada evento. D6: mock en el
+ * navegador (`domain/planning.ts`); todavía no entra al modelo, así que los
+ * textos no lo prometen (P18).
+ */
+
+import { useRef, useState } from 'react';
+import { ChipGroup, Field } from '../components/controls';
 import { Icon } from '../components/icons';
 import { ShapeMark } from '../components/marks';
+import { BottomSheet } from '../components/shell';
+import { SEMANTIC_BG, SEMANTIC_COLOR, SEMANTIC_FG, SEMANTIC_SHAPE, todayIso } from '../domain/catalog';
+import {
+  EXPECTATION_SEMANTIC,
+  PLANNED_CATEGORIES,
+  PLANNED_EXPECTATIONS,
+  addPlannedEvent,
+  formatPlanDate,
+  loadPlannedEvents,
+} from '../domain/planning';
+import type { PlannedCategory, PlannedEvent, PlannedExpectation, Subject } from '../types';
 
-// Datos Mockeados de planes
-const INITIAL_PLANS = [
-  {
-    id: 1,
-    title: 'Cita con el Dentista',
-    date: 'Mañana, 15:30',
-    category: 'Salud',
-    impactTag: 'Desagradable',
-    impactType: 'danger' // Para CSS
-  },
-  {
-    id: 2,
-    title: 'Visita a la Abuela',
-    date: 'Sábado, 12:00',
-    category: 'Social',
-    impactTag: 'Agradable',
-    impactType: 'safe'
-  },
-  {
-    id: 3,
-    title: 'Cumpleaños de Martín (Mucho ruido)',
-    date: 'Domingo, 16:00',
-    category: 'Social',
-    impactTag: 'Estresante',
-    impactType: 'danger'
+interface Props {
+  subject: Subject;
+  onSaved?: (event: PlannedEvent) => void;
+}
+
+export function Planificacion({ subject, onSaved }: Props) {
+  const [events, setEvents] = useState(() => loadPlannedEvents(subject));
+  const [adding, setAdding] = useState(false);
+  const addRef = useRef<HTMLButtonElement>(null);
+
+  function save(event: PlannedEvent) {
+    addPlannedEvent(event);
+    setEvents(loadPlannedEvents(subject));
+    setAdding(false);
+    onSaved?.(event);
   }
-];
-
-export function Planificacion() {
-  const [plans, setPlans] = useState(INITIAL_PLANS);
-  const [showModal, setShowModal] = useState(false);
-
-  // Estados del formulario mock
-  const [newTitle, setNewTitle] = useState('');
-  const [newCategory, setNewCategory] = useState('Salud');
-  const [newImpact, setNewImpact] = useState('Desagradable');
-
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim()) return;
-    
-    const impactType = newImpact === 'Agradable' ? 'safe' : (newImpact === 'Estresante' || newImpact === 'Desagradable' ? 'danger' : 'warning');
-    
-    const newPlan = {
-      id: Date.now(),
-      title: newTitle,
-      date: 'Próximamente',
-      category: newCategory,
-      impactTag: newImpact,
-      impactType: impactType
-    };
-    
-    setPlans([newPlan, ...plans]);
-    setShowModal(false);
-    setNewTitle('');
-  };
 
   return (
-    <div className="app-shell__content app-stack">
-      <section>
-        <div>
-          <button 
-            onClick={() => setShowModal(true)}
-            className="bl-btn bl-btn--primary"
-            style={{ width: '100%' }}
-          >
-            Añadir Nuevo Evento
-          </button>
-        </div>
-      </section>
+    <div className="nd-screen">
+      <button ref={addRef} type="button" className="nd-cta nd-press" onClick={() => setAdding(true)}>
+        <Icon name="plus" size={20} strokeWidth={2.4} /> Añadir Nuevo Evento
+      </button>
 
-      {plans.map(plan => (
-        <div key={plan.id} className="bl-card app-stack--tight" style={{ borderLeft: `4px solid \${plan.impactType === 'danger' ? '#ef4444' : plan.impactType === 'safe' ? '#10b981' : '#f59e0b'}` }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <h3 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--bl-primary-900)' }}>{plan.title}</h3>
-            <span style={{ fontSize: '0.75rem', backgroundColor: '#e5e7eb', padding: '2px 6px', borderRadius: '4px' }}>
-              {plan.category}
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--bl-text-light)' }}>
-            <Icon name="calendar" size={14} style={{ verticalAlign: '-2px' }} /> {plan.date}
-          </p>
-          
-          <div style={{ marginTop: '0.5rem' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '4px',
-              fontSize: '0.75rem', fontWeight: 600, padding: '4px 8px', borderRadius: '12px',
-              backgroundColor: plan.impactType === 'danger' ? '#fee2e2' : plan.impactType === 'safe' ? '#d1fae5' : '#fef3c7',
-              color: plan.impactType === 'danger' ? '#b91c1c' : plan.impactType === 'safe' ? '#065f46' : '#92400e'
-            }}>
-              <ShapeMark
-                shape={plan.impactType === 'danger' ? 'triangle' : plan.impactType === 'safe' ? 'circle' : 'diamond'}
-                color="currentColor"
-                size={10}
-              />
-              Impacto esperado: {plan.impactTag}
-            </span>
-          </div>
-        </div>
-      ))}
-
-
-
-      {/* Modal Mock */}
-      {showModal && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
-          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100,
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'center'
-        }}>
-          <div style={{
-            background: 'white', width: '100%', maxWidth: '500px', 
-            borderTopLeftRadius: '16px', borderTopRightRadius: '16px',
-            padding: '1.5rem', boxShadow: '0 -4px 16px rgba(0,0,0,0.1)',
-            animation: 'slideUp 0.3s ease-out'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Añadir Evento</h2>
-              <button type="button" aria-label="Cerrar" onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', minWidth: 'var(--nd-tap)', minHeight: 'var(--nd-tap)', color: 'var(--nd-ink-2)' }}>
-                <Icon name="close" size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAdd} className="app-stack">
-              <div>
-                <label className="bl-label">Nombre del Evento</label>
-                <input 
-                  type="text" className="bl-input" required
-                  value={newTitle} onChange={e => setNewTitle(e.target.value)}
-                  placeholder="Ej: Cumpleaños, Doctor, Viaje..."
-                />
-              </div>
-
-              <div>
-                <label className="bl-label">Categoría</label>
-                <select className="bl-input" value={newCategory} onChange={e => setNewCategory(e.target.value)}>
-                  <option>Salud</option>
-                  <option>Social</option>
-                  <option>Escolar</option>
-                  <option>Rutina</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="bl-label">Expectativa del Evento (Para el modelo)</label>
-                <select className="bl-input" value={newImpact} onChange={e => setNewImpact(e.target.value)}>
-                  <option>Agradable</option>
-                  <option>Neutro</option>
-                  <option>Estresante</option>
-                  <option>Desagradable</option>
-                </select>
-                <p style={{ fontSize: '0.75rem', color: 'var(--bl-text-light)', marginTop: '4px' }}>
-                  Esta etiqueta ayudará al modelo a ponderar el riesgo de desregulación para este día.
-                </p>
-              </div>
-
-              <div style={{ marginTop: '1rem' }}>
-                <button type="submit" className="bl-btn bl-btn--primary" style={{ width: '100%' }}>
-                  Guardar Evento
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {events.length === 0 ? (
+        <section className="nd-card nd-history nd-history--empty">
+          <p className="nd-history__title">No hay eventos próximos</p>
+          <p className="nd-history__message">Anota citas, visitas o cambios de rutina para tenerlos a la vista.</p>
+        </section>
+      ) : (
+        <ul className="nd-plans" aria-label="Próximos eventos">
+          {events.map((event) => (
+            <PlanCard key={event.id} event={event} />
+          ))}
+        </ul>
       )}
 
-      <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
-      `}</style>
+      {adding && (
+        <NewEventSheet subjectId={subject.subject_id} onSave={save} onClose={() => setAdding(false)} returnFocusTo={addRef} />
+      )}
     </div>
+  );
+}
+
+function PlanCard({ event }: { event: PlannedEvent }) {
+  const semantic = event.expectation ? EXPECTATION_SEMANTIC[event.expectation] : null;
+  return (
+    <li className="nd-plan">
+      <div className="nd-plan__head">
+        <h3 className="nd-plan__title">{event.title}</h3>
+        {event.category && <span className="nd-plan__category">{event.category}</span>}
+      </div>
+      <p className="nd-plan__date">
+        <Icon name="calendar" size={16} />
+        <time dateTime={event.starts_at}>{formatPlanDate(event.starts_at)}</time>
+      </p>
+      {semantic && (
+        <span className="nd-plan__impact" style={{ background: SEMANTIC_BG[semantic], color: SEMANTIC_FG[semantic] }}>
+          <ShapeMark shape={SEMANTIC_SHAPE[semantic]} color={SEMANTIC_COLOR[semantic]} size={10} />
+          Impacto esperado: {event.expectation}
+        </span>
+      )}
+    </li>
+  );
+}
+
+function NewEventSheet({
+  subjectId,
+  onSave,
+  onClose,
+  returnFocusTo,
+}: {
+  subjectId: string;
+  onSave: (event: PlannedEvent) => void;
+  onClose: () => void;
+  returnFocusTo: React.RefObject<HTMLElement>;
+}) {
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState(todayIso());
+  const [time, setTime] = useState('');
+  const [category, setCategory] = useState<string | null>(null);
+  const [expectation, setExpectation] = useState<string | null>(null);
+
+  const missing = [!title.trim() && 'el nombre', !time && 'la hora'].filter(Boolean) as string[];
+  const canSave = missing.length === 0 && Boolean(date);
+
+  function submit() {
+    if (!canSave) return;
+    onSave({
+      id: crypto.randomUUID(),
+      subject_id: subjectId,
+      title: title.trim(),
+      starts_at: new Date(`${date}T${time}:00`).toISOString(),
+      category: category as PlannedCategory | null,
+      expectation: expectation as PlannedExpectation | null,
+    });
+  }
+
+  return (
+    <BottomSheet title="Añadir Evento" onClose={onClose} returnFocusTo={returnFocusTo}>
+      <div className="nd-sheetform">
+        <Field label="Nombre del Evento" value={title} placeholder="Ej: Cumpleaños, Doctor, Viaje..." onChange={setTitle} />
+        <div className="nd-plan__when">
+          <Field label="Día" type="date" value={date} centered onChange={setDate} />
+          <Field label="Hora" type="time" value={time} centered onChange={setTime} />
+        </div>
+        <ChipGroup mode="single" legend="Categoría" options={PLANNED_CATEGORIES} value={category} onChange={setCategory} />
+        <ChipGroup
+          mode="single"
+          legend="Expectativa del Evento"
+          hint="Te ayuda a prepararte para ese día."
+          options={PLANNED_EXPECTATIONS}
+          value={expectation}
+          onChange={setExpectation}
+        />
+        <button type="button" className="nd-cta nd-press" disabled={!canSave} onClick={submit}>
+          Guardar Evento
+        </button>
+        {missing.length > 0 && <p className="nd-fieldhelp nd-fieldhelp--center">Falta {missing.join(' y ')}.</p>}
+      </div>
+    </BottomSheet>
   );
 }

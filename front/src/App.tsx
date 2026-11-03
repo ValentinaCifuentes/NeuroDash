@@ -161,7 +161,9 @@ export default function App() {
         )}
         {route === 'ficha' && <FichaInicial subject={subject} onOpenTickets={() => setRoute('tickets')} />}
         {route === 'tickets' && <MisTickets />}
-        {route === 'planificacion' && <Planificacion />}
+        {route === 'planificacion' && (
+          <Planificacion subject={subject} onSaved={() => setToast('Evento guardado')} />
+        )}
       </main>
 
       {sheet.kind === 'categories' && (
@@ -218,7 +220,7 @@ function headerFor(route: Route, name: string, backToFicha: () => void): HeaderC
       return {
         brand: true,
         title: 'Planificación de Eventos',
-        subtitle: 'Registra eventos futuros para mejorar las predicciones del modelo.',
+        subtitle: 'Anota lo que viene para anticiparte.',
       };
     case 'ficha':
       return {

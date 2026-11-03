@@ -2288,3 +2288,69 @@ body {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ============================================================
+   Planificación (screens/Final-Planificacion.html, -Nuevo.html)
+   ============================================================ */
+.nd-plans {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.nd-plan {
+  background: var(--nd-surface);
+  border-radius: var(--nd-r-group);
+  padding: 18px;
+  box-shadow: var(--nd-sh-card);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nd-plan__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.nd-plan__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--nd-ink);
+}
+.nd-plan__category {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nd-ink-2);
+  background: var(--nd-neutral-2);
+  border-radius: 8px;
+  padding: 3px 8px;
+}
+.nd-plan__date {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--nd-ink-2);
+}
+.nd-plan__impact {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 5px 11px 5px 9px;
+}
+.nd-plan__when {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 12px;
+}
