@@ -23,7 +23,8 @@ import { newId } from '../domain/ids';
 
 type Json = Record<string, any>;
 
-const LATENCY = 260;
+/** Pausa por pedido, para que la carga se vea como con red. Las pruebas la bajan a 0. */
+let latency = 260;
 const DAY_MS = 86_400_000;
 const DYSREGULATION = 'Desregulación Emocional';
 /** Igual que `EVENT_SCALE_ENCODINGS` del backend. */
@@ -99,6 +100,11 @@ function state(): Store {
 /** Solo para pruebas: vuelve al fixture recién cargado. */
 export function resetMockBackend(): void {
   store = null;
+}
+
+/** Solo para pruebas: sin pausa simulada. */
+export function setMockLatency(ms: number): void {
+  latency = ms;
 }
 
 /* ============================================================
@@ -360,7 +366,7 @@ export async function mockRequest(path: string, init?: RequestInit): Promise<unk
     return fail(404, 'not_found', `El modo sin servidor no tiene la ruta ${method} ${url.pathname}.`);
   };
 
-  await new Promise((resolve) => setTimeout(resolve, LATENCY));
+  await new Promise((resolve) => setTimeout(resolve, latency));
   // Copia: la pantalla no puede cambiar el estado guardado por accidente.
   return structuredClone(respond());
 }

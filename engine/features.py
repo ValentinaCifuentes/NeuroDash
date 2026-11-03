@@ -87,6 +87,8 @@ def build_features(
                 
     # Also default to wake_state if not present to ensure tests can verify missingness representation
     modalities.add("wake_state")
+    # Se recorren en orden (`sorted`): un `set` cambia de orden entre procesos, y la
+    # misma entrada debe dar siempre la misma respuesta (missingness incluida).
     
     rolling_features: dict[str, float | None] = {}
     missingness: list[dict[str, Any]] = []
@@ -99,7 +101,7 @@ def build_features(
         # Count records in this window
         rolling_features[f"record_count_{window}d"] = float(len(window_records))
         
-        for modality in modalities:
+        for modality in sorted(modalities):
             values = [
                 float(r[modality])
                 for r in window_records
@@ -131,7 +133,7 @@ def build_features(
     sorted_records = sorted(eligible_records, key=lambda r: r["availability_timestamp"], reverse=True)
     most_recent_record = sorted_records[0] if sorted_records else None
     
-    for modality in modalities:
+    for modality in sorted(modalities):
         baseline_val = baseline.modality_baselines.get(modality)
         current_val = None
         if most_recent_record and modality in most_recent_record:

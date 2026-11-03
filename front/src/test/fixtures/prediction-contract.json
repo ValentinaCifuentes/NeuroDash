@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "464dc7e6f4bd482391bafc48aa402155",
+  "prediction_id": "a228295e3ce84478a5488a7d351088fd",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -822,12 +822,7 @@
   "missingness": [
     {
       "window": 1,
-      "field": "medication_taken",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "wake_state",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
@@ -837,32 +832,12 @@
     },
     {
       "window": 1,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "transition_difficulty",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 1,
       "field": "event_count",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
@@ -872,22 +847,42 @@
     },
     {
       "window": 1,
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 1,
-      "field": "feeding_difficulty",
+      "field": "sleep_quality",
       "missing": false
     },
     {
-      "window": 3,
-      "field": "medication_taken",
+      "window": 1,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
-      "window": 3,
+      "window": 1,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
@@ -897,32 +892,12 @@
     },
     {
       "window": 3,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "transition_difficulty",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 3,
       "field": "event_count",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
@@ -932,22 +907,42 @@
     },
     {
       "window": 3,
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 3,
       "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 3,
-      "field": "feeding_difficulty",
+      "field": "sleep_quality",
       "missing": false
     },
     {
-      "window": 7,
-      "field": "medication_taken",
+      "window": 3,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
-      "window": 7,
+      "window": 3,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 3,
       "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
@@ -957,32 +952,12 @@
     },
     {
       "window": 7,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "transition_difficulty",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 7,
       "field": "event_count",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
@@ -992,22 +967,42 @@
     },
     {
       "window": 7,
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 7,
       "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 7,
-      "field": "feeding_difficulty",
+      "field": "sleep_quality",
       "missing": false
     },
     {
-      "window": 14,
-      "field": "medication_taken",
+      "window": 7,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
-      "window": 14,
+      "window": 7,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 7,
       "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
@@ -1017,32 +1012,12 @@
     },
     {
       "window": 14,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "sleep_quality",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "transition_difficulty",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 14,
       "field": "event_count",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
@@ -1052,12 +1027,37 @@
     },
     {
       "window": 14,
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 14,
       "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 14,
-      "field": "feeding_difficulty",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "start_autonomy_level",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "wake_state",
       "missing": false
     }
   ],
