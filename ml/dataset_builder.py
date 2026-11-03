@@ -184,6 +184,9 @@ def generate_synthetic_history(
     occurrences: list[dict[str, Any]] = []
 
     load = 0.5  # latent dysregulation load in [0, 1]
+    # Escalas de los eventos (P22) con su propio generador: así la secuencia de
+    # los valores anteriores, y con ella el estado de cada demo, no cambia.
+    event_rng = random.Random(seed * 7919 + 17)
 
     for d in range(days):
         current_time = start_date + timedelta(days=d)
@@ -228,6 +231,16 @@ def generate_synthetic_history(
                 sleep_quality, wake_state, start_autonomy_level, medication_taken, gi_level, day_regulation_level_num
             ),
         }
+        # Escalas de las hojas de registro, traducidas como lo hace el backend
+        # (`EVENT_SCALE_ENCODINGS`). No todos los días hay una transición, una comida
+        # o dieta sensorial registradas: el campo falta esos días, no vale 0.
+        if event_rng.random() < 0.7:
+            record["transition_difficulty"] = int(_clip(round(2.0 * load + 0.4 * event_rng.gauss(0.0, 1.0)), 0, 2))
+        if event_rng.random() < 0.8:
+            record["feeding_difficulty"] = int(_clip(round(1.6 * load + 0.4 * event_rng.gauss(0.0, 1.0)), 0, 2))
+        if event_rng.random() < 0.6:
+            done = 1.0 - load + 0.2 * event_rng.gauss(0.0, 1.0)
+            record["sensory_diet_done"] = 1.0 if done > 0.6 else 0.5 if done > 0.35 else 0.0
         records.append(record)
 
         # 3. Crisis occurrence (moderate/severe) later that day, driven by the load.

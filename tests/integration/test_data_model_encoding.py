@@ -191,6 +191,54 @@ def test_event_count_aggregation_by_local_day(tmp_path: Path, monkeypatch) -> No
     assert next(r for r in records if r["date"] == "2026-08-26")["event_count"] == 3
 
 
+def test_event_scales_become_daily_numbers_and_absent_scales_stay_absent(tmp_path: Path, monkeypatch) -> None:
+    """P22: la escala de Transición, Alimentación y Dieta sensorial llega al registro del día."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    def post_event(at: str, event_type: str, scale: str, key: str) -> None:
+        response = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+            "occurred_at": at, "idempotency_key": key,
+            "provenance": {"source": "tutor_app", "synthetic": False},
+            "event_type": event_type, "intensity_value": 5, "qualitative_outcome": scale,
+        }, headers=_headers())
+        assert response.status_code == 201
+
+    post_event("2026-08-26T09:00:00-04:00", "Transición de Actividad", "Fácil", "t1")
+    post_event("2026-08-26T15:00:00-04:00", "Transición de Actividad", "Difícil", "t2")
+    post_event("2026-08-26T13:00:00-04:00", "Dieta Sensorial", "Parcial", "s1")
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    day = next(r for r in records if r["date"] == "2026-08-26")
+    assert day["transition_difficulty"] == 2  # el peor momento del día
+    assert day["sensory_diet_done"] == 0.5
+    assert "feeding_difficulty" not in day  # sin comidas registradas: falta, no es «Adecuada»
+
+
+def test_a_strategy_that_worked_is_remembered_once_as_an_effective_support(tmp_path: Path, monkeypatch) -> None:
+    """PCD Fase 2.3: lo que funcionó alimenta «Qué puedo hacer ahora»."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    def post_event(key: str, outcome: str) -> None:
+        client.post(f"/api/v1/subjects/{subject_id}/events", json={
+            "occurred_at": "2026-08-26T10:00:00-04:00", "idempotency_key": key,
+            "provenance": {"source": "tutor_app", "synthetic": False},
+            "event_type": "Desregulación Emocional", "intensity_value": 7,
+            "strategy_applied": ["Espacio seguro", "Otro"], "strategy_outcome": outcome,
+        }, headers=_headers())
+
+    post_event("e1", "Sin Regulación")
+    assert json.loads((tmp_path / subject_id / "profile.json").read_text(encoding="utf-8"))["historical_supports"] == []
+
+    post_event("e2", "Regulación Exitosa")
+    post_event("e3", "Regulación Exitosa")
+    supports = json.loads((tmp_path / subject_id / "profile.json").read_text(encoding="utf-8"))["historical_supports"]
+    assert [(s["description"], s["effective"]) for s in supports] == [("Espacio seguro", True)]
+
+
 def test_daily_record_date_uses_the_profile_timezone_not_the_device_offset(tmp_path: Path, monkeypatch) -> None:
     """P3: 22:30 en Santiago llega como 01:30 UTC del día siguiente si el dispositivo está en UTC."""
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)

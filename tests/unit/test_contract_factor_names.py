@@ -22,11 +22,12 @@ EVENT_COUNT_FIELDS = ["event_count", "dysregulation_count", "max_intensity"]
 
 
 def _encoded_fields() -> list[str]:
-    from backend.app.routes.subjects import _CARE_LIST_ENCODINGS
+    from backend.app.routes.subjects import _CARE_LIST_ENCODINGS, EVENT_SCALE_ENCODINGS
 
     return (
         [numeric_field for _, numeric_field, _ in _CARE_FIELD_ENCODINGS]
         + [numeric_field for _, numeric_field, _, _ in _CARE_LIST_ENCODINGS]
+        + [numeric_field for numeric_field, _ in EVENT_SCALE_ENCODINGS.values()]
         + EVENT_COUNT_FIELDS
     )
 

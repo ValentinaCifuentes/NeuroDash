@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "a304c2ed45544f62afd9e605a7ce18be",
+  "prediction_id": "0325ab8517b745eb89482eba29ca3a9c",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -457,22 +457,112 @@
       "feature": "desviacion_asistencia_colegio_linea_base",
       "contribution": 0.5,
       "description": "La variable reciente desviación de asistencia al colegio frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad en las transiciones en el último día",
+      "feature": "dificultad_transiciones_promedio_un_dia",
+      "contribution": -0.5,
+      "description": "La variable reciente dificultad en las transiciones en el último día (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad en las transiciones en los últimos tres días",
+      "feature": "dificultad_transiciones_promedio_tres_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente dificultad en las transiciones en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad en las transiciones en los últimos siete días",
+      "feature": "dificultad_transiciones_promedio_siete_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente dificultad en las transiciones en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad en las transiciones en los últimos catorce días",
+      "feature": "dificultad_transiciones_promedio_catorce_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente dificultad en las transiciones en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de dificultad en las transiciones frente a la línea base",
+      "feature": "desviacion_dificultad_transiciones_linea_base",
+      "contribution": -0.5,
+      "description": "La variable reciente desviación de dificultad en las transiciones frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad para alimentarse en el último día",
+      "feature": "dificultad_alimentacion_promedio_un_dia",
+      "contribution": 0.5,
+      "description": "La variable reciente dificultad para alimentarse en el último día (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad para alimentarse en los últimos tres días",
+      "feature": "dificultad_alimentacion_promedio_tres_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente dificultad para alimentarse en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad para alimentarse en los últimos siete días",
+      "feature": "dificultad_alimentacion_promedio_siete_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente dificultad para alimentarse en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Dificultad para alimentarse en los últimos catorce días",
+      "feature": "dificultad_alimentacion_promedio_catorce_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente dificultad para alimentarse en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de dificultad para alimentarse frente a la línea base",
+      "feature": "desviacion_dificultad_alimentacion_linea_base",
+      "contribution": 0.5,
+      "description": "La variable reciente desviación de dificultad para alimentarse frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Dieta sensorial realizada en el último día",
+      "feature": "dieta_sensorial_promedio_un_dia",
+      "contribution": -0.5,
+      "description": "La variable reciente dieta sensorial realizada en el último día (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Dieta sensorial realizada en los últimos tres días",
+      "feature": "dieta_sensorial_promedio_tres_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente dieta sensorial realizada en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Dieta sensorial realizada en los últimos siete días",
+      "feature": "dieta_sensorial_promedio_siete_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente dieta sensorial realizada en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Dieta sensorial realizada en los últimos catorce días",
+      "feature": "dieta_sensorial_promedio_catorce_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente dieta sensorial realizada en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de dieta sensorial realizada frente a la línea base",
+      "feature": "desviacion_dieta_sensorial_linea_base",
+      "contribution": -0.5,
+      "description": "La variable reciente desviación de dieta sensorial realizada frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
     }
   ],
   "missingness": [
     {
       "window": 1,
-      "field": "wake_state",
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
       "window": 1,
-      "field": "day_regulation_level_num",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 1,
-      "field": "gi_level",
+      "field": "medication_taken",
       "missing": false
     },
     {
@@ -482,7 +572,7 @@
     },
     {
       "window": 1,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -497,7 +587,17 @@
     },
     {
       "window": 1,
-      "field": "max_intensity",
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "wake_state",
       "missing": false
     },
     {
@@ -506,18 +606,23 @@
       "missing": false
     },
     {
-      "window": 3,
-      "field": "wake_state",
+      "window": 1,
+      "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 3,
-      "field": "day_regulation_level_num",
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
       "window": 3,
-      "field": "gi_level",
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "medication_taken",
       "missing": false
     },
     {
@@ -527,7 +632,7 @@
     },
     {
       "window": 3,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -542,7 +647,17 @@
     },
     {
       "window": 3,
-      "field": "max_intensity",
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "wake_state",
       "missing": false
     },
     {
@@ -551,18 +666,23 @@
       "missing": false
     },
     {
-      "window": 7,
-      "field": "wake_state",
+      "window": 3,
+      "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 7,
-      "field": "day_regulation_level_num",
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
       "window": 7,
-      "field": "gi_level",
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "medication_taken",
       "missing": false
     },
     {
@@ -572,7 +692,7 @@
     },
     {
       "window": 7,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -587,7 +707,17 @@
     },
     {
       "window": 7,
-      "field": "max_intensity",
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "wake_state",
       "missing": false
     },
     {
@@ -596,18 +726,23 @@
       "missing": false
     },
     {
-      "window": 14,
-      "field": "wake_state",
+      "window": 7,
+      "field": "sensory_diet_done",
       "missing": false
     },
     {
       "window": 14,
-      "field": "day_regulation_level_num",
+      "field": "feeding_difficulty",
       "missing": false
     },
     {
       "window": 14,
-      "field": "gi_level",
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "medication_taken",
       "missing": false
     },
     {
@@ -617,7 +752,7 @@
     },
     {
       "window": 14,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -632,12 +767,27 @@
     },
     {
       "window": 14,
-      "field": "max_intensity",
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "wake_state",
       "missing": false
     },
     {
       "window": 14,
       "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "sensory_diet_done",
       "missing": false
     }
   ],
@@ -690,7 +840,7 @@
       "lineage": {
         "split_cutoff": "2026-10-26T12:00:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-03T14:59:34.271199+00:00",
+        "data_generation_timestamp": "2026-11-03T15:05:54.389650+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",

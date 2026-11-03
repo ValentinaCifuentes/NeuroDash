@@ -104,6 +104,15 @@ DAY_REGULATION_MAP = {"Excelente": 0, "Estable con Apoyo": 1, "Desregulación Fr
 SLEEP_HOURS_MAP = {"Menos de 7 h": 6, "7 a 9 h": 8, "Más de 9 h": 10}
 ROUTINE_CHANGE_MAP = {"No": 0, "Visita": 1, "Salida": 1, "Cambio de horario": 1, "Feriado": 1}
 SCHOOL_ATTENDANCE_MAP = {"Sí": 1, "Medio día": 0.5, "No": 0}
+# Escala de cada hoja de registro → número diario [PCD Fase 2.2]. Se guarda en el
+# registro del día (como event_count) para que el motor la agregue por ventanas.
+# Si hay varios eventos del mismo tipo en el día, cuenta el peor (o la dieta más completa).
+EVENT_SCALE_ENCODINGS: dict[str, tuple[str, dict[str, float]]] = {
+    "Transición de Actividad": ("transition_difficulty", {"Fácil": 0, "Con ayuda": 1, "Difícil": 2}),
+    "Alimentación": ("feeding_difficulty", {"Adecuada": 0, "Regular": 1, "Dificultosa": 2}),
+    "Dieta Sensorial": ("sensory_diet_done", {"Completa": 1, "Parcial": 0.5, "No realizada": 0}),
+}
+EFFECTIVE_OUTCOME = "Regulación Exitosa"
 # Opciones «nada» de las preguntas de varias respuestas.
 NO_EARLY_SIGNS = "Ninguna"
 NO_DISCOMFORT = "No"
@@ -347,7 +356,41 @@ def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(g
     })
     saved = care_repository(subject_id).save(subject_id, "occurrences", item, "event_id")
     _refresh_daily_event_counts(subject_id, occurred_at, actor.actor_id)
+    _remember_effective_supports(subject_id, req)
     return saved
+
+
+def _remember_effective_supports(subject_id: str, req: EventWrite) -> None:
+    """Si lo aplicado funcionó («Se reguló»), queda en el perfil como apoyo efectivo [PCD Fase 2.3].
+
+    Alimenta «Qué puedo hacer ahora» (`engine/support.py`), que muestra primero lo
+    que ya le sirvió. No se duplica si el apoyo ya estaba registrado.
+    """
+    if req.strategy_outcome != EFFECTIVE_OUTCOME:
+        return
+    applied = [*(req.strategy_applied or []), req.support_used, req.sensory_activity]
+    applied = [text.strip() for text in applied if text and text.strip() and text.strip() not in {"Otro", "Otra", "Ninguno"}]
+    if not applied:
+        return
+    repository = SubjectRepository(subject_root(subject_id))
+    profile = repository.get(subject_id)
+    supports = list(profile.get("historical_supports") or [])
+    known = {str(support.get("description", "")).strip().rstrip(".").lower(): support for support in supports}
+    for text in applied:
+        existing = known.get(text.rstrip(".").lower())
+        if existing is not None:
+            existing["effective"] = True
+            continue
+        support = {
+            "id": f"sup_evt_{uuid.uuid4().hex[:8]}",
+            "description": text,
+            "type": "historical",
+            "effective": True,
+            "source": "event_outcome",
+        }
+        supports.append(support)
+        known[text.lower()] = support
+    repository.save({**profile, "historical_supports": supports})
 
 
 @router.post("/{subject_id}/end-of-day", status_code=201)
@@ -411,11 +454,21 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
         if target is None:
             target = record
 
-    counts = {
+    counts: dict[str, float] = {
         "event_count": event_count,
         "dysregulation_count": dysregulation_count,
         "max_intensity": max_intensity,
     }
+    # Escalas de Transición, Alimentación y Dieta sensorial: solo si ese día hubo
+    # un evento de ese tipo con escala; si no, el campo queda ausente (no es un 0).
+    for event_type, (field, mapping) in EVENT_SCALE_ENCODINGS.items():
+        values = [
+            mapping[occ["qualitative_outcome"]]
+            for occ in day_occurrences
+            if occ.get("event_type") == event_type and occ.get("qualitative_outcome") in mapping
+        ]
+        if values:
+            counts[field] = max(values)
 
     if target is not None:
         target.update(counts)

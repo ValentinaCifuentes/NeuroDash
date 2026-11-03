@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-03T14:59:32.794186+00:00",
+    "data_generation_timestamp": "2026-11-03T15:05:53.203881+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1003
@@ -22,6 +22,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-C_0",
       "max_intensity": 4,
@@ -34,10 +35,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 8.29,
       "source_timestamp": "2026-11-01T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-C",
+      "transition_difficulty": 1,
       "wake_state": 3.96
     },
     {
@@ -45,6 +48,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-C_1",
       "max_intensity": 5,
@@ -57,10 +61,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 8.11,
       "source_timestamp": "2026-11-02T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-C",
+      "transition_difficulty": 1,
       "wake_state": 4.46
     }
   ]

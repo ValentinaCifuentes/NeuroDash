@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-03T14:59:32.791869+00:00",
+    "data_generation_timestamp": "2026-11-03T15:05:53.201366+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1004
@@ -220,6 +220,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_0",
       "max_intensity": 1,
@@ -232,10 +233,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 10.0,
       "source_timestamp": "2026-08-05T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -243,6 +246,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_1",
       "max_intensity": 1,
@@ -255,10 +259,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 10.0,
       "source_timestamp": "2026-08-06T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -282,6 +288,7 @@
       "source_timestamp": "2026-08-07T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 2.94
     },
     {
@@ -289,6 +296,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_3",
       "max_intensity": 1,
@@ -301,6 +309,7 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 10.0,
       "source_timestamp": "2026-08-08T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -312,6 +321,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 1,
       "gi_level": 0,
       "id": "rec_PAC-B_4",
       "max_intensity": 2,
@@ -324,6 +334,7 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.54,
       "source_timestamp": "2026-08-09T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -335,6 +346,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_5",
       "max_intensity": 3,
@@ -347,10 +359,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 7.69,
       "source_timestamp": "2026-08-10T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 3.56
     },
     {
@@ -370,10 +384,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 7.61,
       "source_timestamp": "2026-08-11T12:00:00-04:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 5.01
     },
     {
@@ -381,6 +397,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_7",
       "max_intensity": 4,
@@ -393,6 +410,7 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.89,
       "source_timestamp": "2026-08-12T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -404,6 +422,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
       "event_count": 2,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_8",
       "max_intensity": 5,
@@ -416,6 +435,7 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.2,
       "source_timestamp": "2026-08-13T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -427,6 +447,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_9",
       "max_intensity": 1,
@@ -443,6 +464,7 @@
       "source_timestamp": "2026-08-14T12:00:00-04:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.19
     },
     {
@@ -450,6 +472,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_10",
       "max_intensity": 1,
@@ -473,6 +496,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_11",
       "max_intensity": 2,
@@ -485,6 +509,7 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 10.0,
       "source_timestamp": "2026-08-16T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -496,6 +521,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_12",
       "max_intensity": 1,
@@ -508,10 +534,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.58,
       "source_timestamp": "2026-08-17T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.38
     },
     {
@@ -519,6 +547,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_13",
       "max_intensity": 2,
@@ -542,6 +571,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_14",
       "max_intensity": 1,
@@ -554,10 +584,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.64,
       "source_timestamp": "2026-08-19T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.18
     },
     {
@@ -565,6 +597,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_15",
       "max_intensity": 5,
@@ -588,6 +621,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 2,
+      "feeding_difficulty": 1,
       "gi_level": 0,
       "id": "rec_PAC-B_16",
       "max_intensity": 5,
@@ -600,10 +634,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.63,
       "source_timestamp": "2026-08-21T12:00:00-04:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 4.69
     },
     {
@@ -627,6 +663,7 @@
       "source_timestamp": "2026-08-22T12:00:00-04:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 6.17
     },
     {
@@ -634,6 +671,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_18",
       "max_intensity": 10,
@@ -646,10 +684,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.78,
       "source_timestamp": "2026-08-23T12:00:00-04:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 8.14
     },
     {
@@ -657,6 +697,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_19",
       "max_intensity": 7,
@@ -680,6 +721,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_20",
       "max_intensity": 7,
@@ -692,10 +734,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 6.04,
       "source_timestamp": "2026-08-25T12:00:00-04:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 6.23
     },
     {
@@ -703,6 +747,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_21",
       "max_intensity": 4,
@@ -715,10 +760,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.82,
       "source_timestamp": "2026-08-26T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 4.06
     },
     {
@@ -726,6 +773,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 2,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_22",
       "max_intensity": 3,
@@ -738,10 +786,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.02,
       "source_timestamp": "2026-08-27T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 3.37
     },
     {
@@ -761,10 +811,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 9.54,
       "source_timestamp": "2026-08-28T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -784,10 +836,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 10.0,
       "source_timestamp": "2026-08-29T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -807,10 +861,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.47,
       "source_timestamp": "2026-08-30T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.9
     },
     {
@@ -818,6 +874,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_26",
       "max_intensity": 2,
@@ -830,6 +887,7 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.61,
       "source_timestamp": "2026-08-31T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -841,6 +899,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_27",
       "max_intensity": 2,
@@ -864,6 +923,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 2,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_28",
       "max_intensity": 4,
@@ -876,10 +936,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 8.25,
       "source_timestamp": "2026-09-02T12:00:00-04:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 3.91
     },
     {
@@ -899,10 +961,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 7.99,
       "source_timestamp": "2026-09-03T12:00:00-04:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 4.61
     },
     {
@@ -910,6 +974,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_30",
       "max_intensity": 2,
@@ -922,10 +987,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.74,
       "source_timestamp": "2026-09-04T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 3.1
     },
     {
@@ -933,6 +1000,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_31",
       "max_intensity": 4,
@@ -945,10 +1013,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.05,
       "source_timestamp": "2026-09-05T12:00:00-04:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 4.53
     },
     {
@@ -956,6 +1026,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_32",
       "max_intensity": 7,
@@ -968,6 +1039,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 6.14,
       "source_timestamp": "2026-09-06T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -979,6 +1051,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_33",
       "max_intensity": 6,
@@ -991,6 +1064,7 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 7.11,
       "source_timestamp": "2026-09-07T12:00:00-03:00",
       "start_autonomy_level": 1,
@@ -1014,10 +1088,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 5.39,
       "source_timestamp": "2026-09-08T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 7.19
     },
     {
@@ -1025,6 +1101,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 2,
       "gi_level": 2,
       "id": "rec_PAC-B_35",
       "max_intensity": 7,
@@ -1037,6 +1114,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.36,
       "source_timestamp": "2026-09-09T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -1060,10 +1138,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.42,
       "source_timestamp": "2026-09-10T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 6.77
     },
     {
@@ -1071,6 +1151,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 1,
       "event_count": 3,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_37",
       "max_intensity": 6,
@@ -1087,6 +1168,7 @@
       "source_timestamp": "2026-09-11T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 5.15
     },
     {
@@ -1094,6 +1176,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_38",
       "max_intensity": 6,
@@ -1106,6 +1189,7 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.24,
       "source_timestamp": "2026-09-12T12:00:00-03:00",
       "start_autonomy_level": 1,
@@ -1129,10 +1213,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.26,
       "source_timestamp": "2026-09-13T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 5.51
     },
     {
@@ -1140,6 +1226,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_40",
       "max_intensity": 5,
@@ -1152,10 +1239,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.72,
       "source_timestamp": "2026-09-14T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 4.91
     },
     {
@@ -1175,10 +1264,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 6.47,
       "source_timestamp": "2026-09-15T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 5.76
     },
     {
@@ -1186,6 +1277,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 3,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_42",
       "max_intensity": 9,
@@ -1221,6 +1313,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 4.82,
       "source_timestamp": "2026-09-17T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -1232,6 +1325,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_44",
       "max_intensity": 9,
@@ -1244,6 +1338,7 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.59,
       "source_timestamp": "2026-09-18T12:00:00-03:00",
       "start_autonomy_level": 1,
@@ -1255,6 +1350,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_45",
       "max_intensity": 8,
@@ -1271,6 +1367,7 @@
       "source_timestamp": "2026-09-19T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 6.04
     },
     {
@@ -1278,6 +1375,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_46",
       "max_intensity": 8,
@@ -1294,6 +1392,7 @@
       "source_timestamp": "2026-09-20T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 6.71
     },
     {
@@ -1301,6 +1400,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_47",
       "max_intensity": 6,
@@ -1317,6 +1417,7 @@
       "source_timestamp": "2026-09-21T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 5.48
     },
     {
@@ -1324,6 +1425,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_48",
       "max_intensity": 7,
@@ -1336,6 +1438,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 5.49,
       "source_timestamp": "2026-09-22T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -1347,6 +1450,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 2,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_49",
       "max_intensity": 6,
@@ -1359,10 +1463,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.04,
       "source_timestamp": "2026-09-23T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 5.43
     },
     {
@@ -1382,10 +1488,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.38,
       "source_timestamp": "2026-09-24T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 3.78
     },
     {
@@ -1393,6 +1501,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_51",
       "max_intensity": 1,
@@ -1416,6 +1525,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 1,
       "gi_level": 0,
       "id": "rec_PAC-B_52",
       "max_intensity": 2,
@@ -1428,6 +1538,7 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.46,
       "source_timestamp": "2026-09-26T12:00:00-03:00",
       "start_autonomy_level": 0,
@@ -1439,6 +1550,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_53",
       "max_intensity": 7,
@@ -1451,10 +1563,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 5.97,
       "source_timestamp": "2026-09-27T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 6.2
     },
     {
@@ -1462,6 +1576,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_54",
       "max_intensity": 6,
@@ -1478,6 +1593,7 @@
       "source_timestamp": "2026-09-28T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 5.67
     },
     {
@@ -1485,6 +1601,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_55",
       "max_intensity": 7,
@@ -1497,6 +1614,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.37,
       "source_timestamp": "2026-09-29T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -1508,6 +1626,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_56",
       "max_intensity": 7,
@@ -1520,10 +1639,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 6.1,
       "source_timestamp": "2026-09-30T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 6.52
     },
     {
@@ -1531,6 +1652,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 3,
       "event_count": 6,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_57",
       "max_intensity": 9,
@@ -1570,6 +1692,7 @@
       "source_timestamp": "2026-10-02T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 7.59
     },
     {
@@ -1577,6 +1700,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 6,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_59",
       "max_intensity": 8,
@@ -1612,6 +1736,7 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.19,
       "source_timestamp": "2026-10-04T12:00:00-03:00",
       "start_autonomy_level": 1,
@@ -1623,6 +1748,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_61",
       "max_intensity": 1,
@@ -1639,6 +1765,7 @@
       "source_timestamp": "2026-10-05T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.08
     },
     {
@@ -1646,6 +1773,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_62",
       "max_intensity": 6,
@@ -1658,10 +1786,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 7.26,
       "source_timestamp": "2026-10-06T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 4.94
     },
     {
@@ -1669,6 +1799,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
       "event_count": 2,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_63",
       "max_intensity": 3,
@@ -1681,10 +1812,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.45,
       "source_timestamp": "2026-10-07T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 3.48
     },
     {
@@ -1715,6 +1848,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_65",
       "max_intensity": 2,
@@ -1727,10 +1861,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 10.0,
       "source_timestamp": "2026-10-09T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -1738,6 +1874,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 1,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_66",
       "max_intensity": 4,
@@ -1750,10 +1887,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 7.84,
       "source_timestamp": "2026-10-10T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 4.33
     },
     {
@@ -1761,6 +1900,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_67",
       "max_intensity": 5,
@@ -1773,10 +1913,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 8.24,
       "source_timestamp": "2026-10-11T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 4.18
     },
     {
@@ -1784,6 +1926,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 6,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_68",
       "max_intensity": 9,
@@ -1796,10 +1939,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.19,
       "source_timestamp": "2026-10-12T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 7.95
     },
     {
@@ -1823,6 +1968,7 @@
       "source_timestamp": "2026-10-13T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 8.35
     },
     {
@@ -1830,6 +1976,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 7,
+      "feeding_difficulty": 2,
       "gi_level": 2,
       "id": "rec_PAC-B_70",
       "max_intensity": 10,
@@ -1842,6 +1989,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 4.74,
       "source_timestamp": "2026-10-14T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -1853,6 +2001,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 6,
+      "feeding_difficulty": 2,
       "gi_level": 2,
       "id": "rec_PAC-B_71",
       "max_intensity": 10,
@@ -1865,6 +2014,7 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 4.31,
       "source_timestamp": "2026-10-15T12:00:00-03:00",
       "start_autonomy_level": 2,
@@ -1876,6 +2026,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
       "event_count": 6,
+      "feeding_difficulty": 2,
       "gi_level": 2,
       "id": "rec_PAC-B_72",
       "max_intensity": 10,
@@ -1892,6 +2043,7 @@
       "source_timestamp": "2026-10-16T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 9.0
     },
     {
@@ -1899,6 +2051,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
       "event_count": 5,
+      "feeding_difficulty": 2,
       "gi_level": 2,
       "id": "rec_PAC-B_73",
       "max_intensity": 10,
@@ -1911,10 +2064,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.4,
       "source_timestamp": "2026-10-17T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 7.6
     },
     {
@@ -1934,10 +2089,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.5,
       "source_timestamp": "2026-10-18T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 7.08
     },
     {
@@ -1945,6 +2102,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 5,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_75",
       "max_intensity": 8,
@@ -1957,10 +2115,12 @@
         "start_autonomy": "Con insistencia",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.8,
       "source_timestamp": "2026-10-19T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 6.45
     },
     {
@@ -1984,6 +2144,7 @@
       "source_timestamp": "2026-10-20T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 7.89
     },
     {
@@ -1991,6 +2152,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_77",
       "max_intensity": 6,
@@ -2003,10 +2165,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 0.5,
       "sleep_quality": 6.86,
       "source_timestamp": "2026-10-21T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 5.71
     },
     {
@@ -2014,6 +2178,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
       "event_count": 3,
+      "feeding_difficulty": 1,
       "gi_level": 2,
       "id": "rec_PAC-B_78",
       "max_intensity": 8,
@@ -2030,6 +2195,7 @@
       "source_timestamp": "2026-10-22T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 7.82
     },
     {
@@ -2053,6 +2219,7 @@
       "source_timestamp": "2026-10-23T12:00:00-03:00",
       "start_autonomy_level": 2,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 7.71
     },
     {
@@ -2060,6 +2227,7 @@
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
       "event_count": 5,
+      "feeding_difficulty": 2,
       "gi_level": 2,
       "id": "rec_PAC-B_80",
       "max_intensity": 10,
@@ -2072,10 +2240,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Irritable/Llorando"
       },
+      "sensory_diet_done": 0.0,
       "sleep_quality": 5.44,
       "source_timestamp": "2026-10-24T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 8.16
     },
     {
@@ -2083,6 +2253,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 1,
       "gi_level": 1,
       "id": "rec_PAC-B_81",
       "max_intensity": 6,
@@ -2099,6 +2270,7 @@
       "source_timestamp": "2026-10-25T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 2,
       "wake_state": 5.75
     },
     {
@@ -2122,6 +2294,7 @@
       "source_timestamp": "2026-10-26T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 6.48
     },
     {
@@ -2129,6 +2302,7 @@
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
       "event_count": 4,
+      "feeding_difficulty": 0,
       "gi_level": 1,
       "id": "rec_PAC-B_83",
       "max_intensity": 5,
@@ -2141,10 +2315,12 @@
         "start_autonomy": "Con alarma",
         "wake_mode": "Cansado/Con Sue\u00f1o"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 7.02,
       "source_timestamp": "2026-10-27T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 4.81
     },
     {
@@ -2175,6 +2351,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_85",
       "max_intensity": 1,
@@ -2187,10 +2364,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.17,
       "source_timestamp": "2026-10-29T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -2198,6 +2377,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_86",
       "max_intensity": 1,
@@ -2214,6 +2394,7 @@
       "source_timestamp": "2026-10-30T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 2.0
     },
     {
@@ -2221,6 +2402,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 1,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_87",
       "max_intensity": 1,
@@ -2237,6 +2419,7 @@
       "source_timestamp": "2026-10-31T12:00:00-03:00",
       "start_autonomy_level": 1,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.09
     },
     {
@@ -2260,6 +2443,7 @@
       "source_timestamp": "2026-11-01T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 0,
       "wake_state": 2.0
     },
     {
@@ -2267,6 +2451,7 @@
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
       "event_count": 0,
+      "feeding_difficulty": 0,
       "gi_level": 0,
       "id": "rec_PAC-B_89",
       "max_intensity": 3,
@@ -2279,10 +2464,12 @@
         "start_autonomy": "Por s\u00ed solo",
         "wake_mode": "Tranquilo/Alegre"
       },
+      "sensory_diet_done": 1.0,
       "sleep_quality": 9.15,
       "source_timestamp": "2026-11-02T12:00:00-03:00",
       "start_autonomy_level": 0,
       "subject_id": "PAC-B",
+      "transition_difficulty": 1,
       "wake_state": 3.14
     }
   ]

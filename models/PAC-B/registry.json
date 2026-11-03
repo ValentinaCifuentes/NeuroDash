@@ -4,7 +4,7 @@
     "metadata": {
       "C": 1.0,
       "lineage": {
-        "data_generation_timestamp": "2026-11-03T14:59:34.318750+00:00",
+        "data_generation_timestamp": "2026-11-03T15:05:54.438199+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",
@@ -20,7 +20,7 @@
       "seed": 42,
       "solver": "liblinear"
     },
-    "timestamp": "2026-11-03T14:59:34.320702+00:00",
+    "timestamp": "2026-11-03T15:05:54.440288+00:00",
     "version": 1
   }
 ]

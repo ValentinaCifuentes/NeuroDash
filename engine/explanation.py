@@ -106,13 +106,18 @@ FEATURE_VARIABLE_NAMES = {
     "max_intensity_delta_baseline": "desviacion_intensidad_maxima_linea_base",
 }
 
-# Contexto del día (plan de datos, Fase 3): mismas ventanas y desviación que el resto.
+# Contexto del día (plan de datos, Fase 3) y escalas de los eventos (Fase 2):
+# mismas ventanas y desviación que el resto.
 _CONTEXT_FAMILIES = {
     "sleep_hours": ("horas de sueño", "horas_sueno"),
     "early_signs_count": ("señales tempranas observadas", "senales_tempranas"),
     "physical_discomfort": ("malestar físico", "malestar_fisico"),
     "routine_change": ("cambios de rutina", "cambio_rutina"),
     "school_attendance": ("asistencia al colegio", "asistencia_colegio"),
+    # Escalas de las hojas de registro (plan de datos, Fase 2.2).
+    "transition_difficulty": ("dificultad en las transiciones", "dificultad_transiciones"),
+    "feeding_difficulty": ("dificultad para alimentarse", "dificultad_alimentacion"),
+    "sensory_diet_done": ("dieta sensorial realizada", "dieta_sensorial"),
 }
 _WINDOW_WORDS = {
     1: ("en el último día", "un_dia"),
