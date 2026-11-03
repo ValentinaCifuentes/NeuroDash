@@ -21,7 +21,7 @@ import { FactorsSheet, MissingDataSheet } from "../sheets/EstimationSheets";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
 
-type TabId = "estimacion" | "seguimiento";
+export type TabId = "estimacion" | "seguimiento";
 type SheetId = "factors" | "missing" | null;
 
 interface Props {
@@ -29,10 +29,16 @@ interface Props {
     revision: number;
     /** «Puede mejorar la lectura» lleva a la Bitácora para completar el dato. */
     onOpenBitacora?: () => void;
+    /** Vista activa; es una ruta de App (`#evolucion` / `#seguimiento`). */
+    view?: TabId;
+    onChangeView?: (view: TabId) => void;
 }
 
-export function Evolucion({ subject, revision, onOpenBitacora }: Props) {
-    const [tab, setTab] = useState<TabId>("estimacion");
+export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeView }: Props) {
+    // Controlada por App; sin `view` (pruebas aisladas) guarda su propio estado.
+    const [ownTab, setOwnTab] = useState<TabId>("estimacion");
+    const tab = view ?? ownTab;
+    const setTab = onChangeView ?? setOwnTab;
     const [prediction, setPrediction] = useState<Prediction | null>(null);
     const [error, setError] = useState<ApiError | null>(null);
     const [retryNonce, setRetryNonce] = useState(0);
@@ -74,10 +80,10 @@ export function Evolucion({ subject, revision, onOpenBitacora }: Props) {
             {tab === "seguimiento" && <Seguimiento subject={subject} revision={revision} />}
 
             {tab === "estimacion" && error && (
-                <div className="bl-alert bl-alert--danger" role="alert">
+                <div className="nd-alert" role="alert">
                     <Icon name="alert" size={18} />
                     <span>{error.message}</span>
-                    <button ref={retryRef} type="button" className="bl-btn bl-btn--ghost" onClick={() => setRetryNonce(value => value + 1)}>
+                    <button ref={retryRef} type="button" className="nd-button-outline nd-press" onClick={() => setRetryNonce(value => value + 1)}>
                         Reintentar estimación
                     </button>
                 </div>
@@ -85,10 +91,10 @@ export function Evolucion({ subject, revision, onOpenBitacora }: Props) {
 
             {tab === "estimacion" && !prediction && !error && (
                 <section className="nd-card nd-card--hero" aria-busy="true">
-                    <span className="bl-sr-only">Calculando la estimación</span>
-                    <div className="bl-skeleton" style={{ width: "45%", height: 22 }} />
-                    <div className="bl-skeleton" />
-                    <div className="bl-skeleton" style={{ width: "70%" }} />
+                    <span className="nd-sr-only">Calculando la estimación</span>
+                    <div className="nd-skeleton" style={{ width: "45%", height: 22 }} />
+                    <div className="nd-skeleton" />
+                    <div className="nd-skeleton" style={{ width: "70%" }} />
                 </section>
             )}
 

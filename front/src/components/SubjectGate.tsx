@@ -48,7 +48,7 @@ export function SubjectGate({ subjects, onSelect, onOnboard }: SubjectGateProps)
 
   if (profileOpen) {
     return (
-      <main className="app-shell__scroll nd-gate" id="contenido">
+      <main className="nd-shell__scroll nd-gate" id="contenido">
         <Onboarding initialAlias={alias} onCancel={() => setProfileOpen(false)} onCreate={onOnboard} />
       </main>
     );
@@ -57,7 +57,7 @@ export function SubjectGate({ subjects, onSelect, onOnboard }: SubjectGateProps)
   const hasAlias = alias.trim().length > 0;
 
   return (
-    <main className="app-shell__scroll nd-gate" id="contenido">
+    <main className="nd-shell__scroll nd-gate" id="contenido">
       <div className="nd-gate__intro">
         <span className="nd-gate__mark" aria-hidden="true">
           <Icon name="pulse" size={28} strokeWidth={2.2} />

@@ -64,7 +64,7 @@ export function BottomSheet({ title, eyebrow, titleIcon, onClose, onBack, backLa
 
   return (
     <>
-      <button className="nd-overlay app-overlay" aria-label="Cerrar" onClick={onClose} />
+      <button type="button" className="nd-overlay" aria-label="Cerrar" onClick={onClose} />
       <div className="nd-sheet" ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <span className="nd-sheet__grabber" aria-hidden="true" />
         <div className="nd-sheet__header">
@@ -100,13 +100,12 @@ export function BottomSheet({ title, eyebrow, titleIcon, onClose, onBack, backLa
 
 interface FabProps {
   onClick: () => void;
-  aboveCta?: boolean;
   innerRef?: React.RefObject<HTMLButtonElement>;
 }
 
-export function Fab({ onClick, aboveCta, innerRef }: FabProps) {
+export function Fab({ onClick, innerRef }: FabProps) {
   return (
-    <div className={`app-fab${aboveCta ? ' app-fab--above-cta' : ''}`}>
+    <div className="nd-fabwrap">
       <button
         ref={innerRef}
         className="nd-fab nd-press"

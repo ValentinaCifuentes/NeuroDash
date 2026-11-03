@@ -2,11 +2,10 @@
    NeuroDash · neurodash.css
    Sistema visual del Prototipo final (paleta «Cerezo y pizarra»).
 
-   1. Tokens `--nd-*`: la única fuente de color, radio, sombra y tipografía
-      para las pantallas nuevas.
-   2. Puente `--bl-*`: mientras las pantallas se rediseñan (Fase 5), las
-      clases heredadas de bluba.css leen estos valores. Se borra junto con
-      bluba.css al terminar la Fase 5.
+   Única hoja de estilos de la app (bluba.css se eliminó al cerrar la Fase 5).
+   1. Tokens `--nd-*`: la única fuente de color, radio, sombra y tipografía.
+   2. Base: reset, armazón móvil y accesibilidad.
+   3. Componentes y pantallas, en el orden en que se rediseñaron.
 
    Contraste (WCAG AA) verificado para texto:
      tinta / tinta-2 / muted sobre superficie y fondo ≥ 5.1:1
@@ -131,58 +130,107 @@
   --nd-dur-sheet: 300ms;
 }
 
-/* --- Base --- */
+/* ==========================================================================
+   Base: reset, armazón móvil y accesibilidad
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
 html,
 body {
+  margin: 0;
+  overflow: hidden;
   background: var(--nd-bg);
   color: var(--nd-ink);
   font-family: var(--nd-font);
+  font-size: 15px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
 
-/* ==========================================================================
-   Puente bluba → NeuroDash (temporal, se borra con bluba.css en la Fase 5)
-   Solo color, tipografía, radios y sombras: el tamaño de letra y el espaciado
-   de las pantallas heredadas no cambian hasta que cada una se rediseñe.
-   ========================================================================== */
-:root {
-  --bl-primary-50: var(--nd-surface-alt);
-  --bl-primary-100: var(--nd-accent-soft);
-  --bl-primary-200: #F0B3C6;
-  --bl-primary-300: var(--nd-heat-2);
-  --bl-primary-400: #D4487A;
-  --bl-primary-500: var(--nd-accent);
-  --bl-primary-600: var(--nd-accent);
-  --bl-primary-700: var(--nd-accent-pressed);
-  --bl-primary-800: var(--nd-accent-ink);
+/* Armazón: columna de teléfono centrada; solo el contenido hace scroll. */
+.nd-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  min-width: 320px;
+  height: 100dvh;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--nd-bg);
+  box-shadow: 0 0 0 1px var(--nd-border-soft);
+}
+.nd-shell__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 
-  --bl-bg: var(--nd-bg);
-  --bl-surface: var(--nd-surface);
-  --bl-surface-alt: var(--nd-surface-alt);
-  --bl-border: var(--nd-border-soft);
-  --bl-border-strong: var(--nd-border-strong);
-  --bl-text: var(--nd-ink);
-  --bl-text-body: var(--nd-ink-2);
-  --bl-text-muted: var(--nd-muted);   /* el gris anterior (#8A8CA0) no llegaba a 4.5:1 */
-  --bl-overlay: var(--nd-overlay);
+/* Accesibilidad */
+.nd-skip {
+  position: absolute;
+  left: -9999px;
+  z-index: 70;
+  padding: 10px 16px;
+  border-radius: var(--nd-r-sm);
+  background: var(--nd-accent);
+  color: var(--nd-on-accent);
+  font-weight: 600;
+}
+.nd-skip:focus {
+  left: 16px;
+  top: 16px;
+}
 
-  /* El diseño final no usa verde: «bien» se muestra con el azul de riesgo bajo. */
-  --bl-success: var(--nd-risk-low);   --bl-success-bg: var(--nd-risk-low-bg);   --bl-success-border: #BFD9EE;
-  --bl-warning: var(--nd-risk-mid);   --bl-warning-bg: var(--nd-risk-mid-bg);   --bl-warning-border: var(--nd-missing-border);
-  --bl-danger: var(--nd-risk-high);   --bl-danger-bg: var(--nd-risk-high-bg);   --bl-danger-border: #EBB8BF;
-  --bl-info: var(--nd-ink-2);         --bl-info-bg: var(--nd-neutral-2);        --bl-info-border: var(--nd-border-soft);
-  --bl-neutral-chip: var(--nd-neutral-1);
+/* Error que bloquea la pantalla (no se pudo cargar o calcular). */
+.nd-alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px 12px;
+  padding: 16px;
+  border-radius: var(--nd-r-note);
+  background: var(--nd-risk-high-bg);
+  color: var(--nd-risk-high-fg);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.nd-alert > span {
+  flex: 1;
+  min-width: 0;
+}
+.nd-alert .nd-button-outline {
+  flex-basis: 100%;
+  margin-top: 0;
+}
 
-  --bl-font: var(--nd-font);
-
-  --bl-r-xl: var(--nd-r-2xl);
-  --bl-r-2xl: var(--nd-r-3xl);
-
-  --bl-sh-card: var(--nd-sh-row);
-  --bl-sh-lg: var(--nd-sh-card);
-  --bl-sh-fab: var(--nd-sh-fab);
-  --bl-sh-sheet: var(--nd-sh-sheet);
-  --bl-ring: var(--nd-ring);
+.nd-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  border-top-color: currentColor;
+  animation: nd-spin 0.7s linear infinite;
+}
+@keyframes nd-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ==========================================================================
@@ -201,31 +249,6 @@ body {
   transform: scale(0.97);
 }
 
-/* Controles heredados: mismo gesto, sin esperar a su rediseño. */
-.bl-btn,
-.bl-option,
-.bl-cat,
-.app-fab {
-  transition: transform var(--nd-dur-press) var(--nd-ease-out),
-    background-color var(--nd-dur-press) var(--nd-ease-out),
-    border-color var(--nd-dur-press) var(--nd-ease-out);
-}
-.bl-btn:active,
-.bl-option:active,
-.bl-cat:active,
-.app-fab:active {
-  transform: scale(0.97);
-}
-/* El «levantar al pasar el mouse» se pega en pantallas táctiles: solo con mouse real. */
-.bl-cat:hover {
-  transform: none;
-}
-@media (hover: hover) and (pointer: fine) {
-  .bl-cat:hover {
-    box-shadow: var(--nd-sh-row);
-  }
-}
-
 /* --- Hojas inferiores y paneles --- */
 @keyframes nd-sheet-up {
   from { transform: translateY(100%); }
@@ -235,17 +258,18 @@ body {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-.nd-sheet,
-.app-sheet-wrap {
+.nd-sheet {
   animation: nd-sheet-up var(--nd-dur-sheet) var(--nd-ease-out);
 }
-.nd-overlay,
-.app-overlay {
+.nd-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  padding: 0;
+  border: 0;
+  background: var(--nd-overlay);
+  cursor: pointer;
   animation: nd-fade-in var(--nd-dur-sheet) var(--nd-ease-out);
-}
-.app-drawer {
-  animation-duration: var(--nd-dur-sheet);
-  animation-timing-function: var(--nd-ease-out);
 }
 
 /* --- Barra inferior translúcida (Fase 4: BottomNav) --- */
@@ -262,17 +286,15 @@ body {
 /* --- Preferencias del sistema --- */
 @media (prefers-reduced-motion: reduce) {
   /* Sin escala ni desplazamiento: el cambio de estado (color, check) basta. */
-  .nd-press:active,
-  .bl-btn:active,
-  .bl-option:active,
-  .bl-cat:active,
-  .app-fab:active {
+  .nd-press:active {
     transform: none;
   }
   .nd-sheet,
-  .app-sheet-wrap,
-  .app-drawer {
+  .nd-overlay {
     animation: nd-fade-in 1ms linear;
+  }
+  .nd-spinner {
+    animation-duration: 1.6s;
   }
 }
 @media (prefers-reduced-transparency: reduce) {
@@ -425,24 +447,6 @@ body {
 .nd-bottomnav__item[aria-current='page'] {
   color: var(--nd-accent);
   font-weight: 600;
-}
-
-/* Lo anclado abajo (CTA, botón +, avisos) queda por encima de la barra. */
-.app-shell--nav .app-shell__content {
-  padding-bottom: calc(var(--bl-sp-10) + var(--nd-nav-h));
-}
-.app-shell--nav .app-shell__content--cta {
-  padding-bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-8) + var(--nd-nav-h));
-}
-.app-shell--nav .app-cta {
-  bottom: var(--nd-nav-h);
-  padding-bottom: var(--bl-sp-4);
-}
-.app-shell--nav .app-fab {
-  bottom: calc(var(--bl-sp-4) + var(--nd-nav-h));
-}
-.app-shell--nav .app-fab--above-cta {
-  bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-3) + var(--nd-nav-h));
 }
 
 /* ==========================================================================
@@ -979,14 +983,13 @@ body {
   box-shadow: var(--nd-sh-fab);
   cursor: pointer;
 }
-.app-shell--nav .app-fab {
+/* «+» flotante (Historial de Hoy), por encima de la barra inferior. En Mi Día
+   va al lado del CTA (.nd-ctabar), como en screens/Final-Bitacora.html. */
+.nd-fabwrap {
+  position: absolute;
+  z-index: 30;
   right: var(--nd-screen-pad-x);
   bottom: calc(20px + var(--nd-nav-h));
-}
-/* Con CTA anclado (Bitácora · Mi Día), por encima del CTA. En la Fase 5 el + pasa
-   al lado del CTA, como en screens/Final-Bitacora.html. */
-.app-shell--nav .app-fab--above-cta {
-  bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-3) + var(--nd-nav-h));
 }
 
 /* Aviso: píldora oscura arriba, lejos de los pulgares y del CTA. */
@@ -2055,6 +2058,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+/* Con muchos infantes la pantalla hace scroll; los bloques no se encogen. */
+.nd-gate > * {
+  flex-shrink: 0;
 }
 .nd-gate__intro {
   display: flex;

@@ -88,7 +88,7 @@ function FactorRow({ factor }: { factor: PredictionFactor }) {
       <span className="nd-factor__text">
         <span className="nd-factor__label">
           {factor.label}
-          <span className="bl-sr-only"> · empuja hacia {up ? 'arriba' : 'abajo'}</span>
+          <span className="nd-sr-only"> · empuja hacia {up ? 'arriba' : 'abajo'}</span>
         </span>
         {/* La ventana ya va en el nombre («…en los últimos tres días»). */}
         <span className="nd-factor__meta">Aparece junto a {up ? 'más' : 'menos'} riesgo</span>

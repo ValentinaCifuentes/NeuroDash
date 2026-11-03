@@ -58,9 +58,9 @@ export function Seguimiento({ subject, revision }: { subject: Subject; revision:
   if (days === null) {
     return (
       <section className="nd-card" aria-busy="true">
-        <span className="bl-sr-only">Cargando el seguimiento</span>
-        <div className="bl-skeleton" style={{ width: '50%', height: 22 }} />
-        <div className="bl-skeleton" style={{ height: 120 }} />
+        <span className="nd-sr-only">Cargando el seguimiento</span>
+        <div className="nd-skeleton" style={{ width: '50%', height: 22 }} />
+        <div className="nd-skeleton" style={{ height: 120 }} />
       </section>
     );
   }

@@ -2,14 +2,30 @@
  * Barra inferior de navegación · 4 pestañas del Prototipo final.
  *
  * Mis Tickets no es una pestaña: se abre desde Ficha › Ayuda y soporte, y
- * mientras está abierta la pestaña Ficha sigue marcada.
+ * mientras está abierta la pestaña Ficha sigue marcada. Lo mismo con las
+ * subvistas: Seguimiento marca Evolución, e Historial de Hoy marca Bitácora.
  */
 
 import { Icon, type IconName } from './icons';
 
-export type Route = 'evolucion' | 'bitacora' | 'planificacion' | 'ficha' | 'tickets';
+export type Route =
+  | 'evolucion'
+  | 'seguimiento'
+  | 'bitacora'
+  | 'historial'
+  | 'planificacion'
+  | 'ficha'
+  | 'tickets';
 
-type TabRoute = Exclude<Route, 'tickets'>;
+export const ROUTES: Route[] = ['evolucion', 'seguimiento', 'bitacora', 'historial', 'planificacion', 'ficha', 'tickets'];
+
+type TabRoute = 'evolucion' | 'bitacora' | 'planificacion' | 'ficha';
+
+const PARENT_TAB: Partial<Record<Route, TabRoute>> = {
+  seguimiento: 'evolucion',
+  historial: 'bitacora',
+  tickets: 'ficha',
+};
 
 const TABS: { id: TabRoute; label: string; icon: IconName }[] = [
   { id: 'evolucion', label: 'Evolución', icon: 'evolution' },
@@ -20,7 +36,7 @@ const TABS: { id: TabRoute; label: string; icon: IconName }[] = [
 
 /** Pestaña que se marca para cada ruta (las subpantallas marcan a su padre). */
 export function tabFor(route: Route): TabRoute {
-  return route === 'tickets' ? 'ficha' : route;
+  return PARENT_TAB[route] ?? (route as TabRoute);
 }
 
 interface Props {

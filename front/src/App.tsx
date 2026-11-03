@@ -8,7 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { SubjectGate } from './components/SubjectGate';
-import { BottomNav, type Route } from './components/BottomNav';
+import { BottomNav, ROUTES, type Route } from './components/BottomNav';
 import { PageHeader, type PageHeaderProps } from './components/PageHeader';
 import { Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
@@ -29,13 +29,25 @@ export default function App() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
-  const [route, setRoute] = useState<Route>('evolucion');
+  const [route, setRoute] = useState<Route>(routeFromHash);
   const [sheet, setSheet] = useState<SheetState>({ kind: 'none' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
 
   const fabRef = useRef<HTMLButtonElement>(null);
+
+  // La ruta vive en la dirección (#seguimiento…): «atrás» del navegador y del
+  // teléfono funciona, y al recargar se vuelve a la misma vista. Con «#» sirve
+  // también el build de un solo archivo, sin servidor.
+  useEffect(() => {
+    if (window.location.hash !== `#${route}`) window.history.pushState(null, '', `#${route}`);
+  }, [route]);
+  useEffect(() => {
+    const onPop = () => setRoute(routeFromHash());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   useEffect(() => {
     listSubjects()
@@ -109,9 +121,9 @@ export default function App() {
 
   if (loadError) {
     return (
-      <div className="app-shell">
-        <div className="app-shell__content">
-          <div className="bl-alert bl-alert--danger" role="alert">
+      <div className="nd-shell">
+        <div className="nd-screen">
+          <div className="nd-alert" role="alert">
             <Icon name="alert" size={18} />
             <span>{loadError.message}</span>
           </div>
@@ -122,17 +134,17 @@ export default function App() {
 
   if (loadingSubjects) {
     return (
-      <div className="app-shell">
-        <div className="app-shell__content" aria-busy="true">
-          <span className="bl-sr-only">Cargando</span>
-          <div className="bl-card app-stack--tight">
-            <div className="bl-skeleton" style={{ width: '60%', height: 22 }} />
-            <div className="bl-skeleton" style={{ width: '80%' }} />
+      <div className="nd-shell">
+        <div className="nd-screen" aria-busy="true">
+          <span className="nd-sr-only">Cargando</span>
+          <div className="nd-card">
+            <div className="nd-skeleton" style={{ width: '60%', height: 22 }} />
+            <div className="nd-skeleton" style={{ width: '80%' }} />
           </div>
-          <div className="bl-card app-stack--tight">
-            <div className="bl-skeleton" />
-            <div className="bl-skeleton" />
-            <div className="bl-skeleton" style={{ width: '70%' }} />
+          <div className="nd-card">
+            <div className="nd-skeleton" />
+            <div className="nd-skeleton" />
+            <div className="nd-skeleton" style={{ width: '70%' }} />
           </div>
         </div>
       </div>
@@ -141,27 +153,29 @@ export default function App() {
 
   if (!subject) {
     return (
-      <div className="app-shell">
+      <div className="nd-shell">
         <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />
       </div>
     );
   }
 
   return (
-    <div className="app-shell app-shell--nav">
-      <a className="bl-skip" href="#contenido">
+    <div className="nd-shell">
+      <a className="nd-skip" href="#contenido">
         Saltar al contenido
       </a>
 
-      <main className="app-shell__scroll" id="contenido">
+      <main className="nd-shell__scroll" id="contenido">
         <PageHeader
           {...headerFor(route, subject.display_name, () => setRoute('ficha'))}
           initials={subject.initials}
           subjectName={subject.display_name}
           onChangeSubject={() => setSubject(null)}
         />
-        {route === 'bitacora' && (
+        {(route === 'bitacora' || route === 'historial') && (
           <BitacoraDiaria
+            view={route === 'historial' ? 'historial' : 'basal'}
+            onChangeView={(view) => setRoute(view === 'historial' ? 'historial' : 'bitacora')}
             subject={subject}
             revision={revision}
             saving={saving}
@@ -170,8 +184,14 @@ export default function App() {
             fabRef={fabRef}
           />
         )}
-        {route === 'evolucion' && (
-          <Evolucion subject={subject} revision={revision} onOpenBitacora={() => setRoute('bitacora')} />
+        {(route === 'evolucion' || route === 'seguimiento') && (
+          <Evolucion
+            subject={subject}
+            revision={revision}
+            onOpenBitacora={() => setRoute('bitacora')}
+            view={route === 'seguimiento' ? 'seguimiento' : 'estimacion'}
+            onChangeView={(view) => setRoute(view === 'seguimiento' ? 'seguimiento' : 'evolucion')}
+          />
         )}
         {route === 'ficha' && <FichaInicial subject={subject} onOpenTickets={() => setRoute('tickets')} />}
         {route === 'tickets' && <MisTickets />}
@@ -205,7 +225,7 @@ export default function App() {
       {toast && <Toast message={toast} />}
 
       {USING_MOCK && (
-        <span className="bl-sr-only">
+        <span className="nd-sr-only">
           Modo demostración: los datos provienen de un fixture de interfaz, no del motor.
         </span>
       )}
@@ -216,11 +236,18 @@ export default function App() {
 type HeaderCopy = Pick<PageHeaderProps, 'title' | 'subtitle' | 'brand' | 'back'>;
 
 /** Título y subtítulo de cada pantalla, tal como en `screens/` del prototipo. */
+function routeFromHash(): Route {
+  const hash = window.location.hash.slice(1) as Route;
+  return ROUTES.includes(hash) ? hash : 'evolucion';
+}
+
 function headerFor(route: Route, name: string, backToFicha: () => void): HeaderCopy {
   switch (route) {
     case 'evolucion':
+    case 'seguimiento':
       return { title: 'Evolución' };
     case 'bitacora':
+    case 'historial':
       return {
         brand: true,
         title: 'Bitácora Diaria',

@@ -170,8 +170,6 @@ export interface CategoryDef {
   /** Cuadro del ícono y fondo de la tarjeta (screens/Final-Registro-Categorias.html). */
   color: string;
   tint: string;
-  /** Clase modificadora del design system: bl-cat--food | crisis | trans | sens */
-  modifier: 'food' | 'crisis' | 'trans' | 'sens';
   semantic: Semantic;
   /** A qué `tipo_evento` del CSV resuelve la categoría. */
   eventType: EventType;
@@ -185,7 +183,6 @@ export const CATEGORIES: CategoryDef[] = [
     icon: 'food',
     color: 'var(--nd-risk-low)',
     tint: 'var(--nd-risk-low-bg)',
-    modifier: 'food',
     semantic: 'success',
     eventType: 'Alimentación',
   },
@@ -196,7 +193,6 @@ export const CATEGORIES: CategoryDef[] = [
     icon: 'bolt',
     color: 'var(--nd-risk-high)',
     tint: 'var(--nd-risk-high-bg)',
-    modifier: 'crisis',
     semantic: 'danger',
     eventType: 'Desregulación Emocional',
   },
@@ -207,7 +203,6 @@ export const CATEGORIES: CategoryDef[] = [
     icon: 'transition',
     color: 'var(--nd-missing)',
     tint: 'var(--nd-risk-mid-bg)',
-    modifier: 'trans',
     semantic: 'warning',
     eventType: 'Transición de Actividad',
   },
@@ -218,7 +213,6 @@ export const CATEGORIES: CategoryDef[] = [
     icon: 'sensory',
     color: '#5B6478',  /* pizarra */
     tint: '#ECEEF3',
-    modifier: 'sens',
     semantic: 'info',
     eventType: 'Dieta Sensorial',
   },

@@ -45,7 +45,7 @@ import type {
 import { Icon } from '../components/icons';
 import { Fab } from '../components/shell';
 
-type TabId = 'basal' | 'historial';
+export type BitacoraView = 'basal' | 'historial';
 
 interface Props {
   subject: Subject;
@@ -58,10 +58,16 @@ interface Props {
   onAddEvent?: () => void;
   /** El «+» recibe el foco al cerrar la hoja. */
   fabRef?: RefObject<HTMLButtonElement>;
+  /** Vista activa; es una ruta de App (`#bitacora` / `#historial`). */
+  view?: BitacoraView;
+  onChangeView?: (view: BitacoraView) => void;
 }
 
-export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef }: Props) {
-  const [tab, setTab] = useState<TabId>('basal');
+export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef, view, onChangeView }: Props) {
+  // Controlada por App; sin `view` (pruebas aisladas) guarda su propio estado.
+  const [ownTab, setOwnTab] = useState<BitacoraView>('basal');
+  const tab = view ?? ownTab;
+  const setTab = onChangeView ?? setOwnTab;
 
   return (
     <div className="nd-screen">
@@ -93,7 +99,7 @@ function MiDia({
   onSaveBasal,
   onAddEvent,
   fabRef,
-}: Omit<Props, 'revision'>) {
+}: Omit<Props, 'revision' | 'view' | 'onChangeView'>) {
   const [sleep, setSleep] = useState<SleepQuality | null>(null);
   const [wake, setWake] = useState<WakeMode | null>(null);
   const [autonomy, setAutonomy] = useState<StartAutonomy | null>(null);
@@ -218,7 +224,7 @@ function MiDia({
         >
           {saving ? (
             <>
-              <span className="bl-spinner" aria-hidden="true" /> Guardando…
+              <span className="nd-spinner" aria-hidden="true" /> Guardando…
             </>
           ) : (
             <>

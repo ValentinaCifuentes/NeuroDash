@@ -33,6 +33,15 @@ describe('BottomNav', () => {
     expect(screen.queryByRole('link', { name: /Tickets/ })).not.toBeInTheDocument();
   });
 
+  it('keeps the parent tab marked on the sub-views', () => {
+    render(<BottomNav current="seguimiento" onNavigate={() => undefined} />);
+    expect(screen.getByRole('link', { name: 'Evolución' })).toHaveAttribute('aria-current', 'page');
+    cleanup();
+
+    render(<BottomNav current="historial" onNavigate={() => undefined} />);
+    expect(screen.getByRole('link', { name: 'Bitácora' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('navigates without reloading the page', () => {
     const onNavigate = vi.fn();
     render(<BottomNav current="evolucion" onNavigate={onNavigate} />);
