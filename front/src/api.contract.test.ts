@@ -485,12 +485,29 @@ describe('subject list from the real API (Fase 1 · paso 9)', () => {
 
     expect(subject).toMatchObject({
       subject_id: 'PAC-A',
-      age_range: 'Edad no registrada',
-      diagnosis: expect.any(String),
-      sensory_profile: expect.any(String),
+      age_range: '',
+      diagnosis: '',
+      sensory_profile: '',
       timezone: 'America/New_York',
       provenance: { synthetic: true },
     });
+  });
+});
+
+describe('subject profile', () => {
+  it('keeps the onboarding answers that GET /subjects/{id} returns', async () => {
+    const { adaptSubjectForTest } = await import('./api');
+    const subject = adaptSubjectForTest({
+      subject_id: 'tomi',
+      display_name: 'Tomi',
+      habitual_context: { age_range: '6 a 8 años', early_signs: ['Se aísla'] },
+      sensory_context: { auditory: 1 },
+      historical_supports: [{ id: 'sup_espacio_seguro', description: 'Espacio seguro', effective: true }],
+    });
+
+    expect(subject.habitual_context).toEqual({ age_range: '6 a 8 años', early_signs: ['Se aísla'] });
+    expect(subject.sensory_context).toEqual({ auditory: 1 });
+    expect(subject.historical_supports).toHaveLength(1);
   });
 });
 
@@ -498,6 +515,7 @@ describe('subject initials for the avatar', () => {
   it('derives two initials when the backend sends one for a hyphenated alias', async () => {
     const { adaptSubjectForTest } = await import('./api');
     expect(adaptSubjectForTest({ subject_id: 'PAC-A', display_name: 'PAC-A', initials: 'P' }).initials).toBe('PA');
+    expect(adaptSubjectForTest({ subject_id: 'tomi', display_name: 'Tomi', initials: 'T' }).initials).toBe('TO');
     expect(adaptSubjectForTest({ subject_id: 'alex', display_name: 'Alex Rivera', initials: 'AR' }).initials).toBe('AR');
   });
 });

@@ -14,9 +14,9 @@ import { Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
 import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
-import { FichaInicial, MisTickets } from './pages/Placeholders';
+import { FichaInicial, MisTickets } from './pages/Ficha';
 import { Planificacion } from './pages/Planificacion';
-import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
+import { getSubject, listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
 import { Icon } from './components/icons';
@@ -43,6 +43,20 @@ export default function App() {
       .catch((e: ApiError) => setLoadError(e))
       .finally(() => setLoadingSubjects(false));
   }, []);
+
+  // El listado no trae el perfil inicial: al elegir un infante se pide completo
+  // (Ficha, señales tempranas de la Bitácora). Si falla, se sigue con el del listado.
+  const subjectId = subject?.subject_id;
+  useEffect(() => {
+    if (!subjectId) return;
+    let alive = true;
+    getSubject(subjectId)
+      .then((full) => alive && setSubject((current) => (current?.subject_id === full.subject_id ? { ...current, ...full } : current)))
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [subjectId]);
 
   async function onOnboard(input: SubjectOnboardingInput) {
     const created = await onboardSubject(input);

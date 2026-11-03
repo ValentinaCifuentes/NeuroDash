@@ -219,10 +219,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
   }).then(adaptPrediction);
 }
 
-type BackendSubject = Partial<Subject> & {
-  subject_id: string;
-  sensory_context?: Record<string, unknown>;
-};
+type BackendSubject = Partial<Subject> & { subject_id: string };
 
 /** `GET /subjects/{id}/timeline` (`routes/subjects.py › get_subject_timeline`). */
 export type BackendTimelineResponse = {
@@ -289,9 +286,8 @@ type BackendSupport = {
 export const adaptSubjectForTest = (subject: BackendSubject) => adaptSubject(subject);
 
 function adaptSubject(subject: BackendSubject): Subject {
-  const sensoryProfile =
-    subject.sensory_profile ??
-    String(subject.sensory_context?.sensory_profile ?? 'Perfil sensorial no registrado');
+  // Vacío = sin registrar; la Ficha decide cómo decirlo.
+  const sensoryProfile = subject.sensory_profile ?? String(subject.sensory_context?.sensory_profile ?? '');
   return {
     subject_id: subject.subject_id,
     display_name: subject.display_name ?? subject.subject_id,
@@ -300,12 +296,15 @@ function adaptSubject(subject: BackendSubject): Subject {
       subject.initials && subject.initials.length > 1
         ? subject.initials
         : initialsFromId(subject.display_name ?? subject.subject_id),
-    age_range: subject.age_range ?? 'Edad no registrada',
-    diagnosis: subject.diagnosis ?? 'Sin diagnóstico mostrado en esta vista',
+    age_range: subject.age_range ?? '',
+    diagnosis: subject.diagnosis ?? '',
     sensory_profile: sensoryProfile,
     timezone: subject.timezone,
     cold_start: subject.cold_start,
     provenance: subject.provenance,
+    habitual_context: subject.habitual_context,
+    sensory_context: subject.sensory_context,
+    historical_supports: subject.historical_supports,
   };
 }
 
@@ -512,12 +511,10 @@ function sentenceCase(value: string): string {
 }
 
 function initialsFromId(subjectId: string): string {
-  return subjectId
-    .split(/[-_\s]+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const parts = subjectId.split(/[-_\s]+/).filter(Boolean);
+  // Un alias de una palabra («Tomi») usa sus dos primeras letras: «TO».
+  const letters = parts.length > 1 ? parts.map((part) => part[0]).join('') : (parts[0] ?? '');
+  return letters.slice(0, 2).toUpperCase();
 }
 
 const SEVERITY_LABEL: Record<string, string> = { mild: 'leve', moderate: 'moderada', severe: 'severa' };

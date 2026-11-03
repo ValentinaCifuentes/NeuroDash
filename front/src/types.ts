@@ -24,6 +24,10 @@ export interface Subject {
   timezone?: string;
   cold_start?: boolean;
   provenance?: { source: string; synthetic: boolean };
+  /* Perfil inicial (solo en `GET /subjects/{id}`; el listado no lo trae). */
+  habitual_context?: Record<string, string | string[]>;
+  sensory_context?: Record<string, unknown>;
+  historical_supports?: { id?: string; description?: string; effective?: boolean }[];
 }
 
 export interface SubjectOnboardingInput {

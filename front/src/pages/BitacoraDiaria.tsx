@@ -15,7 +15,6 @@
 import { useEffect, useState, type RefObject } from 'react';
 import { ChipGroup, ChoiceTiles, SegmentedTabs, ShapeList, Switch } from '../components/controls';
 import {
-  DEFAULT_EARLY_SIGNS,
   GI_CHOICES,
   NO_DISCOMFORT,
   NO_EARLY_SIGNS,
@@ -31,6 +30,7 @@ import {
 } from '../domain/catalog';
 import { getTimeline } from '../api';
 import { todayRows } from '../domain/history';
+import { earlySignOptions } from '../domain/profile';
 import type {
   ApiError,
   DailyRecord,
@@ -108,6 +108,8 @@ function MiDia({
   /** P2: una clave por guardado; se reutiliza si el intento falla. */
   const [saveKey, setSaveKey] = useState(() => crypto.randomUUID());
 
+  /** P24: las señales que el tutor marcó en el perfil; sin perfil, la lista general. */
+  const signs = earlySignOptions(subject);
   const missing = [!sleep && 'sueño', !wake && 'despertar'].filter(Boolean) as string[];
   const canSave = missing.length === 0 && !saving;
 
@@ -181,8 +183,8 @@ function MiDia({
           mode="multiple"
           legendStyle="section"
           legend="¿Viste alguna de sus señales tempranas?"
-          hint="Las señales salen de su perfil. Puedes marcar varias."
-          options={[...DEFAULT_EARLY_SIGNS, NO_EARLY_SIGNS]}
+          hint={signs.fromProfile ? 'Las señales salen de su perfil. Puedes marcar varias.' : 'Puedes marcar varias.'}
+          options={[...signs.options, NO_EARLY_SIGNS]}
           exclusive={NO_EARLY_SIGNS}
           value={earlySigns}
           onChange={setEarlySigns}

@@ -83,6 +83,21 @@ describe('Bitácora · Mi Día', () => {
     expect(sentRecord(save)).toMatchObject({ sleep_hours_range: '7 a 9 h', early_signs: ['Ninguna'] });
   });
 
+  it('offers the early signs of the profile when there are some (P24)', () => {
+    render(
+      <BitacoraDiaria
+        subject={{ ...subject, habitual_context: { early_signs: ['Se aísla', 'Otra'] } }}
+        revision={0}
+        saving={false}
+        onSaveBasal={vi.fn()}
+      />,
+    );
+    const signs = screen.getByRole('group', { name: /señales tempranas/ });
+
+    expect(within(signs).getAllByRole('checkbox').map((chip) => chip.textContent)).toEqual(['Se aísla', 'Ninguna']);
+    expect(screen.getByText(/Las señales salen de su perfil/)).toBeInTheDocument();
+  });
+
   it('retries a failed save with the same key and uses a new one after success (P2)', async () => {
     const save = setup(vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true));
     answerCore();

@@ -2354,3 +2354,105 @@ body {
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   gap: 12px;
 }
+
+/* ============================================================
+   Ficha y Mis Tickets (screens/Final-Ficha.html, Final-Tickets.html)
+   ============================================================ */
+.nd-profile {
+  gap: 6px;
+}
+.nd-profile__list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.nd-profile__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--nd-line);
+}
+.nd-profile__row:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+.nd-profile__row dt {
+  font-size: 14px;
+  color: var(--nd-muted);
+}
+.nd-profile__row dd {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: right;
+  color: var(--nd-ink);
+}
+.nd-profile__list--stacked .nd-profile__row {
+  flex-direction: column;
+  gap: 4px;
+}
+.nd-profile__list--stacked .nd-profile__row dd {
+  text-align: left;
+  line-height: 1.4;
+}
+.nd-profile__mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+.nd-profile__row dd.nd-profile__empty {
+  font-weight: 500;
+  color: var(--nd-muted);
+}
+.nd-profile__support {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+.nd-profile__support .nd-eyebrow {
+  padding: 0 4px;
+}
+.nd-note {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--nd-accent-soft);
+  border-radius: var(--nd-r-note);
+  padding: 16px;
+  color: var(--nd-accent-ink);
+}
+.nd-note p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.nd-unavailable {
+  padding: 44px 28px;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.nd-unavailable__icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 4px;
+  border-radius: var(--nd-r-xl);
+  background: var(--nd-bg);
+  color: var(--nd-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nd-unavailable b {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--nd-ink);
+}
+.nd-unavailable p {
+  margin: 0;
+  max-width: 260px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--nd-ink-2);
+}
