@@ -51,6 +51,13 @@ describe('Historial de Hoy', () => {
     expect(row.summary).toBe('Severa (8-10) · Espacio seguro, Audífonos');
   });
 
+  it('shows a confirmed crisis as a dysregulation and says where it came from (P8)', () => {
+    const row = historyRow(event(3, 14, { event_type: 'Desregulación Emocional', severity: 'moderate', source: 'outcome_confirmation' }));
+
+    expect(row.title).toBe('Desregulación');
+    expect(row.summary).toBe('Confirmada desde la estimación');
+  });
+
   it('keeps the backend title for a confirmed crisis without event type', () => {
     expect(historyRow(event(3, 9, { intensity_value: 8 }, 'Crisis confirmada')).title).toBe('Crisis confirmada');
   });

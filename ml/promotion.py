@@ -60,19 +60,27 @@ def record_prediction_outcome(
         if outcome.get("idempotency_key") == idempotency_key:
             return outcome
 
+    occurrence_timestamp = None
     if actual_outcome:
-        # Append an occurrence inside the horizon (cutoff, cutoff + horizon_hours].
-        # Place it at the midpoint of the horizon so it is always a valid positive
-        # label for the prediction cutoff that produced it.
+        # La crisis confirmada es una desregulación (P8): lleva su tipo, así el
+        # historial la muestra como tal y cuenta en los conteos del día. Su hora
+        # cae dentro del horizonte (cutoff, cutoff + horizon_hours], para que sea
+        # una etiqueta válida de esa estimación, y nunca después de «ahora»: se
+        # confirma lo que ya ocurrió.
         horizon_hours = int(pred_snapshot.get("horizon_hours", HORIZON_HOURS))
-        occ_time = cutoff + timedelta(hours=horizon_hours / 2)
-        
+        horizon_end = cutoff + timedelta(hours=horizon_hours)
+        now = datetime.now(timezone.utc)
+        occ_time = max(cutoff + timedelta(seconds=1), min(now.astimezone(cutoff.tzinfo), horizon_end))
+        occurrence_timestamp = occ_time.isoformat()
+
         occ_record = {
             "id": f"occ_{prediction_id}",
             "subject_id": pred_snapshot["subject_id"],
-            "source_timestamp": occ_time.isoformat(),
-            "availability_timestamp": occ_time.isoformat(),
-            "severity": "moderate"
+            "source_timestamp": occurrence_timestamp,
+            "availability_timestamp": occurrence_timestamp,
+            "event_type": "Desregulación Emocional",
+            "severity": "moderate",
+            "source": "outcome_confirmation",
         }
 
         occurrences_path = subject_dir / "occurrences.json"
@@ -95,6 +103,7 @@ def record_prediction_outcome(
         "actor_id": actor_id,
         "idempotency_key": idempotency_key,
         "provenance": provenance,
+        "occurrence_timestamp": occurrence_timestamp,
     }
     outcomes.append(outcome)
     write_json_atomic(outcomes_path, outcomes)

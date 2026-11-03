@@ -4,7 +4,6 @@ __pycache__/
 # Frontend dependencies and build outputs
 front/node_modules/
 front/dist/
-front/dist-single/
 front/.vite/
 
 # Python/test caches

@@ -38,8 +38,8 @@ export default function App() {
   const fabRef = useRef<HTMLButtonElement>(null);
 
   // La ruta vive en la dirección (#seguimiento…): «atrás» del navegador y del
-  // teléfono funciona, y al recargar se vuelve a la misma vista. Con «#» sirve
-  // también el build de un solo archivo, sin servidor.
+  // teléfono funciona, y al recargar se vuelve a la misma vista. Con «#» no hace
+  // falta configurar rutas en el servidor.
   useEffect(() => {
     if (window.location.hash !== `#${route}`) window.history.pushState(null, '', `#${route}`);
   }, [route]);

@@ -109,7 +109,12 @@ def test_a_confirmed_crisis_on_a_demo_reaches_the_model_and_the_timeline(tmp_pat
     _, _, occurrences = prediction_service.load_subject_data("PAC-A")
     assert occurrences[-1]["id"] == "occ_pred-1"
     timeline = client.get("/api/v1/subjects/PAC-A/timeline", params={"as_of": "2026-11-02T20:00:00-03:00", "days": 1})
-    assert timeline.json()["entries"][0]["title"] == "Crisis confirmada"
+    entries = timeline.json()["entries"]
+    # P8: es una desregulación (no un evento sin tipo) y cuenta en el registro del día.
+    confirmed_entry = next(entry for entry in entries if entry["entry_id"] == "occ_pred-1")
+    assert confirmed_entry["title"] == "Desregulación Emocional"
+    assert confirmed_entry["payload"]["source"] == "outcome_confirmation"
+    assert any(entry["kind"] == "daily_record" and entry["payload"].get("dysregulation_count") for entry in entries)
 
 
 def test_an_unknown_subject_still_returns_404(tmp_path: Path, monkeypatch) -> None:

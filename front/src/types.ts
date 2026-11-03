@@ -128,6 +128,8 @@ export interface DysregulationEvent {
   quick_capture: boolean;
   /** Clave de reintento (P2), igual que en `DailyRecord`. */
   idempotency_key?: string;
+  /** «outcome_confirmation»: crisis confirmada desde la estimación (P8). Solo en lecturas. */
+  source?: string;
 }
 
 /* --- Vocabularios cerrados. Los valores son los literales del CSV. --- */

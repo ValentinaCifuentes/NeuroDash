@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 import json
 from datetime import datetime, timezone
@@ -257,12 +258,40 @@ def make_prediction(
     subject_dir, _ = get_subject_paths(subject_id)
     predictions_dir = subject_dir / "predictions"
     predictions_dir.mkdir(parents=True, exist_ok=True)
-    
+
+    inputs = json.loads(json.dumps({"records": records, "occurrences": occurrences}, default=str))
+
+    # P5: abrir Evolución pide una estimación cada vez. Si es la misma hora y los
+    # datos no cambiaron, el resultado es el mismo: se reutiliza la copia guardada
+    # (y su prediction_id, que es el que usa «Confirmar que ocurrió») en vez de
+    # escribir otra con todo el historial.
+    reuse_key = _snapshot_key(prediction_cutoff, inputs)
+    index_path = predictions_dir / "index.json"
+    index = _read_snapshot_index(index_path)
+    existing_id = index.get(reuse_key)
+    if existing_id and (predictions_dir / f"{existing_id}.json").exists():
+        return existing_id, contract.model_copy(update={"prediction_id": existing_id})
+
     snapshot = contract.model_dump(mode="json")
-    snapshot["inputs"] = json.loads(json.dumps({"records": records, "occurrences": occurrences}, default=str))
+    snapshot["inputs"] = inputs
     snapshot["features"] = features.rolling_features
-    
+
     snapshot_path = predictions_dir / f"{prediction_id}.json"
     write_json_atomic(snapshot_path, snapshot)
+    write_json_atomic(index_path, {**index, reuse_key: prediction_id})
 
     return prediction_id, contract
+
+
+def _snapshot_key(prediction_cutoff: datetime, inputs: dict[str, Any]) -> str:
+    """Misma hora (UTC) + mismos datos de entrada → misma estimación."""
+    hour = prediction_cutoff.astimezone(timezone.utc).strftime("%Y-%m-%dT%H")
+    digest = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    return f"{hour}:{digest}"
+
+
+def _read_snapshot_index(index_path: Path) -> dict[str, str]:
+    try:
+        return json.loads(index_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}

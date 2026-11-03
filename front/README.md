@@ -28,11 +28,7 @@ Otros comandos:
 ```bash
 npm run typecheck                        # tsc --noEmit
 npm run build                            # dist/ normal
-SINGLE_FILE=1 npx vite build --outDir dist-single   # HTML único autocontenido
 ```
-
-El build `SINGLE_FILE` existe para la **demo congelada** (Arquitectura §14):
-un solo `.html` que abre sin servidor, sin npm y sin red.
 
 ---
 

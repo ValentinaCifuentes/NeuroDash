@@ -83,7 +83,7 @@ def confirm_outcome(prediction_id: str, req: OutcomeRequest, actor: ActorContext
     
     # 2. Record outcome
     try:
-        return record_prediction_outcome(
+        outcome = record_prediction_outcome(
             prediction_id=prediction_id,
             actual_outcome=req.actual_outcome,
             subject_dir=subject_dir,
@@ -93,3 +93,10 @@ def confirm_outcome(prediction_id: str, req: OutcomeRequest, actor: ActorContext
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Prediction {prediction_id} not found.")
+
+    # La crisis confirmada cuenta en el día como cualquier desregulación (P8).
+    if outcome.get("occurrence_timestamp"):
+        subjects._refresh_daily_event_counts(
+            subject_dir.name, datetime.fromisoformat(outcome["occurrence_timestamp"]), actor.actor_id
+        )
+    return outcome
