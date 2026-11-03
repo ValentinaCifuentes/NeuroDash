@@ -44,6 +44,7 @@ import type {
 } from '../types';
 import { Icon } from '../components/icons';
 import { Fab } from '../components/shell';
+import { newId } from '../domain/ids';
 
 export type BitacoraView = 'basal' | 'historial';
 
@@ -112,7 +113,7 @@ function MiDia({
   const [routineChange, setRoutineChange] = useState<string | null>(null);
   const [school, setSchool] = useState<string | null>(null);
   /** P2: una clave por guardado; se reutiliza si el intento falla. */
-  const [saveKey, setSaveKey] = useState(() => crypto.randomUUID());
+  const [saveKey, setSaveKey] = useState(() => newId());
 
   /** P24: las señales que el tutor marcó en el perfil; sin perfil, la lista general. */
   const signs = earlySignOptions(subject);
@@ -135,7 +136,7 @@ function MiDia({
       school_attendance: school,
       idempotency_key: saveKey,
     });
-    if (saved !== false) setSaveKey(crypto.randomUUID());
+    if (saved !== false) setSaveKey(newId());
   }
 
   return (

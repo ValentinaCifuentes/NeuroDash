@@ -20,6 +20,7 @@ import { CONFIDENCE_LABEL } from "../domain/catalog";
 import { FactorsSheet, MissingDataSheet, highlightedFactors } from "../sheets/EstimationSheets";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
+import { newId } from "../domain/ids";
 
 export type TabId = "estimacion" | "seguimiento";
 type SheetId = "factors" | "missing" | null;
@@ -208,7 +209,7 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
                     type="button"
                     className="nd-button-outline nd-press"
                     onClick={async () => {
-                        await confirmPredictionOutcome(prediction.prediction_id, true, crypto.randomUUID());
+                        await confirmPredictionOutcome(prediction.prediction_id, true, newId());
                         setConfirmed(true);
                     }}
                 >

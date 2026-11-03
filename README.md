@@ -73,9 +73,10 @@ npm run dev
 
 Abra la URL de Vite, normalmente <http://localhost:5173>.
 
-De forma predeterminada, el frontend utiliza el accesorio en memoria ubicado en
-`front/src/mocks/mockApi.ts`; no ejecuta el motor de ML y sus datos se borran al
-recargar. Para utilizar el backend de FastAPI en su lugar:
+De forma predeterminada, el frontend responde desde `front/src/mocks/mockBackend.ts`:
+las mismas rutas y el mismo JSON que FastAPI, con las demos PAC-A/B/C exportadas de la
+demo real. No ejecuta el motor de ML (la estimación no cambia al registrar) y lo
+registrado se borra al recargar. Para utilizar el backend de FastAPI en su lugar:
 
 ```powershell
 Copy-Item .env.example .env
@@ -113,7 +114,7 @@ VITE_ACTOR_ROLE=tutor
 ```
 
 Con `VITE_API_BASE` definida vacía, la UI usa el mock en memoria y no llama al
-backend. Sirve como respaldo sin red para una demo:
+backend (es secundario: la demo del congreso es un video grabado con el backend):
 
 ```bash
 VITE_API_BASE= docker compose up --build -d frontend
@@ -133,7 +134,14 @@ genere el historial con la fecha de término y reentrene:
 python scripts/generate_mock_histories.py --end-date 2026-11-20
 python scripts/train_demo_models.py
 python scripts/smoke_demo.py
+python scripts/export_contract_fixture.py
+python scripts/export_mock_fixture.py
 ```
+
+Los dos últimos actualizan lo que usa el front sin backend: el fixture de contrato de
+las pruebas y las demos del modo sin servidor (`front/src/mocks/demo-fixture.json`,
+usado con `VITE_API_BASE=`). El modo sin servidor corre las fechas solo, para que la
+demo termine siempre el día anterior.
 
 Antes de entrenar, borre `models/PAC-A` y `models/PAC-B`, para que el modelo nuevo sea
 la versión 1. Después reconstruya con datos limpios: `docker compose down -v` y

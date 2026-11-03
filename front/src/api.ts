@@ -13,9 +13,9 @@
  *   POST /api/v1/predictions
  *   POST /api/v1/predictions/{prediction_id}/outcome
  *
- * Si `VITE_API_BASE` no está definido, se usa `mocks/mockApi` para que la
- * UI corra sola durante el desarrollo del frontend. El mock respeta el
- * mismo contrato: cambiar de uno a otro no toca ningún componente.
+ * Si `VITE_API_BASE` no está definido, las mismas rutas responden desde
+ * `mocks/mockBackend.ts` (demos PAC-A/B/C exportadas de la demo real), y el
+ * JSON pasa por los mismos adaptadores: cambiar de modo no toca ningún componente.
  */
 
 import type {
@@ -35,7 +35,7 @@ import type {
   OutcomeConfirmation,
   SubjectOnboardingInput,
 } from './types';
-import * as mock from './mocks/mockApi';
+import { newId } from './domain/ids';
 export { createSubjectId, subjectInitials } from './domain/subjectIdentity';
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -68,6 +68,13 @@ export function getActorHeaders(env: Record<string, string | undefined> = import
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  // Sin backend (VITE_API_BASE vacío): las mismas rutas y el mismo JSON, desde
+  // `mocks/mockBackend.ts`. Todo lo demás (adaptadores, errores) es igual.
+  // Se carga solo en ese modo: con backend, las demos no viajan en el bundle.
+  if (USING_MOCK) {
+    const { mockRequest } = await import('./mocks/mockBackend');
+    return (await mockRequest(path, init)) as T;
+  }
   let res: Response;
   try {
     res = await fetch(`${BASE}${path}`, {
@@ -94,12 +101,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function getSubject(subjectId: string): Promise<Subject> {
-  if (USING_MOCK) return mock.getSubject(subjectId);
   return request<BackendSubject>(`/api/v1/subjects/${subjectId}`).then(adaptSubject);
 }
 
 export function listSubjects(): Promise<Subject[]> {
-  if (USING_MOCK) return mock.listSubjects();
   // La lista del backend solo trae los datos de selección; adaptSubject completa
   // los campos de perfil que las pantallas leen (edad, diagnóstico, perfil sensorial).
   return request<{ subjects: BackendSubject[] }>('/api/v1/subjects').then((response) =>
@@ -108,7 +113,6 @@ export function listSubjects(): Promise<Subject[]> {
 }
 
 export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
-  if (USING_MOCK) return mock.onboardSubject(input);
   // Quien crea el perfil queda autorizado para confirmar sus resultados (`require_subject_access`).
   const body = { ...input, authorized_tutor_ids: [getActorHeaders()['X-Actor-Id']] };
   return request<BackendSubject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(body) }).then(adaptSubject);
@@ -119,7 +123,6 @@ export function getTimeline(
   asOf: string,
   days = 1,
 ): Promise<TimelineResponse> {
-  if (USING_MOCK) return mock.getTimeline(subjectId, asOf, days);
   const qs = new URLSearchParams({ as_of: asOf, days: String(days) });
   return request<BackendTimelineResponse>(`/api/v1/subjects/${subjectId}/timeline?${qs}`).then(
     adaptTimelineResponse,
@@ -149,7 +152,7 @@ export type CareWriteMeta = {
   provenance: { source: 'tutor_app'; synthetic: false };
 };
 
-export function buildCareWrite(occurredAt: Date, idempotencyKey: string = crypto.randomUUID()): CareWriteMeta {
+export function buildCareWrite(occurredAt: Date, idempotencyKey: string = newId()): CareWriteMeta {
   return {
     occurred_at: toLocalIsoString(occurredAt),
     idempotency_key: idempotencyKey,
@@ -187,7 +190,6 @@ export function buildEventWrite(event: DysregulationEvent, idempotencyKey?: stri
 }
 
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
-  if (USING_MOCK) return mock.saveDailyRecord(record);
   return request<Record<string, unknown>>(`/api/v1/subjects/${record.subject_id}/daily-records`, {
     method: 'POST',
     headers: getActorHeaders(),
@@ -196,7 +198,6 @@ export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
 }
 
 export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent> {
-  if (USING_MOCK) return mock.saveEvent(event);
   return request<DysregulationEvent>(`/api/v1/subjects/${event.subject_id}/events`, {
     method: 'POST',
     headers: getActorHeaders(),
@@ -209,7 +210,6 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
  * Solo sujeto, momento de corte y horizonte.
  */
 export function getPrediction(req: PredictionRequest): Promise<Prediction> {
-  if (USING_MOCK) return mock.getPrediction(req);
   return request<BackendPrediction>('/api/v1/predictions', {
     method: 'POST',
     body: JSON.stringify({
@@ -560,7 +560,6 @@ export function confirmPredictionOutcome(
   actualOutcome: boolean,
   idempotencyKey: string,
 ): Promise<OutcomeConfirmation> {
-  if (USING_MOCK) return mock.confirmPredictionOutcome(predictionId, actualOutcome, idempotencyKey);
   return request<OutcomeConfirmation>(`/api/v1/predictions/${predictionId}/outcome`, {
     method: 'POST',
     headers: getActorHeaders(),

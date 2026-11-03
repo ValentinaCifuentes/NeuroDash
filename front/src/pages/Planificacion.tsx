@@ -21,6 +21,7 @@ import {
   loadPlannedEvents,
 } from '../domain/planning';
 import type { PlannedCategory, PlannedEvent, PlannedExpectation, Subject } from '../types';
+import { newId } from '../domain/ids';
 
 interface Props {
   subject: Subject;
@@ -110,7 +111,7 @@ function NewEventSheet({
   function submit() {
     if (!canSave) return;
     onSave({
-      id: crypto.randomUUID(),
+      id: newId(),
       subject_id: subjectId,
       title: title.trim(),
       starts_at: new Date(`${date}T${time}:00`).toISOString(),

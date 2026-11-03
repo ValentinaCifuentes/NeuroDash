@@ -30,6 +30,7 @@ import {
 import type { CategorySelect } from '../domain/catalog';
 import type { DysregulationEvent, LogCategory, StrategyOutcome } from '../types';
 import { Icon } from '../components/icons';
+import { newId } from '../domain/ids';
 
 /* ============================================================
    1. Hoja de categorías (screens/Final-Registro-Categorias.html)
@@ -116,7 +117,7 @@ export function EventSheet({ category, subjectId, saving, onSave, onBack, onClos
   const [notes, setNotes] = useState('');
   const [detailsOpen, setDetailsOpen] = useState(false);
   /** P2: una clave por registro; se reutiliza si el guardado falla. */
-  const [saveKey] = useState(() => crypto.randomUUID());
+  const [saveKey] = useState(() => newId());
 
   const intensityValue = usesScale ? (scale ? form.scaleIntensity[scale] : null) : intensity;
   const answered = intensityValue !== null && intensityValue !== undefined;
