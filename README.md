@@ -1,8 +1,10 @@
 # NeuroDash
 
-NeuroDash es una aplicación de apoyo no diagnóstico para registros de cuidadores y
-predicciones seguras orientadas a tendencias.
-Combina un backend de FastAPI y un frontend de React/TypeScript.
+NeuroDash acompaña a quien cuida a un infante neurodivergente (el **tutor**): registra
+cómo va el día y muestra una estimación del riesgo de desregulación en las próximas
+8 horas, con la confianza de esa estimación, las señales que la explican y apoyos
+concretos. Backend en FastAPI (motor y modelo por infante) y frontend en
+React/TypeScript.
 
 > **Límite de seguridad:** NeuroDash comunica incertidumbre, asociaciones
 > observadas y opciones de apoyo. No es una herramienta de diagnóstico, causal,
@@ -11,25 +13,29 @@ Combina un backend de FastAPI y un frontend de React/TypeScript.
 
 ## Estado actual
 
-El repositorio contiene una demostración funcional y un flujo de validación. El
-frontend ofrece actualmente:
+Demostración funcional para el congreso, con tres infantes sintéticos:
+**PAC-A** (riesgo elevado), **PAC-B** (riesgo bajo) y **PAC-C** (sin estimación:
+solo 2 días de historial).
 
-- Incorporación de sujetos por parte del cuidador, registros diarios, registro de
-  eventos y estados de predicción de Evolución.
-- Vistas de planificación y seguimiento, incluidas **Planificación** y **Seguimiento**.
-- Adaptadores explícitos para el modo simulado y el backend real que utilizan el
-  mismo contrato del frontend.
+- **Evolución:** estimación de las próximas 8 h (riesgo y confianza por separado),
+  «Por qué aparece así» comparado con lo habitual del infante, qué dato falta y
+  «Qué puedo hacer ahora». **Seguimiento:** calendario del mes y comparación de 14 días.
+- **Bitácora:** estado basal y contexto del día, registro de eventos en 4 categorías,
+  Historial de Hoy.
+- **Selección y perfil en 3 pasos**, y **Ficha** con el perfil completo.
+- **Planificación** (mock en el navegador; no llega al modelo) y **Mis Tickets**
+  (fuera de alcance).
 
-Algunas entradas de navegación siguen siendo marcadores de posición no funcionales
-de forma intencionada (por ejemplo, los tickets de soporte). Los datos de ML utilizados por la demostración son sintéticos
-o datos locales de desarrollo; esto no es un despliegue de producción.
+El diseño está en `docs/rediseno/` y el frontend se describe en
+[`front/README.md`](front/README.md). Los datos de la demostración son sintéticos;
+esto no es un despliegue de producción.
 
 ## Inicio rápido
 
 ### Requisitos previos
 
-- Python 3.12 or newer
-- Node.js and npm
+- Python 3.12 o superior (o Docker con Compose)
+- Node.js 20 y npm (para el front fuera de Docker)
 
 ### Instalar las dependencias del backend
 
@@ -123,12 +129,22 @@ VITE_API_BASE= docker compose up --build -d frontend
 Para volver a la API real, compile otra vez sin definir la variable
 (`docker compose up --build -d`).
 
-### Antes de una demo: refrescar PAC-A/B/C
+### Grabar la demo: refrescar PAC-A/B/C
 
-El historial sintético de las demos termina en una fecha fija (por defecto, el día
-anterior a cuando se generó). Unos días después, las ventanas de 1–14 días quedan sin
-datos y PAC-A y PAC-B pasan a «Sin estimación». El día anterior a la presentación,
-genere el historial con la fecha de término y reentrene:
+El historial sintético de las demos termina en una fecha fija. Unos días después, las
+ventanas de 1–14 días quedan sin datos y PAC-A y PAC-B pasan a «Sin estimación». **El
+día de la grabación**, un solo comando deja todo listo y lo comprueba:
+
+```bash
+bash scripts/prepare_demo.sh              # graba hoy (o: … 2026-11-20)
+```
+
+Genera los historiales hasta el día anterior, reentrena, actualiza los fixtures del
+front, reinicia Docker con datos limpios (pregunta antes de borrar) y verifica los tres
+estados en <http://localhost:8080>. El recorrido sugerido para el video está en la
+[guía de grabación](docs/guia-grabacion-demo.md).
+
+Los pasos por separado, si hiciera falta:
 
 ```bash
 python scripts/generate_mock_histories.py --end-date 2026-11-20
@@ -197,17 +213,17 @@ verificación](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
 ## Estructura del repositorio
 
 ```text
-backend/app/   FastAPI application, routes, schemas, and services
-engine/        Temporal features, confidence, safety, and prediction logic
-ml/            Dataset building, training, evaluation, and model registry
-front/         Vite/React/TypeScript caregiver UI
-scripts/       Synthetic-data, training, and verification commands
-tests/         Backend unit/integration tests
-docs/          Product, architecture, and verification guides
-openspec/      Spec-driven development artifacts
-config/        Runtime and model configuration
-data/          Local demo and generated data
-models/        Local generated model artifacts
+backend/app/   API FastAPI: rutas, esquemas y servicio de estimación
+engine/        Motor: variables por ventana, línea base, confianza, explicación y apoyos
+ml/            Datos sintéticos, entrenamiento, evaluación y registro de modelos
+front/         App del tutor (Vite + React + TypeScript); ver front/README.md
+scripts/       Generar demos, entrenar, verificar, exportar fixtures, check.sh, prepare_demo.sh
+tests/         Pruebas unitarias y de integración del backend
+docs/          Producto, arquitectura, rediseño, guía de grabación y accesibilidad
+openspec/      Registro del desarrollo guiado por especificaciones
+config/        Configuración del motor (confianza, apoyos, riesgo)
+data/          Perfiles e historiales de las demos
+models/        Modelos entrenados de las demos
 ```
 
 ## Aviso sobre privacidad e identidad de producción
@@ -222,6 +238,11 @@ seguridad clínica. Las predicciones deben seguir siendo no diagnósticas y cons
 de la incertidumbre.
 
 ## Documentación adicional
+
+- [Guía para grabar la demo](docs/guia-grabacion-demo.md)
+- [Revisión de accesibilidad](docs/revision-accesibilidad.md)
+- [Rediseño: especificación y pantallas](docs/rediseno/README.md)
+- [Pendientes del rediseño](docs/pendientes-rediseno.md)
 
 - [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md)
 - [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
