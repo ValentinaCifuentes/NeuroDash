@@ -71,7 +71,7 @@ function PlanCard({ event }: { event: PlannedEvent }) {
   return (
     <li className="nd-plan">
       <div className="nd-plan__head">
-        <h3 className="nd-plan__title">{event.title}</h3>
+        <h2 className="nd-plan__title">{event.title}</h2>
         {event.category && <span className="nd-plan__category">{event.category}</span>}
       </div>
       <p className="nd-plan__date">

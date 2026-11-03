@@ -198,6 +198,12 @@ export default function App() {
         {route === 'planificacion' && (
           <Planificacion subject={subject} onSaved={() => setToast('Evento guardado')} />
         )}
+        {USING_MOCK && (
+          // Dentro de <main>: quien navega por zonas también lo encuentra (axe · region).
+          <p className="nd-sr-only">
+            Modo demostración sin servidor: las estimaciones son las de la demo y no cambian al registrar.
+          </p>
+        )}
       </main>
 
       {sheet.kind === 'categories' && (
@@ -224,11 +230,6 @@ export default function App() {
 
       {toast && <Toast message={toast} />}
 
-      {USING_MOCK && (
-        <span className="nd-sr-only">
-          Modo demostración: los datos provienen de un fixture de interfaz, no del motor.
-        </span>
-      )}
     </div>
   );
 }
