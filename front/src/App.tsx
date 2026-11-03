@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { SubjectGate } from './components/SubjectGate';
 import { BottomNav, type Route } from './components/BottomNav';
 import { PageHeader, type PageHeaderProps } from './components/PageHeader';
-import { Fab, Toast } from './components/shell';
+import { Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
 import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
@@ -57,14 +57,16 @@ export default function App() {
   }, [toast]);
 
   /** La acción conserva su nombre: "Guardar estado basal" → "Estado basal guardado". */
-  async function onSaveBasal(record: DailyRecord) {
+  async function onSaveBasal(record: DailyRecord): Promise<boolean> {
     setSaving(true);
     try {
       await saveDailyRecord(record);
       setRevision((r) => r + 1);
       setToast('Estado basal guardado');
+      return true;
     } catch (e) {
       setToast((e as ApiError).message);
+      return false;
     } finally {
       setSaving(false);
     }
@@ -125,8 +127,6 @@ export default function App() {
     return <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />;
   }
 
-  const showFab = route === 'bitacora';
-
   return (
     <div className="app-shell app-shell--nav">
       <a className="bl-skip" href="#contenido">
@@ -146,6 +146,8 @@ export default function App() {
             revision={revision}
             saving={saving}
             onSaveBasal={onSaveBasal}
+            onAddEvent={sheet.kind === 'none' ? () => setSheet({ kind: 'categories' }) : undefined}
+            fabRef={fabRef}
           />
         )}
         {route === 'evolucion' && (
@@ -155,10 +157,6 @@ export default function App() {
         {route === 'tickets' && <MisTickets />}
         {route === 'planificacion' && <Planificacion />}
       </main>
-
-      {showFab && sheet.kind === 'none' && (
-        <Fab innerRef={fabRef} aboveCta onClick={() => setSheet({ kind: 'categories' })} />
-      )}
 
       {sheet.kind === 'categories' && (
         <CategorySheet

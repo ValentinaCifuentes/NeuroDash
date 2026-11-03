@@ -160,13 +160,19 @@ export function buildCareWrite(occurredAt: Date, idempotencyKey: string = crypto
 /** Cuerpo de `POST /daily-records`: solo los textos de la Bitácora; el backend los codifica. */
 export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(), idempotencyKey?: string) {
   return {
-    ...buildCareWrite(now, idempotencyKey),
+    ...buildCareWrite(now, idempotencyKey ?? record.idempotency_key),
     sleep_quality: record.sleep_quality,
     wake_mode: record.wake_mode,
     start_autonomy: record.start_autonomy,
     medication_adherence: record.medication_adherence,
     gi_status: record.gi_status,
     day_regulation_level: record.day_regulation_level ?? null,
+    // Contexto del día: lo que no se respondió no se envía (null o lista vacía).
+    sleep_hours_range: record.sleep_hours_range ?? null,
+    early_signs: record.early_signs?.length ? record.early_signs : null,
+    physical_discomfort: record.physical_discomfort?.length ? record.physical_discomfort : null,
+    routine_change: record.routine_change ?? null,
+    school_attendance: record.school_attendance ?? null,
   };
 }
 
@@ -351,7 +357,10 @@ function adaptTimelineEntry(entry: BackendTimelineEntry): TimelineEntry {
  * así que aquí se reconstruye el `DailyRecord` desde `raw`.
  */
 function adaptDailyRecordPayload(payload: Record<string, unknown>): DailyRecord {
-  const raw = (payload.raw ?? {}) as Partial<Record<keyof DailyRecord, string>>;
+  const raw = (payload.raw ?? {}) as Partial<Record<keyof DailyRecord, string>> & {
+    early_signs?: string[];
+    physical_discomfort?: string[];
+  };
   const count = (value: unknown) => (typeof value === 'number' ? value : undefined);
   return {
     record_id: payload.record_id as string | undefined,
@@ -363,6 +372,11 @@ function adaptDailyRecordPayload(payload: Record<string, unknown>): DailyRecord 
     medication_adherence: (raw.medication_adherence ?? null) as DailyRecord['medication_adherence'],
     gi_status: (raw.gi_status ?? null) as DailyRecord['gi_status'],
     day_regulation_level: (raw.day_regulation_level ?? null) as DailyRecord['day_regulation_level'],
+    sleep_hours_range: raw.sleep_hours_range ?? null,
+    early_signs: raw.early_signs ?? [],
+    physical_discomfort: raw.physical_discomfort ?? [],
+    routine_change: raw.routine_change ?? null,
+    school_attendance: raw.school_attendance ?? null,
     event_count: count(payload.event_count),
     dysregulation_count: count(payload.dysregulation_count),
     max_intensity: count(payload.max_intensity),

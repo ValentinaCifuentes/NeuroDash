@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "86c993335472420e9376cab70a5864df",
+  "prediction_id": "b25b31eebf2c4d96a95aa603e4ec842d",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-02T10:00:00-05:00",
   "horizon_hours": 8,
@@ -307,22 +307,172 @@
       "feature": "desviacion_intensidad_maxima_linea_base",
       "contribution": -0.5,
       "description": "La variable reciente desviación de la intensidad máxima de eventos frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Horas de sueño en el último día",
+      "feature": "horas_sueno_promedio_un_dia",
+      "contribution": 0.5,
+      "description": "La variable reciente horas de sueño en el último día (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Horas de sueño en los últimos tres días",
+      "feature": "horas_sueno_promedio_tres_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente horas de sueño en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Horas de sueño en los últimos siete días",
+      "feature": "horas_sueno_promedio_siete_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente horas de sueño en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Horas de sueño en los últimos catorce días",
+      "feature": "horas_sueno_promedio_catorce_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente horas de sueño en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de horas de sueño frente a la línea base",
+      "feature": "desviacion_horas_sueno_linea_base",
+      "contribution": 0.5,
+      "description": "La variable reciente desviación de horas de sueño frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Señales tempranas observadas en el último día",
+      "feature": "senales_tempranas_promedio_un_dia",
+      "contribution": -0.5,
+      "description": "La variable reciente señales tempranas observadas en el último día (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Señales tempranas observadas en los últimos tres días",
+      "feature": "senales_tempranas_promedio_tres_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente señales tempranas observadas en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Señales tempranas observadas en los últimos siete días",
+      "feature": "senales_tempranas_promedio_siete_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente señales tempranas observadas en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Señales tempranas observadas en los últimos catorce días",
+      "feature": "senales_tempranas_promedio_catorce_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente señales tempranas observadas en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de señales tempranas observadas frente a la línea base",
+      "feature": "desviacion_senales_tempranas_linea_base",
+      "contribution": -0.5,
+      "description": "La variable reciente desviación de señales tempranas observadas frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Malestar físico en el último día",
+      "feature": "malestar_fisico_promedio_un_dia",
+      "contribution": 0.5,
+      "description": "La variable reciente malestar físico en el último día (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Malestar físico en los últimos tres días",
+      "feature": "malestar_fisico_promedio_tres_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente malestar físico en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Malestar físico en los últimos siete días",
+      "feature": "malestar_fisico_promedio_siete_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente malestar físico en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Malestar físico en los últimos catorce días",
+      "feature": "malestar_fisico_promedio_catorce_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente malestar físico en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de malestar físico frente a la línea base",
+      "feature": "desviacion_malestar_fisico_linea_base",
+      "contribution": 0.5,
+      "description": "La variable reciente desviación de malestar físico frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Cambios de rutina en el último día",
+      "feature": "cambio_rutina_promedio_un_dia",
+      "contribution": -0.5,
+      "description": "La variable reciente cambios de rutina en el último día (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Cambios de rutina en los últimos tres días",
+      "feature": "cambio_rutina_promedio_tres_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente cambios de rutina en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Cambios de rutina en los últimos siete días",
+      "feature": "cambio_rutina_promedio_siete_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente cambios de rutina en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Cambios de rutina en los últimos catorce días",
+      "feature": "cambio_rutina_promedio_catorce_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente cambios de rutina en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de cambios de rutina frente a la línea base",
+      "feature": "desviacion_cambio_rutina_linea_base",
+      "contribution": -0.5,
+      "description": "La variable reciente desviación de cambios de rutina frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Asistencia al colegio en el último día",
+      "feature": "asistencia_colegio_promedio_un_dia",
+      "contribution": 0.5,
+      "description": "La variable reciente asistencia al colegio en el último día (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Asistencia al colegio en los últimos tres días",
+      "feature": "asistencia_colegio_promedio_tres_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente asistencia al colegio en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Asistencia al colegio en los últimos siete días",
+      "feature": "asistencia_colegio_promedio_siete_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente asistencia al colegio en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+    },
+    {
+      "factor_name": "Asistencia al colegio en los últimos catorce días",
+      "feature": "asistencia_colegio_promedio_catorce_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente asistencia al colegio en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+    },
+    {
+      "factor_name": "Desviación de asistencia al colegio frente a la línea base",
+      "feature": "desviacion_asistencia_colegio_linea_base",
+      "contribution": 0.5,
+      "description": "La variable reciente desviación de asistencia al colegio frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
     }
   ],
   "missingness": [
     {
       "window": 1,
-      "field": "start_autonomy_level",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 1,
-      "field": "gi_level",
+      "field": "wake_state",
       "missing": false
     },
     {
       "window": 1,
-      "field": "sleep_quality",
+      "field": "max_intensity",
       "missing": false
     },
     {
@@ -337,12 +487,7 @@
     },
     {
       "window": 1,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "wake_state",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -352,22 +497,27 @@
     },
     {
       "window": 1,
-      "field": "max_intensity",
+      "field": "sleep_quality",
       "missing": false
     },
     {
-      "window": 3,
+      "window": 1,
       "field": "start_autonomy_level",
       "missing": false
     },
     {
       "window": 3,
-      "field": "gi_level",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 3,
-      "field": "sleep_quality",
+      "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "max_intensity",
       "missing": false
     },
     {
@@ -382,12 +532,7 @@
     },
     {
       "window": 3,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "wake_state",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -397,22 +542,27 @@
     },
     {
       "window": 3,
-      "field": "max_intensity",
+      "field": "sleep_quality",
       "missing": false
     },
     {
-      "window": 7,
+      "window": 3,
       "field": "start_autonomy_level",
       "missing": false
     },
     {
       "window": 7,
-      "field": "gi_level",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 7,
-      "field": "sleep_quality",
+      "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "max_intensity",
       "missing": false
     },
     {
@@ -427,12 +577,7 @@
     },
     {
       "window": 7,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "wake_state",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -442,22 +587,27 @@
     },
     {
       "window": 7,
-      "field": "max_intensity",
+      "field": "sleep_quality",
       "missing": false
     },
     {
-      "window": 14,
+      "window": 7,
       "field": "start_autonomy_level",
       "missing": false
     },
     {
       "window": 14,
-      "field": "gi_level",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
       "window": 14,
-      "field": "sleep_quality",
+      "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "max_intensity",
       "missing": false
     },
     {
@@ -472,12 +622,7 @@
     },
     {
       "window": 14,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "wake_state",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -487,7 +632,12 @@
     },
     {
       "window": 14,
-      "field": "max_intensity",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "start_autonomy_level",
       "missing": false
     }
   ],

@@ -173,3 +173,47 @@ def test_daily_record_date_uses_the_profile_timezone_not_the_device_offset(tmp_p
     # El evento del mismo día local suma sus conteos al registro basal, sin crear otro.
     assert len(records) == 1
     assert records[0]["event_count"] == 1
+
+
+def test_day_context_is_encoded_and_unanswered_questions_are_not_stored(tmp_path: Path, monkeypatch) -> None:
+    """«¿Pasó algo distinto hoy?»: texto en raw, número en la raíz; «No sé» y lo no respondido no generan número."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    response = client.post(f"/api/v1/subjects/{subject_id}/daily-records", headers=_headers(), json={
+        "occurred_at": "2026-11-03T08:00:00-03:00",
+        "idempotency_key": "context-1",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "sleep_quality": "Interrumpido",
+        "sleep_hours_range": "No sé",
+        "early_signs": ["Se aísla", "Más irritable"],
+        "physical_discomfort": ["No"],
+        "routine_change": "Visita",
+        "school_attendance": "Medio día",
+    })
+
+    assert response.status_code == 201
+    stored = response.json()
+    assert stored["early_signs_count"] == 2
+    assert stored["physical_discomfort"] == 0
+    assert stored["routine_change"] == 1
+    assert stored["school_attendance"] == 0.5
+    assert "sleep_hours" not in stored  # «No sé» no es un dato
+    assert stored["raw"]["early_signs"] == ["Se aísla", "Más irritable"]
+    assert stored["raw"]["sleep_hours_range"] == "No sé"
+
+
+def test_none_option_counts_as_zero_early_signs(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    stored = client.post(f"/api/v1/subjects/{subject_id}/daily-records", headers=_headers(), json={
+        "occurred_at": "2026-11-03T08:00:00-03:00", "idempotency_key": "context-2",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "early_signs": ["Ninguna"], "physical_discomfort": ["Fiebre", "Dolor"],
+    }).json()
+
+    assert stored["early_signs_count"] == 0
+    assert stored["physical_discomfort"] == 1

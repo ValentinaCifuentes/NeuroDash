@@ -174,7 +174,34 @@ describe('care write payloads (I2)', () => {
       medication_adherence: 'No Aplica',
       gi_status: 'Normal',
       day_regulation_level: null,
+      sleep_hours_range: null,
+      early_signs: null,
+      physical_discomfort: null,
+      routine_change: null,
+      school_attendance: null,
     });
+  });
+
+  it('sends the day context and leaves unanswered questions as null', () => {
+    const body = buildDailyRecordWrite(
+      { ...record, sleep_hours_range: '7 a 9 h', early_signs: ['Ninguna'], physical_discomfort: [], routine_change: 'Visita' },
+      undefined,
+      'key-ctx',
+    );
+
+    expect(body).toMatchObject({
+      sleep_hours_range: '7 a 9 h',
+      early_signs: ['Ninguna'],
+      physical_discomfort: null,
+      routine_change: 'Visita',
+      school_attendance: null,
+    });
+  });
+
+  it('reuses the record key so a retried save is not duplicated', () => {
+    const body = buildDailyRecordWrite({ ...record, idempotency_key: 'kept' });
+
+    expect(body.idempotency_key).toBe('kept');
   });
 
   it('generates a fresh idempotency key for each write when none is given', () => {

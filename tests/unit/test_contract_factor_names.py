@@ -22,7 +22,13 @@ EVENT_COUNT_FIELDS = ["event_count", "dysregulation_count", "max_intensity"]
 
 
 def _encoded_fields() -> list[str]:
-    return [numeric_field for _, numeric_field, _ in _CARE_FIELD_ENCODINGS] + EVENT_COUNT_FIELDS
+    from backend.app.routes.subjects import _CARE_LIST_ENCODINGS
+
+    return (
+        [numeric_field for _, numeric_field, _ in _CARE_FIELD_ENCODINGS]
+        + [numeric_field for _, numeric_field, _, _ in _CARE_LIST_ENCODINGS]
+        + EVENT_COUNT_FIELDS
+    )
 
 
 def test_every_variable_the_tutor_feeds_has_a_readable_and_a_variable_name() -> None:

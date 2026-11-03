@@ -106,6 +106,28 @@ FEATURE_VARIABLE_NAMES = {
     "max_intensity_delta_baseline": "desviacion_intensidad_maxima_linea_base",
 }
 
+# Contexto del día (plan de datos, Fase 3): mismas ventanas y desviación que el resto.
+_CONTEXT_FAMILIES = {
+    "sleep_hours": ("horas de sueño", "horas_sueno"),
+    "early_signs_count": ("señales tempranas observadas", "senales_tempranas"),
+    "physical_discomfort": ("malestar físico", "malestar_fisico"),
+    "routine_change": ("cambios de rutina", "cambio_rutina"),
+    "school_attendance": ("asistencia al colegio", "asistencia_colegio"),
+}
+_WINDOW_WORDS = {
+    1: ("en el último día", "un_dia"),
+    3: ("en los últimos tres días", "tres_dias"),
+    7: ("en los últimos siete días", "siete_dias"),
+    14: ("en los últimos catorce días", "catorce_dias"),
+}
+for _field, (_name, _code) in _CONTEXT_FAMILIES.items():
+    for _window, (_phrase, _suffix) in _WINDOW_WORDS.items():
+        FEATURE_DISPLAY_NAMES[f"{_field}_mean_{_window}d"] = f"{_name} {_phrase}"
+        FEATURE_VARIABLE_NAMES[f"{_field}_mean_{_window}d"] = f"{_code}_promedio_{_suffix}"
+    FEATURE_DISPLAY_NAMES[f"{_field}_delta_baseline"] = f"desviación de {_name} frente a la línea base"
+    FEATURE_VARIABLE_NAMES[f"{_field}_delta_baseline"] = f"desviacion_{_code}_linea_base"
+
+
 NUMBER_WORDS = {
     "1": "un",
     "2": "dos",

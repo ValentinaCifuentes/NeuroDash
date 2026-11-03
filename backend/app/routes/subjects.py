@@ -58,6 +58,12 @@ class CareRecordWrite(BaseModel):
     start_autonomy: str | None = None
     medication_adherence: str | None = None
     day_regulation_level: str | None = None
+    # Contexto del día («¿Pasó algo distinto hoy?», plan de datos Fase 3).
+    sleep_hours_range: str | None = None
+    early_signs: list[str] | None = None
+    physical_discomfort: list[str] | None = None
+    routine_change: str | None = None
+    school_attendance: str | None = None
 
 
 class EventWrite(BaseModel):
@@ -84,6 +90,13 @@ START_AUTONOMY_MAP = {"Por sí solo": 0, "Con alarma": 1, "Con insistencia": 2}
 MEDICATION_MAP = {"Sí": 1, "No": 0}  # "No Aplica" queda fuera a propósito
 GI_LEVEL_MAP = {"Normal": 0, "Estreñimiento": 1, "Diarrea": 2}
 DAY_REGULATION_MAP = {"Excelente": 0, "Estable con Apoyo": 1, "Desregulación Frecuente": 2}
+# Contexto del día. «No sé» (horas de sueño) queda fuera a propósito: no es un dato.
+SLEEP_HOURS_MAP = {"Menos de 7 h": 6, "7 a 9 h": 8, "Más de 9 h": 10}
+ROUTINE_CHANGE_MAP = {"No": 0, "Visita": 1, "Salida": 1, "Cambio de horario": 1, "Feriado": 1}
+SCHOOL_ATTENDANCE_MAP = {"Sí": 1, "Medio día": 0.5, "No": 0}
+# Opciones «nada» de las preguntas de varias respuestas.
+NO_EARLY_SIGNS = "Ninguna"
+NO_DISCOMFORT = "No"
 
 
 def _normalize_label(value: str) -> str:
@@ -93,18 +106,29 @@ def _normalize_label(value: str) -> str:
     return " ".join(ascii_value.casefold().split())
 
 
-def _normalized_map(mapping: dict[str, int]) -> dict[str, int]:
+def _normalized_map(mapping: dict[str, float]) -> dict[str, float]:
     return {_normalize_label(label): number for label, number in mapping.items()}
 
 
 # (campo del request, nombre numérico estable, mapa normalizado texto -> número)
-_CARE_FIELD_ENCODINGS: list[tuple[str, str, dict[str, int]]] = [
+_CARE_FIELD_ENCODINGS: list[tuple[str, str, dict[str, float]]] = [
     ("sleep_quality", "sleep_quality", _normalized_map(SLEEP_QUALITY_MAP)),
     ("wake_mode", "wake_state", _normalized_map(WAKE_STATE_MAP)),
     ("start_autonomy", "start_autonomy_level", _normalized_map(START_AUTONOMY_MAP)),
     ("medication_adherence", "medication_taken", _normalized_map(MEDICATION_MAP)),
     ("gi_status", "gi_level", _normalized_map(GI_LEVEL_MAP)),
     ("day_regulation_level", "day_regulation_level_num", _normalized_map(DAY_REGULATION_MAP)),
+    ("sleep_hours_range", "sleep_hours", _normalized_map(SLEEP_HOURS_MAP)),
+    ("routine_change", "routine_change", _normalized_map(ROUTINE_CHANGE_MAP)),
+    ("school_attendance", "school_attendance", _normalized_map(SCHOOL_ATTENDANCE_MAP)),
+]
+
+# Preguntas de varias respuestas: (campo del request, nombre numérico, opción «nada», cómo se resume).
+#   early_signs → cuántas señales tempranas se vieron (0 si «Ninguna»).
+#   physical_discomfort → 1 si hubo algún malestar, 0 si «No».
+_CARE_LIST_ENCODINGS: list[tuple[str, str, str, str]] = [
+    ("early_signs", "early_signs_count", NO_EARLY_SIGNS, "count"),
+    ("physical_discomfort", "physical_discomfort", NO_DISCOMFORT, "any"),
 ]
 
 
@@ -126,6 +150,13 @@ def _encode_care_record(req: CareRecordWrite) -> dict[str, Any]:
             # Un texto no reconocido (o "No Aplica") no genera campo numérico,
             # para no contaminar la cobertura ni el conteo.
             item[numeric_field] = number
+    for request_field, numeric_field, none_option, mode in _CARE_LIST_ENCODINGS:
+        values = getattr(req, request_field)
+        if not values:
+            continue  # sin responder: ni texto ni número
+        raw[request_field] = list(values)
+        chosen = [value for value in values if _normalize_label(value) != _normalize_label(none_option)]
+        item[numeric_field] = len(chosen) if mode == "count" else int(bool(chosen))
     if raw:
         item["raw"] = raw
     return item

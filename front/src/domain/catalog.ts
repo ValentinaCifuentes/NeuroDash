@@ -493,3 +493,35 @@ export const SENSORY_LEVELS: { value: SensoryLevel; label: string; color: string
   { value: 0, label: 'Típico', color: '#B9ACB3' },
   { value: 1, label: 'Le molesta', color: 'var(--nd-accent)' },
 ];
+
+/* ============================================================
+   Contexto del día · «¿Pasó algo distinto hoy?» (screens/Final-Bitacora.html)
+   ============================================================
+
+   Los `value` coinciden con los mapas del backend (`routes/subjects.py`):
+   SLEEP_HOURS_MAP, ROUTINE_CHANGE_MAP, SCHOOL_ATTENDANCE_MAP y las opciones
+   «nada» de las preguntas de varias respuestas («Ninguna», «No»). */
+
+export const SLEEP_HOURS_OPTIONS = ['Menos de 7 h', '7 a 9 h', 'Más de 9 h', 'No sé'];
+
+/**
+ * Señales tempranas por defecto. Cuando exista el perfil del infante (paso 2
+ * del alta), se usan las suyas (`habitual_context.early_signs`).
+ */
+export const DEFAULT_EARLY_SIGNS = [
+  'Se tapa los oídos',
+  'Se aísla',
+  'Más movimientos repetitivos',
+  'Más irritable',
+  'Cambia el tono de voz',
+  'Llora sin motivo claro',
+  'Rechaza el contacto',
+];
+export const NO_EARLY_SIGNS = 'Ninguna';
+
+export const PHYSICAL_DISCOMFORT_OPTIONS = ['No', 'Resfrío', 'Fiebre', 'Dolor', 'Dentición'];
+export const NO_DISCOMFORT = 'No';
+
+export const ROUTINE_CHANGE_OPTIONS = ['No', 'Visita', 'Salida', 'Cambio de horario', 'Feriado'];
+
+export const SCHOOL_ATTENDANCE_OPTIONS = ['Sí', 'Medio día', 'No'];

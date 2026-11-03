@@ -207,7 +207,13 @@ type ChipGroupProps = {
   options: string[];
 } & (
   | { mode: 'single'; value: string | null; onChange: (value: string | null) => void }
-  | { mode: 'multiple'; value: string[]; onChange: (value: string[]) => void }
+  | {
+      mode: 'multiple';
+      value: string[];
+      onChange: (value: string[]) => void;
+      /** Opción «nada» («Ninguna», «No»): al elegirla se desmarcan las demás, y al revés. */
+      exclusive?: string;
+    }
 );
 
 export function ChipGroup(props: ChipGroupProps) {
@@ -216,8 +222,17 @@ export function ChipGroup(props: ChipGroupProps) {
   const isOn = (option: string) =>
     props.mode === 'single' ? props.value === option : props.value.includes(option);
   const toggle = (option: string) => {
-    if (props.mode === 'single') props.onChange(props.value === option ? null : option);
-    else props.onChange(isOn(option) ? props.value.filter((v) => v !== option) : [...props.value, option]);
+    if (props.mode === 'single') {
+      props.onChange(props.value === option ? null : option);
+      return;
+    }
+    if (isOn(option)) {
+      props.onChange(props.value.filter((v) => v !== option));
+    } else if (option === props.exclusive) {
+      props.onChange([option]);
+    } else {
+      props.onChange([...props.value.filter((v) => v !== props.exclusive), option]);
+    }
   };
   const { onKeyDown, setRef } = useRovingGroup(options.length, (i) => {
     if (props.mode === 'single') props.onChange(options[i]);
@@ -273,17 +288,21 @@ interface SwitchProps {
 export function Switch({ label, checked, disabled, onChange }: SwitchProps) {
   const labelId = useId();
   return (
-    <div className="bl-switch-row" style={disabled ? { opacity: 0.45 } : undefined}>
+    <div className={`nd-switchrow${disabled ? ' nd-switchrow--disabled' : ''}`}>
+      <span id={labelId} className="nd-switchrow__label">
+        {label}
+      </span>
       <button
         type="button"
-        className="bl-switch"
+        className="nd-switch"
         role="switch"
         aria-checked={checked}
         aria-labelledby={labelId}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-      />
-      <span id={labelId}>{label}</span>
+      >
+        <span className="nd-switch__thumb" aria-hidden="true" />
+      </button>
     </div>
   );
 }

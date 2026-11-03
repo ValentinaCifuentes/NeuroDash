@@ -1547,3 +1547,124 @@ body {
   outline: none;
   box-shadow: var(--nd-ring);
 }
+
+/* ==========================================================================
+   Bitácora · Mi Día (Fase 5 · paso 3) — screens/Final-Bitacora.html
+   ========================================================================== */
+.nd-switchrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 4px 14px 4px 16px;
+  border-radius: var(--nd-r-md);
+  background: var(--nd-bg);
+}
+.nd-switchrow--disabled {
+  opacity: 0.5;
+}
+.nd-switchrow__label {
+  font-size: var(--nd-fs-body);
+  font-weight: 500;
+}
+.nd-switch {
+  position: relative;
+  flex: 0 0 51px;
+  width: 51px;
+  height: 31px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-switch-off);
+  cursor: pointer;
+  transition: background-color var(--nd-dur-press) var(--nd-ease-out);
+}
+.nd-switch[aria-checked='true'] {
+  background: var(--nd-accent);
+}
+.nd-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: var(--nd-r-full);
+  background: #FFFFFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  transition: transform 200ms var(--nd-ease-out);
+}
+.nd-switch[aria-checked='true'] .nd-switch__thumb {
+  transform: translateX(20px);
+}
+.nd-switch:focus-visible {
+  outline: none;
+  box-shadow: var(--nd-ring);
+}
+.nd-switch:disabled {
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nd-switch,
+  .nd-switch__thumb {
+    transition: none;
+  }
+}
+.nd-cardtitle {
+  margin: 0;
+  font-size: var(--nd-fs-h3);
+  font-weight: 700;
+  letter-spacing: var(--nd-ls-h3);
+}
+.nd-cardtitle--lg {
+  font-size: var(--nd-fs-h2);
+  line-height: 1.2;
+  letter-spacing: var(--nd-ls-h2);
+}
+.nd-card--questions {
+  gap: 22px;
+}
+.nd-card__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.nd-card__hint {
+  margin: 0;
+  font-size: var(--nd-fs-xs);
+  line-height: var(--nd-lh-normal);
+  color: var(--nd-ink-2);
+}
+.nd-linkbutton--start {
+  align-self: flex-start;
+  padding: 0 2px;
+}
+/* CTA anclado sobre la barra, con el + al lado (como en el prototipo). */
+.nd-ctabar {
+  position: sticky;
+  bottom: var(--nd-nav-h);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 calc(-1 * var(--nd-screen-pad-x));
+  padding: 24px var(--nd-screen-pad-x) 12px;
+  background: linear-gradient(to bottom, rgba(252, 239, 242, 0), var(--nd-bg) 40%);
+}
+.nd-ctabar .nd-cta {
+  flex: 1;
+}
+.nd-ctabar .nd-fab {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+}
+.nd-ctabar__hint {
+  position: absolute;
+  top: 2px;
+  left: var(--nd-screen-pad-x);
+  margin: 0;
+  font-size: var(--nd-fs-eyebrow);
+  font-weight: 600;
+  color: var(--nd-ink-2);
+}

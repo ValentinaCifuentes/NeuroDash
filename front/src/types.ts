@@ -72,6 +72,17 @@ export interface DailyRecord {
   event_count?: number;
   dysregulation_count?: number;
   max_intensity?: number;
+  /* --- Contexto del día («¿Pasó algo distinto hoy?»). null o vacío = sin responder. --- */
+  sleep_hours_range?: string | null;
+  early_signs?: string[];
+  physical_discomfort?: string[];
+  routine_change?: string | null;
+  school_attendance?: string | null;
+  /**
+   * Clave de reintento (P2): la misma para todos los intentos de un mismo
+   * guardado, así una respuesta perdida no duplica el registro.
+   */
+  idempotency_key?: string;
 }
 
 /** `5_eventos_desregulacion_tutor.csv` */
