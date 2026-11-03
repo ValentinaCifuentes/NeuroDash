@@ -17,7 +17,7 @@ import { Icon } from "../components/icons";
 import { NavList, NavRow } from "../components/NavRow";
 import { RiskGauge, type RiskLevel } from "../components/RiskGauge";
 import { CONFIDENCE_LABEL } from "../domain/catalog";
-import { FactorsSheet, MissingDataSheet } from "../sheets/EstimationSheets";
+import { FactorsSheet, MissingDataSheet, highlightedFactors } from "../sheets/EstimationSheets";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
 
@@ -111,19 +111,24 @@ function Estimation({ prediction, onOpenBitacora }: { prediction: Prediction; on
     const factorsRow = useRef<HTMLButtonElement>(null);
     const missingRow = useRef<HTMLButtonElement>(null);
     const coreMissing = prediction.missingness.filter(item => item.is_core).length;
+    // La fila resume la señal más clara (P29), no la variable técnica de más peso.
+    const lead = highlightedFactors(prediction.factors)[0] ?? prediction.factors[0];
+    // Sin estimación solo quedan los apoyos que el tutor registró (P23); el aviso de
+    // «falta información» ya lo dicen la tarjeta y «Puede mejorar la lectura».
+    const ownSupports = prediction.supports.filter(item => item.source === "historical_support");
 
     return (
         <>
             {prediction.abstained ? <AbstentionCard prediction={prediction} /> : <RiskCard prediction={prediction} />}
 
             <NavList label="Detalle de la estimación">
-                {!prediction.abstained && prediction.factors.length > 0 && (
+                {!prediction.abstained && lead && (
                         <NavRow
                             ref={factorsRow}
-                            icon={prediction.factors[0].direction === "up" ? "arrowUp" : "arrowDown"}
+                            icon={lead.direction === "up" ? "arrowUp" : "arrowDown"}
                             tone="risk"
                             title="Por qué aparece así"
-                            summary={prediction.factors[0].summary ?? prediction.factors[0].label}
+                            summary={lead.summary ?? lead.label}
                             onClick={() => setSheet("factors")}
                         />
                 )}
@@ -137,7 +142,14 @@ function Estimation({ prediction, onOpenBitacora }: { prediction: Prediction; on
                     />
             </NavList>
 
-            {!prediction.abstained && prediction.supports.length > 0 && <Supports prediction={prediction} />}
+            {!prediction.abstained && prediction.supports.length > 0 && <Supports supports={prediction.supports} />}
+            {prediction.abstained && ownSupports.length > 0 && (
+                <Supports
+                    supports={ownSupports}
+                    title="Lo que le ayuda"
+                    intro="Lo que registraste que le sirve. Con más días de registro se podrá sugerir según el momento."
+                />
+            )}
 
             {sheet === "factors" && (
                 <FactorsSheet
@@ -233,12 +245,21 @@ function horizonEyebrow(prediction: Prediction): string {
    Qué puedo hacer ahora: completo, sin colapsar
    ============================================================ */
 
-function Supports({ prediction }: { prediction: Prediction }) {
+function Supports({
+    supports,
+    title = "Apoyos disponibles",
+    intro,
+}: {
+    supports: Prediction["supports"];
+    title?: string;
+    intro?: string;
+}) {
     return (
         <section className="nd-supports" aria-labelledby="apoyos-titulo">
             <span className="nd-supports__eyebrow">Qué puedo hacer ahora</span>
-            <h2 id="apoyos-titulo" className="nd-supports__title">Apoyos disponibles</h2>
-            {prediction.supports.map(item => (
+            <h2 id="apoyos-titulo" className="nd-supports__title">{title}</h2>
+            {intro && <p className="nd-supports__intro">{intro}</p>}
+            {supports.map(item => (
                 <div key={item.support_id} className="nd-support">
                     <span className="nd-support__icon" aria-hidden="true">
                         <Icon name="shield" size={18} />

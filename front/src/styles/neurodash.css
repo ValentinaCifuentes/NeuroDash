@@ -2463,3 +2463,11 @@ select {
   line-height: 1.45;
   color: var(--nd-ink-2);
 }
+
+/* Sin estimación: «Lo que le ayuda» explica por qué no se elige según el momento (P23). */
+.nd-supports__intro {
+  margin: -4px 0 4px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--nd-accent-ink);
+}

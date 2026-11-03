@@ -266,6 +266,7 @@ type BackendFactor = {
   contribution?: number;
   description?: string;
   comparison?: 'above' | 'below' | 'similar' | null;
+  trend?: 'worse' | 'better' | 'same' | null;
   summary?: string | null;
 };
 
@@ -431,6 +432,7 @@ function adaptFactor(factor: BackendFactor) {
     direction,
     window: inferWindow(factor.feature ?? factor.factor_name ?? ''),
     baseline: factor.comparison ?? null,
+    trend: factor.trend ?? null,
     summary: factor.summary ?? null,
   };
 }

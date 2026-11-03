@@ -400,3 +400,22 @@ def test_an_effective_support_appears_once_with_the_tutor_words() -> None:
     assert len(matching) == 1
     assert matching[0]["description"] == "Manta con peso en la tarde."
     assert matching[0]["rationale"] == "Le sirvió antes en situaciones parecidas."
+
+
+def test_without_an_estimate_the_tutor_supports_still_show_with_the_insufficient_data_note() -> None:
+    """P23: sin estimación no se elige un apoyo según el momento, pero lo que le ayuda sigue a la vista."""
+    supports = select_supports(
+        subject_history=[
+            {"id": "sup_c_1", "description": "Masticables", "type": "historical", "effective": True},
+            {"id": "sup_c_2", "description": "Algo registrado sin saber si funciona", "type": "historical"},
+        ],
+        sensory_context={},
+        confidence=ConfidenceLevel.INSUFFICIENT,
+        abstained=True,
+        missingness=[],
+    )
+
+    assert [support["description"] for support in supports][:1] == ["Masticables"]
+    assert supports[0]["source"] == "historical_support"
+    assert supports[-1]["case_id"] == "insufficient_data"
+    assert len(supports) == 2

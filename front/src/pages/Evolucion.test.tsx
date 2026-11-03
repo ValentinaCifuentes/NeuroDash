@@ -20,7 +20,7 @@ const prediction: Prediction = {
   contract_version: '2', prediction_id: 'prediction-1', subject_id: 'subject-1',
   prediction_cutoff: '2026-08-26T12:00:00Z', horizon_hours: 24, risk: 'ELEVATED', confidence: 'LOW',
   abstained: false,
-  factors: [{ code: 'estado_despertar_promedio_tres_dias', label: 'Estado al despertar en los últimos tres días', comparison: '', direction: 'up', window: '3d', baseline: 'above', summary: 'Despertó más irritable que de costumbre en los últimos tres días' }],
+  factors: [{ code: 'estado_despertar_promedio_tres_dias', label: 'Estado al despertar en los últimos tres días', comparison: '', direction: 'up', window: '3d', baseline: 'above', trend: 'worse', summary: 'Despertó más irritable que de costumbre en los últimos tres días' }],
   missingness: [{ code: 'sleep_quality', label: 'Calidad del sueño', impact: 'Falta información.', is_core: true }],
   supports: [{ support_id: 'sup-1', source: 'historical_support', label: 'Manta con peso por la tarde', detail: 'Funcionó en días parecidos' }],
   provenance: { source: 'care_api', synthetic: false }, versions: { model: 'v2', contract: '2' },
@@ -73,7 +73,7 @@ describe('Evolucion', () => {
   it('keeps the variable name when the engine cannot compare it with the baseline', async () => {
     vi.mocked(getPrediction).mockResolvedValue({
       ...prediction,
-      factors: [{ ...prediction.factors[0], baseline: null, summary: null }],
+      factors: [{ ...prediction.factors[0], baseline: null, trend: null, summary: null }],
     });
     render(<Evolucion subject={subject} revision={0} />);
 
@@ -116,17 +116,30 @@ describe('Evolucion', () => {
   });
 
   it('shows an explicit abstention without an invented risk or outcome action', async () => {
-    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, risk: null, confidence: 'INSUFFICIENT', abstained: true });
+    vi.mocked(getPrediction).mockResolvedValue({
+      ...prediction,
+      risk: null,
+      confidence: 'INSUFFICIENT',
+      abstained: true,
+      supports: [
+        ...prediction.supports,
+        { support_id: 'insufficient', source: 'insufficient_data', label: 'No hay información suficiente para seleccionar un apoyo contextualizado.' },
+      ],
+    });
 
     render(<Evolucion subject={subject} revision={0} />);
 
     expect(await screen.findByText('Todavía no hay estimación')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Confirmar que ocurrió/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/Riesgo elevado/)).not.toBeInTheDocument();
-    // Como en screens/Final-Evolucion-Abstencion.html: solo la fila de datos, sin factores ni apoyos.
+    // Como en screens/Final-Evolucion-Abstencion.html: solo la fila de datos y ningún factor.
     expect(screen.queryByRole('button', { name: /Por qué aparece así/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Puede mejorar la lectura/ })).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Apoyos disponibles' })).not.toBeInTheDocument();
+    // P23: lo que el tutor registró que le ayuda sigue a la vista; el aviso de falta de datos no se repite.
+    const own = screen.getByRole('region', { name: 'Lo que le ayuda' });
+    expect(own).toHaveTextContent('Manta con peso por la tarde');
+    expect(own).not.toHaveTextContent('No hay información suficiente');
   });
 
   it('explains that more days of history are needed when it abstains with no missing field (PAC-C)', async () => {

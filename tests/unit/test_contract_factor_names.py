@@ -16,7 +16,7 @@ from engine.explanation import FEATURE_DISPLAY_NAMES, FEATURE_VARIABLE_NAMES
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FRONT_FIXTURE = PROJECT_ROOT / "front" / "src" / "test" / "fixtures" / "prediction-contract.json"
 
-FACTOR_KEYS = {"factor_name", "feature", "contribution", "description", "comparison", "summary"}
+FACTOR_KEYS = {"factor_name", "feature", "contribution", "description", "comparison", "trend", "summary"}
 MISSINGNESS_KEYS = {"field", "window", "missing"}
 EVENT_COUNT_FIELDS = ["event_count", "dysregulation_count", "max_intensity"]
 
@@ -79,14 +79,15 @@ def test_factors_say_how_each_variable_compares_with_the_child_baseline() -> Non
     baselines = {"wake_state": 2.0, "sleep_quality": 8.0}
 
     assert compare_with_baseline("wake_state_mean_3d", 6.5, baselines) == (
-        "above", "Despertó más irritable que de costumbre en los últimos tres días")
+        "above", "worse", "Despertó más irritable que de costumbre en los últimos tres días")
+    # En el sueño, bajar es empeorar.
     assert compare_with_baseline("sleep_quality_mean_7d", 5.0, baselines) == (
-        "below", "Durmió peor que de costumbre en los últimos siete días")
-    assert compare_with_baseline("sleep_quality_delta_baseline", 0.4, baselines)[0] == "similar"
+        "below", "worse", "Durmió peor que de costumbre en los últimos siete días")
+    assert compare_with_baseline("sleep_quality_delta_baseline", 0.4, baselines)[:2] == ("similar", "same")
     # Sin dato (relleno con la línea base), sin línea base o sin frase: no se compara.
-    assert compare_with_baseline("wake_state_mean_1d", None, baselines) == (None, None)
-    assert compare_with_baseline("event_count_mean_3d", 2.0, baselines) == (None, None)
-    assert compare_with_baseline("record_count_3d", 2.0, baselines) == (None, None)
+    assert compare_with_baseline("wake_state_mean_1d", None, baselines) == (None, None, None)
+    assert compare_with_baseline("event_count_mean_3d", 2.0, baselines) == (None, None, None)
+    assert compare_with_baseline("record_count_3d", 2.0, baselines) == (None, None, None)
 
 
 def test_frontend_core_fields_mirror_the_confidence_config() -> None:

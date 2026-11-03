@@ -210,7 +210,12 @@ def make_prediction(
         metadata = model_artifact["metadata"]
         
         raw_explanations = explain_prediction(model, feat_names, features.rolling_features)
-        factors = generate_non_causal_factors(raw_explanations)
+        # Lo que se rellenó con la línea base por falta de datos no se compara con ella.
+        observed = dict(features.rolling_features)
+        for item in features.missingness:
+            if item.get("missing"):
+                observed[f"{item['field']}_mean_{item['window']}d"] = None
+        factors = generate_non_causal_factors(raw_explanations, baseline.modality_baselines, observed)
         
         # Select supports
         supports = select_supports(

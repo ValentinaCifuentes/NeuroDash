@@ -232,6 +232,8 @@ export interface PredictionFactor {
   window: string;
   /** Frente a lo habitual del propio infante (P19); null si no se puede comparar. */
   baseline: 'above' | 'below' | 'similar' | null;
+  /** Qué significa esa comparación para el infante: más irritable es «worse», mejor sueño «better». */
+  trend: 'worse' | 'better' | 'same' | null;
   /** «Despertó más irritable que de costumbre en los últimos tres días». */
   summary: string | null;
 }

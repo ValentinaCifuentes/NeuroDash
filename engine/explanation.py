@@ -159,41 +159,50 @@ BASELINE_PHRASES: dict[str, tuple[float, str, str, str]] = {
     "sensory_diet_done": (0.2, "Hizo más dieta sensorial que de costumbre", "Hizo menos dieta sensorial que de costumbre", "Dieta sensorial como de costumbre"),
 }
 _LATEST_RECORD = "en su último registro"
+# Variables donde «más» es mejor para el infante; en el resto, más es peor.
+HIGHER_IS_BETTER = {"sleep_quality", "medication_taken", "sleep_hours", "school_attendance", "sensory_diet_done"}
 
 
 def compare_with_baseline(
     feature: str,
     value: float | None,
     baselines: dict[str, float] | None,
-) -> tuple[str | None, str | None]:
-    """(«above» | «below» | «similar», frase) frente a la línea base del infante.
+) -> tuple[str | None, str | None, str | None]:
+    """(comparación, tendencia, frase) frente a la línea base del infante.
 
-    `(None, None)` si la variable no tiene línea base (arranque en frío), si no
-    hubo dato (no se compara un valor imputado) o si no es una variable del tutor
-    (p. ej. `record_count_3d`).
+    - comparación: «above» | «below» | «similar» (el número sube, baja o se mantiene);
+    - tendencia: «worse» | «better» | «same» (qué significa eso para el infante:
+      más irritable es peor, mejor sueño es mejor);
+    - frase: «Despertó más irritable que de costumbre en los últimos tres días».
+
+    `(None, None, None)` si la variable no tiene línea base (arranque en frío), si
+    no hubo dato (no se compara un valor imputado) o si no es una variable del
+    tutor (p. ej. `record_count_3d`).
     """
+    none = (None, None, None)
     if value is None:
-        return None, None
+        return none
     if feature.endswith("_delta_baseline"):
         field, diff, when = feature[: -len("_delta_baseline")], value, _LATEST_RECORD
     else:
         match = re.fullmatch(r"(.+)_mean_(\d+)d", feature)
         if not match or not baselines:
-            return None, None
+            return none
         field, window = match.group(1), int(match.group(2))
         base = baselines.get(field)
         if base is None or window not in _WINDOW_WORDS:
-            return None, None
+            return none
         diff, when = value - base, _WINDOW_WORDS[window][0]
     phrases = BASELINE_PHRASES.get(field)
     if phrases is None:
-        return None, None
+        return none
     step, above, below, similar = phrases
+    better_when_higher = field in HIGHER_IS_BETTER
     if diff >= step:
-        return "above", f"{above} {when}"
+        return "above", "better" if better_when_higher else "worse", f"{above} {when}"
     if diff <= -step:
-        return "below", f"{below} {when}"
-    return "similar", f"{similar} {when}"
+        return "below", "worse" if better_when_higher else "better", f"{below} {when}"
+    return "similar", "same", f"{similar} {when}"
 
 
 NUMBER_WORDS = {
@@ -268,7 +277,7 @@ def generate_non_causal_factors(
             description = f"La variable reciente {display_name} ({value:.1f}) no muestra una asociación activa con los patrones observados."
              
         actual = observed.get(feature) if observed is not None else value
-        comparison, summary = compare_with_baseline(feature, actual, baselines)
+        comparison, trend, summary = compare_with_baseline(feature, actual, baselines)
 
         factors.append({
             "factor_name": _sentence_case(display_name),
@@ -276,6 +285,7 @@ def generate_non_causal_factors(
             "contribution": float(contribution),
             "description": description,
             "comparison": comparison,
+            "trend": trend,
             "summary": summary,
         })
         

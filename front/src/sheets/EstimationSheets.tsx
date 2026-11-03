@@ -27,6 +27,28 @@ export function factorFamily(code: string): string {
     .replace(/_promedio$/, '');
 }
 
+/** Variables técnicas (cuántos días se registró): no dicen nada del infante (P29). */
+const isTechnical = (factor: PredictionFactor) => factor.code.startsWith('conteo_registros');
+
+/**
+ * Coherente: lo que está peor que de costumbre sube el riesgo y lo que está
+ * mejor lo baja. Un modelo lineal con variables que se mueven juntas a veces
+ * asigna el signo contrario («Transiciones más difíciles… menos riesgo»); esas
+ * filas son ciertas pero confunden, así que quedan en «Ver todas» (P29).
+ */
+const isCoherent = (factor: PredictionFactor) =>
+  (factor.trend === 'worse' && factor.direction === 'up') || (factor.trend === 'better' && factor.direction === 'down');
+
+/**
+ * Lo que se ve sin pedir más: una fila por variable, primero las coherentes
+ * con lo habitual del infante. Si no hay ninguna (p. ej., sin línea base), las
+ * más fuertes que no sean técnicas.
+ */
+export function highlightedFactors(factors: PredictionFactor[]): PredictionFactor[] {
+  const coherent = strongestPerFamily(factors.filter(isCoherent));
+  return coherent.length > 0 ? coherent : strongestPerFamily(factors.filter((factor) => !isTechnical(factor)));
+}
+
 function strongestPerFamily(factors: PredictionFactor[]): PredictionFactor[] {
   const seen = new Set<string>();
   return factors.filter((factor) => {
@@ -47,8 +69,8 @@ interface SheetBaseProps {
 }
 
 export function FactorsSheet({ prediction, onClose, returnFocusTo, showAll, onShowAll }: SheetBaseProps & { showAll: boolean; onShowAll: () => void }) {
-  const grouped = strongestPerFamily(prediction.factors);
-  const factors = showAll ? prediction.factors : grouped.slice(0, VISIBLE_FACTORS);
+  const highlighted = highlightedFactors(prediction.factors);
+  const factors = showAll ? prediction.factors : highlighted.slice(0, VISIBLE_FACTORS);
   const synthetic = isSynthetic(prediction);
   return (
     <BottomSheet title="Señales recientes" eyebrow="Por qué aparece así" onClose={onClose} returnFocusTo={returnFocusTo}>

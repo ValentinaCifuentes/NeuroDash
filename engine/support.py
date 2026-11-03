@@ -66,7 +66,9 @@ def select_supports(
     signals = _detect_cases(context, factors or [], recent_records or [], recent_occurrences or [], user_role)
 
     if _must_abstain_from_contextual_supports(abstained, confidence, missingness or []):
-        return [_insufficient_data_support(catalog, missingness or [])]
+        # Sin estimación no se elige un apoyo según el momento, pero lo que el tutor
+        # registró como algo que le ayuda sigue valiendo (P23): no es una inferencia.
+        return [*_effective_history_recommendations(subject_history), _insufficient_data_support(catalog, missingness or [])]
 
     historical = _historical_supports(subject_history, signals)
     selected = list(historical)

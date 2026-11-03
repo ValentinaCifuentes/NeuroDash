@@ -328,6 +328,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       direction: 'up' as const,
       window: '1d',
       baseline: null,
+      trend: null,
       summary: null,
     });
   }
@@ -339,6 +340,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       direction: 'up' as const,
       window: '1d',
       baseline: null,
+      trend: null,
       summary: null,
     });
   }
@@ -350,6 +352,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       direction: 'up' as const,
       window: '1d',
       baseline: null,
+      trend: null,
       summary: null,
     });
   }
@@ -361,6 +364,7 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       direction: 'down' as const,
       window: '1d',
       baseline: null,
+      trend: null,
       summary: null,
     });
   }
