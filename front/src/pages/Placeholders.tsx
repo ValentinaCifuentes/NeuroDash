@@ -6,6 +6,7 @@
 
 import type { Subject } from '../types';
 import { Icon } from '../components/icons';
+import { NavRow } from '../components/NavRow';
 
 interface Props {
   subject: Subject;
@@ -42,11 +43,7 @@ export function FichaInicial({ subject, onOpenTickets }: Props) {
         <p id="ficha-soporte" className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-2)' }}>
           Ayuda y soporte
         </p>
-        <button type="button" className="bl-option" onClick={onOpenTickets}>
-          <Icon name="support" size={20} />
-          <span className="bl-option__label">Mis Tickets</span>
-          <Icon name="chevronRight" size={14} strokeWidth={2.6} style={{ color: 'var(--nd-chevron)' }} />
-        </button>
+        <NavRow icon="support" title="Mis Tickets" summary="Solicitudes al equipo de soporte" onClick={onOpenTickets} />
       </section>
     </div>
   );

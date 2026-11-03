@@ -20,7 +20,7 @@ import { Icon } from './icons';
  * Patrón «roving tabindex»: solo la opción elegida (o la primera) entra en el
  * orden de tabulación, y las flechas mueven el foco y la selección.
  */
-function useRovingGroup(count: number, onMove: (index: number) => void) {
+export function useRovingGroup(count: number, onMove: (index: number) => void) {
   const refs = useRef<(HTMLElement | null)[]>([]);
   function onKeyDown(event: KeyboardEvent<HTMLElement>, index: number) {
     const forward = event.key === 'ArrowDown' || event.key === 'ArrowRight';

@@ -459,3 +459,26 @@ export function dayLabel(dateIso: string): { weekday: string; short: string } {
     short: `${String(d ?? 1).padStart(2, '0')}/${String(m ?? 1).padStart(2, '0')}/${y}`,
   };
 }
+
+/* ============================================================
+   Perfil sensorial (Perfil · paso 3 → `sensory_context`)
+   ============================================================ */
+
+/** −1 busca menos estímulo · 0 típico · 1 le molesta (plan de datos §6.1). */
+export type SensoryLevel = -1 | 0 | 1;
+
+export const SENSORY_CHANNELS = [
+  { key: 'auditory', label: 'Sonidos' },
+  { key: 'visual', label: 'Luces' },
+  { key: 'tactile', label: 'Tacto' },
+  { key: 'gustatory', label: 'Sabores' },
+  { key: 'vestibular', label: 'Movimiento' },
+] as const;
+
+export type SensoryChannel = (typeof SENSORY_CHANNELS)[number]['key'];
+
+export const SENSORY_LEVELS: { value: SensoryLevel; label: string; color: string }[] = [
+  { value: -1, label: 'Busca menos', color: 'var(--nd-risk-low)' },
+  { value: 0, label: 'Típico', color: '#B9ACB3' },
+  { value: 1, label: 'Le molesta', color: 'var(--nd-accent)' },
+];

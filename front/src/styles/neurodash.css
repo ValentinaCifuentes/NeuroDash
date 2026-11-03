@@ -701,3 +701,195 @@ body {
   background: var(--nd-neutral-2);
   color: var(--nd-ink-2);
 }
+
+/* ==========================================================================
+   Listas y perfil (Fase 4 · paso 4): NavRow, Disclosure, SensoryMatrix
+   ========================================================================== */
+.nd-navlist {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--nd-r-xl);
+  background: var(--nd-surface);
+  box-shadow: var(--nd-sh-row);
+}
+.nd-navrow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 0 16px;
+  border: 0;
+  background: var(--nd-surface);
+  font: inherit;
+  color: var(--nd-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.nd-navrow {
+  border-radius: var(--nd-r-xl);    /* fila suelta: tarjeta propia (Ficha › Mis Tickets) */
+  box-shadow: var(--nd-sh-row);
+}
+.nd-navlist > .nd-navrow {
+  border-radius: 0;                  /* dentro de una lista, la tarjeta es la lista */
+  box-shadow: none;
+}
+.nd-navlist .nd-navrow + .nd-navrow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 64px;
+  right: 0;
+  height: 0.5px;
+  background: var(--nd-line);
+}
+.nd-navrow:focus-visible {
+  outline: none;
+  box-shadow: inset var(--nd-ring);
+}
+.nd-navrow__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  border-radius: var(--nd-r-icon);
+}
+.nd-navrow__icon--risk {
+  background: var(--nd-risk-high-bg);
+  color: var(--nd-risk-high);
+}
+.nd-navrow__icon--missing {
+  background: var(--nd-missing-bg);
+  border: 1.5px dashed var(--nd-missing-border);
+  color: var(--nd-missing);
+}
+.nd-navrow__icon--neutral {
+  background: var(--nd-neutral-2);
+  color: var(--nd-ink-2);
+}
+.nd-navrow__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nd-navrow__title {
+  font-size: var(--nd-fs-body);
+  font-weight: 600;
+}
+.nd-navrow__summary {
+  font-size: var(--nd-fs-xs);
+  color: var(--nd-muted);
+}
+.nd-navrow__chevron {
+  color: var(--nd-chevron);
+}
+
+.nd-disclosure {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 18px;
+  border-radius: var(--nd-r-2xl);
+  background: var(--nd-surface);
+  box-shadow: var(--nd-sh-row);
+}
+.nd-disclosure__heading {
+  margin: 0;
+}
+.nd-disclosure__toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--nd-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.nd-disclosure__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.nd-disclosure__title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.nd-disclosure__summary {
+  font-size: var(--nd-fs-xs);
+  font-weight: 500;
+  color: var(--nd-ink-2);
+}
+.nd-disclosure__chevron {
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-bg);
+  color: var(--nd-accent);
+  transition: transform 200ms var(--nd-ease-out);
+}
+[aria-expanded='true'] > .nd-disclosure__chevron {
+  transform: rotate(180deg);
+}
+.nd-disclosure__body {
+  padding-bottom: 14px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nd-disclosure__chevron {
+    transition: none;
+  }
+}
+
+.nd-sensory {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nd-sensory__row {
+  display: grid;
+  grid-template-columns: 92px repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  align-items: center;
+}
+.nd-sensory__head {
+  font-size: var(--nd-fs-tab);
+  font-weight: 600;
+  color: var(--nd-muted);
+  text-align: center;
+}
+.nd-sensory__label {
+  font-size: var(--nd-fs-sm);
+  font-weight: 600;
+}
+.nd-sensory__cell {
+  display: grid;
+  place-items: center;
+  height: var(--nd-tap);   /* 40 px en el prototipo; 44 por área táctil mínima */
+  padding: 0;
+  border: 1px solid var(--nd-border-soft);
+  border-radius: var(--nd-r-sm);
+  background: var(--nd-surface);
+  cursor: pointer;
+}
+.nd-sensory__cell[aria-checked='true'] {
+  border: 2px solid var(--nd-accent);
+  background: var(--nd-accent-soft);
+}
+.nd-sensory__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--nd-r-full);
+}
