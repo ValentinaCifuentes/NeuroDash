@@ -1,8 +1,9 @@
 /**
  * Hojas de la estimación (screens/Final-Evolucion-Porque.html y -Datos.html).
  *
- * - «Por qué aparece así»: factores ↑/↓ con el nombre legible que envía el motor
- *   y, al pie, de dónde salen los datos (decisión D3 del plan).
+ * - «Por qué aparece así»: factores ↑/↓ dichos frente a lo habitual del infante
+ *   («Despertó más irritable que de costumbre…», P19) y, al pie, de dónde salen
+ *   los datos (decisión D3 del plan).
  * - «Puede mejorar la lectura»: qué dato falta, por qué importa y dónde se registra.
  *
  * Lenguaje no causal: un factor «aparece junto a» más o menos riesgo, no lo causa.
@@ -87,7 +88,8 @@ function FactorRow({ factor }: { factor: PredictionFactor }) {
       </span>
       <span className="nd-factor__text">
         <span className="nd-factor__label">
-          {factor.label}
+          {/* P19: frente a lo habitual del infante cuando se puede comparar; si no, el nombre de la variable. */}
+          {factor.summary ?? factor.label}
           <span className="nd-sr-only"> · empuja hacia {up ? 'arriba' : 'abajo'}</span>
         </span>
         {/* La ventana ya va en el nombre («…en los últimos tres días»). */}

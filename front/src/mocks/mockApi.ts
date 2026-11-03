@@ -327,6 +327,8 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       comparison: 'Noche muy distinta de su patrón habitual',
       direction: 'up' as const,
       window: '1d',
+      baseline: null,
+      summary: null,
     });
   }
   if (todaysRecord.gi_status && todaysRecord.gi_status !== 'Normal') {
@@ -336,6 +338,8 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       comparison: `${todaysRecord.gi_status} registrado hoy`,
       direction: 'up' as const,
       window: '1d',
+      baseline: null,
+      summary: null,
     });
   }
   if (worst >= 8) {
@@ -345,6 +349,8 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       comparison: '1 episodio severo en las últimas horas',
       direction: 'up' as const,
       window: '1d',
+      baseline: null,
+      summary: null,
     });
   }
   if (todaysRecord.sleep_quality === 'Reparador') {
@@ -354,6 +360,8 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
       comparison: 'Noche dentro de su rango habitual',
       direction: 'down' as const,
       window: '1d',
+      baseline: null,
+      summary: null,
     });
   }
 

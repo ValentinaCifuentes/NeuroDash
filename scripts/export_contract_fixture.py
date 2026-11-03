@@ -21,7 +21,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from backend.app import prediction_service  # noqa: E402
-from engine.explanation import FEATURE_DISPLAY_NAMES, generate_non_causal_factors  # noqa: E402
+from engine.explanation import BASELINE_PHRASES, FEATURE_DISPLAY_NAMES, generate_non_causal_factors  # noqa: E402
 
 FIXTURE_PATH = PROJECT_ROOT / "front" / "src" / "test" / "fixtures" / "prediction-contract.json"
 
@@ -37,13 +37,19 @@ def build_fixture() -> dict:
     with patch.object(prediction_service, "write_json_atomic"):
         _, contract = prediction_service.make_prediction("PAC-A", demo_cutoff())
     fixture = contract.model_dump(mode="json")
-    # Contribución alterna para cubrir las dos direcciones (↑ y ↓) del front.
+    fixture["factors"] = fixture_factors()
+    return fixture
+
+
+def fixture_factors() -> list[dict]:
+    """Factores sintéticos que cubren las dos direcciones (↑ ↓) y las tres
+    comparaciones con la línea base (sobre, bajo, parecido) para el front."""
     explanations = [
         {"feature": feature, "contribution": 0.5 if index % 2 == 0 else -0.5, "value": 1.0}
         for index, feature in enumerate(FEATURE_DISPLAY_NAMES)
     ]
-    fixture["factors"] = generate_non_causal_factors(explanations)
-    return fixture
+    baselines = {field: (-5.0, 5.0, 1.0)[index % 3] for index, field in enumerate(BASELINE_PHRASES)}
+    return generate_non_causal_factors(explanations, baselines)
 
 
 if __name__ == "__main__":

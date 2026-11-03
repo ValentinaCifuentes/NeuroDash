@@ -123,7 +123,7 @@ function Estimation({ prediction, onOpenBitacora }: { prediction: Prediction; on
                             icon={prediction.factors[0].direction === "up" ? "arrowUp" : "arrowDown"}
                             tone="risk"
                             title="Por qué aparece así"
-                            summary={prediction.factors[0].label}
+                            summary={prediction.factors[0].summary ?? prediction.factors[0].label}
                             onClick={() => setSheet("factors")}
                         />
                 )}

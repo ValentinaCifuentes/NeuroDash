@@ -1,3 +1,4 @@
+import re
 from typing import Any
 
 FEATURE_DISPLAY_NAMES = {
@@ -133,6 +134,68 @@ for _field, (_name, _code) in _CONTEXT_FAMILIES.items():
     FEATURE_VARIABLE_NAMES[f"{_field}_delta_baseline"] = f"desviacion_{_code}_linea_base"
 
 
+# Comparación con el propio infante (P19). Para cada variable: cuánto tiene que
+# alejarse de su línea base (la mediana de su historial) para contar como
+# distinta, y cómo se dice en cada caso. Lo «más» de cada variable no siempre es
+# peor: más calidad de sueño es mejor; más estado al despertar es más irritable.
+BASELINE_PHRASES: dict[str, tuple[float, str, str, str]] = {
+    # campo: (umbral, sobre la línea base, bajo la línea base, parecido)
+    "sleep_quality": (1.0, "Durmió mejor que de costumbre", "Durmió peor que de costumbre", "Sueño como de costumbre"),
+    "wake_state": (1.0, "Despertó más irritable que de costumbre", "Despertó más tranquilo que de costumbre", "Despertar como de costumbre"),
+    "event_count": (1.0, "Más eventos que de costumbre", "Menos eventos que de costumbre", "Eventos como de costumbre"),
+    "dysregulation_count": (0.5, "Más desregulaciones que de costumbre", "Menos desregulaciones que de costumbre", "Desregulaciones como de costumbre"),
+    "max_intensity": (1.0, "Eventos más intensos que de costumbre", "Eventos menos intensos que de costumbre", "Intensidad como de costumbre"),
+    "start_autonomy_level": (0.3, "Necesitó más ayuda para iniciar el día", "Inició el día con más autonomía", "Inicio del día como de costumbre"),
+    "medication_taken": (0.2, "Tomó la medicación con más regularidad", "Tomó la medicación menos días que de costumbre", "Medicación como de costumbre"),
+    "gi_level": (0.3, "Más molestias digestivas que de costumbre", "Menos molestias digestivas que de costumbre", "Digestión como de costumbre"),
+    "day_regulation_level_num": (0.3, "Días menos regulados que de costumbre", "Días más regulados que de costumbre", "Regulación del día como de costumbre"),
+    "sleep_hours": (0.5, "Durmió más horas que de costumbre", "Durmió menos horas que de costumbre", "Horas de sueño como de costumbre"),
+    "early_signs_count": (0.5, "Más señales tempranas que de costumbre", "Menos señales tempranas que de costumbre", "Señales tempranas como de costumbre"),
+    "physical_discomfort": (0.2, "Más malestar físico que de costumbre", "Menos malestar físico que de costumbre", "Malestar físico como de costumbre"),
+    "routine_change": (0.2, "Más cambios de rutina que de costumbre", "Menos cambios de rutina que de costumbre", "Rutina como de costumbre"),
+    "school_attendance": (0.2, "Asistió más al colegio que de costumbre", "Asistió menos al colegio que de costumbre", "Asistencia al colegio como de costumbre"),
+    "transition_difficulty": (0.3, "Transiciones más difíciles que de costumbre", "Transiciones más fáciles que de costumbre", "Transiciones como de costumbre"),
+    "feeding_difficulty": (0.3, "Comió con más dificultad que de costumbre", "Comió con menos dificultad que de costumbre", "Alimentación como de costumbre"),
+    "sensory_diet_done": (0.2, "Hizo más dieta sensorial que de costumbre", "Hizo menos dieta sensorial que de costumbre", "Dieta sensorial como de costumbre"),
+}
+_LATEST_RECORD = "en su último registro"
+
+
+def compare_with_baseline(
+    feature: str,
+    value: float | None,
+    baselines: dict[str, float] | None,
+) -> tuple[str | None, str | None]:
+    """(«above» | «below» | «similar», frase) frente a la línea base del infante.
+
+    `(None, None)` si la variable no tiene línea base (arranque en frío), si no
+    hubo dato (no se compara un valor imputado) o si no es una variable del tutor
+    (p. ej. `record_count_3d`).
+    """
+    if value is None:
+        return None, None
+    if feature.endswith("_delta_baseline"):
+        field, diff, when = feature[: -len("_delta_baseline")], value, _LATEST_RECORD
+    else:
+        match = re.fullmatch(r"(.+)_mean_(\d+)d", feature)
+        if not match or not baselines:
+            return None, None
+        field, window = match.group(1), int(match.group(2))
+        base = baselines.get(field)
+        if base is None or window not in _WINDOW_WORDS:
+            return None, None
+        diff, when = value - base, _WINDOW_WORDS[window][0]
+    phrases = BASELINE_PHRASES.get(field)
+    if phrases is None:
+        return None, None
+    step, above, below, similar = phrases
+    if diff >= step:
+        return "above", f"{above} {when}"
+    if diff <= -step:
+        return "below", f"{below} {when}"
+    return "similar", f"{similar} {when}"
+
+
 NUMBER_WORDS = {
     "1": "un",
     "2": "dos",
@@ -176,11 +239,17 @@ def _sentence_case(text: str) -> str:
     return text[:1].upper() + text[1:]
 
 def generate_non_causal_factors(
-    explanations: list[dict[str, Any]]
+    explanations: list[dict[str, Any]],
+    baselines: dict[str, float] | None = None,
+    observed: dict[str, float | None] | None = None,
 ) -> list[dict[str, Any]]:
     """
     Traduce contribuciones de variables crudas a explicaciones no causales en español.
     Evita lenguaje causal o diagnóstico.
+
+    Con `baselines` (mediana por campo) y `observed` (las variables antes de
+    imputar), cada factor dice además cómo está frente a lo habitual del propio
+    infante (`comparison`, `summary`). Sin ellas, esos campos van en `None`.
     """
     factors = []
     for exp in explanations:
@@ -198,11 +267,16 @@ def generate_non_causal_factors(
         else:
             description = f"La variable reciente {display_name} ({value:.1f}) no muestra una asociación activa con los patrones observados."
              
+        actual = observed.get(feature) if observed is not None else value
+        comparison, summary = compare_with_baseline(feature, actual, baselines)
+
         factors.append({
             "factor_name": _sentence_case(display_name),
             "feature": variable_name,
             "contribution": float(contribution),
-            "description": description
+            "description": description,
+            "comparison": comparison,
+            "summary": summary,
         })
         
     return factors

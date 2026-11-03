@@ -230,6 +230,10 @@ export interface PredictionFactor {
   comparison: string;
   direction: FactorDirection;
   window: string;
+  /** Frente a lo habitual del propio infante (P19); null si no se puede comparar. */
+  baseline: 'above' | 'below' | 'similar' | null;
+  /** «Despertó más irritable que de costumbre en los últimos tres días». */
+  summary: string | null;
 }
 
 export interface MissingDataItem {

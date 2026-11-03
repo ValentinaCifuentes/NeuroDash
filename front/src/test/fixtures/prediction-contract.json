@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "0325ab8517b745eb89482eba29ca3a9c",
+  "prediction_id": "71a4a97cb0af4574843385aebe7b2953",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -12,592 +12,727 @@
       "factor_name": "Calidad del sueño en el último día",
       "feature": "calidad_sueno_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente calidad del sueño en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente calidad del sueño en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió mejor que de costumbre en el último día"
     },
     {
       "factor_name": "Calidad del sueño en los últimos tres días",
       "feature": "calidad_sueno_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente calidad del sueño en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente calidad del sueño en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió mejor que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Calidad del sueño en los últimos siete días",
       "feature": "calidad_sueno_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente calidad del sueño en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente calidad del sueño en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió mejor que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Calidad del sueño en los últimos catorce días",
       "feature": "calidad_sueno_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente calidad del sueño en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente calidad del sueño en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió mejor que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Estado al despertar en el último día",
       "feature": "estado_despertar_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente estado al despertar en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente estado al despertar en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Despertó más tranquilo que de costumbre en el último día"
     },
     {
       "factor_name": "Estado al despertar en los últimos tres días",
       "feature": "estado_despertar_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente estado al despertar en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente estado al despertar en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Despertó más tranquilo que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Estado al despertar en los últimos siete días",
       "feature": "estado_despertar_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente estado al despertar en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente estado al despertar en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Despertó más tranquilo que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Estado al despertar en los últimos catorce días",
       "feature": "estado_despertar_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente estado al despertar en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente estado al despertar en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Despertó más tranquilo que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Conteo de eventos en el último día",
       "feature": "conteo_eventos_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de eventos en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de eventos en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Eventos como de costumbre en el último día"
     },
     {
       "factor_name": "Conteo de eventos en los últimos tres días",
       "feature": "conteo_eventos_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente conteo de eventos en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente conteo de eventos en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Eventos como de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Conteo de eventos en los últimos siete días",
       "feature": "conteo_eventos_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de eventos en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de eventos en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Eventos como de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Conteo de eventos en los últimos catorce días",
       "feature": "conteo_eventos_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente conteo de eventos en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente conteo de eventos en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Eventos como de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Conteo de registros en el último día",
       "feature": "conteo_registros_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de registros en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de registros en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "summary": null
     },
     {
       "factor_name": "Conteo de registros en los últimos dos días",
       "feature": "conteo_registros_dos_dias",
       "contribution": -0.5,
-      "description": "La variable reciente conteo de registros en los últimos dos días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente conteo de registros en los últimos dos días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "summary": null
     },
     {
       "factor_name": "Conteo de registros en los últimos tres días",
       "feature": "conteo_registros_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de registros en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de registros en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "summary": null
     },
     {
       "factor_name": "Conteo de registros en los últimos siete días",
       "feature": "conteo_registros_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente conteo de registros en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente conteo de registros en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "summary": null
     },
     {
       "factor_name": "Conteo de registros en los últimos catorce días",
       "feature": "conteo_registros_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de registros en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de registros en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "summary": null
     },
     {
       "factor_name": "Desviación de calidad del sueño frente a la línea base",
       "feature": "desviacion_calidad_sueno_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de calidad del sueño frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de calidad del sueño frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió mejor que de costumbre en su último registro"
     },
     {
       "factor_name": "Desviación del estado al despertar frente a la línea base",
       "feature": "desviacion_estado_despertar_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación del estado al despertar frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación del estado al despertar frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Despertó más irritable que de costumbre en su último registro"
     },
     {
       "factor_name": "Desviación del conteo de eventos frente a la línea base",
       "feature": "desviacion_conteo_eventos_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación del conteo de eventos frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación del conteo de eventos frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más eventos que de costumbre en su último registro"
     },
     {
       "factor_name": "Autonomía al inicio del día en el último día",
       "feature": "autonomia_inicio_dia_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente autonomía al inicio del día en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente autonomía al inicio del día en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Inicio del día como de costumbre en el último día"
     },
     {
       "factor_name": "Autonomía al inicio del día en los últimos tres días",
       "feature": "autonomia_inicio_dia_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente autonomía al inicio del día en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente autonomía al inicio del día en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Inicio del día como de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Autonomía al inicio del día en los últimos siete días",
       "feature": "autonomia_inicio_dia_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente autonomía al inicio del día en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente autonomía al inicio del día en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Inicio del día como de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Autonomía al inicio del día en los últimos catorce días",
       "feature": "autonomia_inicio_dia_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente autonomía al inicio del día en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente autonomía al inicio del día en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Inicio del día como de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de la autonomía al inicio del día frente a la línea base",
       "feature": "desviacion_autonomia_inicio_dia_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación de la autonomía al inicio del día frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación de la autonomía al inicio del día frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Necesitó más ayuda para iniciar el día en su último registro"
     },
     {
       "factor_name": "Toma de medicación en el último día",
       "feature": "medicacion_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente toma de medicación en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente toma de medicación en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Tomó la medicación con más regularidad en el último día"
     },
     {
       "factor_name": "Toma de medicación en los últimos tres días",
       "feature": "medicacion_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente toma de medicación en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente toma de medicación en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Tomó la medicación con más regularidad en los últimos tres días"
     },
     {
       "factor_name": "Toma de medicación en los últimos siete días",
       "feature": "medicacion_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente toma de medicación en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente toma de medicación en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Tomó la medicación con más regularidad en los últimos siete días"
     },
     {
       "factor_name": "Toma de medicación en los últimos catorce días",
       "feature": "medicacion_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente toma de medicación en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente toma de medicación en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Tomó la medicación con más regularidad en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de la toma de medicación frente a la línea base",
       "feature": "desviacion_medicacion_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de la toma de medicación frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de la toma de medicación frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Tomó la medicación con más regularidad en su último registro"
     },
     {
       "factor_name": "Nivel de digestión en el último día",
       "feature": "digestion_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente nivel de digestión en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente nivel de digestión en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos molestias digestivas que de costumbre en el último día"
     },
     {
       "factor_name": "Nivel de digestión en los últimos tres días",
       "feature": "digestion_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente nivel de digestión en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente nivel de digestión en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos molestias digestivas que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Nivel de digestión en los últimos siete días",
       "feature": "digestion_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente nivel de digestión en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente nivel de digestión en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos molestias digestivas que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Nivel de digestión en los últimos catorce días",
       "feature": "digestion_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente nivel de digestión en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente nivel de digestión en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos molestias digestivas que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación del nivel de digestión frente a la línea base",
       "feature": "desviacion_digestion_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación del nivel de digestión frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación del nivel de digestión frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más molestias digestivas que de costumbre en su último registro"
     },
     {
       "factor_name": "Nivel de regulación del día en el último día",
       "feature": "regulacion_dia_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente nivel de regulación del día en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente nivel de regulación del día en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Regulación del día como de costumbre en el último día"
     },
     {
       "factor_name": "Nivel de regulación del día en los últimos tres días",
       "feature": "regulacion_dia_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente nivel de regulación del día en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente nivel de regulación del día en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Regulación del día como de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Nivel de regulación del día en los últimos siete días",
       "feature": "regulacion_dia_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente nivel de regulación del día en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente nivel de regulación del día en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Regulación del día como de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Nivel de regulación del día en los últimos catorce días",
       "feature": "regulacion_dia_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente nivel de regulación del día en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente nivel de regulación del día en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Regulación del día como de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación del nivel de regulación del día frente a la línea base",
       "feature": "desviacion_regulacion_dia_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación del nivel de regulación del día frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación del nivel de regulación del día frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Días menos regulados que de costumbre en su último registro"
     },
     {
       "factor_name": "Conteo de desregulaciones en el último día",
       "feature": "desregulaciones_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de desregulaciones en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de desregulaciones en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más desregulaciones que de costumbre en el último día"
     },
     {
       "factor_name": "Conteo de desregulaciones en los últimos tres días",
       "feature": "desregulaciones_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente conteo de desregulaciones en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente conteo de desregulaciones en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más desregulaciones que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Conteo de desregulaciones en los últimos siete días",
       "feature": "desregulaciones_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente conteo de desregulaciones en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente conteo de desregulaciones en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más desregulaciones que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Conteo de desregulaciones en los últimos catorce días",
       "feature": "desregulaciones_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente conteo de desregulaciones en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente conteo de desregulaciones en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más desregulaciones que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación del conteo de desregulaciones frente a la línea base",
       "feature": "desviacion_desregulaciones_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación del conteo de desregulaciones frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación del conteo de desregulaciones frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más desregulaciones que de costumbre en su último registro"
     },
     {
       "factor_name": "Intensidad máxima de eventos en el último día",
       "feature": "intensidad_maxima_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente intensidad máxima de eventos en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente intensidad máxima de eventos en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Eventos menos intensos que de costumbre en el último día"
     },
     {
       "factor_name": "Intensidad máxima de eventos en los últimos tres días",
       "feature": "intensidad_maxima_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente intensidad máxima de eventos en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente intensidad máxima de eventos en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Eventos menos intensos que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Intensidad máxima de eventos en los últimos siete días",
       "feature": "intensidad_maxima_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente intensidad máxima de eventos en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente intensidad máxima de eventos en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Eventos menos intensos que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Intensidad máxima de eventos en los últimos catorce días",
       "feature": "intensidad_maxima_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente intensidad máxima de eventos en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente intensidad máxima de eventos en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Eventos menos intensos que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de la intensidad máxima de eventos frente a la línea base",
       "feature": "desviacion_intensidad_maxima_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de la intensidad máxima de eventos frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de la intensidad máxima de eventos frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Eventos más intensos que de costumbre en su último registro"
     },
     {
       "factor_name": "Horas de sueño en el último día",
       "feature": "horas_sueno_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente horas de sueño en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente horas de sueño en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió más horas que de costumbre en el último día"
     },
     {
       "factor_name": "Horas de sueño en los últimos tres días",
       "feature": "horas_sueno_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente horas de sueño en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente horas de sueño en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió más horas que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Horas de sueño en los últimos siete días",
       "feature": "horas_sueno_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente horas de sueño en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente horas de sueño en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió más horas que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Horas de sueño en los últimos catorce días",
       "feature": "horas_sueno_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente horas de sueño en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente horas de sueño en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió más horas que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de horas de sueño frente a la línea base",
       "feature": "desviacion_horas_sueno_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación de horas de sueño frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación de horas de sueño frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Durmió más horas que de costumbre en su último registro"
     },
     {
       "factor_name": "Señales tempranas observadas en el último día",
       "feature": "senales_tempranas_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente señales tempranas observadas en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente señales tempranas observadas en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos señales tempranas que de costumbre en el último día"
     },
     {
       "factor_name": "Señales tempranas observadas en los últimos tres días",
       "feature": "senales_tempranas_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente señales tempranas observadas en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente señales tempranas observadas en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos señales tempranas que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Señales tempranas observadas en los últimos siete días",
       "feature": "senales_tempranas_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente señales tempranas observadas en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente señales tempranas observadas en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos señales tempranas que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Señales tempranas observadas en los últimos catorce días",
       "feature": "senales_tempranas_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente señales tempranas observadas en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente señales tempranas observadas en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Menos señales tempranas que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de señales tempranas observadas frente a la línea base",
       "feature": "desviacion_senales_tempranas_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de señales tempranas observadas frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de señales tempranas observadas frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más señales tempranas que de costumbre en su último registro"
     },
     {
       "factor_name": "Malestar físico en el último día",
       "feature": "malestar_fisico_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente malestar físico en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente malestar físico en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Malestar físico como de costumbre en el último día"
     },
     {
       "factor_name": "Malestar físico en los últimos tres días",
       "feature": "malestar_fisico_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente malestar físico en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente malestar físico en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Malestar físico como de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Malestar físico en los últimos siete días",
       "feature": "malestar_fisico_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente malestar físico en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente malestar físico en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Malestar físico como de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Malestar físico en los últimos catorce días",
       "feature": "malestar_fisico_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente malestar físico en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente malestar físico en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Malestar físico como de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de malestar físico frente a la línea base",
       "feature": "desviacion_malestar_fisico_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación de malestar físico frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación de malestar físico frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más malestar físico que de costumbre en su último registro"
     },
     {
       "factor_name": "Cambios de rutina en el último día",
       "feature": "cambio_rutina_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente cambios de rutina en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente cambios de rutina en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más cambios de rutina que de costumbre en el último día"
     },
     {
       "factor_name": "Cambios de rutina en los últimos tres días",
       "feature": "cambio_rutina_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente cambios de rutina en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente cambios de rutina en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más cambios de rutina que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Cambios de rutina en los últimos siete días",
       "feature": "cambio_rutina_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente cambios de rutina en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente cambios de rutina en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más cambios de rutina que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Cambios de rutina en los últimos catorce días",
       "feature": "cambio_rutina_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente cambios de rutina en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente cambios de rutina en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más cambios de rutina que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de cambios de rutina frente a la línea base",
       "feature": "desviacion_cambio_rutina_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de cambios de rutina frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de cambios de rutina frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Más cambios de rutina que de costumbre en su último registro"
     },
     {
       "factor_name": "Asistencia al colegio en el último día",
       "feature": "asistencia_colegio_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente asistencia al colegio en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente asistencia al colegio en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Asistió menos al colegio que de costumbre en el último día"
     },
     {
       "factor_name": "Asistencia al colegio en los últimos tres días",
       "feature": "asistencia_colegio_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente asistencia al colegio en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente asistencia al colegio en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Asistió menos al colegio que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Asistencia al colegio en los últimos siete días",
       "feature": "asistencia_colegio_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente asistencia al colegio en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente asistencia al colegio en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Asistió menos al colegio que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Asistencia al colegio en los últimos catorce días",
       "feature": "asistencia_colegio_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente asistencia al colegio en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente asistencia al colegio en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Asistió menos al colegio que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de asistencia al colegio frente a la línea base",
       "feature": "desviacion_asistencia_colegio_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación de asistencia al colegio frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación de asistencia al colegio frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Asistió más al colegio que de costumbre en su último registro"
     },
     {
       "factor_name": "Dificultad en las transiciones en el último día",
       "feature": "dificultad_transiciones_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente dificultad en las transiciones en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente dificultad en las transiciones en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Transiciones como de costumbre en el último día"
     },
     {
       "factor_name": "Dificultad en las transiciones en los últimos tres días",
       "feature": "dificultad_transiciones_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente dificultad en las transiciones en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente dificultad en las transiciones en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Transiciones como de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Dificultad en las transiciones en los últimos siete días",
       "feature": "dificultad_transiciones_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente dificultad en las transiciones en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente dificultad en las transiciones en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Transiciones como de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Dificultad en las transiciones en los últimos catorce días",
       "feature": "dificultad_transiciones_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente dificultad en las transiciones en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente dificultad en las transiciones en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "summary": "Transiciones como de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de dificultad en las transiciones frente a la línea base",
       "feature": "desviacion_dificultad_transiciones_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de dificultad en las transiciones frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de dificultad en las transiciones frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Transiciones más difíciles que de costumbre en su último registro"
     },
     {
       "factor_name": "Dificultad para alimentarse en el último día",
       "feature": "dificultad_alimentacion_promedio_un_dia",
       "contribution": 0.5,
-      "description": "La variable reciente dificultad para alimentarse en el último día (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente dificultad para alimentarse en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Comió con más dificultad que de costumbre en el último día"
     },
     {
       "factor_name": "Dificultad para alimentarse en los últimos tres días",
       "feature": "dificultad_alimentacion_promedio_tres_dias",
       "contribution": -0.5,
-      "description": "La variable reciente dificultad para alimentarse en los últimos tres días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente dificultad para alimentarse en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Comió con más dificultad que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Dificultad para alimentarse en los últimos siete días",
       "feature": "dificultad_alimentacion_promedio_siete_dias",
       "contribution": 0.5,
-      "description": "La variable reciente dificultad para alimentarse en los últimos siete días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente dificultad para alimentarse en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Comió con más dificultad que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Dificultad para alimentarse en los últimos catorce días",
       "feature": "dificultad_alimentacion_promedio_catorce_dias",
       "contribution": -0.5,
-      "description": "La variable reciente dificultad para alimentarse en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente dificultad para alimentarse en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Comió con más dificultad que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de dificultad para alimentarse frente a la línea base",
       "feature": "desviacion_dificultad_alimentacion_linea_base",
       "contribution": 0.5,
-      "description": "La variable reciente desviación de dificultad para alimentarse frente a la línea base (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente desviación de dificultad para alimentarse frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "summary": "Comió con más dificultad que de costumbre en su último registro"
     },
     {
       "factor_name": "Dieta sensorial realizada en el último día",
       "feature": "dieta_sensorial_promedio_un_dia",
       "contribution": -0.5,
-      "description": "La variable reciente dieta sensorial realizada en el último día (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente dieta sensorial realizada en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Hizo menos dieta sensorial que de costumbre en el último día"
     },
     {
       "factor_name": "Dieta sensorial realizada en los últimos tres días",
       "feature": "dieta_sensorial_promedio_tres_dias",
       "contribution": 0.5,
-      "description": "La variable reciente dieta sensorial realizada en los últimos tres días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente dieta sensorial realizada en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Hizo menos dieta sensorial que de costumbre en los últimos tres días"
     },
     {
       "factor_name": "Dieta sensorial realizada en los últimos siete días",
       "feature": "dieta_sensorial_promedio_siete_dias",
       "contribution": -0.5,
-      "description": "La variable reciente dieta sensorial realizada en los últimos siete días (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente dieta sensorial realizada en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "summary": "Hizo menos dieta sensorial que de costumbre en los últimos siete días"
     },
     {
       "factor_name": "Dieta sensorial realizada en los últimos catorce días",
       "feature": "dieta_sensorial_promedio_catorce_dias",
       "contribution": 0.5,
-      "description": "La variable reciente dieta sensorial realizada en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados."
+      "description": "La variable reciente dieta sensorial realizada en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "summary": "Hizo menos dieta sensorial que de costumbre en los últimos catorce días"
     },
     {
       "factor_name": "Desviación de dieta sensorial realizada frente a la línea base",
       "feature": "desviacion_dieta_sensorial_linea_base",
       "contribution": -0.5,
-      "description": "La variable reciente desviación de dieta sensorial realizada frente a la línea base (1.0) se asocia con una disminución en los patrones observados."
+      "description": "La variable reciente desviación de dieta sensorial realizada frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "summary": "Hizo más dieta sensorial que de costumbre en su último registro"
     }
   ],
   "missingness": [
     {
       "window": 1,
-      "field": "feeding_difficulty",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "medication_taken",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "event_count",
-      "missing": false
-    },
-    {
-      "window": 1,
       "field": "gi_level",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "dysregulation_count",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "transition_difficulty",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "wake_state",
       "missing": false
     },
     {
@@ -607,26 +742,51 @@
     },
     {
       "window": 1,
-      "field": "sensory_diet_done",
-      "missing": false
-    },
-    {
-      "window": 3,
       "field": "feeding_difficulty",
       "missing": false
     },
     {
-      "window": 3,
+      "window": 1,
+      "field": "start_autonomy_level",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "wake_state",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "max_intensity",
       "missing": false
     },
     {
-      "window": 3,
+      "window": 1,
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "medication_taken",
       "missing": false
     },
     {
-      "window": 3,
+      "window": 1,
+      "field": "sensory_diet_done",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "dysregulation_count",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "event_count",
       "missing": false
     },
@@ -637,22 +797,17 @@
     },
     {
       "window": 3,
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "feeding_difficulty",
+      "missing": false
+    },
+    {
+      "window": 3,
       "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "dysregulation_count",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "transition_difficulty",
       "missing": false
     },
     {
@@ -662,7 +817,17 @@
     },
     {
       "window": 3,
-      "field": "sleep_quality",
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "medication_taken",
       "missing": false
     },
     {
@@ -671,22 +836,17 @@
       "missing": false
     },
     {
-      "window": 7,
-      "field": "feeding_difficulty",
+      "window": 3,
+      "field": "dysregulation_count",
       "missing": false
     },
     {
-      "window": 7,
-      "field": "max_intensity",
+      "window": 3,
+      "field": "transition_difficulty",
       "missing": false
     },
     {
-      "window": 7,
-      "field": "medication_taken",
-      "missing": false
-    },
-    {
-      "window": 7,
+      "window": 3,
       "field": "event_count",
       "missing": false
     },
@@ -697,22 +857,17 @@
     },
     {
       "window": 7,
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "feeding_difficulty",
+      "missing": false
+    },
+    {
+      "window": 7,
       "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "dysregulation_count",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "transition_difficulty",
       "missing": false
     },
     {
@@ -722,7 +877,17 @@
     },
     {
       "window": 7,
-      "field": "sleep_quality",
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "medication_taken",
       "missing": false
     },
     {
@@ -731,22 +896,17 @@
       "missing": false
     },
     {
-      "window": 14,
-      "field": "feeding_difficulty",
+      "window": 7,
+      "field": "dysregulation_count",
       "missing": false
     },
     {
-      "window": 14,
-      "field": "max_intensity",
+      "window": 7,
+      "field": "transition_difficulty",
       "missing": false
     },
     {
-      "window": 14,
-      "field": "medication_taken",
-      "missing": false
-    },
-    {
-      "window": 14,
+      "window": 7,
       "field": "event_count",
       "missing": false
     },
@@ -757,22 +917,17 @@
     },
     {
       "window": 14,
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "feeding_difficulty",
+      "missing": false
+    },
+    {
+      "window": 14,
       "field": "start_autonomy_level",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "dysregulation_count",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "transition_difficulty",
       "missing": false
     },
     {
@@ -782,12 +937,37 @@
     },
     {
       "window": 14,
-      "field": "sleep_quality",
+      "field": "max_intensity",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "day_regulation_level_num",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "medication_taken",
       "missing": false
     },
     {
       "window": 14,
       "field": "sensory_diet_done",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "dysregulation_count",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "event_count",
       "missing": false
     }
   ],

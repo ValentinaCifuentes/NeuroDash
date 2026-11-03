@@ -265,6 +265,8 @@ type BackendFactor = {
   feature?: string;
   contribution?: number;
   description?: string;
+  comparison?: 'above' | 'below' | 'similar' | null;
+  summary?: string | null;
 };
 
 type BackendMissingness = {
@@ -428,6 +430,8 @@ function adaptFactor(factor: BackendFactor) {
     comparison: factor.description ?? 'Asociación observada en el historial reciente.',
     direction,
     window: inferWindow(factor.feature ?? factor.factor_name ?? ''),
+    baseline: factor.comparison ?? null,
+    summary: factor.summary ?? null,
   };
 }
 

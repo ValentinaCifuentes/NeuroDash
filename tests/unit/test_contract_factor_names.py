@@ -11,12 +11,12 @@ from unittest.mock import patch
 
 from backend.app import prediction_service
 from backend.app.routes.subjects import _CARE_FIELD_ENCODINGS
-from engine.explanation import FEATURE_DISPLAY_NAMES, FEATURE_VARIABLE_NAMES, generate_non_causal_factors
+from engine.explanation import FEATURE_DISPLAY_NAMES, FEATURE_VARIABLE_NAMES
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FRONT_FIXTURE = PROJECT_ROOT / "front" / "src" / "test" / "fixtures" / "prediction-contract.json"
 
-FACTOR_KEYS = {"factor_name", "feature", "contribution", "description"}
+FACTOR_KEYS = {"factor_name", "feature", "contribution", "description", "comparison", "summary"}
 MISSINGNESS_KEYS = {"field", "window", "missing"}
 EVENT_COUNT_FIELDS = ["event_count", "dysregulation_count", "max_intensity"]
 
@@ -58,14 +58,35 @@ def test_a_real_pac_a_prediction_sends_the_keys_the_frontend_reads() -> None:
 
 def test_the_frontend_fixture_matches_the_current_factor_names() -> None:
     """Si falla, regenera el fixture: `python scripts/export_contract_fixture.py`."""
-    fixture = json.loads(FRONT_FIXTURE.read_text(encoding="utf-8"))
-    explanations = [
-        {"feature": feature, "contribution": 0.5 if index % 2 == 0 else -0.5, "value": 1.0}
-        for index, feature in enumerate(FEATURE_DISPLAY_NAMES)
-    ]
+    from scripts.export_contract_fixture import fixture_factors
 
-    assert fixture["factors"] == generate_non_causal_factors(explanations)
+    fixture = json.loads(FRONT_FIXTURE.read_text(encoding="utf-8"))
+
+    assert fixture["factors"] == fixture_factors()
+    assert {factor["comparison"] for factor in fixture["factors"]} >= {"above", "below", "similar"}
     assert fixture["horizon_hours"] == 8
+
+
+def test_every_variable_the_tutor_feeds_can_be_compared_with_its_baseline() -> None:
+    from engine.explanation import BASELINE_PHRASES
+
+    assert [field for field in _encoded_fields() if field not in BASELINE_PHRASES] == []
+
+
+def test_factors_say_how_each_variable_compares_with_the_child_baseline() -> None:
+    from engine.explanation import compare_with_baseline
+
+    baselines = {"wake_state": 2.0, "sleep_quality": 8.0}
+
+    assert compare_with_baseline("wake_state_mean_3d", 6.5, baselines) == (
+        "above", "Despertó más irritable que de costumbre en los últimos tres días")
+    assert compare_with_baseline("sleep_quality_mean_7d", 5.0, baselines) == (
+        "below", "Durmió peor que de costumbre en los últimos siete días")
+    assert compare_with_baseline("sleep_quality_delta_baseline", 0.4, baselines)[0] == "similar"
+    # Sin dato (relleno con la línea base), sin línea base o sin frase: no se compara.
+    assert compare_with_baseline("wake_state_mean_1d", None, baselines) == (None, None)
+    assert compare_with_baseline("event_count_mean_3d", 2.0, baselines) == (None, None)
+    assert compare_with_baseline("record_count_3d", 2.0, baselines) == (None, None)
 
 
 def test_frontend_core_fields_mirror_the_confidence_config() -> None:

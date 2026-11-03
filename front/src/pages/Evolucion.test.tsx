@@ -20,7 +20,7 @@ const prediction: Prediction = {
   contract_version: '2', prediction_id: 'prediction-1', subject_id: 'subject-1',
   prediction_cutoff: '2026-08-26T12:00:00Z', horizon_hours: 24, risk: 'ELEVATED', confidence: 'LOW',
   abstained: false,
-  factors: [{ code: 'estado_despertar_promedio_tres_dias', label: 'Estado al despertar en los últimos tres días', comparison: '', direction: 'up', window: '3d' }],
+  factors: [{ code: 'estado_despertar_promedio_tres_dias', label: 'Estado al despertar en los últimos tres días', comparison: '', direction: 'up', window: '3d', baseline: 'above', summary: 'Despertó más irritable que de costumbre en los últimos tres días' }],
   missingness: [{ code: 'sleep_quality', label: 'Calidad del sueño', impact: 'Falta información.', is_core: true }],
   supports: [{ support_id: 'sup-1', source: 'historical_support', label: 'Manta con peso por la tarde', detail: 'Funcionó en días parecidos' }],
   provenance: { source: 'care_api', synthetic: false }, versions: { model: 'v2', contract: '2' },
@@ -50,7 +50,7 @@ describe('Evolucion', () => {
     render(<Evolucion subject={subject} revision={0} />);
 
     const rows = await screen.findByRole('navigation', { name: 'Detalle de la estimación' });
-    expect(within(rows).getByRole('button', { name: /Por qué aparece así.*Estado al despertar/ })).toBeInTheDocument();
+    expect(within(rows).getByRole('button', { name: /Por qué aparece así.*Despertó más irritable que de costumbre/ })).toBeInTheDocument();
     expect(within(rows).getByRole('button', { name: /Puede mejorar la lectura.*Falta 1 dato que cuenta para la confianza/ })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Apoyos disponibles' })).toHaveTextContent('Manta con peso por la tarde');
   });
@@ -62,9 +62,25 @@ describe('Evolucion', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Por qué aparece así/ }));
 
     const sheet = screen.getByRole('dialog', { name: 'Señales recientes' });
+    // P19: el factor se dice frente a lo habitual del infante, no con el nombre de la variable.
+    expect(within(sheet).getByText('Despertó más irritable que de costumbre en los últimos tres días')).toBeInTheDocument();
+    expect(within(sheet).queryByText('Estado al despertar en los últimos tres días')).not.toBeInTheDocument();
     expect(within(sheet).getByText('Aparece junto a más riesgo')).toBeInTheDocument();
     expect(within(sheet).getByText(/Estimación de demostración: usa datos sintéticos/)).toBeInTheDocument();
     expect(within(sheet).queryByText(/datos reales/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps the variable name when the engine cannot compare it with the baseline', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({
+      ...prediction,
+      factors: [{ ...prediction.factors[0], baseline: null, summary: null }],
+    });
+    render(<Evolucion subject={subject} revision={0} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Por qué aparece así/ }));
+
+    const sheet = screen.getByRole('dialog', { name: 'Señales recientes' });
+    expect(within(sheet).getByText('Estado al despertar en los últimos tres días')).toBeInTheDocument();
   });
 
   it('describes real data without naming another product', async () => {
