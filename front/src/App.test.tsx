@@ -49,6 +49,20 @@ describe('App routes', () => {
     expect(screen.getByRole('tab', { name: /Mi Día/ })).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('«Saltar al contenido» moves the focus without leaving the current view', async () => {
+    await enter();
+    fireEvent.click(screen.getByRole('link', { name: 'Bitácora' }));
+
+    fireEvent.click(screen.getByRole('link', { name: 'Saltar al contenido' }));
+    act(() => {
+      window.history.replaceState(null, '', '#contenido');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    expect(document.activeElement).toBe(document.getElementById('contenido'));
+    expect(screen.getByRole('heading', { level: 1, name: 'Bitácora Diaria' })).toBeInTheDocument();
+  });
+
   it('opens on the view written in the address', async () => {
     window.history.replaceState(null, '', '#historial');
     await enter();

@@ -29,6 +29,10 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+/** axe corre ~15 veces por prueba: con toda la suite en paralelo (y en GitHub) pasa
+ *  fácil los 5 s por defecto. Es lenta, no inestable. */
+const AXE_TIMEOUT = 30_000;
+
 /** Violaciones de axe en lo que se ve ahora, en una línea legible por cada una. */
 async function violations(where: string): Promise<string[]> {
   const result = await axe.run(document.body, {
@@ -99,7 +103,7 @@ describe('accessibility (axe-core)', () => {
     found.push(...(await violations('Mis Tickets')));
 
     expect(found).toEqual([]);
-  });
+  }, AXE_TIMEOUT);
 
   it('finds no violations in the 3-step profile and the abstention of a new subject', async () => {
     render(<App />);
@@ -116,5 +120,5 @@ describe('accessibility (axe-core)', () => {
     found.push(...(await violations('Evolución · sin estimación')));
 
     expect(found).toEqual([]);
-  });
+  }, AXE_TIMEOUT);
 });

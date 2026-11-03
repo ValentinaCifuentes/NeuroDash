@@ -29,7 +29,7 @@ export default function App() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
-  const [route, setRoute] = useState<Route>(routeFromHash);
+  const [route, setRoute] = useState<Route>(() => routeFromHash() ?? 'evolucion');
   const [sheet, setSheet] = useState<SheetState>({ kind: 'none' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -44,7 +44,11 @@ export default function App() {
     if (window.location.hash !== `#${route}`) window.history.pushState(null, '', `#${route}`);
   }, [route]);
   useEffect(() => {
-    const onPop = () => setRoute(routeFromHash());
+    // Un «#» que no es una vista (p. ej. #contenido) no saca al tutor de donde está.
+    const onPop = () => {
+      const next = routeFromHash();
+      if (next) setRoute(next);
+    };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
@@ -161,11 +165,20 @@ export default function App() {
 
   return (
     <div className="nd-shell">
-      <a className="nd-skip" href="#contenido">
+      {/* Mueve el foco al contenido sin tocar la dirección: con rutas por «#», ir a
+          #contenido cambiaría de pantalla. */}
+      <a
+        className="nd-skip"
+        href="#contenido"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('contenido')?.focus();
+        }}
+      >
         Saltar al contenido
       </a>
 
-      <main className="nd-shell__scroll" id="contenido">
+      <main className="nd-shell__scroll" id="contenido" tabIndex={-1}>
         <PageHeader
           {...headerFor(route, subject.display_name, () => setRoute('ficha'))}
           initials={subject.initials}
@@ -237,9 +250,9 @@ export default function App() {
 type HeaderCopy = Pick<PageHeaderProps, 'title' | 'subtitle' | 'brand' | 'back'>;
 
 /** Título y subtítulo de cada pantalla, tal como en `screens/` del prototipo. */
-function routeFromHash(): Route {
+function routeFromHash(): Route | null {
   const hash = window.location.hash.slice(1) as Route;
-  return ROUTES.includes(hash) ? hash : 'evolucion';
+  return ROUTES.includes(hash) ? hash : null;
 }
 
 function headerFor(route: Route, name: string, backToFicha: () => void): HeaderCopy {

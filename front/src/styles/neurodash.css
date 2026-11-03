@@ -174,6 +174,9 @@ select {
   background: var(--nd-bg);
   box-shadow: 0 0 0 1px var(--nd-border-soft);
 }
+.nd-shell__scroll:focus {
+  outline: none; /* recibe el foco del enlace «Saltar al contenido»; no es un control */
+}
 .nd-shell__scroll {
   flex: 1;
   min-height: 0;
@@ -1328,8 +1331,10 @@ select {
 }
 .nd-calendar__head {
   display: flex;
+  flex-wrap: wrap; /* a 320 px la leyenda baja a su propia línea en vez de salirse */
   align-items: center;
   justify-content: space-between;
+  gap: 6px 8px;
 }
 .nd-calendar__month {
   margin: 0;
@@ -1382,7 +1387,9 @@ select {
   color: #B9ACB3;
   cursor: default;
 }
-.nd-heat-none { background: var(--nd-surface); color: #B9ACB3; box-shadow: inset 0 0 0 1px var(--nd-border-soft); }
+/* Día sin registro: se puede tocar, así que su número necesita 4.5:1 (--nd-muted, 5.6:1).
+   Solo los días futuros o de otro mes (deshabilitados) quedan en el gris claro. */
+.nd-heat-none { background: var(--nd-surface); color: var(--nd-muted); font-weight: 500; box-shadow: inset 0 0 0 1px var(--nd-border-soft); }
 .nd-heat-0 { background: var(--nd-heat-0); color: var(--nd-heat-ink-0); box-shadow: inset 0 0 0 1px var(--nd-border-soft); }
 .nd-heat-1 { background: var(--nd-heat-1); color: var(--nd-heat-ink-1); }
 .nd-heat-2 { background: var(--nd-heat-2); color: var(--nd-heat-ink-2); }
