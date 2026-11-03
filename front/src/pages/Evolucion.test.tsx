@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { confirmPredictionOutcome, getPrediction } from '../api';
@@ -19,43 +19,74 @@ const subject = {
 const prediction: Prediction = {
   contract_version: '2', prediction_id: 'prediction-1', subject_id: 'subject-1',
   prediction_cutoff: '2026-08-26T12:00:00Z', horizon_hours: 24, risk: 'ELEVATED', confidence: 'LOW',
-  abstained: false, factors: [], missingness: [{ code: 'sleep', label: 'Sueño', impact: 'Falta información.' }], supports: [],
+  abstained: false,
+  factors: [{ code: 'estado_despertar_promedio_tres_dias', label: 'Estado al despertar en los últimos tres días', comparison: '', direction: 'up', window: '3d' }],
+  missingness: [{ code: 'sleep_quality', label: 'Calidad del sueño', impact: 'Falta información.', is_core: true }],
+  supports: [{ support_id: 'sup-1', source: 'historical_support', label: 'Manta con peso por la tarde', detail: 'Funcionó en días parecidos' }],
   provenance: { source: 'care_api', synthetic: false }, versions: { model: 'v2', contract: '2' },
 };
 
 describe('Evolucion', () => {
-  it('renders separate safe prediction fields and confirms an outcome without exposing model score', async () => {
+  it('shows the estimation card with risk and confidence as separate axes, and confirms an outcome', async () => {
     vi.mocked(getPrediction).mockResolvedValue(prediction);
     vi.mocked(confirmPredictionOutcome).mockResolvedValue({ prediction_id: 'prediction-1', actual_outcome: true });
 
     render(<Evolucion subject={subject} revision={0} />);
 
-    expect(await screen.findByText('Riesgo elevado')).toBeInTheDocument();
-    expect(screen.getByText('Confianza baja')).toBeInTheDocument();
-    expect(screen.getByText(/Corte:/)).toBeInTheDocument();
-    expect(screen.getByText('Sueño.')).toBeInTheDocument();
+    const card = await screen.findByRole('region', { name: 'Conviene prestar atención hoy' });
+    expect(within(card).getByText('Riesgo elevado')).toBeInTheDocument();
+    expect(within(card).getByText('Confianza baja')).toBeInTheDocument();
+    expect(within(card).getByRole('img', { name: /Índice demostrativo 80 de 100, riesgo elevado, confianza baja/ })).toBeInTheDocument();
     expect(screen.queryByText(/model_score|Puntaje del modelo/i)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Confirmar que ocurrió' }));
+    fireEvent.click(within(card).getByRole('button', { name: 'Confirmar que ocurrió' }));
     await waitFor(() => expect(confirmPredictionOutcome).toHaveBeenCalledWith('prediction-1', true, expect.any(String)));
-    expect(await screen.findByRole('status')).toHaveTextContent('Resultado confirmado');
+    expect(await within(card).findByRole('status')).toHaveTextContent('Resultado confirmado');
   });
 
-  it('tells the tutor when a prediction comes from synthetic demo data (backend `synthetic` flag)', async () => {
-    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, provenance: { subject_id: 'PAC-A', synthetic: true } });
-
-    render(<Evolucion subject={subject} revision={0} />);
-
-    expect(await screen.findByText('Estimación de demostración: usa datos sintéticos.')).toBeInTheDocument();
-    expect(screen.queryByText(/datos reales/i)).not.toBeInTheDocument();
-  });
-
-  it('describes real data without naming another product', async () => {
+  it('keeps detail behind two rows and shows the supports in full', async () => {
     vi.mocked(getPrediction).mockResolvedValue(prediction);
 
     render(<Evolucion subject={subject} revision={0} />);
 
-    expect(await screen.findByText('Usa los datos registrados para este infante.')).toBeInTheDocument();
+    const rows = await screen.findByRole('navigation', { name: 'Detalle de la estimación' });
+    expect(within(rows).getByRole('button', { name: /Por qué aparece así.*Estado al despertar/ })).toBeInTheDocument();
+    expect(within(rows).getByRole('button', { name: /Puede mejorar la lectura.*Falta 1 dato que cuenta para la confianza/ })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Apoyos disponibles' })).toHaveTextContent('Manta con peso por la tarde');
+  });
+
+  it('opens «Por qué aparece así» with non-causal factors and the provenance note at the foot', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, provenance: { subject_id: 'PAC-A', synthetic: true } });
+    render(<Evolucion subject={subject} revision={0} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Por qué aparece así/ }));
+
+    const sheet = screen.getByRole('dialog', { name: 'Señales recientes' });
+    expect(within(sheet).getByText('Aparece junto a más riesgo')).toBeInTheDocument();
+    expect(within(sheet).getByText(/Estimación de demostración: usa datos sintéticos/)).toBeInTheDocument();
+    expect(within(sheet).queryByText(/datos reales/i)).not.toBeInTheDocument();
+  });
+
+  it('describes real data without naming another product', async () => {
+    vi.mocked(getPrediction).mockResolvedValue(prediction);
+    render(<Evolucion subject={subject} revision={0} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Por qué aparece así/ }));
+
+    expect(screen.getByText(/Usa los datos registrados para este infante/)).toBeInTheDocument();
+  });
+
+  it('sends the tutor to the Bitácora from «Puede mejorar la lectura»', async () => {
+    vi.mocked(getPrediction).mockResolvedValue(prediction);
+    const onOpenBitacora = vi.fn();
+    render(<Evolucion subject={subject} revision={0} onOpenBitacora={onOpenBitacora} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Puede mejorar la lectura/ }));
+    const sheet = screen.getByRole('dialog', { name: 'Puede mejorar la lectura' });
+    expect(within(sheet).getByText('Se registra en Bitácora · Mi Día')).toBeInTheDocument();
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Completar calidad del sueño' }));
+
+    expect(onOpenBitacora).toHaveBeenCalled();
   });
 
   it('takes the horizon from the contract, not from a hardcoded 24 h', async () => {
@@ -64,7 +95,8 @@ describe('Evolucion', () => {
     render(<Evolucion subject={subject} revision={0} />);
 
     expect(await screen.findByText('Próximas 8 horas')).toBeInTheDocument();
-    expect(screen.queryByText('Próximas 24 horas')).not.toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Próximas 8 h' })).toBeInTheDocument();
+    expect(screen.queryByText(/24/)).not.toBeInTheDocument();
   });
 
   it('shows an explicit abstention without an invented risk or outcome action', async () => {
@@ -74,7 +106,22 @@ describe('Evolucion', () => {
 
     expect(await screen.findByText('Todavía no hay estimación')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Confirmar que ocurrió/ })).not.toBeInTheDocument();
-    expect(screen.queryByText('Elevado')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Riesgo elevado/)).not.toBeInTheDocument();
+    // Como en screens/Final-Evolucion-Abstencion.html: solo la fila de datos, sin factores ni apoyos.
+    expect(screen.queryByRole('button', { name: /Por qué aparece así/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Puede mejorar la lectura/ })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Apoyos disponibles' })).not.toBeInTheDocument();
+  });
+
+  it('explains that more days of history are needed when it abstains with no missing field (PAC-C)', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, risk: null, confidence: 'INSUFFICIENT', abstained: true, missingness: [] });
+    render(<Evolucion subject={subject} revision={0} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Puede mejorar la lectura.*Hacen falta más días de registro/ }));
+
+    const sheet = screen.getByRole('dialog', { name: 'Puede mejorar la lectura' });
+    expect(within(sheet).getByText('Más días de registro')).toBeInTheDocument();
+    expect(within(sheet).queryByText(/alcanza/)).not.toBeInTheDocument();
   });
 
   it('announces a safe prediction failure and retries from the focused action', async () => {
@@ -90,5 +137,19 @@ describe('Evolucion', () => {
 
     await waitFor(() => expect(getPrediction).toHaveBeenCalledTimes(callsBeforeRetry + 1));
     expect(await screen.findByText('Riesgo elevado')).toBeInTheDocument();
+  });
+});
+
+describe('factorFamily', () => {
+  it('groups the windows and the baseline deviation of a variable under one family', async () => {
+    const { factorFamily } = await import('../sheets/EstimationSheets');
+    const codes = [
+      'estado_despertar_promedio_un_dia',
+      'estado_despertar_promedio_tres_dias',
+      'desviacion_estado_despertar_linea_base',
+    ];
+    expect(new Set(codes.map(factorFamily))).toEqual(new Set(['estado_despertar']));
+    expect(factorFamily('conteo_registros_siete_dias')).toBe('conteo_registros');
+    expect(factorFamily('intensidad_maxima_promedio_catorce_dias')).toBe('intensidad_maxima');
   });
 });

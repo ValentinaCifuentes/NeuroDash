@@ -124,6 +124,33 @@ def _clip(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
 
 
+def _synthetic_raw(
+    sleep_quality: float,
+    wake_state: float,
+    start_autonomy_level: int,
+    medication_taken: int,
+    gi_level: int,
+    day_regulation_level_num: int,
+) -> dict[str, str]:
+    """Traduce los números sintéticos a la opción de la Bitácora más cercana.
+
+    Los cortes están a medio camino entre los valores que codifica el backend
+    (`routes/subjects.py`): sueño 8/5/2, despertar 2/5/8, el resto 0/1/2.
+    """
+    return {
+        "sleep_quality": "Reparador" if sleep_quality >= 6.5
+        else "Interrumpido" if sleep_quality >= 3.5
+        else "Dificultad de Conciliación",
+        "wake_mode": "Tranquilo/Alegre" if wake_state <= 3.5
+        else "Cansado/Con Sueño" if wake_state <= 6.5
+        else "Irritable/Llorando",
+        "start_autonomy": ["Por sí solo", "Con alarma", "Con insistencia"][start_autonomy_level],
+        "medication_adherence": "Sí" if medication_taken else "No",
+        "gi_status": ["Normal", "Estreñimiento", "Diarrea"][gi_level],
+        "day_regulation_level": ["Excelente", "Estable con Apoyo", "Desregulación Frecuente"][day_regulation_level_num],
+    }
+
+
 def generate_synthetic_history(
     subject_id: str,
     days: int,
@@ -195,6 +222,11 @@ def generate_synthetic_history(
             "medication_taken": medication_taken,
             "gi_level": gi_level,
             "day_regulation_level_num": day_regulation_level_num,
+            # Textos de la Bitácora, como los guarda la app (`raw`): la interfaz
+            # los muestra en el historial y el calendario. El motor no los usa.
+            "raw": _synthetic_raw(
+                sleep_quality, wake_state, start_autonomy_level, medication_taken, gi_level, day_regulation_level_num
+            ),
         }
         records.append(record)
 

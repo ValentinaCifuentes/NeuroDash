@@ -271,10 +271,29 @@ def _legacy_catalog_supports(catalog: list[dict[str, Any]], context: dict[str, A
     return [] if has_history else general_entries
 
 
+# Nombres en español de los campos que cuentan para la confianza (core_fields de
+# config/confidence.yaml). El texto llega tal cual al tutor: nunca nombres internos.
+CORE_FIELD_LABELS = {
+    "sleep_quality": "calidad del sueño",
+    "wake_state": "estado al despertar",
+    "event_count": "registro de eventos",
+}
+
+
+def _missing_core_labels(missingness: list[dict[str, Any]]) -> list[str]:
+    """Campos núcleo faltantes, sin repetir (missingness trae uno por ventana)."""
+    labels: list[str] = []
+    for item in missingness:
+        label = CORE_FIELD_LABELS.get(str(item.get("field")))
+        if item.get("missing") is True and label and label not in labels:
+            labels.append(label)
+    return labels
+
+
 def _insufficient_data_support(catalog: list[dict[str, Any]], missingness: list[dict[str, Any]]) -> dict[str, Any]:
     entry = next((item for item in catalog if item.get("case_id") == "insufficient_data"), None)
-    missing_fields = [str(item.get("field")) for item in missingness if item.get("missing") is True]
-    detail = f" Falta información reciente sobre: {', '.join(missing_fields[:3])}." if missing_fields else ""
+    missing_labels = _missing_core_labels(missingness)
+    detail = f" Falta información reciente sobre: {', '.join(missing_labels)}." if missing_labels else ""
     if entry:
         support = _catalog_support(entry)
         support["type"] = "fallback"

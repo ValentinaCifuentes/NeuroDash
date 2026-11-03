@@ -148,7 +148,9 @@ export default function App() {
             onSaveBasal={onSaveBasal}
           />
         )}
-        {route === 'evolucion' && <Evolucion subject={subject} revision={revision} />}
+        {route === 'evolucion' && (
+          <Evolucion subject={subject} revision={revision} onOpenBitacora={() => setRoute('bitacora')} />
+        )}
         {route === 'ficha' && <FichaInicial subject={subject} onOpenTickets={() => setRoute('tickets')} />}
         {route === 'tickets' && <MisTickets />}
         {route === 'planificacion' && <Planificacion />}

@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-02T07:34:13.916579+00:00",
+    "data_generation_timestamp": "2026-11-03T03:59:12.702508+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1003
@@ -26,6 +26,14 @@
       "id": "rec_PAC-C_0",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.29,
       "source_timestamp": "2026-10-31T12:00:00-05:00",
       "start_autonomy_level": 0,
@@ -41,6 +49,14 @@
       "id": "rec_PAC-C_1",
       "max_intensity": 5,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.11,
       "source_timestamp": "2026-11-01T12:00:00-06:00",
       "start_autonomy_level": 1,

@@ -73,3 +73,25 @@ def test_frontend_core_fields_mirror_the_confidence_config() -> None:
 
     assert match, "CORE_FIELDS no está en front/src/api.ts"
     assert re.findall(r"'([a-z_]+)'", match.group(1)) == config["core_fields"]
+
+
+def test_insufficient_data_support_names_only_core_fields_in_spanish() -> None:
+    """P15: el apoyo por datos insuficientes no muestra nombres internos ni campos opcionales."""
+    import yaml
+
+    from engine.support import CORE_FIELD_LABELS, _insufficient_data_support
+
+    config = yaml.safe_load((PROJECT_ROOT / "config" / "confidence.yaml").read_text(encoding="utf-8"))
+    assert set(CORE_FIELD_LABELS) == set(config["core_fields"])
+
+    missingness = [
+        {"field": "day_regulation_level_num", "window": 1, "missing": True},
+        {"field": "sleep_quality", "window": 1, "missing": True},
+        {"field": "sleep_quality", "window": 3, "missing": True},
+        {"field": "wake_state", "window": 7, "missing": True},
+    ]
+    description = _insufficient_data_support([], missingness)["description"]
+
+    assert "calidad del sueño, estado al despertar" in description
+    assert "_" not in description
+    assert "regulación" not in description

@@ -5,7 +5,7 @@
  * «Mis Tickets» en Ficha.
  */
 
-import type { ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { Icon, type IconName } from './icons';
 
 /** Fondo y color del ícono: rojo de riesgo, dato faltante (punteado ámbar) o neutro. */
@@ -19,9 +19,13 @@ interface NavRowProps {
   onClick: () => void;
 }
 
-export function NavRow({ icon, tone = 'neutral', title, summary, onClick }: NavRowProps) {
+/** `ref` apunta al botón: las hojas devuelven ahí el foco al cerrarse. */
+export const NavRow = forwardRef<HTMLButtonElement, NavRowProps>(function NavRow(
+  { icon, tone = 'neutral', title, summary, onClick },
+  ref,
+) {
   return (
-    <button type="button" className="nd-navrow nd-press" onClick={onClick}>
+    <button ref={ref} type="button" className="nd-navrow nd-press" onClick={onClick}>
       <span className={`nd-navrow__icon nd-navrow__icon--${tone}`} aria-hidden="true">
         <Icon name={icon} size={tone === 'missing' ? 14 : 18} strokeWidth={tone === 'neutral' ? 2 : 2.4} />
       </span>
@@ -32,7 +36,7 @@ export function NavRow({ icon, tone = 'neutral', title, summary, onClick }: NavR
       <Icon name="chevronRight" size={14} strokeWidth={2.6} className="nd-navrow__chevron" />
     </button>
   );
-}
+});
 
 /** Tarjeta que agrupa varias NavRow con separadores, como en Evolución. */
 export function NavList({ label, children }: { label: string; children: ReactNode }) {

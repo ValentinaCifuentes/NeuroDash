@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-02T07:34:13.913105+00:00",
+    "data_generation_timestamp": "2026-11-03T03:59:12.697971+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1020
@@ -278,6 +278,14 @@
       "id": "rec_PAC-A_0",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.57,
       "source_timestamp": "2026-08-04T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -293,6 +301,14 @@
       "id": "rec_PAC-A_1",
       "max_intensity": 9,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.96,
       "source_timestamp": "2026-08-05T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -308,6 +324,14 @@
       "id": "rec_PAC-A_2",
       "max_intensity": 9,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.83,
       "source_timestamp": "2026-08-06T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -323,6 +347,14 @@
       "id": "rec_PAC-A_3",
       "max_intensity": 8,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.4,
       "source_timestamp": "2026-08-07T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -338,6 +370,14 @@
       "id": "rec_PAC-A_4",
       "max_intensity": 10,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.44,
       "source_timestamp": "2026-08-08T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -353,6 +393,14 @@
       "id": "rec_PAC-A_5",
       "max_intensity": 9,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.22,
       "source_timestamp": "2026-08-09T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -368,6 +416,14 @@
       "id": "rec_PAC-A_6",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.66,
       "source_timestamp": "2026-08-10T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -383,6 +439,14 @@
       "id": "rec_PAC-A_7",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.72,
       "source_timestamp": "2026-08-11T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -398,6 +462,14 @@
       "id": "rec_PAC-A_8",
       "max_intensity": 7,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.71,
       "source_timestamp": "2026-08-12T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -413,6 +485,14 @@
       "id": "rec_PAC-A_9",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.01,
       "source_timestamp": "2026-08-13T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -428,6 +508,14 @@
       "id": "rec_PAC-A_10",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.23,
       "source_timestamp": "2026-08-14T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -443,6 +531,14 @@
       "id": "rec_PAC-A_11",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.27,
       "source_timestamp": "2026-08-15T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -458,6 +554,14 @@
       "id": "rec_PAC-A_12",
       "max_intensity": 3,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 8.51,
       "source_timestamp": "2026-08-16T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -473,6 +577,14 @@
       "id": "rec_PAC-A_13",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.55,
       "source_timestamp": "2026-08-17T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -488,6 +600,14 @@
       "id": "rec_PAC-A_14",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.36,
       "source_timestamp": "2026-08-18T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -503,6 +623,14 @@
       "id": "rec_PAC-A_15",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.41,
       "source_timestamp": "2026-08-19T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -518,6 +646,14 @@
       "id": "rec_PAC-A_16",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 7.24,
       "source_timestamp": "2026-08-20T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -533,6 +669,14 @@
       "id": "rec_PAC-A_17",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.77,
       "source_timestamp": "2026-08-21T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -548,6 +692,14 @@
       "id": "rec_PAC-A_18",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.49,
       "source_timestamp": "2026-08-22T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -563,6 +715,14 @@
       "id": "rec_PAC-A_19",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.88,
       "source_timestamp": "2026-08-23T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -578,6 +738,14 @@
       "id": "rec_PAC-A_20",
       "max_intensity": 9,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.43,
       "source_timestamp": "2026-08-24T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -593,6 +761,14 @@
       "id": "rec_PAC-A_21",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.51,
       "source_timestamp": "2026-08-25T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -608,6 +784,14 @@
       "id": "rec_PAC-A_22",
       "max_intensity": 10,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.75,
       "source_timestamp": "2026-08-26T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -623,6 +807,14 @@
       "id": "rec_PAC-A_23",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.0,
       "source_timestamp": "2026-08-27T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -638,6 +830,14 @@
       "id": "rec_PAC-A_24",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.14,
       "source_timestamp": "2026-08-28T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -653,6 +853,14 @@
       "id": "rec_PAC-A_25",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.22,
       "source_timestamp": "2026-08-29T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -668,6 +876,14 @@
       "id": "rec_PAC-A_26",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.86,
       "source_timestamp": "2026-08-30T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -683,6 +899,14 @@
       "id": "rec_PAC-A_27",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.07,
       "source_timestamp": "2026-08-31T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -698,6 +922,14 @@
       "id": "rec_PAC-A_28",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.0,
       "source_timestamp": "2026-09-01T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -713,6 +945,14 @@
       "id": "rec_PAC-A_29",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.29,
       "source_timestamp": "2026-09-02T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -728,6 +968,14 @@
       "id": "rec_PAC-A_30",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.38,
       "source_timestamp": "2026-09-03T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -743,6 +991,14 @@
       "id": "rec_PAC-A_31",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.28,
       "source_timestamp": "2026-09-04T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -758,6 +1014,14 @@
       "id": "rec_PAC-A_32",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 8.02,
       "source_timestamp": "2026-09-05T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -773,6 +1037,14 @@
       "id": "rec_PAC-A_33",
       "max_intensity": 1,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.51,
       "source_timestamp": "2026-09-06T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -788,6 +1060,14 @@
       "id": "rec_PAC-A_34",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.17,
       "source_timestamp": "2026-09-07T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -803,6 +1083,14 @@
       "id": "rec_PAC-A_35",
       "max_intensity": 5,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.63,
       "source_timestamp": "2026-09-08T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -818,6 +1106,14 @@
       "id": "rec_PAC-A_36",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.89,
       "source_timestamp": "2026-09-09T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -833,6 +1129,14 @@
       "id": "rec_PAC-A_37",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.05,
       "source_timestamp": "2026-09-10T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -848,6 +1152,14 @@
       "id": "rec_PAC-A_38",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.47,
       "source_timestamp": "2026-09-11T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -863,6 +1175,14 @@
       "id": "rec_PAC-A_39",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.49,
       "source_timestamp": "2026-09-12T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -878,6 +1198,14 @@
       "id": "rec_PAC-A_40",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.42,
       "source_timestamp": "2026-09-13T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -893,6 +1221,14 @@
       "id": "rec_PAC-A_41",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.9,
       "source_timestamp": "2026-09-14T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -908,6 +1244,14 @@
       "id": "rec_PAC-A_42",
       "max_intensity": 1,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.7,
       "source_timestamp": "2026-09-15T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -923,6 +1267,14 @@
       "id": "rec_PAC-A_43",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.92,
       "source_timestamp": "2026-09-16T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -938,6 +1290,14 @@
       "id": "rec_PAC-A_44",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.27,
       "source_timestamp": "2026-09-17T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -953,6 +1313,14 @@
       "id": "rec_PAC-A_45",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.84,
       "source_timestamp": "2026-09-18T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -968,6 +1336,14 @@
       "id": "rec_PAC-A_46",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.9,
       "source_timestamp": "2026-09-19T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -983,6 +1359,14 @@
       "id": "rec_PAC-A_47",
       "max_intensity": 10,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.32,
       "source_timestamp": "2026-09-20T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -998,6 +1382,14 @@
       "id": "rec_PAC-A_48",
       "max_intensity": 10,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.0,
       "source_timestamp": "2026-09-21T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -1013,6 +1405,14 @@
       "id": "rec_PAC-A_49",
       "max_intensity": 10,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 4.78,
       "source_timestamp": "2026-09-22T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -1028,6 +1428,14 @@
       "id": "rec_PAC-A_50",
       "max_intensity": 9,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.05,
       "source_timestamp": "2026-09-23T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -1043,6 +1451,14 @@
       "id": "rec_PAC-A_51",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 5.89,
       "source_timestamp": "2026-09-24T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1058,6 +1474,14 @@
       "id": "rec_PAC-A_52",
       "max_intensity": 7,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 5.92,
       "source_timestamp": "2026-09-25T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1073,6 +1497,14 @@
       "id": "rec_PAC-A_53",
       "max_intensity": 5,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.59,
       "source_timestamp": "2026-09-26T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1088,6 +1520,14 @@
       "id": "rec_PAC-A_54",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.38,
       "source_timestamp": "2026-09-27T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1103,6 +1543,14 @@
       "id": "rec_PAC-A_55",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.62,
       "source_timestamp": "2026-09-28T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1118,6 +1566,14 @@
       "id": "rec_PAC-A_56",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.81,
       "source_timestamp": "2026-09-29T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1133,6 +1589,14 @@
       "id": "rec_PAC-A_57",
       "max_intensity": 3,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.5,
       "source_timestamp": "2026-09-30T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1148,6 +1612,14 @@
       "id": "rec_PAC-A_58",
       "max_intensity": 3,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 8.69,
       "source_timestamp": "2026-10-01T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1163,6 +1635,14 @@
       "id": "rec_PAC-A_59",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.01,
       "source_timestamp": "2026-10-02T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1178,6 +1658,14 @@
       "id": "rec_PAC-A_60",
       "max_intensity": 3,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 8.12,
       "source_timestamp": "2026-10-03T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1193,6 +1681,14 @@
       "id": "rec_PAC-A_61",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.53,
       "source_timestamp": "2026-10-04T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1208,6 +1704,14 @@
       "id": "rec_PAC-A_62",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.59,
       "source_timestamp": "2026-10-05T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1223,6 +1727,14 @@
       "id": "rec_PAC-A_63",
       "max_intensity": 1,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 10.0,
       "source_timestamp": "2026-10-06T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1238,6 +1750,14 @@
       "id": "rec_PAC-A_64",
       "max_intensity": 1,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 10.0,
       "source_timestamp": "2026-10-07T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1253,6 +1773,14 @@
       "id": "rec_PAC-A_65",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.68,
       "source_timestamp": "2026-10-08T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1268,6 +1796,14 @@
       "id": "rec_PAC-A_66",
       "max_intensity": 1,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.74,
       "source_timestamp": "2026-10-09T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1283,6 +1819,14 @@
       "id": "rec_PAC-A_67",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 8.88,
       "source_timestamp": "2026-10-10T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1298,6 +1842,14 @@
       "id": "rec_PAC-A_68",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.05,
       "source_timestamp": "2026-10-11T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1313,6 +1865,14 @@
       "id": "rec_PAC-A_69",
       "max_intensity": 4,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "No",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.42,
       "source_timestamp": "2026-10-12T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1328,6 +1888,14 @@
       "id": "rec_PAC-A_70",
       "max_intensity": 1,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 9.15,
       "source_timestamp": "2026-10-13T12:00:00-04:00",
       "start_autonomy_level": 0,
@@ -1343,6 +1911,14 @@
       "id": "rec_PAC-A_71",
       "max_intensity": 4,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.21,
       "source_timestamp": "2026-10-14T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1358,6 +1934,14 @@
       "id": "rec_PAC-A_72",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.56,
       "source_timestamp": "2026-10-15T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1373,6 +1957,14 @@
       "id": "rec_PAC-A_73",
       "max_intensity": 2,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Excelente",
+        "gi_status": "Normal",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Tranquilo/Alegre"
+      },
       "sleep_quality": 8.84,
       "source_timestamp": "2026-10-16T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1388,6 +1980,14 @@
       "id": "rec_PAC-A_74",
       "max_intensity": 4,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.24,
       "source_timestamp": "2026-10-17T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1403,6 +2003,14 @@
       "id": "rec_PAC-A_75",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.29,
       "source_timestamp": "2026-10-18T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -1418,6 +2026,14 @@
       "id": "rec_PAC-A_76",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 5.75,
       "source_timestamp": "2026-10-19T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1433,6 +2049,14 @@
       "id": "rec_PAC-A_77",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.81,
       "source_timestamp": "2026-10-20T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1448,6 +2072,14 @@
       "id": "rec_PAC-A_78",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.53,
       "source_timestamp": "2026-10-21T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1463,6 +2095,14 @@
       "id": "rec_PAC-A_79",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.68,
       "source_timestamp": "2026-10-22T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1478,6 +2118,14 @@
       "id": "rec_PAC-A_80",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.43,
       "source_timestamp": "2026-10-23T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1493,6 +2141,14 @@
       "id": "rec_PAC-A_81",
       "max_intensity": 9,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.72,
       "source_timestamp": "2026-10-24T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1508,6 +2164,14 @@
       "id": "rec_PAC-A_82",
       "max_intensity": 6,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.34,
       "source_timestamp": "2026-10-25T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1523,6 +2187,14 @@
       "id": "rec_PAC-A_83",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.26,
       "source_timestamp": "2026-10-26T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1538,6 +2210,14 @@
       "id": "rec_PAC-A_84",
       "max_intensity": 5,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 8.03,
       "source_timestamp": "2026-10-27T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1553,6 +2233,14 @@
       "id": "rec_PAC-A_85",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 6.15,
       "source_timestamp": "2026-10-28T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1568,6 +2256,14 @@
       "id": "rec_PAC-A_86",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 6.48,
       "source_timestamp": "2026-10-29T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1583,6 +2279,14 @@
       "id": "rec_PAC-A_87",
       "max_intensity": 7,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
       "sleep_quality": 7.01,
       "source_timestamp": "2026-10-30T12:00:00-04:00",
       "start_autonomy_level": 1,
@@ -1598,6 +2302,14 @@
       "id": "rec_PAC-A_88",
       "max_intensity": 8,
       "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Diarrea",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.87,
       "source_timestamp": "2026-10-31T12:00:00-04:00",
       "start_autonomy_level": 2,
@@ -1613,6 +2325,14 @@
       "id": "rec_PAC-A_89",
       "max_intensity": 10,
       "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Desregulaci\u00f3n Frecuente",
+        "gi_status": "Diarrea",
+        "medication_adherence": "No",
+        "sleep_quality": "Interrumpido",
+        "start_autonomy": "Con insistencia",
+        "wake_mode": "Irritable/Llorando"
+      },
       "sleep_quality": 5.09,
       "source_timestamp": "2026-11-01T12:00:00-05:00",
       "start_autonomy_level": 2,

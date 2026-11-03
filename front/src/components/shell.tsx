@@ -15,6 +15,8 @@ import { Icon, type IconName } from './icons';
 interface SheetProps {
   /** Título de la hoja; también la nombra para el lector de pantalla. */
   title: string;
+  /** Texto pequeño sobre el título (hojas de Evolución: «Por qué aparece así»). */
+  eyebrow?: string;
   /** Ícono de la categoría en un cuadro de su color (hojas de registro). */
   titleIcon?: { name: IconName; color: string };
   onClose: () => void;
@@ -26,7 +28,7 @@ interface SheetProps {
   returnFocusTo?: React.RefObject<HTMLElement>;
 }
 
-export function BottomSheet({ title, titleIcon, onClose, onBack, backLabel = 'Volver a categorías', children, returnFocusTo }: SheetProps) {
+export function BottomSheet({ title, eyebrow, titleIcon, onClose, onBack, backLabel = 'Volver a categorías', children, returnFocusTo }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -71,14 +73,17 @@ export function BottomSheet({ title, titleIcon, onClose, onBack, backLabel = 'Vo
               <Icon name="back" size={16} strokeWidth={2.4} />
             </button>
           )}
-          <h2 id={titleId} className={`nd-sheet__title${titleIcon ? ' nd-sheet__title--icon' : ''}`}>
-            {titleIcon && (
-              <span className="nd-sheet__titleicon" style={{ background: titleIcon.color }} aria-hidden="true">
-                <Icon name={titleIcon.name} size={16} />
-              </span>
-            )}
-            {title}
-          </h2>
+          <div className="nd-sheet__titles">
+            {eyebrow && <span className="nd-sheet__eyebrow">{eyebrow}</span>}
+            <h2 id={titleId} className={`nd-sheet__title${titleIcon ? ' nd-sheet__title--icon' : ''}`}>
+              {titleIcon && (
+                <span className="nd-sheet__titleicon" style={{ background: titleIcon.color }} aria-hidden="true">
+                  <Icon name={titleIcon.name} size={16} />
+                </span>
+              )}
+              {title}
+            </h2>
+          </div>
           <button ref={closeRef} type="button" className="nd-sheet__round nd-press" onClick={onClose} aria-label="Cerrar">
             <Icon name="close" size={16} strokeWidth={2.4} />
           </button>
