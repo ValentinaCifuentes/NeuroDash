@@ -12,10 +12,9 @@
  */
 
 import { useEffect, useState } from 'react';
-import { OptionGroup, Switch, Tabs } from '../components/controls';
+import { ChoiceTiles, ShapeList, Switch, SegmentedTabs } from '../components/controls';
 import {
   GI_CHOICES,
-  choiceShape,
   SEMANTIC_BG,
   SEMANTIC_COLOR,
   SLEEP_CHOICES,
@@ -24,7 +23,6 @@ import {
   formatTime,
   todayIso,
 } from '../domain/catalog';
-import { ShapeMark } from '../components/marks';
 import { getTimeline } from '../api';
 import type {
   ApiError,
@@ -76,7 +74,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
     <>
       <div className="app-shell__content app-shell__content--cta">
         {/* 2 · Modo */}
-        <Tabs
+        <SegmentedTabs
           label="Vista de la bitácora"
           active={tab}
           onChange={setTab}
@@ -98,21 +96,21 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
               </div>
 
               <div className="app-stack">
-                <OptionGroup
+                <ChoiceTiles
                   eyebrow="Descanso nocturno"
                   legend="¿Cómo durmió anoche?"
                   choices={SLEEP_CHOICES}
                   value={sleep}
                   onChange={setSleep}
                 />
-                <OptionGroup
+                <ChoiceTiles
                   eyebrow="Forma de despertar"
                   legend="¿Cómo despertó el día de hoy?"
                   choices={WAKE_CHOICES}
                   value={wake}
                   onChange={setWake}
                 />
-                <OptionGroup
+                <ChoiceTiles
                   eyebrow="La transición / autonomía"
                   legend="¿Necesitó ayuda para iniciar el día?"
                   choices={START_AUTONOMY_CHOICES}
@@ -166,24 +164,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
               >
                 Salud Gastrointestinal
               </h2>
-              <div role="radiogroup" aria-label="Salud gastrointestinal">
-                {GI_CHOICES.map((choice) => (
-                  <button
-                    key={choice.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={gi === choice.value}
-                    className="bl-option"
-                    onClick={() => setGi(choice.value)}
-                  >
-                    <ShapeMark shape={choiceShape(choice)} color={SEMANTIC_COLOR[choice.dot!]} />
-                    <span className="bl-option__label">{choice.label}</span>
-                    <span className="bl-option__mark" aria-hidden="true">
-                      <Icon name="check" size={14} strokeWidth={3} />
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <ShapeList label="Salud gastrointestinal" choices={GI_CHOICES} value={gi} onChange={setGi} />
             </section>
           </>
         ) : (

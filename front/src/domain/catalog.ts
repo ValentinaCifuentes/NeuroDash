@@ -126,7 +126,8 @@ export const DAY_REGULATION_CHOICES: Choice<DayRegulationLevel>[] = [
 /* --- Resultado de la estrategia (resultado_estrategia) --- */
 export const STRATEGY_OUTCOME_CHOICES: Choice<StrategyOutcome>[] = [
   { value: 'Regulación Exitosa', label: 'Se reguló', dot: 'success' },
-  { value: 'Regulación Parcial', label: 'Se reguló en parte', dot: 'warning', shape: 'half' },
+  // Desregulación: ● ◆ ▲, como en screens/Final-Registro-Desregulacion.html.
+  { value: 'Regulación Parcial', label: 'Se reguló en parte', dot: 'warning' },
   { value: 'Sin Regulación', label: 'No se reguló', dot: 'danger' },
 ];
 
@@ -221,8 +222,16 @@ export interface CategoryForm {
   detailsLabel: string;
 }
 
-/** "¿Cómo respondió?" reusa `resultado_estrategia` con lenguaje sensorial. */
-const SENSORY_RESPONSE_OPTIONS = ['Muy bien', 'Con altibajos', 'No le acomodó'];
+/**
+ * "¿Cómo respondió?" reusa `resultado_estrategia` con lenguaje sensorial.
+ * Se muestra como tarjetas ● ◐ ▲ (screens/Final-Registro-Sensorial.html).
+ */
+export const SENSORY_RESPONSE_CHOICES: Choice<string>[] = [
+  { value: 'Muy bien', label: 'Muy bien', dot: 'success' },
+  { value: 'Con altibajos', label: 'Con altibajos', dot: 'warning', shape: 'half' },
+  { value: 'No le acomodó', label: 'No le acomodó', dot: 'danger' },
+];
+const SENSORY_RESPONSE_OPTIONS = SENSORY_RESPONSE_CHOICES.map((choice) => choice.value);
 
 export const SENSORY_RESPONSE_TO_OUTCOME: Record<string, StrategyOutcome> = {
   'Muy bien': 'Regulación Exitosa',

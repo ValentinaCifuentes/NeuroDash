@@ -7,11 +7,12 @@
 
 import { useState } from 'react';
 import { BottomSheet } from '../components/shell';
-import { Field, IntensitySlider, OptionGroup, Select, TextArea } from '../components/controls';
+import { ChipGroup, ChoiceTiles, Field, IntensitySlider, TextArea } from '../components/controls';
 import {
   CATEGORIES,
   CATEGORY_BY_ID,
   CATEGORY_FORM,
+  SENSORY_RESPONSE_CHOICES,
   SENSORY_RESPONSE_TO_OUTCOME,
   STRATEGY_OUTCOME_CHOICES,
   intensityBand,
@@ -83,8 +84,9 @@ interface EventSheetProps {
 }
 
 /** Estado inicial de los selects: la primera opción, que siempre es la neutra. */
-function initialSelects(selects: CategorySelect[]): Record<string, string> {
-  return Object.fromEntries(selects.map((sel) => [sel.key, sel.options[0]]));
+/** Sin selección inicial: un campo que el tutor no tocó no se guarda (no se inventa «Columpio»). */
+function initialSelects(selects: CategorySelect[]): Record<string, string | null> {
+  return Object.fromEntries(selects.map((sel) => [sel.key, null]));
 }
 
 export function EventSheet({
@@ -167,14 +169,7 @@ export function EventSheet({
     >
       {/* 1 · El dato que define el registro: escala corta o slider clínico. */}
       {usesScale ? (
-        <OptionGroup
-          legend={form.scaleLegend!}
-          choices={form.scale}
-          value={scale}
-          onChange={setScale}
-          layout="row"
-          boxed={false}
-        />
+        <ChoiceTiles legend={form.scaleLegend!} choices={form.scale} value={scale} onChange={setScale} />
       ) : (
         <div
           className="bl-card"
@@ -216,15 +211,29 @@ export function EventSheet({
         <div className="bl-group">
           <Field label="Hora del evento" type="time" value={time} centered onChange={setTime} />
 
-          {form.selects.map((sel) => (
-            <Select
-              key={sel.key}
-              label={sel.label}
-              options={sel.options}
-              value={selects[sel.key] ?? sel.options[0]}
-              onChange={(value) => setSelects((prev) => ({ ...prev, [sel.key]: value }))}
-            />
-          ))}
+          {form.selects.map((sel) =>
+            sel.key === 'sensory_response' ? (
+              <ChoiceTiles
+                key={sel.key}
+                legend={sel.label}
+                legendStyle="field"
+                choices={SENSORY_RESPONSE_CHOICES}
+                value={selects[sel.key] ?? null}
+                onChange={(value) => setSelects((prev) => ({ ...prev, [sel.key]: value }))}
+                marker="shape"
+                size="lg"
+              />
+            ) : (
+              <ChipGroup
+                key={sel.key}
+                mode="single"
+                legend={sel.label}
+                options={sel.options}
+                value={selects[sel.key] ?? null}
+                onChange={(value) => setSelects((prev) => ({ ...prev, [sel.key]: value }))}
+              />
+            ),
+          )}
 
           {category === 'desregulacion' && (
             <>
@@ -242,12 +251,13 @@ export function EventSheet({
                 onChange={setStrategy}
               />
               <div style={{ margin: 'var(--bl-sp-4) 0' }}>
-                <OptionGroup
+                <ChoiceTiles
                   legend="¿Cómo resultó la estrategia?"
+                  legendStyle="field"
                   choices={STRATEGY_OUTCOME_CHOICES}
                   value={outcome}
                   onChange={setOutcome}
-                  boxed={false}
+                  marker="shape"
                 />
               </div>
             </>

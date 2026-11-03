@@ -6,33 +6,63 @@
  */
 
 import { useId, useRef } from 'react';
-import type { ReactNode } from 'react';
-import type { Choice, Semantic } from '../domain/catalog';
+import type { KeyboardEvent, ReactNode } from 'react';
+import type { Choice, Level, Semantic } from '../domain/catalog';
 import { SEMANTIC_COLOR, choiceShape, intensitySemantic, intensityWord } from '../domain/catalog';
 import { LevelBars, ShapeMark } from './marks';
 import { Icon } from './icons';
 
 /* ============================================================
-   Tabs segmentados · máximo dos vistas (§2.4)
+   Navegación con flechas en grupos de una opción (radio y tabs)
    ============================================================ */
 
-interface TabsProps<T extends string> {
+/**
+ * Patrón «roving tabindex»: solo la opción elegida (o la primera) entra en el
+ * orden de tabulación, y las flechas mueven el foco y la selección.
+ */
+function useRovingGroup(count: number, onMove: (index: number) => void) {
+  const refs = useRef<(HTMLElement | null)[]>([]);
+  function onKeyDown(event: KeyboardEvent<HTMLElement>, index: number) {
+    const forward = event.key === 'ArrowDown' || event.key === 'ArrowRight';
+    const backward = event.key === 'ArrowUp' || event.key === 'ArrowLeft';
+    if (!forward && !backward) return;
+    event.preventDefault();
+    const next = (index + (forward ? 1 : -1) + count) % count;
+    refs.current[next]?.focus();
+    onMove(next);
+  }
+  const setRef = (index: number) => (el: HTMLElement | null) => {
+    refs.current[index] = el;
+  };
+  return { onKeyDown, setRef };
+}
+
+/* ============================================================
+   SegmentedTabs · dos vistas de una misma pantalla
+   ============================================================ */
+
+interface SegmentedTabsProps<T extends string> {
   tabs: { id: T; label: string }[];
   active: T;
   onChange: (id: T) => void;
   label: string;
 }
 
-export function Tabs<T extends string>({ tabs, active, onChange, label }: TabsProps<T>) {
+export function SegmentedTabs<T extends string>({ tabs, active, onChange, label }: SegmentedTabsProps<T>) {
+  const { onKeyDown, setRef } = useRovingGroup(tabs.length, (i) => onChange(tabs[i].id));
   return (
-    <div className="bl-tabs" role="tablist" aria-label={label}>
-      {tabs.map((tab) => (
+    <div className="nd-seg" role="tablist" aria-label={label}>
+      {tabs.map((tab, i) => (
         <button
           key={tab.id}
+          ref={setRef(i)}
+          type="button"
           role="tab"
-          className="bl-tab"
+          className="nd-seg__tab nd-press"
           aria-selected={active === tab.id}
+          tabIndex={active === tab.id ? 0 : -1}
           onClick={() => onChange(tab.id)}
+          onKeyDown={(e) => onKeyDown(e, i)}
         >
           {tab.label}
         </button>
@@ -42,94 +72,191 @@ export function Tabs<T extends string>({ tabs, active, onChange, label }: TabsPr
 }
 
 /* ============================================================
-   Grupo de opciones · patrón central del producto (§2.3)
-   ============================================================ */
+   ChoiceTiles · escala de tres pasos en tarjetas
+   ============================================================
 
-interface OptionGroupProps<T extends string> {
-  /** Eyebrow del dominio clínico: DESCANSO NOCTURNO, DIGESTIÓN… */
+   `bars`: 1 a 3 barras (sueño, despertar, autonomía y escalas de registro).
+   `shape`: ● ◐/◆ ▲ centrada (resultado de una estrategia, ¿cómo respondió?).
+   Una sola opción; sin selección inicial si `value` es null. */
+
+interface ChoiceTilesProps<T extends string> {
+  /** Eyebrow del dominio (DESCANSO NOCTURNO…), opcional. */
   eyebrow?: string;
-  /** La pregunta concreta. */
+  /** La pregunta; nombra el grupo para el lector de pantalla. */
   legend: string;
+  /** `section`: 16 px (Bitácora, escalas); `field`: 13 px gris (detalle de una hoja). */
+  legendStyle?: 'section' | 'field';
   choices: Choice<T>[];
   value: T | null;
   onChange: (value: T) => void;
-  /** Envuelve en bloque `surface-alt` cuando agrupa dentro de una card. */
-  boxed?: boolean;
-  /**
-   * `stack` (por defecto) apila las opciones: etiquetas largas, lectura
-   * vertical. `row` las pone en tres columnas; solo para escalas de una
-   * o dos palabras, donde caben sin truncarse a 320px.
-   */
-  layout?: 'stack' | 'row';
+  marker?: 'bars' | 'shape';
+  /** Solo `shape`: 56 px (estrategia) o 64 px (¿cómo respondió?). */
+  size?: 'md' | 'lg';
 }
 
-export function OptionGroup<T extends string>({
+export function ChoiceTiles<T extends string>({
   eyebrow,
   legend,
+  legendStyle = 'section',
   choices,
   value,
   onChange,
-  boxed = true,
-  layout = 'stack',
-}: OptionGroupProps<T>) {
+  marker = 'bars',
+  size = 'md',
+}: ChoiceTilesProps<T>) {
   const legendId = useId();
-  const refs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  function onKeyDown(e: React.KeyboardEvent, index: number) {
-    const keys = ['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'];
-    if (!keys.includes(e.key)) return;
-    e.preventDefault();
-    const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
-    const next = (index + (forward ? 1 : -1) + choices.length) % choices.length;
-    refs.current[next]?.focus();
-    onChange(choices[next].value);
-  }
-
-  const body = (
-    <>
-      {eyebrow && (
-        <p className="bl-eyebrow" style={{ margin: 0 }}>
-          {eyebrow}
-        </p>
-      )}
-      <p className="bl-legend" id={legendId}>
+  const { onKeyDown, setRef } = useRovingGroup(choices.length, (i) => onChange(choices[i].value));
+  const focusable = value === null ? 0 : choices.findIndex((c) => c.value === value);
+  return (
+    <div className="nd-question">
+      {eyebrow && <p className="nd-eyebrow">{eyebrow}</p>}
+      <p className={`nd-legend nd-legend--${legendStyle}`} id={legendId}>
         {legend}
       </p>
       <div
         role="radiogroup"
         aria-labelledby={legendId}
-        className={layout === 'row' ? 'bl-optionrow' : undefined}
+        className={`nd-tiles nd-tiles--${marker}${marker === 'shape' ? ` nd-tiles--${size}` : ''}`}
       >
         {choices.map((choice, i) => {
           const checked = value === choice.value;
           return (
             <button
               key={choice.value}
-              ref={(el) => {
-                refs.current[i] = el;
-              }}
+              ref={setRef(i)}
               type="button"
               role="radio"
               aria-checked={checked}
-              tabIndex={checked || (value === null && i === 0) ? 0 : -1}
-              className={`bl-option${layout === 'row' ? ' bl-option--compact' : ''}`}
+              tabIndex={i === focusable ? 0 : -1}
+              className="nd-tile nd-press"
               onClick={() => onChange(choice.value)}
               onKeyDown={(e) => onKeyDown(e, i)}
             >
-              {choice.dot && <ShapeMark shape={choiceShape(choice)} color={SEMANTIC_COLOR[choice.dot]} />}
-              {choice.level && <LevelBars level={choice.level} />}
-              <span className="bl-option__label">{choice.label}</span>
-              <span className="bl-option__mark" aria-hidden="true">
-                <Icon name="check" size={14} strokeWidth={3} />
-              </span>
+              {marker === 'bars' ? (
+                <LevelBars level={choice.level ?? ((i + 1) as Level)} />
+              ) : (
+                <ShapeMark
+                  shape={choiceShape(choice)}
+                  color={SEMANTIC_COLOR[choice.dot ?? 'neutral']}
+                  size={size === 'lg' ? 12 : 10}
+                />
+              )}
+              <span className="nd-tile__label">{choice.label}</span>
             </button>
           );
         })}
       </div>
-    </>
+    </div>
   );
+}
 
-  return boxed ? <div className="bl-group">{body}</div> : <div>{body}</div>;
+/* ============================================================
+   ShapeList · lista de una opción con forma y color (Digestión)
+   ============================================================ */
+
+interface ShapeListProps<T extends string> {
+  label: string;
+  choices: Choice<T>[];
+  value: T | null;
+  onChange: (value: T) => void;
+}
+
+export function ShapeList<T extends string>({ label, choices, value, onChange }: ShapeListProps<T>) {
+  const { onKeyDown, setRef } = useRovingGroup(choices.length, (i) => onChange(choices[i].value));
+  const focusable = value === null ? 0 : choices.findIndex((c) => c.value === value);
+  return (
+    <div role="radiogroup" aria-label={label} className="nd-shapelist">
+      {choices.map((choice, i) => {
+        const checked = value === choice.value;
+        return (
+          <button
+            key={choice.value}
+            ref={setRef(i)}
+            type="button"
+            role="radio"
+            aria-checked={checked}
+            tabIndex={i === focusable ? 0 : -1}
+            className="nd-shapelist__row nd-press"
+            onClick={() => onChange(choice.value)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+          >
+            <ShapeMark shape={choiceShape(choice)} color={SEMANTIC_COLOR[choice.dot ?? 'neutral']} size={12} />
+            <span className="nd-shapelist__label">{choice.label}</span>
+            <span className="nd-radio" aria-hidden="true">
+              {checked && <Icon name="check" size={14} strokeWidth={2.4} />}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ============================================================
+   ChipGroup · catálogo cerrado en chips (reemplaza a Select)
+   ============================================================
+
+   `single`: radiogroup, flechas para moverse; tocar la opción elegida la
+   quita (son campos opcionales: «sin responder» es distinto de cualquier opción).
+   `multiple`: casillas independientes. Siempre empieza sin selección. */
+
+type ChipGroupProps = {
+  legend: string;
+  legendStyle?: 'section' | 'field';
+  hint?: string;
+  options: string[];
+} & (
+  | { mode: 'single'; value: string | null; onChange: (value: string | null) => void }
+  | { mode: 'multiple'; value: string[]; onChange: (value: string[]) => void }
+);
+
+export function ChipGroup(props: ChipGroupProps) {
+  const { legend, legendStyle = 'field', hint, options } = props;
+  const legendId = useId();
+  const isOn = (option: string) =>
+    props.mode === 'single' ? props.value === option : props.value.includes(option);
+  const toggle = (option: string) => {
+    if (props.mode === 'single') props.onChange(props.value === option ? null : option);
+    else props.onChange(isOn(option) ? props.value.filter((v) => v !== option) : [...props.value, option]);
+  };
+  const { onKeyDown, setRef } = useRovingGroup(options.length, (i) => {
+    if (props.mode === 'single') props.onChange(options[i]);
+  });
+  const selectedIndex = props.mode === 'single' ? options.indexOf(props.value ?? '') : -1;
+  const focusable = selectedIndex >= 0 ? selectedIndex : 0;
+  return (
+    <div className="nd-question">
+      <p className={`nd-legend nd-legend--${legendStyle}`} id={legendId}>
+        {legend}
+      </p>
+      {hint && <p className="nd-hint">{hint}</p>}
+      <div
+        role={props.mode === 'single' ? 'radiogroup' : 'group'}
+        aria-labelledby={legendId}
+        className="nd-chips"
+      >
+        {options.map((option, i) => {
+          const on = isOn(option);
+          return (
+            <button
+              key={option}
+              ref={setRef(i)}
+              type="button"
+              role={props.mode === 'single' ? 'radio' : 'checkbox'}
+              aria-checked={on}
+              tabIndex={props.mode === 'single' ? (i === focusable ? 0 : -1) : 0}
+              className="nd-chip nd-press"
+              onClick={() => toggle(option)}
+              onKeyDown={props.mode === 'single' ? (e) => onKeyDown(e, i) : undefined}
+            >
+              {on && <Icon name="check" size={14} strokeWidth={3} />}
+              {option}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 /* ============================================================
@@ -253,41 +380,6 @@ export function Field({
           {help}
         </p>
       )}
-    </div>
-  );
-}
-
-/* ============================================================
-   Select · las categorías con vocabulario cerrado lo usan en vez
-   de texto libre, para que el dato llegue comparable al motor
-   ============================================================ */
-
-interface SelectProps {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}
-
-export function Select({ label, value, options, onChange }: SelectProps) {
-  const id = useId();
-  return (
-    <div className="bl-field">
-      <label className="bl-label" htmlFor={id}>
-        {label}
-      </label>
-      <select
-        id={id}
-        className="bl-select"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

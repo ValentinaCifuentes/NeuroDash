@@ -17,7 +17,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { confirmPredictionOutcome, getPrediction } from "../api";
-import { Tabs } from "../components/controls";
+import { SegmentedTabs } from "../components/controls";
 import {
     CONFIDENCE_LABEL,
     RISK_LABEL,
@@ -64,7 +64,7 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
     return (
         <div className="app-shell__content">
             {/* Dos ejes distintos: lo que viene y lo que ya pasó. */}
-            <Tabs
+            <SegmentedTabs
                 label="Vista de evolución"
                 active={tab}
                 onChange={setTab}
