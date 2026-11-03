@@ -272,73 +272,99 @@ def generate_synthetic_history(
 DEMO_TUTOR_ID = "tutor-demo"
 
 
-def populate_demo_fixtures(project_root: Path | str) -> None:
-    """
-    Populates data/legacy_history/ and data/demo_profiles/ with mock profiles and histories.
-    """
-    root = Path(project_root)
-    legacy_history_dir = root / "data" / "legacy_history"
-    legacy_history_dir.mkdir(parents=True, exist_ok=True)
-    
-    profiles = {
-        "PAC-A": {
-            "subject_id": "PAC-A",
-            "timezone": "America/New_York",
-            "sensory_context": {"sensory_profile": "Hipersensible"},
-            "seed": 1001
+# Perfiles de las demos (P16, P20, P26). Única fuente: la usa
+# `scripts/generate_mock_histories.py`. Mismo formato que el perfil inicial en
+# 3 pasos del front (plan de datos §6.1), en español y en la zona de Chile.
+# El perfil no cambia la estimación (el motor no lo lee como variable); sí
+# cambia los apoyos de «Qué puedo hacer ahora» y lo que muestra la Ficha.
+DEMO_TIMEZONE = "America/Santiago"
+
+DEMO_PROFILES: dict[str, dict[str, Any]] = {
+    # Riesgo elevado: hipersensible a sonidos, luces y tacto.
+    "PAC-A": {
+        "habitual_context": {
+            "age_range": "6 a 8 años",
+            "neurodivergence": "TEA",
+            "support_level": "Nivel 2",
+            "communication": ["Frases cortas", "Usa pictogramas o tablet"],
+            "dysregulation_frequency": "Varias veces por semana",
+            "early_signs": ["Se tapa los oídos", "Se aísla", "Más irritable"],
+            "triggers": ["Ruido", "Lugares con mucha gente", "Transiciones"],
+            "risk_times": ["Salida del colegio", "Tarde"],
         },
-        "PAC-B": {
-            "subject_id": "PAC-B",
-            "timezone": "UTC",
-            "sensory_context": {"sensory_profile": "Hiposensible"},
-            "seed": 1002
+        "sensory_context": {
+            "sensory_profile": "Hipersensible",
+            "auditory": 1,
+            "visual": 1,
+            "tactile": 1,
+            "gustatory": 0,
+            "vestibular": 0,
         },
-        "PAC-C": {
-            "subject_id": "PAC-C",
-            "timezone": "America/Chicago",
-            "sensory_context": {"sensory_profile": "Buscador sensorial"},
-            "seed": 1003
-        }
+        "historical_supports": [
+            {"id": "sup_a_1", "description": "Manta con peso en la tarde", "type": "historical", "effective": True},
+            {"id": "sup_a_2", "description": "Audífonos con cancelación de ruido", "type": "historical", "effective": True},
+        ],
+    },
+    # Riesgo bajo: hiposensible, busca movimiento y presión.
+    "PAC-B": {
+        "habitual_context": {
+            "age_range": "9 a 12 años",
+            "neurodivergence": "TDAH",
+            "support_level": "Nivel 1",
+            "communication": ["Habla con frases"],
+            "dysregulation_frequency": "Menos seguido",
+            "early_signs": ["Más movimientos repetitivos", "Cambia el tono de voz"],
+            "triggers": ["Esperas", "Tareas o exigencias"],
+            "risk_times": ["Al cambiar de actividad"],
+        },
+        "sensory_context": {
+            "sensory_profile": "Hiposensible",
+            "auditory": 0,
+            "visual": 0,
+            "tactile": -1,
+            "gustatory": 0,
+            "vestibular": -1,
+        },
+        "historical_supports": [
+            {"id": "sup_b_1", "description": "Pausas programadas con reducción de ruido", "type": "historical", "effective": True},
+            {"id": "sup_b_2", "description": "Movimiento o columpio antes de las tareas", "type": "historical", "effective": True},
+        ],
+    },
+    # Sin estimación (2 días de historial): perfil recién creado.
+    "PAC-C": {
+        "habitual_context": {
+            "age_range": "2 a 5 años",
+            "neurodivergence": "TEA y TDAH",
+            "support_level": "No lo sé",
+            "communication": ["Pocas palabras"],
+            "dysregulation_frequency": "Casi a diario",
+            "early_signs": ["Llora sin motivo claro", "Rechaza el contacto"],
+            "triggers": ["Cambios de rutina", "Hambre o sueño"],
+            "risk_times": ["Mañana", "Noche"],
+        },
+        "sensory_context": {
+            "sensory_profile": "Buscador sensorial",
+            "gustatory": -1,
+            "vestibular": -1,
+        },
+        "historical_supports": [
+            {"id": "sup_c_1", "description": "Masticables", "type": "historical", "effective": True},
+        ],
+    },
+}
+
+
+def demo_profile(subject_id: str) -> dict[str, Any]:
+    """`profile.json` de una demo, marcado como sintético."""
+    meta = DEMO_PROFILES.get(subject_id, {})
+    return {
+        "subject_id": subject_id,
+        "display_name": subject_id,
+        "timezone": DEMO_TIMEZONE,
+        "habitual_context": meta.get("habitual_context", {}),
+        "sensory_context": meta.get("sensory_context", {}),
+        "historical_supports": meta.get("historical_supports", []),
+        "provenance": {"source": "synthetic_demo", "synthetic": True},
+        # Actor fijo del frontend (VITE_ACTOR_ID); permite confirmar resultados en la demo.
+        "authorized_tutor_ids": [DEMO_TUTOR_ID],
     }
-    
-    for pid, info in profiles.items():
-        # 1. Generate history
-        history = generate_synthetic_history(
-            subject_id=pid,
-            days=30,
-            seed=info["seed"],
-            timezone=info["timezone"]
-        )
-        
-        # Helper to convert datetimes to ISO strings for serialization
-        def serialize_dt(obj: Any) -> Any:
-            if isinstance(obj, datetime):
-                return obj.isoformat()
-            if isinstance(obj, list):
-                return [serialize_dt(item) for item in obj]
-            if isinstance(obj, dict):
-                return {k: serialize_dt(v) for k, v in obj.items()}
-            return obj
-            
-        history_serialized = serialize_dt(history)
-        
-        # Save history to data/legacy_history/PAC-X_history.json
-        history_path = legacy_history_dir / f"{pid}_history.json"
-        with open(history_path, "w", encoding="utf-8") as f:
-            json.dump(history_serialized, f, indent=2, sort_keys=True)
-            
-        # 2. Save profile
-        profile_dir = root / "data" / "demo_profiles" / pid
-        profile_dir.mkdir(parents=True, exist_ok=True)
-        
-        profile_data = {
-            "subject_id": pid,
-            "display_name": pid,
-            "timezone": info["timezone"],
-            "sensory_context": info["sensory_context"],
-            "provenance": {"source": "synthetic_demo", "synthetic": True},
-            "authorized_tutor_ids": [DEMO_TUTOR_ID],
-        }
-        
-        with open(profile_dir / "profile.json", "w", encoding="utf-8") as f:
-            json.dump(profile_data, f, indent=2, sort_keys=True)

@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta, timezone as dt_timezone
 from typing import Any
 
 # Import synthetic generator from our ML package
-from ml.dataset_builder import DEMO_TUTOR_ID, generate_synthetic_history
+from ml.dataset_builder import demo_profile, generate_synthetic_history
 
 
 def serialize_dt(obj: Any) -> Any:
@@ -34,41 +34,14 @@ def generate_subject_history(
     """
     out_path = Path(out_dir)
     
-    # Load profile metadata mapping
-    profiles_meta = {
-        "PAC-A": {
-            "timezone": "America/New_York",
-            "sensory_context": {"sensory_profile": "Hipersensible"},
-            "historical_supports": [
-                {"id": "sup_a_1", "description": "Weighted blanket in evening.", "type": "historical"}
-            ]
-        },
-        "PAC-B": {
-            "timezone": "UTC",
-            "sensory_context": {"sensory_profile": "Hiposensible"},
-            "historical_supports": [
-                {"id": "sup_b_1", "description": "Scheduled noise-reducing breaks.", "type": "historical"}
-            ]
-        },
-        "PAC-C": {
-            "timezone": "America/Chicago",
-            "sensory_context": {"sensory_profile": "Buscador sensorial"},
-            "historical_supports": []
-        }
-    }
-    
-    meta = profiles_meta.get(subject_id, {
-        "timezone": "UTC",
-        "sensory_context": {},
-        "historical_supports": []
-    })
-    
+    profile_data = demo_profile(subject_id)
+
     # 1. Generate synthetic history
     history = generate_synthetic_history(
         subject_id=subject_id,
         days=days,
         seed=seed,
-        timezone=meta["timezone"],
+        timezone=profile_data["timezone"],
         end_date=end_date,
     )
     
@@ -84,16 +57,6 @@ def generate_subject_history(
     # 2. Write profile JSON
     profile_dir = out_path / "demo_profiles" / subject_id
     profile_dir.mkdir(parents=True, exist_ok=True)
-    profile_data = {
-        "subject_id": subject_id,
-        "display_name": subject_id,
-        "timezone": meta["timezone"],
-        "sensory_context": meta["sensory_context"],
-        "historical_supports": meta["historical_supports"],
-        "provenance": {"source": "synthetic_demo", "synthetic": True},
-        # Actor fijo del frontend (VITE_ACTOR_ID); permite confirmar resultados en la demo.
-        "authorized_tutor_ids": [DEMO_TUTOR_ID],
-    }
     with open(profile_dir / "profile.json", "w", encoding="utf-8") as f:
         json.dump(profile_data, f, indent=2, sort_keys=True)
         

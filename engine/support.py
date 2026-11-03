@@ -75,7 +75,11 @@ def select_supports(
         registered_cases = _registered_cases(subject_history)
         if any(item.get("effective") is True for item in subject_history) and signals:
             signals.add("previously_effective_similar_context")
-            selected.extend(_effective_history_recommendations(subject_history))
+            effective = _effective_history_recommendations(subject_history)
+            # Un apoyo que funcionó se muestra una sola vez: como «le sirvió antes», no además como registrado.
+            effective_ids = {item["id"] for item in effective}
+            selected = [item for item in selected if f"previous_effective_{item.get('id')}" not in effective_ids]
+            selected.extend(effective)
 
         for entry in catalog:
             case_id = entry.get("case_id")
@@ -217,17 +221,18 @@ def _effective_history_recommendations(subject_history: list[dict[str, Any]]) ->
     for item in subject_history:
         if item.get("effective") is not True:
             continue
-        description = item.get("description") or item.get("name") or "la estrategia registrada"
+        # El texto del apoyo es el del tutor, tal cual; la explicación va aparte.
+        description = item.get("description") or item.get("name") or "La estrategia registrada."
         recommendations.append(
             {
                 "id": f"previous_effective_{item.get('id', len(recommendations))}",
-                "description": f"En situaciones similares, {description} resultó útil anteriormente. Considere utilizarla nuevamente.",
+                "description": description,
                 "type": "historical",
                 "source": "historical_support",
                 "category": item.get("category", "general"),
                 "case_id": "previously_effective_similar_context",
                 "evidence_bounded": True,
-                "rationale": "La prioridad se basa en un apoyo previamente registrado como efectivo.",
+                "rationale": "Le sirvió antes en situaciones parecidas.",
                 "priority": 1,
             }
         )

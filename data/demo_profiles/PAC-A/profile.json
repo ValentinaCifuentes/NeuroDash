@@ -3,10 +3,41 @@
     "tutor-demo"
   ],
   "display_name": "PAC-A",
+  "habitual_context": {
+    "age_range": "6 a 8 a\u00f1os",
+    "communication": [
+      "Frases cortas",
+      "Usa pictogramas o tablet"
+    ],
+    "dysregulation_frequency": "Varias veces por semana",
+    "early_signs": [
+      "Se tapa los o\u00eddos",
+      "Se a\u00edsla",
+      "M\u00e1s irritable"
+    ],
+    "neurodivergence": "TEA",
+    "risk_times": [
+      "Salida del colegio",
+      "Tarde"
+    ],
+    "support_level": "Nivel 2",
+    "triggers": [
+      "Ruido",
+      "Lugares con mucha gente",
+      "Transiciones"
+    ]
+  },
   "historical_supports": [
     {
-      "description": "Weighted blanket in evening.",
+      "description": "Manta con peso en la tarde",
+      "effective": true,
       "id": "sup_a_1",
+      "type": "historical"
+    },
+    {
+      "description": "Aud\u00edfonos con cancelaci\u00f3n de ruido",
+      "effective": true,
+      "id": "sup_a_2",
       "type": "historical"
     }
   ],
@@ -15,8 +46,13 @@
     "synthetic": true
   },
   "sensory_context": {
-    "sensory_profile": "Hipersensible"
+    "auditory": 1,
+    "gustatory": 0,
+    "sensory_profile": "Hipersensible",
+    "tactile": 1,
+    "vestibular": 0,
+    "visual": 1
   },
   "subject_id": "PAC-A",
-  "timezone": "America/New_York"
+  "timezone": "America/Santiago"
 }

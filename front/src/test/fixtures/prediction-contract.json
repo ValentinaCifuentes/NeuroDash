@@ -1,8 +1,8 @@
 {
   "contract_version": "2",
-  "prediction_id": "b25b31eebf2c4d96a95aa603e4ec842d",
+  "prediction_id": "a304c2ed45544f62afd9e605a7ce18be",
   "subject_id": "PAC-A",
-  "prediction_cutoff": "2026-11-02T10:00:00-05:00",
+  "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
   "risk": "HIGH",
   "confidence": "HIGH",
@@ -462,27 +462,12 @@
   "missingness": [
     {
       "window": 1,
-      "field": "day_regulation_level_num",
-      "missing": false
-    },
-    {
-      "window": 1,
       "field": "wake_state",
       "missing": false
     },
     {
       "window": 1,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "medication_taken",
-      "missing": false
-    },
-    {
-      "window": 1,
-      "field": "event_count",
+      "field": "day_regulation_level_num",
       "missing": false
     },
     {
@@ -492,7 +477,27 @@
     },
     {
       "window": 1,
+      "field": "event_count",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "start_autonomy_level",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "dysregulation_count",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "max_intensity",
       "missing": false
     },
     {
@@ -501,8 +506,8 @@
       "missing": false
     },
     {
-      "window": 1,
-      "field": "start_autonomy_level",
+      "window": 3,
+      "field": "wake_state",
       "missing": false
     },
     {
@@ -512,17 +517,7 @@
     },
     {
       "window": 3,
-      "field": "wake_state",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 3,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -532,7 +527,12 @@
     },
     {
       "window": 3,
-      "field": "gi_level",
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -542,12 +542,17 @@
     },
     {
       "window": 3,
-      "field": "sleep_quality",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 3,
-      "field": "start_autonomy_level",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "wake_state",
       "missing": false
     },
     {
@@ -557,17 +562,7 @@
     },
     {
       "window": 7,
-      "field": "wake_state",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 7,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -577,7 +572,12 @@
     },
     {
       "window": 7,
-      "field": "gi_level",
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -587,12 +587,17 @@
     },
     {
       "window": 7,
-      "field": "sleep_quality",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 7,
-      "field": "start_autonomy_level",
+      "field": "sleep_quality",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "wake_state",
       "missing": false
     },
     {
@@ -602,17 +607,7 @@
     },
     {
       "window": 14,
-      "field": "wake_state",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "max_intensity",
-      "missing": false
-    },
-    {
-      "window": 14,
-      "field": "medication_taken",
+      "field": "gi_level",
       "missing": false
     },
     {
@@ -622,7 +617,12 @@
     },
     {
       "window": 14,
-      "field": "gi_level",
+      "field": "medication_taken",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "start_autonomy_level",
       "missing": false
     },
     {
@@ -632,26 +632,37 @@
     },
     {
       "window": 14,
-      "field": "sleep_quality",
+      "field": "max_intensity",
       "missing": false
     },
     {
       "window": 14,
-      "field": "start_autonomy_level",
+      "field": "sleep_quality",
       "missing": false
     }
   ],
   "supports": [
     {
-      "id": "sup_a_1",
-      "description": "Weighted blanket in evening.",
+      "id": "previous_effective_sup_a_1",
+      "description": "Manta con peso en la tarde",
       "type": "historical",
       "source": "historical_support",
       "category": "general",
-      "case_id": "historical_support",
+      "case_id": "previously_effective_similar_context",
       "evidence_bounded": true,
-      "rationale": "Apoyo registrado previamente para esta persona.",
-      "priority": 10
+      "rationale": "Le sirvió antes en situaciones parecidas.",
+      "priority": 1
+    },
+    {
+      "id": "previous_effective_sup_a_2",
+      "description": "Audífonos con cancelación de ruido",
+      "type": "historical",
+      "source": "historical_support",
+      "category": "general",
+      "case_id": "previously_effective_similar_context",
+      "evidence_bounded": true,
+      "rationale": "Le sirvió antes en situaciones parecidas.",
+      "priority": 1
     },
     {
       "id": "cat_unclear_pattern_review",
@@ -673,13 +684,13 @@
       "C": 1.0,
       "penalty": "l2",
       "solver": "liblinear",
-      "samples_count": 80,
-      "positives_count": 21,
-      "negatives_count": 59,
+      "samples_count": 79,
+      "positives_count": 19,
+      "negatives_count": 60,
       "lineage": {
-        "split_cutoff": "2026-10-25T12:00:00-05:00",
+        "split_cutoff": "2026-10-26T12:00:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-02T07:34:15.106495+00:00",
+        "data_generation_timestamp": "2026-11-03T14:59:34.271199+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",

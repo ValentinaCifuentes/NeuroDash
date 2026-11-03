@@ -382,3 +382,21 @@ def test_provenance_school_exclusion() -> None:
     assert prov_without["subject_id"] == "sub_1"
     assert prov_without["excluded_from_core"] is False
     assert "exclusion_reason" not in prov_without or prov_without["exclusion_reason"] is None
+
+
+def test_an_effective_support_appears_once_with_the_tutor_words() -> None:
+    supports = select_supports(
+        subject_history=[
+            {"id": "sup_a_1", "description": "Manta con peso en la tarde.", "type": "historical", "effective": True},
+        ],
+        sensory_context={"sensory_profile": "Hipersensible"},
+        confidence=ConfidenceLevel.HIGH,
+        abstained=False,
+        missingness=[],
+        recent_occurrences=[{}, {}, {}],
+    )
+
+    matching = [support for support in supports if "Manta con peso" in support["description"]]
+    assert len(matching) == 1
+    assert matching[0]["description"] == "Manta con peso en la tarde."
+    assert matching[0]["rationale"] == "Le sirvió antes en situaciones parecidas."

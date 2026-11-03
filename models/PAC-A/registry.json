@@ -4,23 +4,23 @@
     "metadata": {
       "C": 1.0,
       "lineage": {
-        "data_generation_timestamp": "2026-11-02T07:34:15.106495+00:00",
+        "data_generation_timestamp": "2026-11-03T14:59:34.271199+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",
           "exclusion_policy": "conservative"
         },
-        "split_cutoff": "2026-10-25T12:00:00-05:00",
+        "split_cutoff": "2026-10-26T12:00:00-03:00",
         "subject_id": "PAC-A"
       },
-      "negatives_count": 59,
+      "negatives_count": 60,
       "penalty": "l2",
-      "positives_count": 21,
-      "samples_count": 80,
+      "positives_count": 19,
+      "samples_count": 79,
       "seed": 42,
       "solver": "liblinear"
     },
-    "timestamp": "2026-11-02T07:34:15.135123+00:00",
+    "timestamp": "2026-11-03T14:59:34.276821+00:00",
     "version": 1
   }
 ]

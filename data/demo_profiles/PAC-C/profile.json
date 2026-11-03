@@ -3,14 +3,44 @@
     "tutor-demo"
   ],
   "display_name": "PAC-C",
-  "historical_supports": [],
+  "habitual_context": {
+    "age_range": "2 a 5 a\u00f1os",
+    "communication": [
+      "Pocas palabras"
+    ],
+    "dysregulation_frequency": "Casi a diario",
+    "early_signs": [
+      "Llora sin motivo claro",
+      "Rechaza el contacto"
+    ],
+    "neurodivergence": "TEA y TDAH",
+    "risk_times": [
+      "Ma\u00f1ana",
+      "Noche"
+    ],
+    "support_level": "No lo s\u00e9",
+    "triggers": [
+      "Cambios de rutina",
+      "Hambre o sue\u00f1o"
+    ]
+  },
+  "historical_supports": [
+    {
+      "description": "Masticables",
+      "effective": true,
+      "id": "sup_c_1",
+      "type": "historical"
+    }
+  ],
   "provenance": {
     "source": "synthetic_demo",
     "synthetic": true
   },
   "sensory_context": {
-    "sensory_profile": "Buscador sensorial"
+    "gustatory": -1,
+    "sensory_profile": "Buscador sensorial",
+    "vestibular": -1
   },
   "subject_id": "PAC-C",
-  "timezone": "America/Chicago"
+  "timezone": "America/Santiago"
 }

@@ -3,10 +3,37 @@
     "tutor-demo"
   ],
   "display_name": "PAC-B",
+  "habitual_context": {
+    "age_range": "9 a 12 a\u00f1os",
+    "communication": [
+      "Habla con frases"
+    ],
+    "dysregulation_frequency": "Menos seguido",
+    "early_signs": [
+      "M\u00e1s movimientos repetitivos",
+      "Cambia el tono de voz"
+    ],
+    "neurodivergence": "TDAH",
+    "risk_times": [
+      "Al cambiar de actividad"
+    ],
+    "support_level": "Nivel 1",
+    "triggers": [
+      "Esperas",
+      "Tareas o exigencias"
+    ]
+  },
   "historical_supports": [
     {
-      "description": "Scheduled noise-reducing breaks.",
+      "description": "Pausas programadas con reducci\u00f3n de ruido",
+      "effective": true,
       "id": "sup_b_1",
+      "type": "historical"
+    },
+    {
+      "description": "Movimiento o columpio antes de las tareas",
+      "effective": true,
+      "id": "sup_b_2",
       "type": "historical"
     }
   ],
@@ -15,8 +42,13 @@
     "synthetic": true
   },
   "sensory_context": {
-    "sensory_profile": "Hiposensible"
+    "auditory": 0,
+    "gustatory": 0,
+    "sensory_profile": "Hiposensible",
+    "tactile": -1,
+    "vestibular": -1,
+    "visual": 0
   },
   "subject_id": "PAC-B",
-  "timezone": "UTC"
+  "timezone": "America/Santiago"
 }
