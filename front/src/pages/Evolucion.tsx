@@ -63,14 +63,6 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
 
     return (
         <div className="app-shell__content">
-            <section className="bl-card">
-                <h1 className="bl-card__title">Evolución</h1>
-                <p className="bl-card__sub">
-                    Vista para tutor de <strong>{subject.display_name}</strong>: qué mirar, por qué y qué hacer ahora.
-                </p>
-                <ProfileLine subject={subject} />
-            </section>
-
             {/* Dos ejes distintos: lo que viene y lo que ya pasó. */}
             <Tabs
                 label="Vista de evolución"
@@ -352,25 +344,6 @@ function humanizeFactorLabel(label: string): string {
         .replace(/\bUltimos\b/i, "últimos")
         .replace(/\s+/g, " ")
         .trim();
-}
-
-function ProfileLine({ subject }: { subject: Subject }) {
-    const items = [subject.age_range, subject.diagnosis, subject.sensory_profile].filter(isUsefulProfileText);
-    if (items.length === 0) return null;
-
-    return (
-        <div className="app-profile-line" aria-label="Perfil del infante">
-            {items.map(item => <span key={item}>{item}</span>)}
-        </div>
-    );
-}
-
-function isUsefulProfileText(value: string): boolean {
-    const normalized = value.trim().toLowerCase();
-    return Boolean(normalized) &&
-        normalized !== "edad no registrada" &&
-        normalized !== "sin diagnóstico mostrado en esta vista" &&
-        normalized !== "perfil sensorial no registrado";
 }
 
 /* ============================================================

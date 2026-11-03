@@ -61,12 +61,8 @@ export function Planificacion() {
 
   return (
     <div className="app-shell__content app-stack">
-      <section className="bl-card">
-        <h1 className="bl-card__title">Planificación de Eventos</h1>
-        <p className="bl-card__sub">
-          Registra eventos futuros para mejorar las predicciones del modelo.
-        </p>
-        <div style={{ marginTop: '1rem' }}>
+      <section>
+        <div>
           <button 
             onClick={() => setShowModal(true)}
             className="bl-btn bl-btn--primary"

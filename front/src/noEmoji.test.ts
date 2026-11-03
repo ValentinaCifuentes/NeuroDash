@@ -26,7 +26,7 @@ function offendingLines(path: string, source: string): string[] {
 
 describe('no emoji in the interface code', () => {
   it('scans the interface sources', () => {
-    expect(Object.keys(SOURCES)).toContain('./components/AppBar.tsx');
+    expect(Object.keys(SOURCES)).toContain('./components/BottomNav.tsx');
   });
 
   it('uses SVG icons and marks instead of emoji or icon glyphs', () => {

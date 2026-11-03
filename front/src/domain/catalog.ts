@@ -56,7 +56,7 @@ export const SEMANTIC_BG: Record<Semantic, string> = {
   warning: 'var(--nd-risk-mid-bg)',
   danger: 'var(--nd-risk-high-bg)',
   info: 'var(--nd-neutral-2)',
-  neutral: 'var(--nd-neutral)',
+  neutral: 'var(--nd-neutral-1)',
 };
 
 /** Texto sobre `SEMANTIC_BG` (todos ≥ 5.8:1). */
@@ -347,7 +347,7 @@ export const SLEEP_LEVEL: Record<SleepQuality, Level> = {
 
 /** Escala del mapa de calor (frambuesa). El índice es el bucket de `DaySummary.heat`. */
 export const HEAT_STEPS = [
-  { label: '0', bg: 'var(--nd-heat-0)', border: 'var(--nd-border)', text: 'Sin eventos' },
+  { label: '0', bg: 'var(--nd-heat-0)', border: 'var(--nd-border-soft)', text: 'Sin eventos' },
   { label: '1-2', bg: 'var(--nd-heat-1)', border: '#F0B3C6', text: '1 a 2 eventos' },
   { label: '3-4', bg: 'var(--nd-heat-2)', border: '#D4487A', text: '3 a 4 eventos' },
   { label: '5+', bg: 'var(--nd-heat-3)', border: 'var(--nd-accent-pressed)', text: '5 o más eventos' },

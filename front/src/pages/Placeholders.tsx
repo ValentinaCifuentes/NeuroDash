@@ -9,20 +9,15 @@ import { Icon } from '../components/icons';
 
 interface Props {
   subject: Subject;
+  /** Mis Tickets se abre desde Ficha › Ayuda y soporte (no es una pestaña). */
+  onOpenTickets: () => void;
 }
 
 const DEFERRED_FEATURE_MESSAGE = 'Esta funcionalidad está fuera del alcance actual de NeuroDash.';
 
-export function FichaInicial({ subject }: Props) {
+export function FichaInicial({ subject, onOpenTickets }: Props) {
   return (
     <div className="app-shell__content">
-      <section className="bl-card">
-        <h1 className="bl-card__title">Ficha Inicial</h1>
-        <p className="bl-card__sub">
-          Perfil de <strong>{subject.display_name}</strong>
-        </p>
-      </section>
-
       <section className="bl-card">
         <p className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-4)' }}>
           Contexto clínico
@@ -42,6 +37,17 @@ export function FichaInicial({ subject }: Props) {
           aprendizaje pueda cruzarse entre casos.
         </span>
       </div>
+
+      <section aria-labelledby="ficha-soporte">
+        <p id="ficha-soporte" className="bl-eyebrow" style={{ margin: '0 0 var(--bl-sp-2)' }}>
+          Ayuda y soporte
+        </p>
+        <button type="button" className="bl-option" onClick={onOpenTickets}>
+          <Icon name="support" size={20} />
+          <span className="bl-option__label">Mis Tickets</span>
+          <Icon name="chevronRight" size={14} strokeWidth={2.6} style={{ color: 'var(--nd-chevron)' }} />
+        </button>
+      </section>
     </div>
   );
 }
@@ -66,10 +72,6 @@ function Row({ label, value }: { label: string; value: string }) {
 export function MisTickets() {
   return (
     <div className="app-shell__content">
-      <section className="bl-card">
-        <h1 className="bl-card__title">Mis Tickets</h1>
-        <p className="bl-card__sub">Solicitudes al equipo de soporte</p>
-      </section>
       <section className="bl-card">
         <div className="bl-empty">
           <b>Funcionalidad no disponible</b>

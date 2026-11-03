@@ -461,3 +461,11 @@ describe('subject list from the real API (Fase 1 · paso 9)', () => {
     });
   });
 });
+
+describe('subject initials for the avatar', () => {
+  it('derives two initials when the backend sends one for a hyphenated alias', async () => {
+    const { adaptSubjectForTest } = await import('./api');
+    expect(adaptSubjectForTest({ subject_id: 'PAC-A', display_name: 'PAC-A', initials: 'P' }).initials).toBe('PA');
+    expect(adaptSubjectForTest({ subject_id: 'alex', display_name: 'Alex Rivera', initials: 'AR' }).initials).toBe('AR');
+  });
+});

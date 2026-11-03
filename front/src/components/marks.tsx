@@ -20,7 +20,7 @@ export function LevelBars({ level }: { level: Level }) {
         <span
           key={bar}
           className="nd-levelbars__bar"
-          style={{ height: 3 + bar * 3, background: bar <= level ? color : 'var(--nd-border)' }}
+          style={{ height: 3 + bar * 3, background: bar <= level ? color : 'var(--nd-border-soft)' }}
         />
       ))}
     </span>

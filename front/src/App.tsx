@@ -7,10 +7,9 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AppBar } from './components/AppBar';
 import { SubjectGate } from './components/SubjectGate';
-import { Sidebar } from './components/Sidebar';
-import type { Route } from './components/Sidebar';
+import { BottomNav, type Route } from './components/BottomNav';
+import { PageHeader, type PageHeaderProps } from './components/PageHeader';
 import { Fab, Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
 import { BitacoraDiaria } from './pages/BitacoraDiaria';
@@ -30,8 +29,7 @@ export default function App() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [loadError, setLoadError] = useState<ApiError | null>(null);
-  const [route, setRoute] = useState<Route>('bitacora');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [route, setRoute] = useState<Route>('evolucion');
   const [sheet, setSheet] = useState<SheetState>({ kind: 'none' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -107,9 +105,6 @@ export default function App() {
   if (loadingSubjects) {
     return (
       <div className="app-shell">
-        <div className="app-shell__bar">
-          <AppBar initials="··" onOpenMenu={() => {}} />
-        </div>
         <div className="app-shell__content" aria-busy="true">
           <span className="bl-sr-only">Cargando</span>
           <div className="bl-card app-stack--tight">
@@ -133,16 +128,18 @@ export default function App() {
   const showFab = route === 'bitacora';
 
   return (
-    <div className="app-shell">
+    <div className="app-shell app-shell--nav">
       <a className="bl-skip" href="#contenido">
         Saltar al contenido
       </a>
 
-      <div className="app-shell__bar">
-        <AppBar initials={subject.initials} onOpenMenu={() => setMenuOpen(true)} />
-      </div>
-
       <main className="app-shell__scroll" id="contenido">
+        <PageHeader
+          {...headerFor(route, subject.display_name, () => setRoute('ficha'))}
+          initials={subject.initials}
+          subjectName={subject.display_name}
+          onChangeSubject={() => setSubject(null)}
+        />
         {route === 'bitacora' && (
           <BitacoraDiaria
             subject={subject}
@@ -152,7 +149,7 @@ export default function App() {
           />
         )}
         {route === 'evolucion' && <Evolucion subject={subject} revision={revision} />}
-        {route === 'ficha' && <FichaInicial subject={subject} />}
+        {route === 'ficha' && <FichaInicial subject={subject} onOpenTickets={() => setRoute('tickets')} />}
         {route === 'tickets' && <MisTickets />}
         {route === 'planificacion' && <Planificacion />}
       </main>
@@ -181,16 +178,7 @@ export default function App() {
         />
       )}
 
-      <Sidebar
-        open={menuOpen}
-        current={route}
-        subjectName={subject.display_name}
-        onNavigate={(r) => {
-          setRoute(r);
-          setMenuOpen(false);
-        }}
-        onClose={() => setMenuOpen(false)}
-      />
+      <BottomNav current={route} onNavigate={setRoute} />
 
       {toast && <Toast message={toast} />}
 
@@ -201,4 +189,42 @@ export default function App() {
       )}
     </div>
   );
+}
+
+type HeaderCopy = Pick<PageHeaderProps, 'title' | 'subtitle' | 'brand' | 'back'>;
+
+/** Título y subtítulo de cada pantalla, tal como en `screens/` del prototipo. */
+function headerFor(route: Route, name: string, backToFicha: () => void): HeaderCopy {
+  switch (route) {
+    case 'evolucion':
+      return { title: 'Evolución' };
+    case 'bitacora':
+      return {
+        brand: true,
+        title: 'Bitácora Diaria',
+        subtitle: (
+          <>
+            Registra el estado basal y eventos cotidianos de <strong>{name}</strong>
+          </>
+        ),
+      };
+    case 'planificacion':
+      return {
+        brand: true,
+        title: 'Planificación de Eventos',
+        subtitle: 'Registra eventos futuros para mejorar las predicciones del modelo.',
+      };
+    case 'ficha':
+      return {
+        brand: true,
+        title: 'Ficha Inicial',
+        subtitle: (
+          <>
+            Perfil de <strong>{name}</strong>
+          </>
+        ),
+      };
+    case 'tickets':
+      return { back: { label: 'Ficha', onClick: backToFicha }, title: 'Mis Tickets', subtitle: 'Solicitudes al equipo de soporte' };
+  }
 }

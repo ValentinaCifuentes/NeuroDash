@@ -12,7 +12,7 @@
      tinta / tinta-2 / muted sobre superficie y fondo ≥ 5.1:1
      acento sobre superficie 5.7:1 · blanco sobre acento 5.7:1
      textos de riesgo sobre su fondo ≥ 5.8:1
-   Excepción: `--nd-muted` sobre `--nd-neutral` da 4.36:1 → ahí usar `--nd-ink-2`.
+   Excepción: `--nd-muted` sobre `--nd-neutral-1` da 4.36:1 → ahí usar `--nd-ink-2`.
    ========================================================================== */
 
 :root {
@@ -23,11 +23,11 @@
   --nd-ink: #1F2430;              /* títulos y texto principal */
   --nd-ink-2: #4C4F5C;            /* texto secundario */
   --nd-muted: #6A6470;            /* etiquetas, eyebrows, pestañas inactivas */
-  --nd-neutral: #EFDCE3;          /* fondo del control segmentado, arcos vacíos */
+  --nd-neutral-1: #EFDCE3;        /* fondo del control segmentado, arcos vacíos */
   --nd-neutral-2: #F3E4E9;
   --nd-line: rgba(31, 36, 48, 0.12);       /* separadores */
   --nd-hairline: rgba(31, 36, 48, 0.14);   /* borde superior de la barra */
-  --nd-border: #EBD5DD;           /* borde de opciones y chips sin elegir */
+  --nd-border-soft: #EBD5DD;      /* borde de opciones y chips sin elegir */
   --nd-border-strong: #D9C2CB;    /* círculo de radio sin marcar */
   --nd-switch-off: #E0C9D1;
   --nd-chevron: #9A8F96;          /* solo ícono (3.1:1) */
@@ -62,6 +62,11 @@
   --nd-heat-1: #F8D4DF;
   --nd-heat-2: #E77FA3;
   --nd-heat-3: #C2255C;
+  /* Número del día sobre cada paso de la escala */
+  --nd-heat-ink-0: var(--nd-ink);
+  --nd-heat-ink-1: var(--nd-accent-ink);
+  --nd-heat-ink-2: #4A0A22;
+  --nd-heat-ink-3: #FFFFFF;
 
   /* --- Radios --- */
   --nd-r-segment: 9px;            /* pestaña dentro del segmentado */
@@ -69,14 +74,18 @@
   --nd-r-sm: 12px;                /* segmentado, chips cuadrados */
   --nd-r-md: 14px;                /* botones */
   --nd-r-lg: 16px;                /* opciones, CTA, bloques internos */
-  --nd-r-xl: 20px;                /* listas de navegación */
+  --nd-r-note: 18px;              /* notas y avisos («El perfil sensorial entra al motor…») */
+  --nd-r-xl: 20px;                /* listas de navegación, tarjetas de categoría */
+  --nd-r-group: 22px;             /* tarjetas de pregunta (perfil, planificación) */
   --nd-r-2xl: 24px;               /* tarjetas */
   --nd-r-3xl: 28px;               /* tarjeta principal, hojas */
   --nd-r-full: 999px;
 
-  /* --- Sombras --- */
-  --nd-sh-card: 0 1px 2px rgba(31, 36, 48, 0.04), 0 8px 24px rgba(31, 36, 48, 0.06);
-  --nd-sh-hero: 0 1px 2px rgba(31, 36, 48, 0.04), 0 12px 32px rgba(31, 36, 48, 0.08);
+  /* --- Sombras ---
+     card: tarjeta principal (estimación de Evolución).
+     row:  tarjetas de contenido y listas (Bitácora, Ficha, Seguimiento, NavRow). */
+  --nd-sh-row: 0 1px 2px rgba(31, 36, 48, 0.04), 0 8px 24px rgba(31, 36, 48, 0.06);
+  --nd-sh-card: 0 1px 2px rgba(31, 36, 48, 0.04), 0 12px 32px rgba(31, 36, 48, 0.08);
   --nd-sh-tab: 0 1px 3px rgba(31, 36, 48, 0.12);
   --nd-sh-avatar: 0 1px 2px rgba(31, 36, 48, 0.08), 0 0 0 0.5px rgba(31, 36, 48, 0.08);
   --nd-sh-cta: 0 6px 16px rgba(194, 37, 92, 0.28);
@@ -103,6 +112,17 @@
   --nd-ls-eyebrow: 0.06em;
   --nd-lh-tight: 1.15;
   --nd-lh-normal: 1.45;
+
+  /* --- Medidas de pantalla ---
+     El prototipo usa `padding: 56px 20px 110px` en un lienzo de 390 px con la
+     barra de estado dibujada: los 56 px superiores son ~44 de barra de estado
+     + 12 de aire. En el dispositivo, la barra de estado la da el sistema. */
+  --nd-screen-pad-x: 20px;
+  --nd-screen-pad-top: calc(16px + env(safe-area-inset-top, 0px)); /* 12 del prototipo se veía pegado al borde sin barra de estado */
+  --nd-gap: 14px;                 /* entre bloques de una pantalla */
+  --nd-gap-card: 12px;            /* dentro de una tarjeta */
+  --nd-btn-h: 54px;               /* botón principal */
+  --nd-field-h: 50px;             /* campo de formulario */
 
   /* --- Interacción --- */
   --nd-tap: 44px;                 /* área táctil mínima */
@@ -139,7 +159,7 @@ body {
   --bl-bg: var(--nd-bg);
   --bl-surface: var(--nd-surface);
   --bl-surface-alt: var(--nd-surface-alt);
-  --bl-border: var(--nd-border);
+  --bl-border: var(--nd-border-soft);
   --bl-border-strong: var(--nd-border-strong);
   --bl-text: var(--nd-ink);
   --bl-text-body: var(--nd-ink-2);
@@ -150,16 +170,16 @@ body {
   --bl-success: var(--nd-risk-low);   --bl-success-bg: var(--nd-risk-low-bg);   --bl-success-border: #BFD9EE;
   --bl-warning: var(--nd-risk-mid);   --bl-warning-bg: var(--nd-risk-mid-bg);   --bl-warning-border: var(--nd-missing-border);
   --bl-danger: var(--nd-risk-high);   --bl-danger-bg: var(--nd-risk-high-bg);   --bl-danger-border: #EBB8BF;
-  --bl-info: var(--nd-ink-2);         --bl-info-bg: var(--nd-neutral-2);        --bl-info-border: var(--nd-border);
-  --bl-neutral-chip: var(--nd-neutral);
+  --bl-info: var(--nd-ink-2);         --bl-info-bg: var(--nd-neutral-2);        --bl-info-border: var(--nd-border-soft);
+  --bl-neutral-chip: var(--nd-neutral-1);
 
   --bl-font: var(--nd-font);
 
   --bl-r-xl: var(--nd-r-2xl);
   --bl-r-2xl: var(--nd-r-3xl);
 
-  --bl-sh-card: var(--nd-sh-card);
-  --bl-sh-lg: var(--nd-sh-hero);
+  --bl-sh-card: var(--nd-sh-row);
+  --bl-sh-lg: var(--nd-sh-card);
   --bl-sh-fab: var(--nd-sh-fab);
   --bl-sh-sheet: var(--nd-sh-sheet);
   --bl-ring: var(--nd-ring);
@@ -202,7 +222,7 @@ body {
 }
 @media (hover: hover) and (pointer: fine) {
   .bl-cat:hover {
-    box-shadow: var(--nd-sh-card);
+    box-shadow: var(--nd-sh-row);
   }
 }
 
@@ -287,4 +307,143 @@ body {
 .nd-icon {
   display: inline-block;
   vertical-align: middle;
+}
+
+/* ==========================================================================
+   Navegación (Fase 4 · paso 1): PageHeader y BottomNav
+   ========================================================================== */
+:root {
+  /* Barra inferior: 50 px de pestañas + la zona del indicador de inicio.
+     En iPhone (34 px) da los 84 px del prototipo; sin esa zona, 58 px. */
+  --nd-nav-h: calc(50px + max(8px, env(safe-area-inset-bottom, 0px)));
+}
+
+.nd-pageheader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: var(--nd-screen-pad-top) var(--nd-screen-pad-x) 0;
+}
+.nd-pageheader__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+.nd-pageheader__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--nd-tap);
+}
+.nd-pageheader__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--nd-fs-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--nd-accent);
+}
+.nd-pageheader__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--nd-tap);
+  margin-left: -6px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--nd-accent);
+  cursor: pointer;
+}
+.nd-pageheader__avatar {
+  width: var(--nd-tap);
+  height: var(--nd-tap);
+  border: 0;
+  border-radius: var(--nd-r-full);
+  background: var(--nd-surface);
+  box-shadow: var(--nd-sh-avatar);
+  font: inherit;
+  font-size: var(--nd-fs-sm);
+  font-weight: 600;
+  color: var(--nd-ink);
+  cursor: pointer;
+}
+.nd-pageheader__back:focus-visible,
+.nd-pageheader__avatar:focus-visible,
+.nd-bottomnav__item:focus-visible {
+  outline: none;
+  box-shadow: var(--nd-ring);
+}
+.nd-pageheader__title {
+  margin: 0;
+  font-size: var(--nd-fs-title);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: var(--nd-ls-title);
+}
+.nd-pageheader__subtitle strong {
+  color: var(--nd-ink);
+  font-weight: 600;
+}
+.nd-pageheader__subtitle {
+  margin: 0;
+  font-size: var(--nd-fs-body);
+  line-height: var(--nd-lh-normal);
+  color: var(--nd-ink-2);
+}
+
+.nd-bottomnav {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 35;
+  height: var(--nd-nav-h);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 6px 6px max(8px, env(safe-area-inset-bottom, 0px)); /* 6 + 44 + zona inferior = --nd-nav-h */
+}
+.nd-bottomnav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: var(--nd-tap);
+  border-radius: var(--nd-r-sm);
+  text-decoration: none;
+  font-size: var(--nd-fs-tab);
+  font-weight: 500;
+  color: var(--nd-muted);
+}
+.nd-bottomnav__item[aria-current='page'] {
+  color: var(--nd-accent);
+  font-weight: 600;
+}
+
+/* Lo anclado abajo (CTA, botón +, avisos) queda por encima de la barra. */
+.app-shell--nav .app-shell__content {
+  padding-bottom: calc(var(--bl-sp-10) + var(--nd-nav-h));
+}
+.app-shell--nav .app-shell__content--cta {
+  padding-bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-8) + var(--nd-nav-h));
+}
+.app-shell--nav .app-cta {
+  bottom: var(--nd-nav-h);
+  padding-bottom: var(--bl-sp-4);
+}
+.app-shell--nav .app-fab {
+  bottom: calc(var(--bl-sp-4) + var(--nd-nav-h));
+}
+.app-shell--nav .app-fab--above-cta {
+  bottom: calc(var(--bl-tap) + var(--bl-sp-10) + var(--bl-sp-3) + var(--nd-nav-h));
+}
+.app-shell--nav .app-toast {
+  bottom: calc(var(--bl-sp-4) + var(--nd-nav-h));
 }

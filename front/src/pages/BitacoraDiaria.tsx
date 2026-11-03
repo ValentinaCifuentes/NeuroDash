@@ -75,15 +75,6 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal }: Props
   return (
     <>
       <div className="app-shell__content app-shell__content--cta">
-        {/* 1 · Contexto */}
-        <section className="bl-card">
-          <h1 className="bl-card__title">Bitácora Diaria</h1>
-          <p className="bl-card__sub">
-            Registra el estado basal y eventos cotidianos de{' '}
-            <strong>{subject.display_name}</strong>
-          </p>
-        </section>
-
         {/* 2 · Modo */}
         <Tabs
           label="Vista de la bitácora"
