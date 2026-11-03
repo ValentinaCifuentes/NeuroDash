@@ -93,8 +93,12 @@ export interface DysregulationEvent {
   event_type: EventType;              // tipo_evento
   intensity_band: IntensityBand;      // intensidad          → "Moderada (4-7)"
   intensity_value: number;            // 1..10 — precisión añadida por el slider
-  trigger: string | null;             // detonante_gatillante
-  strategy_applied: string | null;    // estrategia_calma_aplicada
+  /** detonante_gatillante. Catálogo cerrado (D5) + el texto de «Otro». */
+  trigger: string[] | null;
+  /** estrategia_calma_aplicada (Desregulación). Catálogo cerrado (D5) + el texto de «Otro». */
+  strategy_applied: string[] | null;
+  /** Apoyo utilizado en una Transición (una opción). */
+  support_used: string | null;
   strategy_outcome: StrategyOutcome | null; // resultado_estrategia
   /**
    * Escala cualitativa propia de la categoría, tal como la eligió el tutor
@@ -111,6 +115,8 @@ export interface DysregulationEvent {
   notes: string | null;
   /** true cuando se guardó por la ruta rápida, sin detalle clínico */
   quick_capture: boolean;
+  /** Clave de reintento (P2), igual que en `DailyRecord`. */
+  idempotency_key?: string;
 }
 
 /* --- Vocabularios cerrados. Los valores son los literales del CSV. --- */

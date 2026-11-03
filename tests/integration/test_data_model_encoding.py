@@ -119,6 +119,46 @@ def test_dysregulation_events_get_severity_label(tmp_path: Path, monkeypatch) ->
     assert "severity" not in save_event("Transición de Actividad", 6)
 
 
+def test_event_detail_is_stored_and_unanswered_fields_are_not(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+    base = {
+        "occurred_at": "2026-08-26T10:00:00-04:00",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+    }
+
+    detailed = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+        **base,
+        "idempotency_key": "evt-detail",
+        "event_type": "Desregulación Emocional",
+        "intensity_value": 6,
+        "trigger": ["Ruidos", "Espera"],
+        "strategy_applied": ["Espacio seguro"],
+        "strategy_outcome": "Regulación Parcial",
+        "notes": "Después del recreo",
+    }, headers=_headers()).json()
+    assert detailed["trigger"] == ["Ruidos", "Espera"]
+    assert detailed["strategy_applied"] == ["Espacio seguro"]
+    assert detailed["strategy_outcome"] == "Regulación Parcial"
+    assert detailed["notes"] == "Después del recreo"
+    assert detailed["quick_capture"] is False
+
+    quick = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+        **base,
+        "idempotency_key": "evt-quick",
+        "event_type": "Transición de Actividad",
+        "intensity_value": 5,
+        "qualitative_outcome": "Con ayuda",
+        "trigger": [],
+        "quick_capture": True,
+    }, headers=_headers()).json()
+    assert quick["qualitative_outcome"] == "Con ayuda"
+    assert quick["quick_capture"] is True
+    for key in ("trigger", "strategy_applied", "support_used", "notes"):
+        assert key not in quick
+
+
 def test_event_count_aggregation_by_local_day(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
     client = TestClient(app)

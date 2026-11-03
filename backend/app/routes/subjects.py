@@ -72,6 +72,16 @@ class EventWrite(BaseModel):
     provenance: ProvenanceV2
     event_type: str
     intensity_value: int = Field(ge=1, le=10)
+    # Detalle de las hojas de registro [PCD Fase 2]. Es texto del tutor: el motor
+    # no lo lee (solo agrega números), pero queda para el historial y la auditoría.
+    qualitative_outcome: str | None = None
+    trigger: list[str] | None = None
+    strategy_applied: list[str] | None = None
+    strategy_outcome: str | None = None
+    support_used: str | None = None
+    sensory_activity: str | None = None
+    notes: str | None = None
+    quick_capture: bool = False
 
 
 DYREGULATION_EVENT_TYPE = "Desregulación Emocional"
@@ -320,7 +330,11 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
 @router.post("/{subject_id}/events", status_code=201)
 def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
     occurred_at = require_aware(req.occurred_at)
-    item = req.model_dump(mode="json")
+    # Lo que el tutor no respondió no se guarda (igual que en la Bitácora).
+    item = req.model_dump(mode="json", exclude_none=True)
+    for key in ("trigger", "strategy_applied"):
+        if not item.get(key):
+            item.pop(key, None)
     if req.event_type == DYREGULATION_EVENT_TYPE:
         item["severity"] = severity_from_intensity(req.intensity_value)
     item.update({

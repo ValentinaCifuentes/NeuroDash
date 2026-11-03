@@ -182,8 +182,8 @@ export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(
  * detalle se conservará cuando se amplíe `EventWrite` [PCD Fase 2].
  */
 export function buildEventWrite(event: DysregulationEvent, idempotencyKey?: string) {
-  const { subject_id: _subjectId, event_id: _eventId, occurred_at, ...fields } = event;
-  return { ...fields, ...buildCareWrite(new Date(occurred_at), idempotencyKey) };
+  const { subject_id: _subjectId, event_id: _eventId, occurred_at, idempotency_key, ...fields } = event;
+  return { ...fields, ...buildCareWrite(new Date(occurred_at), idempotencyKey ?? idempotency_key) };
 }
 
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {

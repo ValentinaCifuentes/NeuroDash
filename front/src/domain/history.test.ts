@@ -36,11 +36,19 @@ describe('Historial de Hoy', () => {
 
   it('prefers the category scale and the strategy when the event has them', () => {
     const row = historyRow(
-      event(3, 13, { event_type: 'Transición de Actividad', intensity_value: 5, qualitative_outcome: 'Con ayuda', strategy_applied: 'Apoyo visual / pictogramas' }),
+      event(3, 13, { event_type: 'Transición de Actividad', intensity_value: 5, qualitative_outcome: 'Con ayuda', support_used: 'Apoyo visual / pictogramas' }),
     );
 
     expect(row.title).toBe('Transición');
     expect(row.summary).toBe('Con ayuda · Apoyo visual / pictogramas');
+  });
+
+  it('lists the strategies applied in a dysregulation', () => {
+    const row = historyRow(
+      event(3, 12, { event_type: 'Desregulación Emocional', intensity_value: 8, strategy_applied: ['Espacio seguro', 'Audífonos'] }),
+    );
+
+    expect(row.summary).toBe('Severa (8-10) · Espacio seguro, Audífonos');
   });
 
   it('keeps the backend title for a confirmed crisis without event type', () => {

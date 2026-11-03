@@ -72,7 +72,7 @@ export default function App() {
     }
   }
 
-  async function onSaveEvent(event: DysregulationEvent) {
+  async function onSaveEvent(event: DysregulationEvent): Promise<boolean> {
     setSaving(true);
     try {
       await saveEvent(event);
@@ -84,8 +84,10 @@ export default function App() {
         ) as LogCategory
       ].name;
       setToast(`${name} registrada`);
+      return true;
     } catch (e) {
       setToast((e as ApiError).message);
+      return false;
     } finally {
       setSaving(false);
     }

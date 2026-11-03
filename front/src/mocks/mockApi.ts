@@ -125,6 +125,7 @@ function seedHistory(subjectId: string) {
         qualitative_outcome: null,
         trigger: null,
         strategy_applied: null,
+        support_used: null,
         strategy_outcome: null,
         sensory_activity: null,
         notes: null,
@@ -237,8 +238,9 @@ export function getTimeline(
         // eligió el tutor, no el 1-10 que derivamos para el motor.
         e.qualitative_outcome ?? `Intensidad ${e.intensity_value} de 10`,
         e.sensory_activity && `Actividad: ${e.sensory_activity}`,
-        e.trigger && `Disparador: ${e.trigger}`,
-        e.strategy_applied && `Apoyo: ${e.strategy_applied}`,
+        e.trigger?.length && `Disparador: ${e.trigger.join(', ')}`,
+        e.strategy_applied?.length && `Apoyo: ${e.strategy_applied.join(', ')}`,
+        e.support_used && `Apoyo: ${e.support_used}`,
         e.strategy_outcome && `Resultado: ${e.strategy_outcome}`,
         e.notes,
       ]

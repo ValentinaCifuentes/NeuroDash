@@ -124,6 +124,36 @@ export const DAY_REGULATION_CHOICES: Choice<DayRegulationLevel>[] = [
 ];
 
 /* --- Resultado de la estrategia (resultado_estrategia) --- */
+/* --- Desregulación: disparadores y estrategias como catálogo cerrado (D5) ---
+   Botones en vez de texto libre para que se puedan contar. «Otro» abre un campo
+   de texto; lo escrito se guarda en lugar de «Otro». */
+export const OTHER_OPTION = 'Otro';
+
+export const TRIGGER_OPTIONS = [
+  'Ruidos',
+  'Frustración',
+  'Cambio de actividad',
+  'Espera',
+  'Hambre o cansancio',
+  'Contacto físico',
+  'Lugar con mucha gente',
+  'Le dijeron que no',
+  'No se sabe',
+  OTHER_OPTION,
+];
+
+export const STRATEGY_OPTIONS = [
+  'Espacio seguro',
+  'Presión profunda',
+  'Pictogramas',
+  'Anticipación verbal',
+  'Pausa sensorial',
+  'Objeto de calma',
+  'Audífonos',
+  'Acompañamiento',
+  OTHER_OPTION,
+];
+
 export const STRATEGY_OUTCOME_CHOICES: Choice<StrategyOutcome>[] = [
   { value: 'Regulación Exitosa', label: 'Se reguló', dot: 'success' },
   // Desregulación: ● ◆ ▲, como en screens/Final-Registro-Desregulacion.html.
@@ -346,12 +376,6 @@ export function intensityWord(value: number): string {
   if (value <= 3) return 'Leve';
   if (value <= 7) return 'Moderado';
   return 'Fuerte';
-}
-
-export function intensitySemantic(value: number): Semantic {
-  if (value <= 3) return 'warning';
-  if (value <= 7) return 'warning';
-  return 'danger';
 }
 
 /* ============================================================

@@ -144,8 +144,9 @@ describe('care write payloads (I2)', () => {
     event_type: 'Desregulación Emocional',
     intensity_band: 'Moderada (4-7)',
     intensity_value: 6,
-    trigger: 'Ruido',
+    trigger: ['Ruidos'],
     strategy_applied: null,
+    support_used: null,
     strategy_outcome: null,
     qualitative_outcome: null,
     sensory_activity: null,
@@ -220,11 +221,15 @@ describe('care write payloads (I2)', () => {
       provenance: { source: 'tutor_app', synthetic: false },
       event_type: 'Desregulación Emocional',
       intensity_value: 6,
-      trigger: 'Ruido',
+      trigger: ['Ruidos'],
     });
     expect(new Date(body.occurred_at).toISOString()).toBe(event.occurred_at);
     expect(body).not.toHaveProperty('subject_id');
     expect(body).not.toHaveProperty('event_id');
+  });
+
+  it('reuses the event key so a retried event is not counted twice (P2)', () => {
+    expect(buildEventWrite({ ...event, idempotency_key: 'kept-evt' }).idempotency_key).toBe('kept-evt');
   });
 });
 
@@ -278,7 +283,7 @@ describe('requests against the real API carry the tutor actor (I3, I4)', () => {
     });
     await api.saveEvent({
       subject_id: 'pac-real', occurred_at: '2026-11-02T18:30:00.000Z', event_type: 'Alimentación',
-      intensity_band: 'Leve (1-3)', intensity_value: 2, trigger: null, strategy_applied: null,
+      intensity_band: 'Leve (1-3)', intensity_value: 2, trigger: null, strategy_applied: null, support_used: null,
       strategy_outcome: null, qualitative_outcome: 'Adecuada', sensory_activity: null, notes: null,
       quick_capture: true,
     });

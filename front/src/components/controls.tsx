@@ -7,8 +7,8 @@
 
 import { useId, useRef } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import type { Choice, Level, Semantic } from '../domain/catalog';
-import { SEMANTIC_COLOR, choiceShape, intensitySemantic, intensityWord } from '../domain/catalog';
+import type { Choice, Level } from '../domain/catalog';
+import { SEMANTIC_COLOR, choiceShape, intensityWord } from '../domain/catalog';
 import { LevelBars, ShapeMark } from './marks';
 import { Icon } from './icons';
 
@@ -308,48 +308,72 @@ export function Switch({ label, checked, disabled, onChange }: SwitchProps) {
 }
 
 /* ============================================================
-   Slider de intensidad · badge numérico + escala textual (§2.2)
-   ============================================================ */
+   Slider de intensidad (screens/Final-Registro-Desregulacion.html)
+   ============================================================
+
+   Parte sin valor (P13): el tutor debe elegir la intensidad. Mientras tanto
+   el pulgar no se dibuja y el número dice «–». Un toque, un arrastre o una
+   flecha del teclado cuentan como elección, aunque caiga en el 5 del medio. */
 
 interface IntensityProps {
-  value: number;
+  value: number | null;
   onChange: (value: number) => void;
 }
 
+const INTENSITY_TONE: Record<string, { fill: string; bg: string; fg: string }> = {
+  Leve: { fill: 'var(--nd-risk-low)', bg: 'var(--nd-risk-low-bg)', fg: 'var(--nd-risk-low-fg)' },
+  Moderado: { fill: 'var(--nd-risk-mid)', bg: 'var(--nd-risk-mid-bg)', fg: 'var(--nd-risk-mid-fg)' },
+  Fuerte: { fill: 'var(--nd-risk-high)', bg: 'var(--nd-risk-high-bg)', fg: 'var(--nd-risk-high-fg)' },
+};
+
 export function IntensitySlider({ value, onChange }: IntensityProps) {
-  const semantic: Semantic = intensitySemantic(value);
+  const id = useId();
+  const word = value === null ? null : intensityWord(value);
+  const tone = word ? INTENSITY_TONE[word] : null;
+  const percent = value === null ? 0 : ((value - 1) / 9) * 100;
+  const pick = (target: HTMLInputElement) => onChange(Number(target.value));
   return (
-    <div className="bl-group" style={{ background: 'var(--bl-surface)' , border: 0, padding: 0 }}>
-      <div className="app-row">
-        <b style={{ color: 'var(--bl-text)', fontSize: 'var(--bl-fs-h3)' }}>
-          Intensidad del episodio
-        </b>
-        <span
-          className="bl-badge"
-          style={
-            semantic === 'danger'
-              ? { background: 'var(--bl-danger)', color: '#fff' }
-              : { background: 'var(--nd-risk-mid-bg)', color: 'var(--nd-risk-mid-fg)' }
-          }
-        >
-          {value} / 10 · {intensityWord(value)}
+    <div className={`nd-intensity${value === null ? ' nd-intensity--empty' : ''}`}>
+      <div className="nd-intensity__head">
+        <label htmlFor={id} className="nd-intensity__label">
+          Intensidad
+        </label>
+        <span className="nd-intensity__value">
+          <strong>{value ?? '–'}</strong>
+          {tone ? (
+            <span className="nd-intensity__word" style={{ background: tone.bg, color: tone.fg }}>
+              {word}
+            </span>
+          ) : (
+            <span className="nd-intensity__word nd-intensity__word--empty">Sin elegir</span>
+          )}
         </span>
       </div>
-      <input
-        className="bl-slider"
-        type="range"
-        min={1}
-        max={10}
-        step={1}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        aria-label="Intensidad del episodio"
-        aria-valuetext={`Intensidad ${value} de 10, ${intensityWord(value)}`}
-      />
-      <div className="bl-scale">
-        <span>Leve</span>
+      <div className="nd-intensity__track">
+        <div className="nd-intensity__rail" aria-hidden="true" />
+        {tone && (
+          <>
+            <div className="nd-intensity__fill" aria-hidden="true" style={{ width: `${percent}%`, background: tone.fill }} />
+            <div className="nd-intensity__thumb" aria-hidden="true" style={{ left: `calc(${percent}% - 14px)` }} />
+          </>
+        )}
+        <input
+          id={id}
+          type="range"
+          min={1}
+          max={10}
+          step={1}
+          value={value ?? 5}
+          aria-valuetext={value === null ? 'Sin elegir' : `${value}, ${word!.toLowerCase()}`}
+          onChange={(e) => pick(e.target)}
+          onPointerUp={(e) => value === null && pick(e.currentTarget)}
+          onKeyUp={(e) => value === null && e.key.startsWith('Arrow') && pick(e.currentTarget)}
+        />
+      </div>
+      <div className="nd-intensity__scale" aria-hidden="true">
+        <span>1 · Leve</span>
         <span>Moderado</span>
-        <span>Fuerte</span>
+        <span>Fuerte · 10</span>
       </div>
     </div>
   );
@@ -369,33 +393,25 @@ interface FieldProps {
   onChange: (value: string) => void;
 }
 
-export function Field({
-  label,
-  value,
-  placeholder,
-  help,
-  centered,
-  type = 'text',
-  onChange,
-}: FieldProps) {
+export function Field({ label, value, placeholder, help, centered, type = 'text', onChange }: FieldProps) {
   const id = useId();
   const helpId = `${id}-help`;
   return (
-    <div className="bl-field">
-      <label className="bl-label" htmlFor={id}>
+    <div className="nd-fieldset">
+      <label className="nd-fieldlabel" htmlFor={id}>
         {label}
       </label>
       <input
         id={id}
         type={type}
-        className={`bl-input${centered ? ' bl-input--center' : ''}`}
+        className={`nd-field${centered ? ' nd-field--center' : ''}`}
         value={value}
         placeholder={placeholder}
         aria-describedby={help ? helpId : undefined}
         onChange={(e) => onChange(e.target.value)}
       />
       {help && (
-        <p className="bl-help" id={helpId}>
+        <p className="nd-fieldhelp" id={helpId}>
           {help}
         </p>
       )}
@@ -412,31 +428,23 @@ interface TextAreaProps {
   value: string;
   placeholder?: string;
   rows?: number;
-  /** Muestra contador y corta la entrada. Los campos de sesión usan 2000. */
+  /** Muestra contador y corta la entrada. */
   maxLength?: number;
   help?: string;
   onChange: (value: string) => void;
 }
 
-export function TextArea({
-  label,
-  value,
-  placeholder,
-  rows = 3,
-  maxLength,
-  help,
-  onChange,
-}: TextAreaProps) {
+export function TextArea({ label, value, placeholder, rows = 3, maxLength, help, onChange }: TextAreaProps) {
   const id = useId();
   const helpId = `${id}-help`;
   return (
-    <div className="bl-field">
-      <label className="bl-label" htmlFor={id}>
+    <div className="nd-fieldset">
+      <label className="nd-fieldlabel" htmlFor={id}>
         {label}
       </label>
       <textarea
         id={id}
-        className="bl-textarea"
+        className="nd-field nd-field--area"
         rows={rows}
         value={value}
         placeholder={placeholder}
@@ -445,9 +453,9 @@ export function TextArea({
         onChange={(e) => onChange(e.target.value)}
       />
       {(help || maxLength) && (
-        <div className="bl-field__foot">
+        <div className="nd-fieldfoot">
           {help ? (
-            <p className="bl-help" id={helpId}>
+            <p className="nd-fieldhelp" id={helpId}>
               {help}
             </p>
           ) : (
@@ -455,7 +463,7 @@ export function TextArea({
           )}
           {maxLength && (
             /* aria-live off: el contador cambia en cada tecla y sería ruido. */
-            <span className="bl-counter" aria-hidden="true">
+            <span className="nd-fieldhelp" aria-hidden="true">
               {value.length} / {maxLength}
             </span>
           )}

@@ -46,7 +46,8 @@ function eventSummary(event: DysregulationEvent): string | null {
   const scale =
     event.qualitative_outcome ??
     (typeof event.intensity_value === 'number' ? intensityBand(event.intensity_value) : null);
-  const parts = [scale, event.strategy_applied, event.quick_capture && 'Registro rápido'].filter(Boolean);
+  const support = event.support_used ?? (event.strategy_applied?.length ? event.strategy_applied.join(', ') : null);
+  const parts = [scale, support, event.quick_capture && 'Registro rápido'].filter(Boolean);
   return parts.length > 0 ? parts.join(' · ') : null;
 }
 
