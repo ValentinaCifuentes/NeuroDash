@@ -1,46 +1,54 @@
 /**
- * Seguimiento · lectura retrospectiva dentro de Evolución.
+ * Seguimiento · lo que ya pasó (screens/Final-Seguimiento.html y -desplegado.html).
  *
- * Complementa la estimación: mientras el Prediction Contract mira las
- * próximas 24 h, esto muestra lo que ya pasó. Son ejes distintos y por eso
- * viven en pestañas separadas, no apilados.
+ * 1. Calendario del mes con escala de calor por cantidad de eventos; se toca
+ *    un día para ver su detalle.
+ * 2. Detalle del día: sueño, despertar, regulación y eventos, cada uno con forma.
+ * 3. «Evolución de 14 días» (Disclosure): cerrado dice qué subió; abierto,
+ *    dos semanas de barras por variable y la comparación con la anterior.
  *
- * Todo lo que se ve acá sale del timeline —que el backend ya recortó por
- * cutoff— agrupado por día. El frontend no infiere nada clínico.
+ * Todo sale del timeline, que el backend ya recortó por cutoff, agrupado por
+ * día. El frontend no infiere nada clínico: resume lo registrado.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { getTimeline } from '../api';
-import { buildDaySummaries, dayStatus, localDay } from '../domain/aggregate';
-import type { DaySummary } from '../domain/aggregate';
+import { Disclosure } from '../components/Disclosure';
+import { ShapeMark } from '../components/marks';
 import {
-  DAY_REGULATION_CHOICES,
-  HEAT_STEPS,
-  SEMANTIC_BG,
-  SEMANTIC_COLOR,
-  SLEEP_LEVEL,
-  SEMANTIC_FG,
-  SEMANTIC_SHAPE,
-  WAKE_CHOICES,
-  WEEKDAY_SHORT,
-  dayLabel,
-} from '../domain/catalog';
-import { LevelBars, ShapeMark } from '../components/marks';
-import type { Subject } from '../types';
+  TRACKED_VARIABLES,
+  buildDaySummaries,
+  comparisonHeadline,
+  dayMark,
+  dayStatus,
+  localDay,
+  weeklyComparison,
+  type DayMark,
+  type DaySummary,
+  type TrackedVariable,
+  type WeekComparison,
+} from '../domain/aggregate';
 import { Icon } from '../components/icons';
+import { DAY_REGULATION_CHOICES, HEAT_STEPS, SEMANTIC_BG, SEMANTIC_COLOR, SEMANTIC_FG, SEMANTIC_SHAPE, WEEKDAY_SHORT, dayLabel } from '../domain/catalog';
+import type { Subject } from '../types';
 
-const HEATMAP_DAYS = 30;
-const TRACKING_DAYS = 5;
-const MULTIVARIABLE_DAYS = 14;
+/** Días pedidos al timeline: alcanzan para el mes en curso, el anterior completo y los 14 días. */
+const HISTORY_DAYS = 70;
+
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
 export function Seguimiento({ subject, revision }: { subject: Subject; revision: number }) {
   const [days, setDays] = useState<DaySummary[] | null>(null);
+  const today = localDay(new Date().toISOString());
+  const [selected, setSelected] = useState(today);
+  /** 0 = mes en curso, -1 = mes anterior (lo que alcanza el historial pedido). */
+  const [monthOffset, setMonthOffset] = useState(0);
 
   useEffect(() => {
     let alive = true;
     setDays(null);
-    getTimeline(subject.subject_id, new Date().toISOString(), HEATMAP_DAYS)
-      .then((res) => alive && setDays(buildDaySummaries(res.entries, new Date(), HEATMAP_DAYS)))
+    getTimeline(subject.subject_id, new Date().toISOString(), HISTORY_DAYS)
+      .then((res) => alive && setDays(buildDaySummaries(res.entries, new Date(), HISTORY_DAYS)))
       .catch(() => alive && setDays([]));
     return () => {
       alive = false;
@@ -49,7 +57,7 @@ export function Seguimiento({ subject, revision }: { subject: Subject; revision:
 
   if (days === null) {
     return (
-      <section className="bl-card app-stack--tight" aria-busy="true">
+      <section className="nd-card" aria-busy="true">
         <span className="bl-sr-only">Cargando el seguimiento</span>
         <div className="bl-skeleton" style={{ width: '50%', height: 22 }} />
         <div className="bl-skeleton" style={{ height: 120 }} />
@@ -57,351 +65,308 @@ export function Seguimiento({ subject, revision }: { subject: Subject; revision:
     );
   }
 
+  const byDate = new Map(days.map((day) => [day.date, day]));
+  const selectedDay = byDate.get(selected) ?? null;
+  const comparison = weeklyComparison(days);
+
   return (
     <>
-      <MultivariableTimeline days={days.slice(-MULTIVARIABLE_DAYS)} />
-      <Heatmap days={days} />
-      <DailyTracking days={days.slice(-TRACKING_DAYS)} subject={subject} />
+      <MonthCalendar
+        byDate={byDate}
+        today={today}
+        monthOffset={monthOffset}
+        onMonthChange={(offset) => {
+          setMonthOffset(offset);
+          // Al cambiar de mes se elige su último día con registro (o el último día pasado).
+          const cells = monthCells(today, offset).filter((cell) => cell.inMonth && !cell.future);
+          const logged = cells.filter((cell) => {
+            const day = byDate.get(cell.date);
+            return day && (day.hasRecord || day.eventCount > 0);
+          });
+          setSelected((logged.at(-1) ?? cells.at(-1))!.date);
+        }}
+        selected={selected}
+        onSelect={setSelected}
+      />
+      <DayDetail date={selected} day={selectedDay} />
+      <Disclosure title="Evolución de 14 días" summary={comparisonHeadline(comparison)}>
+        <FourteenDays comparison={comparison} days={days.slice(-14)} />
+      </Disclosure>
     </>
   );
 }
 
 /* ============================================================
-   Evolución compacta de 14 días
+   Calendario del mes
    ============================================================ */
 
-function MultivariableTimeline({ days }: { days: DaySummary[] }) {
-  const hasRegulation = days.some((day) => day.regulation !== null);
-  const daysWithRecord = days.filter((day) => day.hasRecord).length;
-  const daysWithEvents = days.filter((day) => day.eventCount > 0).length;
-  const sleepWatchDays = days.filter(
-    (day) => day.sleep === 'Interrumpido' || day.sleep === 'Dificultad de Conciliación',
-  ).length;
+interface Cell {
+  date: string;
+  inMonth: boolean;
+  future: boolean;
+}
+
+function monthCells(today: string, offset = 0): Cell[] {
+  const [ty, tm] = today.split('-').map(Number);
+  const shown = new Date(ty, tm - 1 + offset, 1);
+  const y = shown.getFullYear();
+  const m = shown.getMonth() + 1;
+  const first = new Date(y, m - 1, 1);
+  const lead = (first.getDay() + 6) % 7; // lunes = 0
+  const start = new Date(y, m - 1, 1 - lead);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const total = Math.ceil((lead + daysInMonth) / 7) * 7;
+  return Array.from({ length: total }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const date = localDay(d.toISOString());
+    return { date, inMonth: d.getMonth() === m - 1, future: date > today };
+  });
+}
+
+function MonthCalendar({
+  byDate,
+  today,
+  monthOffset,
+  onMonthChange,
+  selected,
+  onSelect,
+}: {
+  byDate: Map<string, DaySummary>;
+  today: string;
+  monthOffset: number;
+  onMonthChange: (offset: number) => void;
+  selected: string;
+  onSelect: (date: string) => void;
+}) {
+  const cells = useMemo(() => monthCells(today, monthOffset), [today, monthOffset]);
+  const refs = useRef(new Map<string, HTMLButtonElement>());
+  const monthIndex = Number(cells.find((cell) => cell.inMonth)!.date.slice(5, 7)) - 1;
+  const month = MONTHS[monthIndex];
+  const selectable = cells.filter((cell) => cell.inMonth && !cell.future).map((cell) => cell.date);
+
+  function onKeyDown(event: KeyboardEvent, date: string) {
+    const steps: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+    const step = steps[event.key];
+    if (step === undefined) return;
+    event.preventDefault();
+    const target = selectable[selectable.indexOf(date) + step];
+    if (!target) return;
+    onSelect(target);
+    refs.current.get(target)?.focus();
+  }
+
+  const weeks: Cell[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   return (
-    <section className="bl-card">
-      <div className="bl-card__header">
-        <span className="bl-icon-tile" aria-hidden="true">
-          <Icon name="evolution" size={20} />
+    <section className="nd-card nd-calendar" aria-labelledby="cal-titulo">
+      <div className="nd-calendar__head">
+        <div className="nd-calendar__nav">
+          <button
+            type="button"
+            className="nd-calendar__arrow nd-press"
+            aria-label="Mes anterior"
+            disabled={monthOffset <= -1}
+            onClick={() => onMonthChange(monthOffset - 1)}
+          >
+            <Icon name="back" size={16} strokeWidth={2.4} />
+          </button>
+          <h2 id="cal-titulo" className="nd-calendar__month" aria-live="polite">{capitalize(month)}</h2>
+          <button
+            type="button"
+            className="nd-calendar__arrow nd-press"
+            aria-label="Mes siguiente"
+            disabled={monthOffset >= 0}
+            onClick={() => onMonthChange(monthOffset + 1)}
+          >
+            <Icon name="chevronRight" size={16} strokeWidth={2.4} />
+          </button>
+        </div>
+        <span className="nd-calendar__legend" aria-hidden="true">
+          menos
+          {HEAT_STEPS.map((step) => (
+            <span key={step.label} className="nd-calendar__swatch" style={{ background: step.bg, borderColor: step.border }} />
+          ))}
+          más eventos
         </span>
-        <h2>Evolución de 14 días</h2>
       </div>
-      <p className="bl-card__sub" style={{ marginTop: 0 }}>
-        Lectura rápida de sueño, despertar, regulación y eventos registrados. Un día sin registro se muestra como dato faltante.
-      </p>
-
-      <div className="app-summary-strip" aria-label="Resumen de los últimos 14 días">
-        <span><strong>{daysWithRecord}</strong> días con registro</span>
-        <span><strong>{daysWithEvents}</strong> con eventos</span>
-        <span><strong>{sleepWatchDays}</strong> noches para observar</span>
-      </div>
-
-      <div className="app-timeline14" role="table" aria-label="Evolución de los últimos 14 días">
-        <div className="app-timeline14__row app-timeline14__row--head" role="row">
-          <span role="columnheader">Variable</span>
-          {days.map((day) => (
-            <span key={day.date} role="columnheader">
-              {day.date.slice(8, 10)}
+      <div role="grid" aria-label="Calendario del mes: toca un día para ver su detalle" className="nd-calendar__grid">
+        <div role="row" className="nd-calendar__row">
+          {WEEKDAY_SHORT.map((weekday) => (
+            <span key={weekday} role="columnheader" className="nd-calendar__weekday">
+              {weekday}
             </span>
           ))}
         </div>
-
-        <TimelineRow label="Sueño" days={days} getValue={sleepMark} />
-        <TimelineRow label="Despertar" days={days} getValue={wakeMark} />
-        {hasRegulation && <TimelineRow label="Regulación" days={days} getValue={regulationMark} />}
-        <TimelineRow label="Eventos" days={days} getValue={eventMark} />
-      </div>
-
-      <div className="app-legend" aria-hidden="true">
-        <span className="app-legend__item">● dentro de lo esperado o tranquilo</span>
-        <span className="app-legend__item">◐ observar</span>
-        <span className="app-legend__item">▲ señal relevante</span>
-        <span className="app-legend__item">— sin dato</span>
+        {weeks.map((week) => (
+          <div key={week[0].date} role="row" className="nd-calendar__row">
+            {week.map((cell) => {
+              const number = Number(cell.date.slice(8, 10));
+              if (!cell.inMonth || cell.future) {
+                return (
+                  <span key={cell.date} role="gridcell" aria-disabled="true" className="nd-calendar__cell nd-calendar__cell--off">
+                    <span aria-hidden="true">{number}</span>
+                  </span>
+                );
+              }
+              const day = byDate.get(cell.date);
+              const logged = !!day && (day.hasRecord || day.eventCount > 0);
+              const heat = day?.heat ?? 0;
+              const isSelected = cell.date === selected;
+              return (
+                <button
+                  key={cell.date}
+                  ref={(el) => {
+                    if (el) refs.current.set(cell.date, el);
+                  }}
+                  type="button"
+                  role="gridcell"
+                  aria-selected={isSelected}
+                  aria-label={`${number} de ${month}: ${logged ? HEAT_STEPS[heat].text.toLowerCase() : 'sin registro'}`}
+                  tabIndex={isSelected ? 0 : -1}
+                  className={`nd-calendar__cell nd-press nd-heat-${logged ? heat : 'none'}`}
+                  onClick={() => onSelect(cell.date)}
+                  onKeyDown={(event) => onKeyDown(event, cell.date)}
+                >
+                  {number}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </section>
   );
 }
 
-function TimelineRow({
-  label,
-  days,
-  getValue,
-}: {
-  label: string;
-  days: DaySummary[];
-  getValue: (day: DaySummary) => TimelineMark;
-}) {
+/* ============================================================
+   Detalle del día
+   ============================================================ */
+
+const MARK_STYLE: Record<Exclude<DayMark, 'none'>, { shape: 'circle' | 'half' | 'triangle'; color: string }> = {
+  good: { shape: 'circle', color: 'var(--nd-risk-low)' },
+  watch: { shape: 'half', color: 'var(--nd-risk-mid)' },
+  alert: { shape: 'triangle', color: 'var(--nd-risk-high)' },
+};
+
+const SLEEP_TEXT: Record<string, string> = { 'Dificultad de Conciliación': 'Muy Difícil' };
+const WAKE_TEXT: Record<string, string> = {
+  'Tranquilo/Alegre': 'Tranquilo / Alegre',
+  'Cansado/Con Sueño': 'Cansado / Con sueño',
+  'Irritable/Llorando': 'Irritable / Llorando',
+};
+
+function DayDetail({ date, day }: { date: string; day: DaySummary | null }) {
+  const { weekday, short } = dayLabel(date);
+  const status = day ? dayStatus(day) : null;
+  const value = (variable: TrackedVariable): string => {
+    if (!day) return 'Sin registro';
+    if (variable === 'sleep') return day.sleep ? SLEEP_TEXT[day.sleep] ?? day.sleep : 'Sin registro';
+    if (variable === 'wake') return day.wake ? WAKE_TEXT[day.wake] ?? day.wake : 'Sin registro';
+    if (variable === 'regulation') {
+      return DAY_REGULATION_CHOICES.find((choice) => choice.value === day.regulation)?.label ?? 'Sin registro';
+    }
+    if (day.eventCount === 0) return day.hasRecord ? 'Sin eventos' : 'Sin registro';
+    const count = `${day.eventCount} ${day.eventCount === 1 ? 'evento' : 'eventos'}`;
+    return day.maxIntensity ? `${count} · Máx. ${day.maxIntensity}/10` : count;
+  };
+
   return (
-    <div className="app-timeline14__row" role="row">
-      <span role="rowheader">{label}</span>
-      {days.map((day) => {
-        const mark = getValue(day);
-        return (
-          <span key={day.date} className={`app-timeline14__mark app-timeline14__mark--${mark.semantic}`} role="cell">
-            <span aria-hidden="true">{mark.symbol}</span>
-            <span className="bl-sr-only">
-              {dayLabel(day.date).short}: {mark.label}
-            </span>
+    <section className="nd-card nd-daydetail" aria-labelledby="dia-titulo" aria-live="polite">
+      <div className="nd-daydetail__head">
+        <h2 id="dia-titulo" className="nd-daydetail__title">
+          <span>{weekday}</span>
+          <span className="nd-daydetail__date">{short}</span>
+        </h2>
+        {status && status.semantic !== 'neutral' && (
+          <span className="nd-badge nd-badge--sm" style={{ background: SEMANTIC_BG[status.semantic], color: SEMANTIC_FG[status.semantic] }}>
+            <ShapeMark shape={SEMANTIC_SHAPE[status.semantic]} color={SEMANTIC_COLOR[status.semantic]} size={10} />
+            {status.label}
           </span>
+        )}
+      </div>
+      <dl className="nd-daydetail__grid">
+        {TRACKED_VARIABLES.map(({ key, label }) => {
+          const mark = day ? dayMark(key, day) : 'none';
+          return (
+            <div key={key} className="nd-daydetail__item">
+              <dt>{label}</dt>
+              <dd className={mark === 'none' ? 'nd-daydetail__empty' : undefined}>
+                {key !== 'events' && mark !== 'none' && (
+                  <ShapeMark shape={MARK_STYLE[mark].shape} color={MARK_STYLE[mark].color} size={11} />
+                )}
+                {value(key)}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </section>
+  );
+}
+
+/* ============================================================
+   Evolución de 14 días
+   ============================================================ */
+
+const TREND: Record<WeekComparison['trend'], { text: string; symbol: string; className: string }> = {
+  up: { text: 'Más que la semana anterior', symbol: '↑', className: 'nd-trend--up' },
+  down: { text: 'Menos que la semana anterior', symbol: '↓', className: 'nd-trend--down' },
+  same: { text: 'Igual que la semana anterior', symbol: '=', className: 'nd-trend--same' },
+};
+
+function weekRange(days: DaySummary[]): string {
+  if (days.length === 0) return '';
+  const first = days[0].date;
+  const last = days[days.length - 1].date;
+  const short = (date: string) => MONTHS[Number(date.slice(5, 7)) - 1].slice(0, 3);
+  const day = (date: string) => Number(date.slice(8, 10));
+  // «21–27 oct», o «28 oct – 3 nov» si la semana cruza de mes.
+  return short(first) === short(last)
+    ? `${day(first)}–${day(last)} ${short(last)}`
+    : `${day(first)} ${short(first)} – ${day(last)} ${short(last)}`;
+}
+
+function FourteenDays({ comparison, days }: { comparison: WeekComparison[]; days: DaySummary[] }) {
+  return (
+    <div className="nd-fourteen">
+      <p className="nd-fourteen__intro">
+        Solo se marcan los días que conviene mirar: barra media para observar, barra completa para señal relevante.
+      </p>
+      <div className="nd-fourteen__weeks" aria-hidden="true">
+        <span>Semana anterior · {weekRange(days.slice(0, 7))}</span>
+        <span>Esta semana · {weekRange(days.slice(7))}</span>
+      </div>
+      {comparison.map((item) => {
+        const trend = TREND[item.trend];
+        const summary = `Esta semana: ${item.currentCount} ${item.unit} · semana anterior: ${item.previousCount}`;
+        return (
+          <div key={item.variable} role="group" aria-label={`${item.label}. ${summary}. ${trend.text}`} className="nd-fourteen__var">
+            <div className="nd-fourteen__varhead">
+              <span className="nd-fourteen__label">{item.label}</span>
+              <span className={`nd-trend ${trend.className}`}>
+                <span aria-hidden="true">{trend.symbol}</span>
+                {trend.text}
+              </span>
+            </div>
+            <div className="nd-fourteen__bars" aria-hidden="true">
+              {[item.previous, item.current].map((week, w) => (
+                <div key={w} className="nd-fourteen__week">
+                  {week.map((mark, i) => (
+                    <span key={i} className={`nd-bar nd-bar--${mark}`} />
+                  ))}
+                </div>
+              ))}
+            </div>
+            <span className="nd-fourteen__summary">{summary}</span>
+          </div>
         );
       })}
     </div>
   );
 }
 
-type TimelineMark = {
-  symbol: string;
-  label: string;
-  semantic: 'success' | 'warning' | 'danger' | 'neutral';
-};
-
-function sleepMark(day: DaySummary): TimelineMark {
-  if (!day.hasRecord || !day.sleep) return { symbol: '—', label: 'sin registro de sueño', semantic: 'neutral' };
-  if (day.sleep === 'Reparador') return { symbol: '●', label: 'sueño reparador', semantic: 'success' };
-  if (day.sleep === 'Interrumpido') return { symbol: '◐', label: 'sueño interrumpido', semantic: 'warning' };
-  return { symbol: '▲', label: 'dificultad para conciliar el sueño', semantic: 'danger' };
-}
-
-function wakeMark(day: DaySummary): TimelineMark {
-  if (!day.hasRecord || !day.wake) return { symbol: '—', label: 'sin registro de despertar', semantic: 'neutral' };
-  if (day.wake === 'Tranquilo/Alegre') return { symbol: '●', label: wakeLabel(day.wake), semantic: 'success' };
-  if (day.wake === 'Cansado/Con Sueño') return { symbol: '◐', label: wakeLabel(day.wake), semantic: 'warning' };
-  return { symbol: '▲', label: wakeLabel(day.wake), semantic: 'danger' };
-}
-
-function regulationMark(day: DaySummary): TimelineMark {
-  if (!day.hasRecord || !day.regulation) return { symbol: '—', label: 'sin cierre de regulación', semantic: 'neutral' };
-  if (day.regulation === 'Excelente') return { symbol: '●', label: regulationLabel(day.regulation), semantic: 'success' };
-  if (day.regulation === 'Estable con Apoyo') return { symbol: '◐', label: regulationLabel(day.regulation), semantic: 'warning' };
-  return { symbol: '▲', label: regulationLabel(day.regulation), semantic: 'danger' };
-}
-
-function eventMark(day: DaySummary): TimelineMark {
-  if (day.eventCount === 0) return { symbol: '●', label: 'sin eventos registrados', semantic: 'success' };
-  if ((day.maxIntensity ?? 0) >= 8 || day.eventCount >= 3) {
-    return { symbol: '▲', label: `${day.eventCount} eventos registrados`, semantic: 'danger' };
-  }
-  return { symbol: '◐', label: `${day.eventCount} eventos registrados`, semantic: 'warning' };
-}
-
-function wakeLabel(value: NonNullable<DaySummary['wake']>): string {
-  return WAKE_CHOICES.find((choice) => choice.value === value)?.label ?? value;
-}
-
-function regulationLabel(value: NonNullable<DaySummary['regulation']>): string {
-  return DAY_REGULATION_CHOICES.find((choice) => choice.value === value)?.label ?? value;
-}
-
-/* ============================================================
-   Mapa de calor mensual
-   ============================================================
-
-   Se dibuja como tabla real, no como grid de divs: un calendario ES una
-   tabla, y así el lector de pantalla puede recorrerlo por día de la
-   semana en vez de escuchar 30 números sueltos.
-
-   Las celdas no son interactivas a propósito. A 375px un día mide ~40px
-   y no llegaría a los 44px de área táctil (§3.4); antes que un objetivo
-   táctil que falla, preferimos que sea lectura.
-   ============================================================ */
-
-function Heatmap({ days }: { days: DaySummary[] }) {
-  const byDate = new Map(days.map((d) => [d.date, d]));
-  const first = days[0];
-  const last = days[days.length - 1];
-  if (!first || !last) return null;
-
-  // Semanas que parten en lunes, con relleno antes del primer día y después del último.
-  const start = new Date(`${first.date}T00:00:00`);
-  const end = new Date(`${last.date}T00:00:00`);
-  const lead = (start.getDay() + 6) % 7; // domingo=0 → lunes=0
-  const gridStart = new Date(start);
-  gridStart.setDate(gridStart.getDate() - lead);
-
-  const weeks: (DaySummary | { date: string; outside: true })[][] = [];
-  const cursor = new Date(gridStart);
-  while (cursor <= end || (cursor.getDay() + 6) % 7 !== 0) {
-    const week: (DaySummary | { date: string; outside: true })[] = [];
-    for (let i = 0; i < 7; i++) {
-      const key = localDay(cursor.toISOString());
-      const found = byDate.get(key);
-      week.push(found ?? { date: key, outside: true });
-      cursor.setDate(cursor.getDate() + 1);
-    }
-    weeks.push(week);
-    if (weeks.length > 6) break;
-  }
-
-  const withEvents = days.filter((d) => d.eventCount > 0).length;
-
-  return (
-    <section className="bl-card">
-      <div className="bl-card__header">
-        <span className="bl-icon-tile" aria-hidden="true">
-          <Icon name="calendar" size={20} />
-        </span>
-        <h2>Mapa de calor mensual</h2>
-      </div>
-      <p className="bl-card__sub" style={{ marginTop: 0 }}>
-        Densidad de eventos registrados en los últimos {HEATMAP_DAYS} días. Los tonos más oscuros
-        indican más registros, no mayor gravedad.
-      </p>
-
-      <table className="app-heat" >
-        <caption className="bl-sr-only">
-          Calendario de los últimos {HEATMAP_DAYS} días. {withEvents} días con eventos registrados.
-        </caption>
-        <thead>
-          <tr>
-            {WEEKDAY_SHORT.map((wd) => (
-              <th key={wd} scope="col">
-                {wd}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {weeks.map((week, wi) => (
-            <tr key={wi}>
-              {week.map((cell) => {
-                const dayNumber = Number(cell.date.slice(8, 10));
-                if ('outside' in cell) {
-                  return (
-                    <td key={cell.date} className="app-heat__cell app-heat__cell--outside">
-                      <span aria-hidden="true">{dayNumber}</span>
-                    </td>
-                  );
-                }
-                const step = HEAT_STEPS[cell.heat]!;
-                const { short } = dayLabel(cell.date);
-                return (
-                  <td
-                    key={cell.date}
-                    className="app-heat__cell"
-                    style={{ background: step.bg, borderColor: step.border }}
-                  >
-                    <span
-                      className={`app-heat__num${cell.heat === 3 ? ' app-heat__num--on' : ''}`}
-                      aria-hidden="true"
-                    >
-                      {dayNumber}
-                    </span>
-                    {cell.sleep && (
-                      <span className="app-heat__sleep" aria-hidden="true">
-                        <LevelBars level={SLEEP_LEVEL[cell.sleep]} />
-                      </span>
-                    )}
-                    <span className="bl-sr-only">
-                      {short}: {step.text}
-                      {cell.sleep ? `, sueño ${cell.sleep}` : ', sin registro de sueño'}
-                    </span>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="app-legend" aria-hidden="true">
-        <div className="app-legend__group">
-          <span className="app-legend__title">Eventos</span>
-          {HEAT_STEPS.map((step) => (
-            <span key={step.label} className="app-legend__item">
-              <span
-                className="app-legend__swatch"
-                style={{ background: step.bg, borderColor: step.border }}
-              />
-              {step.label}
-            </span>
-          ))}
-        </div>
-        <div className="app-legend__group">
-          <span className="app-legend__title">Sueño</span>
-          {(Object.keys(SLEEP_LEVEL) as (keyof typeof SLEEP_LEVEL)[]).map((key) => (
-            <span key={key} className="app-legend__item">
-              <LevelBars level={SLEEP_LEVEL[key]} /> {key === 'Dificultad de Conciliación' ? 'Difícil' : key}
-            </span>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ============================================================
-   Últimos días de seguimiento
-   ============================================================
-
-   El mockup es una tabla de 5 columnas. A 375px eso obliga a scroll
-   horizontal o a truncar, así que cada día se convierte en una fila-card
-   apilada: la fecha manda y los datos van como chips debajo.
-   ============================================================ */
-
-function DailyTracking({ days, subject }: { days: DaySummary[]; subject: Subject }) {
-  return (
-    <section className="bl-card">
-      <div className="bl-card__header">
-        <span className="bl-icon-tile" aria-hidden="true">
-          <Icon name="history" size={20} />
-        </span>
-        <h2>Últimos {days.length} días</h2>
-      </div>
-      <p className="bl-card__sub" style={{ marginTop: 0 }}>
-        Cruce de descanso nocturno y eventos registrados para{' '}
-        <strong>{subject.display_name}</strong>
-      </p>
-
-      <ul className="app-track" style={{ listStyle: 'none', margin: 'var(--bl-sp-4) 0 0', padding: 0 }}>
-        {[...days].reverse().map((day) => {
-          const status = dayStatus(day);
-          const { weekday, short } = dayLabel(day.date);
-          return (
-            <li key={day.date} className="app-track__row">
-              <div className="app-track__head">
-                <span>
-                  <b className="app-track__day">{weekday}</b>
-                  <span className="app-track__date">{short}</span>
-                </span>
-                <span
-                  className="bl-badge"
-                  style={{
-                    background: SEMANTIC_BG[status.semantic],
-                    color: SEMANTIC_FG[status.semantic],
-                  }}
-                >
-                  <ShapeMark shape={SEMANTIC_SHAPE[status.semantic]} color={SEMANTIC_COLOR[status.semantic]} size={11} />
-                  {status.label}
-                </span>
-              </div>
-
-              <div className="app-track__chips">
-                <span className="app-chip">
-                  {day.sleep ? (
-                    <>
-                      <LevelBars level={SLEEP_LEVEL[day.sleep]} />
-                      {day.sleep === 'Dificultad de Conciliación' ? 'Difícil' : day.sleep}
-                    </>
-                  ) : (
-                    <span className="app-chip--muted">Sin registro de sueño</span>
-                  )}
-                </span>
-                <span className="app-chip">
-                  {day.eventCount} evento{day.eventCount === 1 ? '' : 's'}
-                </span>
-                {day.maxIntensity !== null && (
-                  <span className="app-chip">Máx. {day.maxIntensity}/10</span>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-
-      <p style={{ margin: 'var(--bl-sp-4) 0 0', fontSize: 'var(--bl-fs-xs)', color: 'var(--bl-text-muted)' }}>
-        Resume lo que se registró cada día. No es una estimación del motor: eso vive en la pestaña
-        «Próximas 24 h».
-      </p>
-    </section>
-  );
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

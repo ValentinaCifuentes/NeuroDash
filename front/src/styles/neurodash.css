@@ -1316,3 +1316,234 @@ body {
   font-weight: 600;
   color: var(--nd-risk-mid-fg);
 }
+
+/* ==========================================================================
+   Seguimiento (Fase 5 · paso 2) — screens/Final-Seguimiento.html
+   ========================================================================== */
+.nd-calendar {
+  padding: 18px;
+}
+.nd-calendar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nd-calendar__month {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.nd-calendar__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--nd-fs-tab);
+  color: var(--nd-muted);
+}
+.nd-calendar__swatch {
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+.nd-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+.nd-calendar__row {
+  display: contents;
+}
+.nd-calendar__weekday {
+  padding-bottom: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--nd-muted);
+}
+.nd-calendar__cell {
+  display: grid;
+  place-items: center;
+  height: var(--nd-tap);
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  font: inherit;
+  font-size: var(--nd-fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+.nd-calendar__cell--off {
+  color: #B9ACB3;
+  cursor: default;
+}
+.nd-heat-none { background: var(--nd-surface); color: #B9ACB3; box-shadow: inset 0 0 0 1px var(--nd-border-soft); }
+.nd-heat-0 { background: var(--nd-heat-0); color: var(--nd-heat-ink-0); box-shadow: inset 0 0 0 1px var(--nd-border-soft); }
+.nd-heat-1 { background: var(--nd-heat-1); color: var(--nd-heat-ink-1); }
+.nd-heat-2 { background: var(--nd-heat-2); color: var(--nd-heat-ink-2); }
+.nd-heat-3 { background: var(--nd-heat-3); color: var(--nd-heat-ink-3); }
+/* Día elegido: anillo doble (blanco + tinta), visible sobre cualquier paso de la escala. */
+.nd-calendar__cell[aria-selected='true'] {
+  box-shadow: 0 0 0 2px var(--nd-surface), 0 0 0 4px var(--nd-ink);
+}
+.nd-calendar__cell:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--nd-surface), 0 0 0 4px var(--nd-accent);
+}
+
+.nd-daydetail {
+  gap: 10px;
+  padding: 18px;
+}
+.nd-daydetail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.nd-daydetail__title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+.nd-daydetail__date {
+  font-size: var(--nd-fs-xs);
+  font-weight: 500;
+  color: var(--nd-muted);
+}
+.nd-badge--sm {
+  padding: 4px 10px;
+  font-size: var(--nd-fs-eyebrow);
+}
+.nd-daydetail__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.nd-daydetail__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: var(--nd-r-md);
+  background: var(--nd-bg);
+}
+.nd-daydetail__item dt {
+  font-size: var(--nd-fs-eyebrow);
+  color: var(--nd-muted);
+}
+.nd-daydetail__item dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--nd-fs-sm);
+  font-weight: 600;
+}
+.nd-daydetail__empty {
+  font-weight: 500 !important;
+  color: var(--nd-muted);
+}
+
+.nd-fourteen {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nd-fourteen__intro {
+  margin: 0;
+  font-size: var(--nd-fs-xs);
+  line-height: var(--nd-lh-normal);
+  color: var(--nd-ink-2);
+}
+.nd-fourteen__weeks {
+  display: flex;
+  gap: 12px;
+  font-size: var(--nd-fs-tab);
+  font-weight: 600;
+  color: var(--nd-muted);
+}
+.nd-fourteen__weeks > span {
+  flex: 1;
+}
+.nd-fourteen__var {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--nd-line);
+}
+.nd-fourteen__varhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.nd-fourteen__label {
+  font-size: var(--nd-fs-body);
+  font-weight: 600;
+}
+.nd-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: var(--nd-r-full);
+  font-size: var(--nd-fs-eyebrow);
+  font-weight: 600;
+}
+.nd-trend--up { background: var(--nd-risk-high-bg); color: var(--nd-risk-high-fg); }
+.nd-trend--down { background: var(--nd-risk-low-bg); color: var(--nd-risk-low-fg); }
+.nd-trend--same { background: var(--nd-neutral-2); color: var(--nd-ink-2); }
+.nd-fourteen__bars {
+  display: flex;
+  gap: 12px;
+}
+.nd-fourteen__week {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 4px;
+  height: 26px;
+}
+.nd-bar { border-radius: 4px; }
+.nd-bar--good { height: 6px; background: var(--nd-neutral-2); }
+.nd-bar--watch { height: 14px; background: var(--nd-risk-mid); }
+.nd-bar--alert { height: 26px; background: var(--nd-risk-high); }
+.nd-bar--none { height: 26px; background: transparent; box-shadow: inset 0 0 0 1.5px var(--nd-switch-off); }
+.nd-fourteen__summary {
+  font-size: var(--nd-fs-eyebrow);
+  color: var(--nd-ink-2);
+}
+.nd-calendar__nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: -10px;
+}
+.nd-calendar__arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: var(--nd-tap);
+  border: 0;
+  border-radius: var(--nd-r-sm);
+  background: transparent;
+  color: var(--nd-accent);
+  cursor: pointer;
+}
+.nd-calendar__arrow:disabled {
+  color: var(--nd-border-strong);
+  cursor: default;
+}
+.nd-calendar__arrow:focus-visible {
+  outline: none;
+  box-shadow: var(--nd-ring);
+}
