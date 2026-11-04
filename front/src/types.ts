@@ -283,6 +283,8 @@ export interface Prediction {
   supports: SupportItem[];
   provenance: Record<string, unknown>;
   versions: Record<string, string>;
+  /** Hora de una crisis ya confirmada en las últimas horas del horizonte; null si no hay. */
+  confirmed_at: string | null;
 }
 
 export interface PredictionRequest {

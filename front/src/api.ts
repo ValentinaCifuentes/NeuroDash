@@ -258,6 +258,7 @@ export type BackendPrediction = {
     lineage?: Record<string, unknown> | null;
   };
   versions: Record<string, string>;
+  confirmed_at?: string | null;
 };
 
 type BackendFactor = {
@@ -405,6 +406,7 @@ export function adaptPrediction(prediction: BackendPrediction): Prediction {
     supports: prediction.supports.map(adaptSupport),
     provenance: prediction.provenance,
     versions: prediction.versions,
+    confirmed_at: prediction.confirmed_at ?? null,
   };
 }
 

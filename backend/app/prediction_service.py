@@ -1,7 +1,7 @@
 import hashlib
 import uuid
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -254,6 +254,10 @@ def make_prediction(
             }
         )
 
+    # Una crisis ya confirmada en las últimas horas del horizonte: la pantalla lo
+    # muestra («Confirmado a las 14:32») en vez de volver a ofrecer el botón.
+    contract = contract.model_copy(update={"confirmed_at": _last_confirmation(occurrences, prediction_cutoff)})
+
     # 4. Save prediction snapshot for future outcomes
     subject_dir, _ = get_subject_paths(subject_id)
     predictions_dir = subject_dir / "predictions"
@@ -281,6 +285,19 @@ def make_prediction(
     write_json_atomic(index_path, {**index, reuse_key: prediction_id})
 
     return prediction_id, contract
+
+
+def _last_confirmation(occurrences: list[dict[str, Any]], prediction_cutoff: datetime) -> datetime | None:
+    window_start = prediction_cutoff - timedelta(hours=HORIZON_HOURS)
+    times = []
+    for occurrence in occurrences:
+        if occurrence.get("source") != "outcome_confirmation":
+            continue
+        when = occurrence["source_timestamp"]
+        when = datetime.fromisoformat(when) if isinstance(when, str) else when
+        if window_start < when <= prediction_cutoff:
+            times.append(when)
+    return max(times) if times else None
 
 
 def _snapshot_key(prediction_cutoff: datetime, inputs: dict[str, Any]) -> str:

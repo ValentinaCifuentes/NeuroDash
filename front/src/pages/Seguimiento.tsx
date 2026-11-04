@@ -33,7 +33,9 @@ import { DAY_REGULATION_CHOICES, HEAT_STEPS, SEMANTIC_BG, SEMANTIC_COLOR, SEMANT
 import type { Subject } from '../types';
 
 /** Días pedidos al timeline: alcanzan para el mes en curso, el anterior completo y los 14 días. */
-const HISTORY_DAYS = 70;
+/** Seis meses hacia atrás (el mes en curso + 5), aunque algunos no tengan registros. */
+const MONTHS_BACK = 5;
+const HISTORY_DAYS = 186;
 
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -41,7 +43,7 @@ export function Seguimiento({ subject, revision }: { subject: Subject; revision:
   const [days, setDays] = useState<DaySummary[] | null>(null);
   const today = localDay(new Date().toISOString());
   const [selected, setSelected] = useState(today);
-  /** 0 = mes en curso, -1 = mes anterior (lo que alcanza el historial pedido). */
+  /** 0 = mes en curso, hasta -MONTHS_BACK (lo que alcanza el historial pedido). */
   const [monthOffset, setMonthOffset] = useState(0);
 
   useEffect(() => {
@@ -167,7 +169,7 @@ function MonthCalendar({
             type="button"
             className="nd-calendar__arrow nd-press"
             aria-label="Mes anterior"
-            disabled={monthOffset <= -1}
+            disabled={monthOffset <= -MONTHS_BACK}
             onClick={() => onMonthChange(monthOffset - 1)}
           >
             <Icon name="back" size={16} strokeWidth={2.4} />
@@ -236,6 +238,10 @@ function MonthCalendar({
           </div>
         ))}
       </div>
+      {!selectable.some((date) => {
+        const day = byDate.get(date);
+        return day && (day.hasRecord || day.eventCount > 0);
+      }) && <p className="nd-calendar__empty">Sin registros en {month}.</p>}
     </section>
   );
 }
@@ -274,6 +280,7 @@ function DayDetail({ date, day }: { date: string; day: DaySummary | null }) {
 
   return (
     <section className="nd-card nd-daydetail" aria-labelledby="dia-titulo" aria-live="polite">
+      <span className="nd-eyebrow nd-eyebrow--flat">Resumen del día</span>
       <div className="nd-daydetail__head">
         <h2 id="dia-titulo" className="nd-daydetail__title">
           <span>{weekday}</span>
@@ -302,6 +309,7 @@ function DayDetail({ date, day }: { date: string; day: DaySummary | null }) {
           );
         })}
       </dl>
+      <p className="nd-daydetail__hint">Toca otro día del calendario para ver su resumen.</p>
     </section>
   );
 }

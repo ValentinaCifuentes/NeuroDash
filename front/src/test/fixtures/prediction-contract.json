@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "a228295e3ce84478a5488a7d351088fd",
+  "prediction_id": "da5e36e8c8e24434afb7af18b6859536",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -1125,5 +1125,6 @@
     "model_version": "1",
     "policy_hash": "default",
     "code_version": "0.1.0"
-  }
+  },
+  "confirmed_at": null
 }

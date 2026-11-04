@@ -9,14 +9,15 @@
  * hacer ahora», completo. Sin estimación: medidor punteado y solo la fila de datos.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { confirmPredictionOutcome, getPrediction } from "../api";
 import { ConfidenceChip, RiskBadge } from "../components/badges";
 import { SegmentedTabs } from "../components/controls";
 import { Icon } from "../components/icons";
+import { Fab } from "../components/shell";
 import { NavList, NavRow } from "../components/NavRow";
 import { RiskGauge, type RiskLevel } from "../components/RiskGauge";
-import { CONFIDENCE_LABEL } from "../domain/catalog";
+import { CONFIDENCE_LABEL, formatTime } from "../domain/catalog";
 import { FactorsSheet, MissingDataSheet, highlightedFactors } from "../sheets/EstimationSheets";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
@@ -33,9 +34,12 @@ interface Props {
     /** Vista activa; es una ruta de App (`#evolucion` / `#seguimiento`). */
     view?: TabId;
     onChangeView?: (view: TabId) => void;
+    /** «+» de registro rápido, también aquí: el tutor suele estar mirando el día (no en Planificación ni Ficha). */
+    onAddEvent?: () => void;
+    fabRef?: RefObject<HTMLButtonElement>;
 }
 
-export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeView }: Props) {
+export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeView, onAddEvent, fabRef }: Props) {
     // Controlada por App; sin `view` (pruebas aisladas) guarda su propio estado.
     const [ownTab, setOwnTab] = useState<TabId>("estimacion");
     const tab = view ?? ownTab;
@@ -65,7 +69,7 @@ export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeVie
     }, [error]);
 
     return (
-        <div className="nd-screen">
+        <div className={`nd-screen${onAddEvent ? " nd-screen--fab" : ""}`}>
             {/* Dos ejes distintos: lo que viene y lo que ya pasó. */}
             <SegmentedTabs
                 label="Vista de evolución"
@@ -102,6 +106,7 @@ export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeVie
             {tab === "estimacion" && prediction && (
                 <Estimation prediction={prediction} onOpenBitacora={onOpenBitacora} />
             )}
+            {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
         </div>
     );
 }
@@ -187,7 +192,8 @@ function missingSummary(total: number, core: number, abstained: boolean): string
    ============================================================ */
 
 function RiskCard({ prediction }: { prediction: Prediction }) {
-    const [confirmed, setConfirmed] = useState(false);
+    // Viene del backend: sigue marcado al volver o recargar mientras dure el horizonte.
+    const [confirmedAt, setConfirmedAt] = useState<string | null>(prediction.confirmed_at);
     const level = (prediction.risk ?? "LOW") as RiskLevel;
 
     return (
@@ -200,9 +206,9 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
             <h2 id="estimacion-titulo" className="nd-estimate__title">{riskPrimaryText(level)}</h2>
             <p className="nd-estimate__copy">{riskNextStepText(level, prediction.supports.length > 0)}</p>
             <ConfidenceChip level={prediction.confidence} />
-            {confirmed ? (
+            {confirmedAt ? (
                 <p className="nd-estimate__confirmed" role="status">
-                    <Icon name="check" size={16} strokeWidth={2.6} /> Resultado confirmado
+                    <Icon name="check" size={16} strokeWidth={2.6} /> Crisis confirmada a las {formatTime(confirmedAt)}
                 </p>
             ) : (
                 <button
@@ -210,7 +216,7 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
                     className="nd-button-outline nd-press"
                     onClick={async () => {
                         await confirmPredictionOutcome(prediction.prediction_id, true, newId());
-                        setConfirmed(true);
+                        setConfirmedAt(new Date().toISOString());
                     }}
                 >
                     Confirmar que ocurrió
@@ -238,8 +244,10 @@ function AbstentionCard({ prediction }: { prediction: Prediction }) {
 }
 
 /** «Próximas 8 horas»: el horizonte sale del contrato, nunca se escribe a mano. */
+/** «Próximas 8 horas · hasta las 10:00 p.m.»: la ventana va desde la estimación, no es una hora de crisis. */
 function horizonEyebrow(prediction: Prediction): string {
-    return `Próximas ${prediction.horizon_hours} horas`;
+    const end = new Date(Date.parse(prediction.prediction_cutoff) + prediction.horizon_hours * 3_600_000);
+    return `Próximas ${prediction.horizon_hours} horas · hasta las ${formatTime(end.toISOString())}`;
 }
 
 /* ============================================================

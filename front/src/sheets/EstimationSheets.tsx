@@ -74,9 +74,10 @@ export function FactorsSheet({ prediction, onClose, returnFocusTo, showAll, onSh
   const synthetic = isSynthetic(prediction);
   return (
     <BottomSheet title="Señales recientes" eyebrow="Por qué aparece así" onClose={onClose} returnFocusTo={returnFocusTo}>
+      <p className="nd-factors__intro">Lo que muestran sus registros, comparado con lo habitual en este infante. No son causas.</p>
       <div className="nd-factors__legend" aria-hidden="true">
-        <span><b className="nd-up">↑</b> empuja hacia arriba</span>
-        <span><b className="nd-down">↓</b> empuja hacia abajo</span>
+        <span><b className="nd-up">↑</b> suele venir antes de una crisis</span>
+        <span><b className="nd-down">↓</b> suele venir en momentos tranquilos</span>
       </div>
       <ul className="nd-factors">
         {factors.map((factor) => (
@@ -112,10 +113,13 @@ function FactorRow({ factor }: { factor: PredictionFactor }) {
         <span className="nd-factor__label">
           {/* P19: frente a lo habitual del infante cuando se puede comparar; si no, el nombre de la variable. */}
           {factor.summary ?? factor.label}
-          <span className="nd-sr-only"> · empuja hacia {up ? 'arriba' : 'abajo'}</span>
+          <span className="nd-sr-only"> · {up ? 'sube' : 'baja'} el riesgo</span>
         </span>
         {/* La ventana ya va en el nombre («…en los últimos tres días»). */}
-        <span className="nd-factor__meta">Aparece junto a {up ? 'más' : 'menos'} riesgo</span>
+        {/* No causal: lo que muestra su historia, no lo que provoca la crisis. */}
+        <span className="nd-factor__meta">
+          {up ? 'En su historia, suele venir antes de una crisis' : 'En su historia, suele venir en momentos tranquilos'}
+        </span>
       </span>
     </li>
   );

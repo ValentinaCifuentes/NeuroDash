@@ -55,3 +55,6 @@ class PredictionContractV2(BaseModel):
     supports: list[dict[str, Any]]
     provenance: dict[str, Any]
     versions: dict[str, str]
+    # Hora de la última crisis confirmada («Confirmar que ocurrió») en las horas del
+    # horizonte antes del corte; con ella la pantalla no vuelve a ofrecer el botón.
+    confirmed_at: datetime | None = None

@@ -24,6 +24,7 @@ const prediction: Prediction = {
   missingness: [{ code: 'sleep_quality', label: 'Calidad del sueño', impact: 'Falta información.', is_core: true }],
   supports: [{ support_id: 'sup-1', source: 'historical_support', label: 'Manta con peso por la tarde', detail: 'Funcionó en días parecidos' }],
   provenance: { source: 'care_api', synthetic: false }, versions: { model: 'v2', contract: '2' },
+  confirmed_at: null,
 };
 
 describe('Evolucion', () => {
@@ -41,7 +42,7 @@ describe('Evolucion', () => {
 
     fireEvent.click(within(card).getByRole('button', { name: 'Confirmar que ocurrió' }));
     await waitFor(() => expect(confirmPredictionOutcome).toHaveBeenCalledWith('prediction-1', true, expect.any(String)));
-    expect(await within(card).findByRole('status')).toHaveTextContent('Resultado confirmado');
+    expect(await within(card).findByRole('status')).toHaveTextContent(/Crisis confirmada a las/);
   });
 
   it('keeps detail behind two rows and shows the supports in full', async () => {
@@ -65,7 +66,8 @@ describe('Evolucion', () => {
     // P19: el factor se dice frente a lo habitual del infante, no con el nombre de la variable.
     expect(within(sheet).getByText('Despertó más irritable que de costumbre en los últimos tres días')).toBeInTheDocument();
     expect(within(sheet).queryByText('Estado al despertar en los últimos tres días')).not.toBeInTheDocument();
-    expect(within(sheet).getByText('Aparece junto a más riesgo')).toBeInTheDocument();
+    expect(within(sheet).getByText('En su historia, suele venir antes de una crisis')).toBeInTheDocument();
+    expect(within(sheet).getByText(/No son causas/)).toBeInTheDocument();
     expect(within(sheet).getByText(/Estimación de demostración: usa datos sintéticos/)).toBeInTheDocument();
     expect(within(sheet).queryByText(/datos reales/i)).not.toBeInTheDocument();
   });
@@ -81,6 +83,30 @@ describe('Evolucion', () => {
 
     const sheet = screen.getByRole('dialog', { name: 'Señales recientes' });
     expect(within(sheet).getByText('Estado al despertar en los últimos tres días')).toBeInTheDocument();
+  });
+
+  it('says until what time the 8-hour window runs (it is not a crisis time)', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, horizon_hours: 8, prediction_cutoff: new Date(2026, 10, 4, 14, 0).toISOString() });
+    render(<Evolucion subject={subject} revision={0} />);
+
+    expect(await screen.findByText(/Próximas 8 horas · hasta las 10:00/)).toBeInTheDocument();
+  });
+
+  it('keeps a confirmed crisis marked when the estimate comes back', async () => {
+    vi.mocked(getPrediction).mockResolvedValue({ ...prediction, confirmed_at: new Date(2026, 10, 4, 14, 32).toISOString() });
+    render(<Evolucion subject={subject} revision={0} />);
+
+    expect(await screen.findByText(/Crisis confirmada a las 2:32/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Confirmar que ocurrió/ })).not.toBeInTheDocument();
+  });
+
+  it('offers the quick «+» when the app passes it', async () => {
+    vi.mocked(getPrediction).mockResolvedValue(prediction);
+    const onAddEvent = vi.fn();
+    render(<Evolucion subject={subject} revision={0} onAddEvent={onAddEvent} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Registrar un evento' }));
+    expect(onAddEvent).toHaveBeenCalled();
   });
 
   it('describes real data without naming another product', async () => {
@@ -110,7 +136,7 @@ describe('Evolucion', () => {
 
     render(<Evolucion subject={subject} revision={0} />);
 
-    expect(await screen.findByText('Próximas 8 horas')).toBeInTheDocument();
+    expect(await screen.findByText(/^Próximas 8 horas · hasta las/)).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Próximas 8 h' })).toBeInTheDocument();
     expect(screen.queryByText(/24/)).not.toBeInTheDocument();
   });

@@ -212,3 +212,28 @@ def test_a_crisis_confirmed_right_after_the_estimate_shows_up_in_today_history(t
     timeline = client.get(f"/api/v1/subjects/{subject_id}/timeline", params={"as_of": datetime.now(timezone.utc).isoformat(), "days": 1})
 
     assert any(entry["kind"] == "event" for entry in timeline.json()["entries"])
+
+
+def test_the_estimate_says_when_a_crisis_was_already_confirmed(tmp_path: Path, monkeypatch) -> None:
+    """Tras confirmar, la estimación siguiente (aunque cambien los datos) trae la hora: el botón no vuelve."""
+    from datetime import datetime, timedelta, timezone
+
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(prediction_service, "get_subject_paths", lambda subject_id: (tmp_path / subject_id, False))
+    monkeypatch.setattr(predictions, "find_subject_dir_by_prediction_id", lambda prediction_id: tmp_path / "prediction-subject")
+    client = TestClient(app)
+    subject_id = _onboard(client)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
+    first = client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": cutoff.isoformat()}).json()
+    assert first["confirmed_at"] is None
+
+    client.post(f"/api/v1/predictions/{first['prediction_id']}/outcome", headers=_headers(), json={
+        "actual_outcome": True, "idempotency_key": "c1", "provenance": {"source": "tutor", "synthetic": False},
+    })
+    later = client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": datetime.now(timezone.utc).isoformat()}).json()
+    much_later = client.post("/api/v1/predictions", json={
+        "subject_id": subject_id, "prediction_cutoff": (datetime.now(timezone.utc) + timedelta(hours=9)).isoformat(),
+    }).json()
+
+    assert later["confirmed_at"] is not None
+    assert much_later["confirmed_at"] is None  # fuera de las 8 h: se puede confirmar otra

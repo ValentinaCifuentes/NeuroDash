@@ -115,7 +115,19 @@ describe('Seguimiento', () => {
 
     expect(screen.getByRole('heading', { name: 'Octubre' })).toBeInTheDocument();
     expect(screen.getByRole('gridcell', { name: '30 de octubre: sin eventos' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('button', { name: 'Mes anterior' })).toBeDisabled();
+  });
+
+  it('goes back up to six months, saying so when a month has no records', async () => {
+    vi.mocked(getTimeline).mockResolvedValueOnce({ subject_id: 's', as_of: NOW.toISOString(), days: 186, entries: [] });
+    render(<Seguimiento subject={{ subject_id: 's', display_name: 'S', initials: 'S', age_range: '', diagnosis: '', sensory_profile: '' }} revision={0} />);
+    const back = await screen.findByRole('button', { name: 'Mes anterior' });
+
+    for (let i = 0; i < 5; i += 1) fireEvent.click(back);
+
+    expect(screen.getByRole('heading', { name: 'Junio' })).toBeInTheDocument();
+    expect(screen.getByText('Sin registros en junio.')).toBeInTheDocument();
+    expect(back).toBeDisabled();
+    expect(vi.mocked(getTimeline)).toHaveBeenCalledWith('s', expect.any(String), 186);
   });
 
   it('keeps the 14-day comparison closed, with a headline, until the tutor opens it', async () => {

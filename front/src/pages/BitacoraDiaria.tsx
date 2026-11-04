@@ -71,7 +71,7 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
   const setTab = onChangeView ?? setOwnTab;
 
   return (
-    <div className="nd-screen">
+    <div className={`nd-screen${tab === 'historial' && onAddEvent ? ' nd-screen--fab' : ''}`}>
       <SegmentedTabs
         label="Vista de la bitácora"
         active={tab}

@@ -204,6 +204,8 @@ export default function App() {
             onOpenBitacora={() => setRoute('bitacora')}
             view={route === 'seguimiento' ? 'seguimiento' : 'estimacion'}
             onChangeView={(view) => setRoute(view === 'seguimiento' ? 'seguimiento' : 'evolucion')}
+            onAddEvent={sheet.kind === 'none' ? () => setSheet({ kind: 'categories' }) : undefined}
+            fabRef={fabRef}
           />
         )}
         {route === 'ficha' && <FichaInicial subject={subject} onOpenTickets={() => setRoute('tickets')} />}

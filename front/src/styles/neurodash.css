@@ -2478,3 +2478,27 @@ select {
   line-height: 1.45;
   color: var(--nd-accent-ink);
 }
+
+.nd-factors__intro {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--nd-ink-2);
+}
+
+/* Seguimiento: mes sin registros y ayuda bajo el resumen del día */
+.nd-calendar__empty,
+.nd-daydetail__hint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--nd-muted);
+}
+.nd-calendar__empty {
+  text-align: center;
+}
+
+/* Con el «+» flotante, el final de la pantalla no queda tapado. */
+.nd-screen--fab {
+  padding-bottom: calc(96px + var(--nd-nav-h));
+}

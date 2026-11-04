@@ -75,6 +75,8 @@ interface Store {
   occurrences: Record<string, Json[]>;
   predictions: Record<string, Json>;
   keys: Map<string, Json>;
+  /** prediction_id → infante, para confirmar el resultado de una estimación. */
+  issued: Map<string, string>;
 }
 
 let store: Store | null = null;
@@ -89,6 +91,7 @@ function state(): Store {
     occurrences: {},
     predictions: shiftDeep(fixture.predictions as Record<string, Json>, shift),
     keys: new Map(),
+    issued: new Map(),
   };
   for (const [subjectId, entries] of Object.entries(timeline)) {
     store.records[subjectId] = entries.filter((entry) => entry.kind === 'daily_record').map((entry) => entry.payload);
@@ -325,13 +328,46 @@ function prediction(body: Json): Json {
   const supports = s.predictions[body.subject_id]
     ? [...own, ...template.supports]
     : [...own, ...template.supports.filter((support: Json) => support.source !== 'historical_support')];
+  const predictionId = hexId();
+  s.issued.set(predictionId, body.subject_id);
+  // Como `_last_confirmation`: una crisis confirmada en las 8 h antes del corte.
+  const cutoff = Date.parse(body.prediction_cutoff);
+  const confirmed = s.occurrences[body.subject_id]
+    .filter((event) => event.source === 'outcome_confirmation')
+    .map((event) => event.source_timestamp as string)
+    .filter((iso) => Date.parse(iso) <= cutoff && Date.parse(iso) > cutoff - template.horizon_hours * 3_600_000)
+    .sort()
+    .at(-1);
   return {
     ...template,
-    prediction_id: hexId(),
+    prediction_id: predictionId,
     subject_id: body.subject_id,
     prediction_cutoff: body.prediction_cutoff,
     supports,
+    confirmed_at: confirmed ?? null,
   };
+}
+
+/** Igual que `record_prediction_outcome`: la crisis confirmada es una desregulación del día. */
+function confirmOutcome(predictionId: string, body: Json): Json {
+  const s = state();
+  const subjectId = s.issued.get(predictionId) ?? fail(404, 'not_found', 'No encontramos esa estimación.');
+  return once(body.idempotency_key, () => {
+    const now = new Date().toISOString();
+    if (body.actual_outcome) {
+      s.occurrences[subjectId].push({
+        id: `occ_${predictionId}`,
+        subject_id: subjectId,
+        source_timestamp: now,
+        availability_timestamp: now,
+        event_type: DYSREGULATION,
+        severity: 'moderate',
+        source: 'outcome_confirmation',
+      });
+      refreshDayCounts(subjectId, now);
+    }
+    return { prediction_id: predictionId, actual_outcome: body.actual_outcome, occurrence_timestamp: body.actual_outcome ? now : null };
+  });
 }
 
 /* ============================================================
@@ -359,9 +395,7 @@ export async function mockRequest(path: string, init?: RequestInit): Promise<unk
     if (parts[0] === 'predictions') {
       const [, predictionId, action] = parts;
       if (!predictionId && method === 'POST') return prediction(body);
-      if (action === 'outcome' && method === 'POST') {
-        return { prediction_id: predictionId, actual_outcome: body.actual_outcome };
-      }
+      if (action === 'outcome' && method === 'POST') return confirmOutcome(predictionId, body);
     }
     return fail(404, 'not_found', `El modo sin servidor no tiene la ruta ${method} ${url.pathname}.`);
   };
