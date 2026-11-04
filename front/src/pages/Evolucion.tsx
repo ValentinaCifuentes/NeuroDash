@@ -104,14 +104,28 @@ export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeVie
             )}
 
             {tab === "estimacion" && prediction && (
-                <Estimation prediction={prediction} onOpenBitacora={onOpenBitacora} />
+                <Estimation
+                    prediction={prediction}
+                    onOpenBitacora={onOpenBitacora}
+                    // La confirmación queda en la estimación que vive aquí: cambiar a
+                    // Seguimiento y volver no la pierde (la tarjeta se vuelve a crear).
+                    onConfirmed={confirmedAt => setPrediction(p => (p ? { ...p, confirmed_at: confirmedAt } : p))}
+                />
             )}
             {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
         </div>
     );
 }
 
-function Estimation({ prediction, onOpenBitacora }: { prediction: Prediction; onOpenBitacora?: () => void }) {
+function Estimation({
+    prediction,
+    onOpenBitacora,
+    onConfirmed,
+}: {
+    prediction: Prediction;
+    onOpenBitacora?: () => void;
+    onConfirmed?: (confirmedAt: string) => void;
+}) {
     const [sheet, setSheet] = useState<SheetId>(null);
     const [showAllFactors, setShowAllFactors] = useState(false);
     const factorsRow = useRef<HTMLButtonElement>(null);
@@ -125,7 +139,7 @@ function Estimation({ prediction, onOpenBitacora }: { prediction: Prediction; on
 
     return (
         <>
-            {prediction.abstained ? <AbstentionCard prediction={prediction} /> : <RiskCard prediction={prediction} />}
+            {prediction.abstained ? <AbstentionCard prediction={prediction} /> : <RiskCard prediction={prediction} onConfirmed={onConfirmed} />}
 
             <NavList label="Detalle de la estimación">
                 {!prediction.abstained && lead && (
@@ -191,9 +205,9 @@ function missingSummary(total: number, core: number, abstained: boolean): string
    Tarjeta de estimación: riesgo + confianza, ejes separados
    ============================================================ */
 
-function RiskCard({ prediction }: { prediction: Prediction }) {
-    // Viene del backend: sigue marcado al volver o recargar mientras dure el horizonte.
-    const [confirmedAt, setConfirmedAt] = useState<string | null>(prediction.confirmed_at);
+function RiskCard({ prediction, onConfirmed }: { prediction: Prediction; onConfirmed?: (confirmedAt: string) => void }) {
+    // Viene del backend (al recargar o volver de otra pestaña) o de la confirmación recién hecha.
+    const confirmedAt = prediction.confirmed_at;
     const level = (prediction.risk ?? "LOW") as RiskLevel;
 
     return (
@@ -216,7 +230,7 @@ function RiskCard({ prediction }: { prediction: Prediction }) {
                     className="nd-button-outline nd-press"
                     onClick={async () => {
                         await confirmPredictionOutcome(prediction.prediction_id, true, newId());
-                        setConfirmedAt(new Date().toISOString());
+                        onConfirmed?.(new Date().toISOString());
                     }}
                 >
                     Confirmar que ocurrió

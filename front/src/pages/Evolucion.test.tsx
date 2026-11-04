@@ -8,6 +8,7 @@ import type { Prediction } from '../types';
 vi.mock('../api', () => ({
   getPrediction: vi.fn(),
   confirmPredictionOutcome: vi.fn(),
+  getTimeline: vi.fn().mockResolvedValue({ subject_id: 's', as_of: '', days: 1, entries: [] }),
 }));
 
 afterEach(cleanup);
@@ -97,6 +98,20 @@ describe('Evolucion', () => {
     render(<Evolucion subject={subject} revision={0} />);
 
     expect(await screen.findByText(/Crisis confirmada a las 2:32/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Confirmar que ocurrió/ })).not.toBeInTheDocument();
+  });
+
+  it('keeps the confirmation after switching to Seguimiento and back', async () => {
+    vi.mocked(getPrediction).mockResolvedValue(prediction);
+    vi.mocked(confirmPredictionOutcome).mockResolvedValue({ prediction_id: prediction.prediction_id, actual_outcome: true });
+    render(<Evolucion subject={subject} revision={0} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: /Confirmar que ocurrió/ }));
+    await screen.findByText(/Crisis confirmada a las/);
+    fireEvent.click(screen.getByRole('tab', { name: 'Seguimiento' }));
+    fireEvent.click(screen.getByRole('tab', { name: /Próximas/ }));
+
+    expect(await screen.findByText(/Crisis confirmada a las/)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Confirmar que ocurrió/ })).not.toBeInTheDocument();
   });
 
