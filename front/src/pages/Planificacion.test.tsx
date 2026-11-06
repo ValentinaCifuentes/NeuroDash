@@ -52,8 +52,9 @@ describe('Planificacion', () => {
     const saved: PlannedEvent[] = [];
     vi.mocked(listPlannedEvents).mockImplementation(async () => [...saved]);
     vi.mocked(savePlannedEvent).mockImplementation(async (event) => {
-      saved.push(event);
-      return event;
+      const withId: PlannedEvent = { id: 'saved-1', ...event };
+      saved.push(withId);
+      return withId;
     });
     const onSaved = vi.fn();
 

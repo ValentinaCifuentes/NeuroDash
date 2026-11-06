@@ -229,7 +229,7 @@ function adaptPlannedEvent(event: BackendPlannedEvent): PlannedEvent {
   };
 }
 
-export function savePlannedEvent(event: PlannedEvent): Promise<PlannedEvent> {
+export function savePlannedEvent(event: Omit<PlannedEvent, 'id'>): Promise<PlannedEvent> {
   return request<BackendPlannedEvent>(`/api/v1/subjects/${event.subject_id}/planned-events`, {
     method: 'POST',
     headers: getActorHeaders(),
