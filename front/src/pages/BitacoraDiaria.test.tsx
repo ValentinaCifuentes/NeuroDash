@@ -2,7 +2,6 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { getTimeline } from '../api';
-import { todayIso } from '../domain/catalog';
 import type { DailyRecord, Subject, TimelineEntry } from '../types';
 import { BitacoraDiaria } from './BitacoraDiaria';
 
