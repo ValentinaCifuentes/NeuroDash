@@ -64,6 +64,33 @@ def test_daily_record_encodes_text_to_raw_and_numeric_to_root(tmp_path: Path, mo
         assert legacy_field not in saved
 
 
+def test_editing_todays_basal_replaces_instead_of_duplicating(tmp_path: Path, monkeypatch) -> None:
+    """Guardar dos veces el estado basal del mismo día reemplaza, no duplica."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    first = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T07:30:00-04:00", "idempotency_key": "basal-1",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "sleep_quality": "Reparador", "wake_mode": "Tranquilo/Alegre",
+    }, headers=_headers()).json()
+
+    edited = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T08:00:00-04:00", "idempotency_key": "basal-2",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "sleep_quality": "Interrumpido", "wake_mode": "Irritable/Llorando",
+    }, headers=_headers()).json()
+
+    assert edited["record_id"] == first["record_id"]
+    assert edited["sleep_quality"] == 5  # Interrumpido
+    assert edited["wake_state"] == 8     # Irritable/Llorando
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    assert len(records) == 1
+    assert records[0]["raw"]["sleep_quality"] == "Interrumpido"
+
+
 def test_medication_no_aplica_omits_numeric_field(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
     client = TestClient(app)

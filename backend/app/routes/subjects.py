@@ -343,7 +343,43 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
         "date": occurred_at.astimezone(local_zone).date().isoformat(),
         "prediction_availability": "immediate",
     })
-    return care_repository(subject_id).save(subject_id, "records", item, "record_id")
+    return _upsert_daily_record(subject_id, item)
+
+
+# Campos numéricos que escribe la Bitácora (no los conteos de eventos ni las
+# escalas, que los agrega `_refresh_daily_event_counts`). Al editar, se
+# reemplazan solo estos y el texto en `raw`; el resto del registro se conserva.
+_BASAL_NUMERIC_FIELDS = {
+    "sleep_quality", "wake_state", "start_autonomy_level", "medication_taken",
+    "gi_level", "day_regulation_level_num", "sleep_hours", "routine_change",
+    "school_attendance", "early_signs_count", "physical_discomfort",
+}
+
+
+def _upsert_daily_record(subject_id: str, item: dict[str, Any]) -> dict[str, Any]:
+    """Guarda el estado basal del día: si ya existe, lo reemplaza (no duplica)."""
+    repo = care_repository(subject_id)
+    records = repo.list(subject_id, "records")
+    target = next(
+        (
+            record
+            for record in records
+            if record.get("date") == item["date"] and record.get("prediction_availability") == "immediate"
+        ),
+        None,
+    )
+    if target is None:
+        return repo.save(subject_id, "records", item, "record_id")
+    # Editar: reemplaza el texto y los números de la Bitácora, conserva record_id,
+    # timestamps y los conteos de eventos que ya calculó `_refresh_daily_event_counts`.
+    target["raw"] = item.get("raw", {})
+    for field in _BASAL_NUMERIC_FIELDS:
+        if field in item:
+            target[field] = item[field]
+        else:
+            target.pop(field, None)
+    write_json_atomic(subject_root(subject_id) / subject_id / "records.json", records)
+    return target
 
 
 @router.post("/{subject_id}/events", status_code=201)
