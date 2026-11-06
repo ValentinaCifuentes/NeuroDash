@@ -73,6 +73,7 @@ interface Store {
   profiles: Record<string, Json>;
   records: Record<string, Json[]>;
   occurrences: Record<string, Json[]>;
+  planned_events: Record<string, Json[]>;
   predictions: Record<string, Json>;
   keys: Map<string, Json>;
 }
@@ -87,6 +88,7 @@ function state(): Store {
     profiles: structuredClone(fixture.subjects as Record<string, Json>),
     records: {},
     occurrences: {},
+    planned_events: {},
     predictions: shiftDeep(fixture.predictions as Record<string, Json>, shift),
     keys: new Map(),
   };
@@ -94,7 +96,31 @@ function state(): Store {
     store.records[subjectId] = entries.filter((entry) => entry.kind === 'daily_record').map((entry) => entry.payload);
     store.occurrences[subjectId] = entries.filter((entry) => entry.kind === 'event').map((entry) => entry.payload);
   }
+  // Eventos planificados de las demos (ejemplos del prototipo), con fechas relativas a hoy.
+  const now = new Date();
+  for (const [subjectId, profile] of Object.entries(store.profiles)) {
+    if (profile.provenance?.synthetic) {
+      store.planned_events[subjectId] = demoPlannedEvents(subjectId, now);
+    }
+  }
   return store;
+}
+
+/** Ejemplos del prototipo, solo para los infantes demo (nunca para uno real). */
+function demoPlannedEvents(subjectId: string, now: Date): Json[] {
+  const sunday = (7 - now.getDay()) % 7 || 7;
+  const saturday = sunday === 1 ? 7 : sunday - 1;
+  const at = (days: number, hours: number, minutes = 0) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() + days);
+    d.setHours(hours, minutes, 0, 0);
+    return d.toISOString();
+  };
+  return [
+    { planned_event_id: 'demo-1', subject_id: subjectId, title: 'Cita con el Dentista', starts_at: at(1, 15, 30), category: 'Salud', expectation: 'Desagradable' },
+    { planned_event_id: 'demo-2', subject_id: subjectId, title: 'Visita a la Abuela', starts_at: at(saturday, 12), category: 'Social', expectation: 'Agradable' },
+    { planned_event_id: 'demo-3', subject_id: subjectId, title: 'Cumpleaños de Martín (Mucho ruido)', starts_at: at(sunday, 16), category: 'Social', expectation: 'Estresante' },
+  ];
 }
 
 /** Solo para pruebas: vuelve al fixture recién cargado. */
@@ -265,6 +291,22 @@ function rememberEffective(profile: Json, body: Json): void {
   }
 }
 
+/** Igual que `POST /planned-events`: guarda el evento planificado en memoria. */
+function savePlannedEvent(subjectId: string, body: Json): Json {
+  profileOf(subjectId);
+  const event: Json = {
+    planned_event_id: hexId(),
+    subject_id: subjectId,
+    title: body.title,
+    starts_at: body.starts_at,
+    category: body.category ?? null,
+    expectation: body.expectation ?? null,
+  };
+  state().planned_events[subjectId] ??= [];
+  state().planned_events[subjectId].push(event);
+  return event;
+}
+
 function timeline(subjectId: string, params: URLSearchParams): Json {
   profileOf(subjectId);
   const s = state();
@@ -355,6 +397,8 @@ export async function mockRequest(path: string, init?: RequestInit): Promise<unk
       if (action === 'timeline') return timeline(subjectId, url.searchParams);
       if (action === 'daily-records' && method === 'POST') return saveDailyRecord(subjectId, body);
       if (action === 'events' && method === 'POST') return saveEvent(subjectId, body);
+      if (action === 'planned-events' && method === 'GET') return state().planned_events[subjectId] ?? [];
+      if (action === 'planned-events' && method === 'POST') return savePlannedEvent(subjectId, body);
     }
     if (parts[0] === 'predictions') {
       const [, predictionId, action] = parts;

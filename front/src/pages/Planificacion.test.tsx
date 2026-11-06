@@ -1,34 +1,34 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { listPlannedEvents, savePlannedEvent } from '../api';
 import { formatPlanDate, loadPlannedEvents } from '../domain/planning';
-import type { Subject } from '../types';
+import type { PlannedEvent, Subject } from '../types';
 import { Planificacion } from './Planificacion';
 
-const demo = { subject_id: 'PAC-A', display_name: 'PAC-A', provenance: { source: 'demo', synthetic: true } } as Subject;
+vi.mock('../api', () => ({
+  listPlannedEvents: vi.fn(),
+  savePlannedEvent: vi.fn(),
+}));
+
 const real = { subject_id: 'tomi', display_name: 'Tomi', provenance: { source: 'caregiver_onboarding', synthetic: false } } as Subject;
 
-beforeEach(() => localStorage.clear());
+beforeEach(() => {
+  vi.mocked(listPlannedEvents).mockReset();
+  vi.mocked(savePlannedEvent).mockReset();
+});
 afterEach(cleanup);
 
-describe('planning store (D6 mock)', () => {
-  it('seeds the prototype examples only for demo subjects', () => {
-    expect(loadPlannedEvents(demo)).toHaveLength(3);
-    expect(loadPlannedEvents(real)).toEqual([]);
-  });
-
-  it('hides events from previous days and sorts the rest by date', () => {
+describe('planning', () => {
+  it('hides events from previous days and sorts the rest by date', async () => {
     const now = new Date(2026, 10, 3, 12);
-    localStorage.setItem(
-      'neurodash.planned.tomi',
-      JSON.stringify([
-        { id: 'b', subject_id: 'tomi', title: 'Después', starts_at: new Date(2026, 10, 5, 9).toISOString(), category: null, expectation: null },
-        { id: 'old', subject_id: 'tomi', title: 'Ayer', starts_at: new Date(2026, 10, 2, 9).toISOString(), category: null, expectation: null },
-        { id: 'a', subject_id: 'tomi', title: 'Hoy temprano', starts_at: new Date(2026, 10, 3, 8).toISOString(), category: null, expectation: null },
-      ]),
-    );
+    vi.mocked(listPlannedEvents).mockResolvedValue([
+      { id: 'b', subject_id: 'tomi', title: 'Después', starts_at: new Date(2026, 10, 5, 9).toISOString(), category: null, expectation: null },
+      { id: 'old', subject_id: 'tomi', title: 'Ayer', starts_at: new Date(2026, 10, 2, 9).toISOString(), category: null, expectation: null },
+      { id: 'a', subject_id: 'tomi', title: 'Hoy temprano', starts_at: new Date(2026, 10, 3, 8).toISOString(), category: null, expectation: null },
+    ]);
 
-    expect(loadPlannedEvents(real, now).map((event) => event.title)).toEqual(['Hoy temprano', 'Después']);
+    expect((await loadPlannedEvents(real, now)).map((event) => event.title)).toEqual(['Hoy temprano', 'Después']);
   });
 
   it('reads dates the way a family says them', () => {
@@ -41,15 +41,25 @@ describe('planning store (D6 mock)', () => {
 });
 
 describe('Planificacion', () => {
-  it('shows an empty state for a real subject without events', () => {
+  it('shows an empty state for a real subject without events', async () => {
+    vi.mocked(listPlannedEvents).mockResolvedValue([]);
     render(<Planificacion subject={real} />);
 
-    expect(screen.getByText('No hay eventos próximos')).toBeInTheDocument();
+    expect(await screen.findByText('No hay eventos próximos')).toBeInTheDocument();
   });
 
-  it('adds an event with chips, with nothing preselected, and keeps it after a reload', () => {
+  it('adds an event with chips, with nothing preselected, and keeps it on the list', async () => {
+    const saved: PlannedEvent[] = [];
+    vi.mocked(listPlannedEvents).mockImplementation(async () => [...saved]);
+    vi.mocked(savePlannedEvent).mockImplementation(async (event) => {
+      saved.push(event);
+      return event;
+    });
     const onSaved = vi.fn();
+
     render(<Planificacion subject={real} onSaved={onSaved} />);
+    await screen.findByText('No hay eventos próximos');
+
     fireEvent.click(screen.getByRole('button', { name: /Añadir Nuevo Evento/ }));
     const dialog = screen.getByRole('dialog', { name: 'Añadir Evento' });
     const save = within(dialog).getByRole('button', { name: 'Guardar Evento' });
@@ -63,12 +73,13 @@ describe('Planificacion', () => {
     fireEvent.click(within(dialog).getByRole('radio', { name: 'Estresante' }));
     fireEvent.click(save);
 
-    expect(onSaved).toHaveBeenCalledWith(expect.objectContaining({ title: 'Control médico', category: 'Salud', expectation: 'Estresante' }));
+    await waitFor(() =>
+      expect(onSaved).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Control médico', category: 'Salud', expectation: 'Estresante' }),
+      ),
+    );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByText('Impacto esperado: Estresante')).toBeInTheDocument();
-
-    cleanup();
-    render(<Planificacion subject={real} />);
     expect(screen.getByRole('heading', { name: 'Control médico' })).toBeInTheDocument();
+    expect(screen.getByText('Impacto esperado: Estresante')).toBeInTheDocument();
   });
 });

@@ -104,6 +104,18 @@ describe('mock backend (I9)', () => {
 
     await expect(api.getSubject('nadie')).rejects.toMatchObject({ status: 404, code: 'subject_not_found' });
   });
+
+  it('keeps planned events and returns them like the backend', async () => {
+    const api = await mockApi();
+
+    await api.savePlannedEvent({
+      subject_id: 'PAC-B', title: 'Cita médica', starts_at: new Date().toISOString(),
+      category: 'Salud', expectation: 'Estresante',
+    });
+
+    const listed = await api.listPlannedEvents('PAC-B');
+    expect(listed.some((item) => item.title === 'Cita médica' && item.expectation === 'Estresante')).toBe(true);
+  });
 });
 
 describe('shiftIsoDate', () => {
