@@ -216,6 +216,28 @@ def test_event_detail_counts_feed_the_daily_record(tmp_path: Path, monkeypatch) 
     assert day["dysregulation_unresolved"] == 1  # solo el primero terminó sin regular
 
 
+def test_planned_event_is_stored(tmp_path: Path, monkeypatch) -> None:
+    """Planificación: un evento planificado se guarda con su expectativa."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    saved = client.post(f"/api/v1/subjects/{subject_id}/planned-events", headers=_headers(), json={
+        "title": "Cita con el dentista",
+        "starts_at": "2026-08-26T15:00:00-04:00",
+        "category": "Salud",
+        "expectation": "Desagradable",
+    }).json()
+
+    assert saved["title"] == "Cita con el dentista"
+    assert saved["expectation"] == "Desagradable"
+    assert "planned_event_id" in saved
+
+    stored = json.loads((tmp_path / subject_id / "planned_events.json").read_text(encoding="utf-8"))
+    assert len(stored) == 1
+    assert stored[0]["expectation"] == "Desagradable"
+
+
 def test_event_scales_become_daily_numbers_and_absent_scales_stay_absent(tmp_path: Path, monkeypatch) -> None:
     """P22: la escala de Transición, Alimentación y Dieta sensorial llega al registro del día."""
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)

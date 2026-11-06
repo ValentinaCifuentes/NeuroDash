@@ -19,7 +19,8 @@ def build_training_example(
     cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
     timezone: str = "UTC",
-    horizon_hours: int = HORIZON_HOURS
+    horizon_hours: int = HORIZON_HOURS,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> tuple[dict[str, float | None], bool]:
     """
     Builds a training example (X, y) for a given timezone-aware cutoff T.
@@ -32,7 +33,8 @@ def build_training_example(
         baseline=baseline,
         cutoff=cutoff,
         policy=policy,
-        timezone=timezone
+        timezone=timezone,
+        planned_events=planned_events
     )
     
     # 2. Determine label y
@@ -65,7 +67,8 @@ def build_dataset(
     policy: AvailabilityPolicy | None = None,
     timezone: str = "UTC",
     subject_id: str = "unknown",
-    horizon_hours: int = HORIZON_HOURS
+    horizon_hours: int = HORIZON_HOURS,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> tuple[
     list[dict[str, float | None]],
     list[bool],
@@ -96,7 +99,8 @@ def build_dataset(
             cutoff=cutoff,
             policy=pol,
             timezone=timezone,
-            horizon_hours=horizon_hours
+            horizon_hours=horizon_hours,
+            planned_events=planned_events
         )
         
         if cutoff < split_cutoff:
@@ -194,6 +198,7 @@ def generate_synthetic_history(
 
     records: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
+    planned_events: list[dict[str, Any]] = []
 
     load = 0.5  # latent dysregulation load in [0, 1]
     # Escalas de los eventos (P22) con su propio generador: así la secuencia de
@@ -267,6 +272,23 @@ def generate_synthetic_history(
             record["sensory_diet_done"] = 1.0 if done > 0.6 else 0.5 if done > 0.35 else 0.0
         records.append(record)
 
+        # 2.5 Evento planificado (conocido de antemano, sin fuga de información).
+        #    La probabilidad de que sea «Estresante» sigue a la carga: en días de más
+        #    carga es más probable un plan estresante. Así `planned_stressful_event_8h`
+        #    correlaciona con la crisis SIN alterar la secuencia de crisis (las
+        #    semillas de la demo siguen dando el mismo estado PAC-A alto / PAC-B bajo).
+        if detail_rng.random() < 0.30:
+            stressful = detail_rng.random() < (0.15 + 0.70 * load)
+            expectation = "Estresante" if stressful else detail_rng.choice(["Agradable", "Neutro"])
+            planned_events.append({
+                "id": f"plan_{subject_id}_{d}",
+                "subject_id": subject_id,
+                "starts_at": current_time + timedelta(hours=detail_rng.randint(1, 8)),
+                "title": "Cita médica" if stressful else detail_rng.choice(["Visita familiar", "Salida al parque"]),
+                "category": "Salud" if stressful else detail_rng.choice(["Social", "Rutina"]),
+                "expectation": expectation,
+            })
+
         # 3. Crisis occurrence (moderate/severe) later that day, driven by the load.
         #    Occurrences fall within the 8h horizon after the noon cutoff (13:00–20:00).
         #    Steep logistic keeps the base rate realistic (~15–20%) while remaining
@@ -315,6 +337,7 @@ def generate_synthetic_history(
     return {
         "records": records,
         "occurrences": occurrences,
+        "planned_events": planned_events,
         "lineage": lineage
     }
 

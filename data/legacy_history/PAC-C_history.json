@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-06T04:42:47.397223+00:00",
+    "data_generation_timestamp": "2026-11-06T04:56:24.647626+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1003
@@ -14,16 +14,18 @@
       "severity": "moderate",
       "source_timestamp": "2026-11-02T19:00:00-03:00",
       "strategy_applied": [
-        "Espacio seguro"
+        "Acompa\u00f1amiento",
+        "Objeto de calma"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-C",
       "trigger": [
         "Cambio de actividad",
-        "Lugar con mucha gente"
+        "Hambre o cansancio"
       ]
     }
   ],
+  "planned_events": [],
   "records": [
     {
       "availability_timestamp": "2026-11-01T12:00:00-03:00",

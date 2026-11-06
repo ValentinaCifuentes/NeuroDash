@@ -85,7 +85,7 @@ def test_the_model_reads_the_demo_history_plus_what_was_registered_in_the_app(tm
     _demo_setup(tmp_path, monkeypatch)
     _save_basal_and_event(TestClient(app))
 
-    _, records, occurrences = prediction_service.load_subject_data("PAC-A")
+    _, records, occurrences, _ = prediction_service.load_subject_data("PAC-A")
 
     assert [record.get("id", "app") for record in records] == ["rec_PAC-A_1", "app"]
     assert len(occurrences) == 2
@@ -106,7 +106,7 @@ def test_a_confirmed_crisis_on_a_demo_reaches_the_model_and_the_timeline(tmp_pat
     })
 
     assert confirmed.status_code == 201
-    _, _, occurrences = prediction_service.load_subject_data("PAC-A")
+    _, _, occurrences, _ = prediction_service.load_subject_data("PAC-A")
     assert occurrences[-1]["id"] == "occ_pred-1"
     timeline = client.get("/api/v1/subjects/PAC-A/timeline", params={"as_of": "2026-11-02T20:00:00-03:00", "days": 1})
     entries = timeline.json()["entries"]

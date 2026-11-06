@@ -4,6 +4,11 @@ from typing import Any
 
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import BaselineSnapshot
+from engine.schemas import HORIZON_HOURS
+
+
+# Expectativas de un evento planificado que anticipan una crisis en el horizonte.
+STRESSFUL_EXPECTATIONS = {"Estresante", "Desagradable"}
 
 
 class FeatureSet:
@@ -56,12 +61,17 @@ def build_features(
     cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
     timezone: str | tzinfo | zoneinfo.ZoneInfo = "UTC",
-    subject: dict[str, Any] | None = None
+    subject: dict[str, Any] | None = None,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> FeatureSet:
     """
     Builds a FeatureSet for a subject as of a specific cutoff.
     Aggregates numeric fields over 1, 3, 7, and 14 days windows, computes deltas against
     the baseline median, records missingness, and captures sensory context.
+
+    `planned_events` añade la variable `planned_stressful_event_8h` (0/1): si hay un
+    evento planificado «Estresante»/«Desagradable» en el horizonte siguiente al corte.
+    No hay fuga de información: el evento se conoce antes del corte.
     """
     pol = policy or AvailabilityPolicy()
     eligible_records, _ = filter_records(records, cutoff, pol, timezone=timezone)
@@ -152,10 +162,33 @@ def build_features(
             rolling_features[delta_name] = current_val - baseline_val
         else:
             rolling_features[delta_name] = None
-            
+
+    # Contexto al corte (no agregado por ventanas): evento planificado estresante.
+    rolling_features["planned_stressful_event_8h"] = float(
+        _planned_stressful_in_horizon(planned_events or [], cutoff, HORIZON_HOURS)
+    )
+
     return FeatureSet(
         rolling_features=rolling_features,
         missingness=missingness,
         sensory_context=sensory_context,
         baseline_maturity=baseline.maturity
     )
+
+
+def _planned_stressful_in_horizon(
+    planned_events: list[dict[str, Any]],
+    cutoff: datetime,
+    horizon_hours: int,
+) -> float:
+    """1.0 si hay un evento planificado estresante en (cutoff, cutoff + horizon_hours]."""
+    horizon_end = cutoff + timedelta(hours=horizon_hours)
+    for event in planned_events:
+        starts = event.get("starts_at")
+        if not isinstance(starts, datetime):
+            continue
+        if starts.tzinfo is None:
+            continue
+        if cutoff < starts <= horizon_end and event.get("expectation") in STRESSFUL_EXPECTATIONS:
+            return 1.0
+    return 0.0

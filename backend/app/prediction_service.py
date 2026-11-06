@@ -69,9 +69,9 @@ def get_subject_paths(subject_id: str) -> tuple[Path, bool]:
     raise SubjectNotFoundError(f"Subject {subject_id} not found.")
 
 
-def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     """
-    Loads subject profile, historical records, and occurrences.
+    Loads subject profile, historical records, occurrences, and planned events.
     """
     subject_dir, is_demo = get_subject_paths(subject_id)
 
@@ -82,14 +82,20 @@ def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, A
 
     records: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
+    planned_events: list[dict[str, Any]] = []
 
     if is_demo:
         # Una demo une su historial sintético con lo que se registre en la app
         # (Bitácora, eventos y crisis confirmadas), guardado en su propia carpeta.
         records, occurrences = load_legacy_history(subject_id)
+        history_path = LEGACY_HISTORY_DIR / f"{subject_id}_history.json"
+        if history_path.exists():
+            with open(history_path, "r", encoding="utf-8") as f:
+                planned_events = json.load(f).get("planned_events", [])
 
     records = records + _read_json_list(subject_dir / "records.json")
     occurrences = occurrences + _read_json_list(subject_dir / "occurrences.json")
+    planned_events = planned_events + _read_json_list(subject_dir / "planned_events.json")
 
     # Convert timestamps to aware datetimes
     def parse_dt(dt_str: str) -> datetime:
@@ -107,7 +113,11 @@ def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, A
         o["source_timestamp"] = parse_dt(o["source_timestamp"])
         o["availability_timestamp"] = parse_dt(o["availability_timestamp"])
 
-    return profile, records, occurrences
+    for p in planned_events:
+        if isinstance(p.get("starts_at"), str):
+            p["starts_at"] = parse_dt(p["starts_at"])
+
+    return profile, records, occurrences, planned_events
 
 
 def make_prediction(
@@ -127,7 +137,7 @@ def make_prediction(
         raise ValueError("prediction_cutoff must be timezone-aware")
 
     # 1. Load data
-    profile, records, occurrences = load_subject_data(subject_id)
+    profile, records, occurrences, planned_events = load_subject_data(subject_id)
     
     timezone_name = profile["timezone"]
     sensory_context = profile.get("sensory_context", {})
@@ -139,7 +149,7 @@ def make_prediction(
     occurrences = [occurrence for occurrence in occurrences if occurrence["source_timestamp"] <= prediction_cutoff and occurrence["availability_timestamp"] <= prediction_cutoff]
     policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
-    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile)
+    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile, planned_events=planned_events)
 
     # 3. Model registry
     registry = ModelRegistry(base_dir=MODELS_DIR)

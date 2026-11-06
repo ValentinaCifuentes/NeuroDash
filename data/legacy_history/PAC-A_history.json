@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-06T04:42:47.374097+00:00",
+    "data_generation_timestamp": "2026-11-06T04:56:24.616463+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1020
@@ -14,14 +14,13 @@
       "severity": "severe",
       "source_timestamp": "2026-08-06T19:00:00-04:00",
       "strategy_applied": [
-        "Presi\u00f3n profunda",
-        "Objeto de calma"
+        "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Cambio de actividad"
+        "Cambio de actividad",
+        "Le dijeron que no"
       ]
     },
     {
@@ -38,8 +37,8 @@
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Frustraci\u00f3n"
+        "Espera",
+        "Lugar con mucha gente"
       ]
     },
     {
@@ -50,15 +49,14 @@
       "severity": "severe",
       "source_timestamp": "2026-08-08T18:00:00-04:00",
       "strategy_applied": [
-        "Objeto de calma",
-        "Anticipaci\u00f3n verbal"
+        "Pausa sensorial",
+        "Aud\u00edfonos"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Espera",
-        "Lugar con mucha gente",
-        "Le dijeron que no"
+        "Hambre o cansancio",
+        "Lugar con mucha gente"
       ]
     },
     {
@@ -69,17 +67,16 @@
       "severity": "severe",
       "source_timestamp": "2026-08-09T15:00:00-04:00",
       "strategy_applied": [
-        "Pausa sensorial",
-        "Aud\u00edfonos",
-        "Pictogramas",
+        "Objeto de calma",
+        "Espacio seguro",
         "Presi\u00f3n profunda"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Le dijeron que no",
-        "Espera",
-        "Ruidos"
+        "Hambre o cansancio",
+        "Cambio de actividad",
+        "Espera"
       ]
     },
     {
@@ -90,14 +87,14 @@
       "severity": "severe",
       "source_timestamp": "2026-08-10T20:00:00-04:00",
       "strategy_applied": [
-        "Pausa sensorial",
-        "Pictogramas"
+        "Anticipaci\u00f3n verbal"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Ruidos"
+        "Contacto f\u00edsico",
+        "Lugar con mucha gente",
+        "Frustraci\u00f3n"
       ]
     },
     {
@@ -108,13 +105,13 @@
       "severity": "moderate",
       "source_timestamp": "2026-08-22T15:00:00-04:00",
       "strategy_applied": [
-        "Pausa sensorial",
-        "Acompa\u00f1amiento"
+        "Presi\u00f3n profunda",
+        "Anticipaci\u00f3n verbal"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Espera",
+        "Ruidos",
         "Contacto f\u00edsico"
       ]
     },
@@ -126,15 +123,15 @@
       "severity": "severe",
       "source_timestamp": "2026-08-24T13:00:00-04:00",
       "strategy_applied": [
-        "Espacio seguro",
+        "Anticipaci\u00f3n verbal",
+        "Presi\u00f3n profunda",
         "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Espera",
-        "Ruidos"
+        "Contacto f\u00edsico",
+        "Lugar con mucha gente"
       ]
     },
     {
@@ -145,16 +142,14 @@
       "severity": "severe",
       "source_timestamp": "2026-08-27T17:00:00-04:00",
       "strategy_applied": [
-        "Objeto de calma",
-        "Pausa sensorial",
-        "Pictogramas"
+        "Pausa sensorial"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Frustraci\u00f3n",
-        "Ruidos",
-        "Le dijeron que no"
+        "Le dijeron que no",
+        "Espera",
+        "Contacto f\u00edsico"
       ]
     },
     {
@@ -166,13 +161,14 @@
       "source_timestamp": "2026-08-28T14:00:00-04:00",
       "strategy_applied": [
         "Objeto de calma",
-        "Acompa\u00f1amiento"
+        "Anticipaci\u00f3n verbal"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Lugar con mucha gente",
-        "Hambre o cansancio"
+        "Hambre o cansancio",
+        "Frustraci\u00f3n",
+        "Le dijeron que no"
       ]
     },
     {
@@ -183,14 +179,14 @@
       "severity": "moderate",
       "source_timestamp": "2026-08-29T18:00:00-04:00",
       "strategy_applied": [
-        "Anticipaci\u00f3n verbal",
-        "Pausa sensorial"
+        "Espacio seguro",
+        "Objeto de calma"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
         "Hambre o cansancio",
-        "Contacto f\u00edsico"
+        "Le dijeron que no"
       ]
     },
     {
@@ -201,15 +197,15 @@
       "severity": "severe",
       "source_timestamp": "2026-09-01T18:00:00-04:00",
       "strategy_applied": [
-        "Pictogramas",
-        "Pausa sensorial",
-        "Aud\u00edfonos"
+        "Presi\u00f3n profunda",
+        "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Frustraci\u00f3n",
-        "Lugar con mucha gente"
+        "Le dijeron que no",
+        "Contacto f\u00edsico",
+        "Cambio de actividad"
       ]
     },
     {
@@ -220,14 +216,13 @@
       "severity": "severe",
       "source_timestamp": "2026-09-02T13:00:00-04:00",
       "strategy_applied": [
-        "Pausa sensorial",
-        "Acompa\u00f1amiento",
-        "Objeto de calma"
+        "Anticipaci\u00f3n verbal",
+        "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Contacto f\u00edsico",
+        "Le dijeron que no",
         "Frustraci\u00f3n"
       ]
     },
@@ -239,14 +234,15 @@
       "severity": "moderate",
       "source_timestamp": "2026-09-03T14:00:00-04:00",
       "strategy_applied": [
-        "Presi\u00f3n profunda",
-        "Aud\u00edfonos"
+        "Aud\u00edfonos",
+        "Pausa sensorial"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Espera"
+        "Espera",
+        "Cambio de actividad",
+        "Hambre o cansancio"
       ]
     },
     {
@@ -257,15 +253,14 @@
       "severity": "moderate",
       "source_timestamp": "2026-09-19T19:00:00-03:00",
       "strategy_applied": [
-        "Presi\u00f3n profunda",
-        "Acompa\u00f1amiento"
+        "Pausa sensorial",
+        "Aud\u00edfonos"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
-        "Le dijeron que no",
-        "Contacto f\u00edsico",
-        "Cambio de actividad"
+        "Hambre o cansancio",
+        "Ruidos"
       ]
     },
     {
@@ -277,14 +272,13 @@
       "source_timestamp": "2026-09-20T14:00:00-03:00",
       "strategy_applied": [
         "Acompa\u00f1amiento",
-        "Espacio seguro"
+        "Objeto de calma"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Le dijeron que no",
         "Frustraci\u00f3n",
-        "Lugar con mucha gente"
+        "Hambre o cansancio"
       ]
     },
     {
@@ -295,14 +289,15 @@
       "severity": "severe",
       "source_timestamp": "2026-09-21T13:00:00-03:00",
       "strategy_applied": [
-        "Aud\u00edfonos",
-        "Pausa sensorial"
+        "Espacio seguro",
+        "Aud\u00edfonos"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Le dijeron que no"
+        "Cambio de actividad",
+        "Espera",
+        "Lugar con mucha gente"
       ]
     },
     {
@@ -313,15 +308,15 @@
       "severity": "severe",
       "source_timestamp": "2026-09-22T19:00:00-03:00",
       "strategy_applied": [
-        "Presi\u00f3n profunda",
-        "Aud\u00edfonos"
+        "Aud\u00edfonos",
+        "Pausa sensorial"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Contacto f\u00edsico",
-        "Frustraci\u00f3n"
+        "Espera",
+        "Le dijeron que no",
+        "Contacto f\u00edsico"
       ]
     },
     {
@@ -332,17 +327,15 @@
       "severity": "severe",
       "source_timestamp": "2026-09-23T17:00:00-03:00",
       "strategy_applied": [
-        "Objeto de calma",
         "Aud\u00edfonos",
-        "Acompa\u00f1amiento"
+        "Anticipaci\u00f3n verbal"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Lugar con mucha gente",
-        "Frustraci\u00f3n",
-        "Cambio de actividad",
-        "Ruidos"
+        "Ruidos",
+        "Hambre o cansancio",
+        "Le dijeron que no"
       ]
     },
     {
@@ -354,15 +347,13 @@
       "source_timestamp": "2026-09-24T16:00:00-03:00",
       "strategy_applied": [
         "Espacio seguro",
-        "Pictogramas",
-        "Aud\u00edfonos"
+        "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Lugar con mucha gente",
-        "Le dijeron que no",
-        "Espera"
+        "Contacto f\u00edsico",
+        "Lugar con mucha gente"
       ]
     },
     {
@@ -373,14 +364,14 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-11T20:00:00-03:00",
       "strategy_applied": [
-        "Pausa sensorial",
-        "Aud\u00edfonos"
+        "Aud\u00edfonos",
+        "Anticipaci\u00f3n verbal"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
         "Cambio de actividad",
-        "Le dijeron que no"
+        "Ruidos"
       ]
     },
     {
@@ -392,13 +383,12 @@
       "source_timestamp": "2026-10-20T13:00:00-03:00",
       "strategy_applied": [
         "Espacio seguro",
-        "Aud\u00edfonos"
+        "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Cambio de actividad",
-        "Espera",
+        "Hambre o cansancio",
         "Lugar con mucha gente"
       ]
     },
@@ -410,14 +400,12 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-21T20:00:00-03:00",
       "strategy_applied": [
-        "Objeto de calma",
-        "Presi\u00f3n profunda"
+        "Objeto de calma"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
-        "Cambio de actividad",
-        "Frustraci\u00f3n"
+        "Le dijeron que no"
       ]
     },
     {
@@ -428,15 +416,14 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-24T17:00:00-03:00",
       "strategy_applied": [
-        "Espacio seguro",
-        "Pausa sensorial"
+        "Anticipaci\u00f3n verbal",
+        "Presi\u00f3n profunda"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
-        "Espera",
-        "Frustraci\u00f3n",
-        "Contacto f\u00edsico"
+        "Cambio de actividad",
+        "Ruidos"
       ]
     },
     {
@@ -447,14 +434,13 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-27T17:00:00-03:00",
       "strategy_applied": [
-        "Espacio seguro",
         "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
-        "Contacto f\u00edsico",
-        "Lugar con mucha gente"
+        "Frustraci\u00f3n",
+        "Ruidos"
       ]
     },
     {
@@ -465,14 +451,15 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-28T19:00:00-03:00",
       "strategy_applied": [
-        "Espacio seguro",
-        "Anticipaci\u00f3n verbal"
+        "Aud\u00edfonos",
+        "Pictogramas",
+        "Objeto de calma"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
-        "Cambio de actividad",
-        "Frustraci\u00f3n"
+        "Ruidos",
+        "Espera"
       ]
     },
     {
@@ -483,15 +470,14 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-29T18:00:00-03:00",
       "strategy_applied": [
-        "Aud\u00edfonos",
+        "Objeto de calma",
         "Espacio seguro"
       ],
       "strategy_outcome": "Regulaci\u00f3n Parcial",
       "subject_id": "PAC-A",
       "trigger": [
-        "Le dijeron que no",
         "Ruidos",
-        "Frustraci\u00f3n"
+        "Espera"
       ]
     },
     {
@@ -502,15 +488,15 @@
       "severity": "moderate",
       "source_timestamp": "2026-10-31T19:00:00-03:00",
       "strategy_applied": [
-        "Objeto de calma",
-        "Espacio seguro"
+        "Pictogramas",
+        "Aud\u00edfonos",
+        "Acompa\u00f1amiento"
       ],
       "strategy_outcome": "Regulaci\u00f3n Exitosa",
       "subject_id": "PAC-A",
       "trigger": [
-        "Hambre o cansancio",
-        "Contacto f\u00edsico",
-        "Lugar con mucha gente"
+        "Espera",
+        "Hambre o cansancio"
       ]
     },
     {
@@ -521,15 +507,14 @@
       "severity": "severe",
       "source_timestamp": "2026-11-01T19:00:00-03:00",
       "strategy_applied": [
-        "Objeto de calma",
-        "Pausa sensorial"
+        "Anticipaci\u00f3n verbal",
+        "Pictogramas"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Le dijeron que no",
-        "Espera",
-        "Cambio de actividad"
+        "Ruidos",
+        "Lugar con mucha gente"
       ]
     },
     {
@@ -540,16 +525,275 @@
       "severity": "severe",
       "source_timestamp": "2026-11-02T15:00:00-03:00",
       "strategy_applied": [
-        "Objeto de calma",
-        "Aud\u00edfonos",
-        "Pictogramas"
+        "Pictogramas",
+        "Acompa\u00f1amiento",
+        "Aud\u00edfonos"
       ],
       "strategy_outcome": "Sin Regulaci\u00f3n",
       "subject_id": "PAC-A",
       "trigger": [
-        "Lugar con mucha gente",
-        "Ruidos"
+        "Espera",
+        "Hambre o cansancio",
+        "Contacto f\u00edsico"
       ]
+    }
+  ],
+  "planned_events": [
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_1",
+      "starts_at": "2026-08-06T14:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Social",
+      "expectation": "Neutro",
+      "id": "plan_PAC-A_2",
+      "starts_at": "2026-08-07T18:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Salida al parque"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_3",
+      "starts_at": "2026-08-08T20:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_7",
+      "starts_at": "2026-08-12T20:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_10",
+      "starts_at": "2026-08-15T14:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_14",
+      "starts_at": "2026-08-19T17:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_17",
+      "starts_at": "2026-08-22T15:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_19",
+      "starts_at": "2026-08-24T13:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_21",
+      "starts_at": "2026-08-26T16:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_22",
+      "starts_at": "2026-08-27T16:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Rutina",
+      "expectation": "Neutro",
+      "id": "plan_PAC-A_26",
+      "starts_at": "2026-08-31T14:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Salida al parque"
+    },
+    {
+      "category": "Social",
+      "expectation": "Agradable",
+      "id": "plan_PAC-A_30",
+      "starts_at": "2026-09-04T17:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Visita familiar"
+    },
+    {
+      "category": "Social",
+      "expectation": "Neutro",
+      "id": "plan_PAC-A_31",
+      "starts_at": "2026-09-05T15:00:00-04:00",
+      "subject_id": "PAC-A",
+      "title": "Salida al parque"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_34",
+      "starts_at": "2026-09-08T19:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Rutina",
+      "expectation": "Agradable",
+      "id": "plan_PAC-A_37",
+      "starts_at": "2026-09-11T13:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Salida al parque"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_38",
+      "starts_at": "2026-09-12T15:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_48",
+      "starts_at": "2026-09-22T15:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_49",
+      "starts_at": "2026-09-23T16:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_52",
+      "starts_at": "2026-09-26T16:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Rutina",
+      "expectation": "Neutro",
+      "id": "plan_PAC-A_57",
+      "starts_at": "2026-10-01T16:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Visita familiar"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_59",
+      "starts_at": "2026-10-03T20:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Social",
+      "expectation": "Agradable",
+      "id": "plan_PAC-A_63",
+      "starts_at": "2026-10-07T20:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Salida al parque"
+    },
+    {
+      "category": "Social",
+      "expectation": "Agradable",
+      "id": "plan_PAC-A_64",
+      "starts_at": "2026-10-08T15:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Visita familiar"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_66",
+      "starts_at": "2026-10-10T13:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Social",
+      "expectation": "Neutro",
+      "id": "plan_PAC-A_70",
+      "starts_at": "2026-10-14T13:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Salida al parque"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_72",
+      "starts_at": "2026-10-16T18:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_77",
+      "starts_at": "2026-10-21T13:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_82",
+      "starts_at": "2026-10-26T16:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Rutina",
+      "expectation": "Agradable",
+      "id": "plan_PAC-A_86",
+      "starts_at": "2026-10-30T19:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Visita familiar"
+    },
+    {
+      "category": "Rutina",
+      "expectation": "Neutro",
+      "id": "plan_PAC-A_87",
+      "starts_at": "2026-10-31T13:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Visita familiar"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_88",
+      "starts_at": "2026-11-01T15:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
+    },
+    {
+      "category": "Salud",
+      "expectation": "Estresante",
+      "id": "plan_PAC-A_89",
+      "starts_at": "2026-11-02T19:00:00-03:00",
+      "subject_id": "PAC-A",
+      "title": "Cita m\u00e9dica"
     }
   ],
   "records": [
@@ -605,7 +849,7 @@
       "sleep_quality": 5.96,
       "source_timestamp": "2026-08-06T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
       "trigger_count": 3,
@@ -637,7 +881,7 @@
       "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 7.99
     },
     {
@@ -663,10 +907,10 @@
       "sleep_quality": 6.4,
       "source_timestamp": "2026-08-08T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 2,
+      "trigger_count": 3,
       "wake_state": 7.19
     },
     {
@@ -692,7 +936,7 @@
       "sleep_quality": 4.44,
       "source_timestamp": "2026-08-09T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
       "trigger_count": 3,
@@ -750,9 +994,9 @@
       "sleep_quality": 5.66,
       "source_timestamp": "2026-08-11T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 6.97
     },
     {
@@ -777,7 +1021,7 @@
       "sleep_quality": 6.72,
       "source_timestamp": "2026-08-12T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "trigger_count": 2,
       "wake_state": 5.98
@@ -805,7 +1049,7 @@
       "sleep_quality": 5.71,
       "source_timestamp": "2026-08-13T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -833,10 +1077,10 @@
       "sleep_quality": 6.01,
       "source_timestamp": "2026-08-14T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 5.76
     },
     {
@@ -860,7 +1104,7 @@
       "sleep_quality": 8.23,
       "source_timestamp": "2026-08-15T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
       "trigger_count": 2,
@@ -889,7 +1133,7 @@
       "sleep_quality": 6.27,
       "source_timestamp": "2026-08-16T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -916,7 +1160,7 @@
       "sleep_quality": 8.51,
       "source_timestamp": "2026-08-17T12:00:00-04:00",
       "start_autonomy_level": 0,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "trigger_count": 0,
       "wake_state": 3.23
@@ -944,10 +1188,10 @@
       "sleep_quality": 7.55,
       "source_timestamp": "2026-08-18T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 3.88
     },
     {
@@ -1002,7 +1246,7 @@
       "sleep_quality": 7.41,
       "source_timestamp": "2026-08-20T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -1030,7 +1274,7 @@
       "sleep_quality": 7.24,
       "source_timestamp": "2026-08-21T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 0,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -1086,16 +1330,16 @@
       "sleep_quality": 6.49,
       "source_timestamp": "2026-08-23T12:00:00-04:00",
       "start_autonomy_level": 2,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 5.95
     },
     {
       "availability_timestamp": "2026-08-24T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
-      "dysregulation_unresolved": 0,
+      "dysregulation_unresolved": 1,
       "event_count": 6,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -1146,7 +1390,7 @@
       "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 4,
+      "trigger_count": 2,
       "wake_state": 8.17
     },
     {
@@ -1227,7 +1471,7 @@
       "sleep_quality": 5.0,
       "source_timestamp": "2026-08-28T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -1255,7 +1499,7 @@
       "sleep_quality": 7.14,
       "source_timestamp": "2026-08-29T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -1311,7 +1555,7 @@
       "sleep_quality": 6.86,
       "source_timestamp": "2026-08-31T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -1321,7 +1565,7 @@
       "availability_timestamp": "2026-09-01T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
-      "dysregulation_unresolved": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 6,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -1367,10 +1611,10 @@
       "sleep_quality": 6.0,
       "source_timestamp": "2026-09-02T12:00:00-04:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 2,
+      "trigger_count": 3,
       "wake_state": 7.48
     },
     {
@@ -1397,7 +1641,7 @@
       "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 2,
+      "trigger_count": 3,
       "wake_state": 6.65
     },
     {
@@ -1479,7 +1723,7 @@
       "sleep_quality": 8.02,
       "source_timestamp": "2026-09-06T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
       "trigger_count": 1,
@@ -1509,7 +1753,7 @@
       "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
-      "trigger_count": 1,
+      "trigger_count": 0,
       "wake_state": 2.0
     },
     {
@@ -1566,7 +1810,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 2,
+      "trigger_count": 1,
       "wake_state": 4.15
     },
     {
@@ -1595,7 +1839,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 4.36
     },
     {
@@ -1621,7 +1865,7 @@
       "sleep_quality": 7.05,
       "source_timestamp": "2026-09-11T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -1652,7 +1896,7 @@
       "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 2,
+      "trigger_count": 1,
       "wake_state": 4.38
     },
     {
@@ -1677,7 +1921,7 @@
       "sleep_quality": 7.49,
       "source_timestamp": "2026-09-13T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 1,
@@ -1791,10 +2035,10 @@
       "sleep_quality": 7.92,
       "source_timestamp": "2026-09-17T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
-      "trigger_count": 0,
+      "trigger_count": 2,
       "wake_state": 4.5
     },
     {
@@ -1822,7 +2066,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 5.48
     },
     {
@@ -1847,10 +2091,10 @@
       "sleep_quality": 6.84,
       "source_timestamp": "2026-09-19T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 3,
+      "trigger_count": 1,
       "wake_state": 6.26
     },
     {
@@ -1878,7 +2122,7 @@
       "start_autonomy_level": 2,
       "strategy_count": 1,
       "subject_id": "PAC-A",
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 6.84
     },
     {
@@ -1903,7 +2147,7 @@
       "sleep_quality": 4.32,
       "source_timestamp": "2026-09-21T12:00:00-03:00",
       "start_autonomy_level": 2,
-      "strategy_count": 2,
+      "strategy_count": 3,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
       "trigger_count": 3,
@@ -1913,7 +2157,7 @@
       "availability_timestamp": "2026-09-22T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
-      "dysregulation_unresolved": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 7,
       "gi_level": 1,
       "id": "rec_PAC-A_48",
@@ -1931,7 +2175,7 @@
       "sleep_quality": 4.0,
       "source_timestamp": "2026-09-22T12:00:00-03:00",
       "start_autonomy_level": 2,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
       "trigger_count": 3,
@@ -1941,7 +2185,7 @@
       "availability_timestamp": "2026-09-23T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
-      "dysregulation_unresolved": 0,
+      "dysregulation_unresolved": 1,
       "event_count": 7,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -1987,7 +2231,7 @@
       "sleep_quality": 5.05,
       "source_timestamp": "2026-09-24T12:00:00-03:00",
       "start_autonomy_level": 2,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
       "trigger_count": 3,
@@ -2016,10 +2260,10 @@
       "sleep_quality": 5.89,
       "source_timestamp": "2026-09-25T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 2,
+      "trigger_count": 3,
       "wake_state": 6.16
     },
     {
@@ -2133,7 +2377,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 2,
+      "trigger_count": 1,
       "wake_state": 4.92
     },
     {
@@ -2186,10 +2430,10 @@
       "sleep_quality": 8.5,
       "source_timestamp": "2026-10-01T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 0,
+      "trigger_count": 1,
       "wake_state": 3.9
     },
     {
@@ -2273,7 +2517,7 @@
       "sleep_quality": 8.12,
       "source_timestamp": "2026-10-04T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "trigger_count": 1,
       "wake_state": 3.47
@@ -2304,7 +2548,7 @@
       "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
-      "trigger_count": 0,
+      "trigger_count": 1,
       "wake_state": 2.52
     },
     {
@@ -2329,7 +2573,7 @@
       "sleep_quality": 9.59,
       "source_timestamp": "2026-10-06T12:00:00-03:00",
       "start_autonomy_level": 0,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
       "trigger_count": 0,
@@ -2361,7 +2605,7 @@
       "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
-      "trigger_count": 0,
+      "trigger_count": 1,
       "wake_state": 2.15
     },
     {
@@ -2386,7 +2630,7 @@
       "sleep_quality": 10.0,
       "source_timestamp": "2026-10-08T12:00:00-03:00",
       "start_autonomy_level": 0,
-      "strategy_count": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 0,
@@ -2475,7 +2719,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 1,
+      "trigger_count": 0,
       "wake_state": 3.26
     },
     {
@@ -2500,7 +2744,7 @@
       "sleep_quality": 8.05,
       "source_timestamp": "2026-10-12T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "trigger_count": 1,
       "wake_state": 3.99
@@ -2557,7 +2801,7 @@
       "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
-      "trigger_count": 1,
+      "trigger_count": 0,
       "wake_state": 2.26
     },
     {
@@ -2582,7 +2826,7 @@
       "sleep_quality": 7.21,
       "source_timestamp": "2026-10-15T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 1,
@@ -2694,10 +2938,10 @@
       "sleep_quality": 7.29,
       "source_timestamp": "2026-10-19T12:00:00-03:00",
       "start_autonomy_level": 2,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 2,
+      "trigger_count": 1,
       "wake_state": 5.63
     },
     {
@@ -2722,7 +2966,7 @@
       "sleep_quality": 5.75,
       "source_timestamp": "2026-10-20T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "trigger_count": 2,
       "wake_state": 6.45
@@ -2750,7 +2994,7 @@
       "sleep_quality": 6.81,
       "source_timestamp": "2026-10-21T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "trigger_count": 1,
       "wake_state": 5.24
@@ -2777,10 +3021,10 @@
       "sleep_quality": 6.53,
       "source_timestamp": "2026-10-22T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 5.81
     },
     {
@@ -2808,7 +3052,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 5.54
     },
     {
@@ -2833,7 +3077,7 @@
       "sleep_quality": 6.43,
       "source_timestamp": "2026-10-24T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -2843,7 +3087,7 @@
       "availability_timestamp": "2026-10-25T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
-      "dysregulation_unresolved": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 6,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2864,7 +3108,7 @@
       "start_autonomy_level": 1,
       "strategy_count": 2,
       "subject_id": "PAC-A",
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 7.33
     },
     {
@@ -2890,9 +3134,9 @@
       "sleep_quality": 6.34,
       "source_timestamp": "2026-10-26T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 6.52
     },
     {
@@ -2920,7 +3164,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 4.47
     },
     {
@@ -2946,10 +3190,10 @@
       "sleep_quality": 8.03,
       "source_timestamp": "2026-10-28T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 2,
+      "trigger_count": 1,
       "wake_state": 5.11
     },
     {
@@ -2974,7 +3218,7 @@
       "sleep_quality": 6.15,
       "source_timestamp": "2026-10-29T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 3,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
       "trigger_count": 2,
@@ -3005,7 +3249,7 @@
       "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
-      "trigger_count": 1,
+      "trigger_count": 2,
       "wake_state": 5.91
     },
     {
@@ -3031,7 +3275,7 @@
       "sleep_quality": 7.01,
       "source_timestamp": "2026-10-31T12:00:00-03:00",
       "start_autonomy_level": 1,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
       "trigger_count": 2,
@@ -3041,7 +3285,7 @@
       "availability_timestamp": "2026-11-01T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
-      "dysregulation_unresolved": 0,
+      "dysregulation_unresolved": 1,
       "event_count": 4,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -3059,10 +3303,10 @@
       "sleep_quality": 5.87,
       "source_timestamp": "2026-11-01T12:00:00-03:00",
       "start_autonomy_level": 2,
-      "strategy_count": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 3,
+      "trigger_count": 2,
       "wake_state": 7.89
     },
     {
@@ -3091,7 +3335,7 @@
       "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
-      "trigger_count": 3,
+      "trigger_count": 4,
       "wake_state": 8.41
     }
   ]

@@ -84,6 +84,15 @@ class EventWrite(BaseModel):
     quick_capture: bool = False
 
 
+class PlannedEventWrite(BaseModel):
+    """Evento planificado (Planificación): citas, salidas, cambios de rutina."""
+    title: str = Field(min_length=1)
+    starts_at: datetime
+    category: str | None = None
+    expectation: str | None = None
+    idempotency_key: str | None = None
+
+
 DYREGULATION_EVENT_TYPE = "Desregulación Emocional"
 
 # Texto -> número para los campos de la Bitácora. El texto original se conserva
@@ -312,7 +321,7 @@ def get_subject(subject_id: str) -> dict[str, Any]:
     except KeyError:
         pass
     try:
-        profile, _, _ = load_subject_data(subject_id)
+        profile, _, _, _ = load_subject_data(subject_id)
         return profile
     except SubjectNotFoundError:
         raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
@@ -412,6 +421,21 @@ def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext =
         "prediction_availability": "prior_day_only",
     })
     return care_repository(subject_id).save(subject_id, "records", item, "record_id")
+
+
+@router.post("/{subject_id}/planned-events", status_code=201)
+def save_planned_event(subject_id: str, req: PlannedEventWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
+    starts_at = require_aware(req.starts_at, field_name="starts_at")
+    item = req.model_dump(mode="json", exclude_none=True)
+    item["idempotency_key"] = req.idempotency_key or uuid.uuid4().hex
+    item.update({
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "author_id": actor.actor_id,
+        "source_timestamp": starts_at.isoformat(),
+        "availability_timestamp": starts_at.isoformat(),
+    })
+    return care_repository(subject_id).save(subject_id, "planned_events", item, "planned_event_id")
 
 
 def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_id: str) -> None:

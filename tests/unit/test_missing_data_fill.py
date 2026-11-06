@@ -48,3 +48,23 @@ def test_missing_window_is_filled_with_baseline_not_zero() -> None:
     # El indicador binario distingue «sin dato» (1) de un valor real (0).
     assert features.rolling_features["event_count_missing_1d"] == 1.0
     assert features.rolling_features["sleep_quality_missing_1d"] == 0.0
+
+
+def test_planned_stressful_event_in_horizon() -> None:
+    from datetime import timedelta
+
+    cutoff = datetime(2026, 8, 26, 12, 0, 0, tzinfo=timezone.utc)
+    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+    baseline = build_baseline([], cutoff, policy=policy, timezone="UTC")
+
+    planned = [
+        {"starts_at": cutoff + timedelta(hours=3), "expectation": "Estresante"},
+        {"starts_at": cutoff + timedelta(hours=4), "expectation": "Agradable"},     # no estresante
+        {"starts_at": cutoff + timedelta(hours=20), "expectation": "Desagradable"},  # fuera del horizonte
+    ]
+    features = build_features([], baseline, cutoff, policy=policy, timezone="UTC", planned_events=planned)
+    assert features.rolling_features["planned_stressful_event_8h"] == 1.0
+
+    # Sin eventos planificados (o sin ninguno estresante) -> 0.
+    features_none = build_features([], baseline, cutoff, policy=policy, timezone="UTC")
+    assert features_none.rolling_features["planned_stressful_event_8h"] == 0.0

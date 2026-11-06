@@ -137,6 +137,10 @@ for _field, (_name, _code) in _CONTEXT_FAMILIES.items():
     FEATURE_DISPLAY_NAMES[f"{_field}_delta_baseline"] = f"desviación de {_name} frente a la línea base"
     FEATURE_VARIABLE_NAMES[f"{_field}_delta_baseline"] = f"desviacion_{_code}_linea_base"
 
+# Feature de contexto al corte (no agregada por ventanas).
+FEATURE_DISPLAY_NAMES["planned_stressful_event_8h"] = "evento planificado estresante en el horizonte"
+FEATURE_VARIABLE_NAMES["planned_stressful_event_8h"] = "evento_planificado_estresante"
+
 
 # Comparación con el propio infante (P19). Para cada variable: cuánto tiene que
 # alejarse de su línea base (la mediana de su historial) para contar como
