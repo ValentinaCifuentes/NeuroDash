@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ml.promotion import write_json_atomic
-from backend.app.prediction_service import load_legacy_history, load_subject_data, SubjectNotFoundError
+from backend.app.prediction_service import load_legacy_history, load_legacy_planned_events, load_subject_data, SubjectNotFoundError
 from backend.app.care_repository import CareRecordRepository, SubjectRepository
 from backend.app.schemas import ActorContext, ProvenanceV2
 
@@ -436,6 +436,16 @@ def save_planned_event(subject_id: str, req: PlannedEventWrite, actor: ActorCont
         "availability_timestamp": starts_at.isoformat(),
     })
     return care_repository(subject_id).save(subject_id, "planned_events", item, "planned_event_id")
+
+
+@router.get("/{subject_id}/planned-events")
+def list_planned_events(subject_id: str) -> list[dict[str, Any]]:
+    """Eventos planificados del infante (los próximos se muestran en Planificación)."""
+    repo = care_repository(subject_id)  # resuelve real vs demo y devuelve 404 si no existe
+    planned = repo.list(subject_id, "planned_events")
+    if is_demo_subject(subject_id):
+        planned = load_legacy_planned_events(subject_id) + planned
+    return planned
 
 
 def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_id: str) -> None:

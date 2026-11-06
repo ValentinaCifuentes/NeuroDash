@@ -237,6 +237,12 @@ def test_planned_event_is_stored(tmp_path: Path, monkeypatch) -> None:
     assert len(stored) == 1
     assert stored[0]["expectation"] == "Desagradable"
 
+    # La ruta GET lo devuelve (con starts_at en ISO) para la pantalla de Planificación.
+    listed = client.get(f"/api/v1/subjects/{subject_id}/planned-events").json()
+    assert len(listed) == 1
+    assert listed[0]["title"] == "Cita con el dentista"
+    assert listed[0]["expectation"] == "Desagradable"
+
 
 def test_event_scales_become_daily_numbers_and_absent_scales_stay_absent(tmp_path: Path, monkeypatch) -> None:
     """P22: la escala de Transición, Alimentación y Dieta sensorial llega al registro del día."""

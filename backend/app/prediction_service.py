@@ -50,6 +50,15 @@ def load_legacy_history(subject_id: str) -> tuple[list[dict[str, Any]], list[dic
     return history.get("records", []), history.get("occurrences", [])
 
 
+def load_legacy_planned_events(subject_id: str) -> list[dict[str, Any]]:
+    """Eventos planificados del historial sintético de una demo (sin parsear)."""
+    history_path = LEGACY_HISTORY_DIR / f"{subject_id}_history.json"
+    if not history_path.exists():
+        return []
+    with open(history_path, "r", encoding="utf-8") as f:
+        return json.load(f).get("planned_events", [])
+
+
 def get_subject_paths(subject_id: str) -> tuple[Path, bool]:
     """
     Returns the path to the subject directory and a boolean indicating if it's a demo subject.
