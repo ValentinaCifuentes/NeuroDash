@@ -64,21 +64,36 @@ def test_daily_record_encodes_text_to_raw_and_numeric_to_root(tmp_path: Path, mo
         assert legacy_field not in saved
 
 
-def test_editing_todays_basal_replaces_instead_of_duplicating(tmp_path: Path, monkeypatch) -> None:
-    """Guardar dos veces el estado basal del mismo día reemplaza, no duplica."""
+def test_partial_saves_create_separate_records_and_edit_replaces(tmp_path: Path, monkeypatch) -> None:
+    """Cada guardado crea un registro aparte; el lápiz (record_id) reemplaza el suyo."""
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
     client = TestClient(app)
     subject_id = _onboard(client)
 
+    # Primer guardado parcial: descanso nocturno.
     first = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
         "occurred_at": "2026-08-26T07:30:00-04:00", "idempotency_key": "basal-1",
         "provenance": {"source": "tutor_app", "synthetic": False},
         "sleep_quality": "Reparador", "wake_mode": "Tranquilo/Alegre",
     }, headers=_headers()).json()
 
-    edited = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+    # Segundo guardado parcial (sin record_id): digestión, otro registro.
+    second = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
         "occurred_at": "2026-08-26T08:00:00-04:00", "idempotency_key": "basal-2",
         "provenance": {"source": "tutor_app", "synthetic": False},
+        "gi_status": "Normal",
+    }, headers=_headers()).json()
+
+    assert second["record_id"] != first["record_id"]
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    assert len(records) == 2
+
+    # Editar el primero (con record_id) reemplaza solo ese registro.
+    edited = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T09:00:00-04:00", "idempotency_key": "basal-3",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "record_id": first["record_id"],
         "sleep_quality": "Interrumpido", "wake_mode": "Irritable/Llorando",
     }, headers=_headers()).json()
 
@@ -87,8 +102,12 @@ def test_editing_todays_basal_replaces_instead_of_duplicating(tmp_path: Path, mo
     assert edited["wake_state"] == 8     # Irritable/Llorando
 
     records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
-    assert len(records) == 1
-    assert records[0]["raw"]["sleep_quality"] == "Interrumpido"
+    assert len(records) == 2
+    first_after = next(r for r in records if r["record_id"] == first["record_id"])
+    assert first_after["raw"]["sleep_quality"] == "Interrumpido"
+    # El registro de digestión no se tocó.
+    second_after = next(r for r in records if r["record_id"] == second["record_id"])
+    assert second_after["raw"]["gi_status"] == "Normal"
 
 
 def test_medication_no_aplica_omits_numeric_field(tmp_path: Path, monkeypatch) -> None:

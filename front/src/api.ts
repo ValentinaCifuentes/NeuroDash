@@ -165,6 +165,8 @@ export function buildCareWrite(occurredAt: Date, idempotencyKey: string = newId(
 export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(), idempotencyKey?: string) {
   return {
     ...buildCareWrite(now, idempotencyKey ?? record.idempotency_key),
+    // Para editar un registro guardado (el lápiz del historial); sin él, se crea uno nuevo.
+    ...(record.record_id ? { record_id: record.record_id } : {}),
     sleep_quality: record.sleep_quality,
     wake_mode: record.wake_mode,
     start_autonomy: record.start_autonomy,

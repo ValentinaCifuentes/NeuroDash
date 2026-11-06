@@ -37,6 +37,13 @@ function basalSummary(record: DailyRecord): string | null {
     sleep && `Sueño ${lower(sleep)}`,
     wake && `Despertar ${lower(wake)}`,
     autonomy && `Inicio del día ${lower(autonomy)}`,
+    record.medication_adherence && `Medicación ${lower(record.medication_adherence)}`,
+    record.gi_status && `Digestión ${lower(record.gi_status)}`,
+    record.sleep_hours_range && `Durmiió ${record.sleep_hours_range.toLowerCase()}`,
+    record.early_signs?.length ? `Señales: ${record.early_signs.join(', ')}` : null,
+    record.physical_discomfort?.length ? `Malestar: ${record.physical_discomfort.join(', ')}` : null,
+    record.routine_change && `Rutina: ${record.routine_change}`,
+    record.school_attendance && `Colegio: ${record.school_attendance}`,
   ].filter(Boolean);
   return parts.length > 0 ? parts.join(' · ') : null;
 }
@@ -106,4 +113,42 @@ export function todayBasalRecord(entries: TimelineEntry[], today: string): Daily
     .map((entry) => entry.payload as DailyRecord)
     .find(hasBasalAnswers);
   return basal ?? null;
+}
+
+/** Campos del estado basal que el tutor responde en la Bitácora (uno por pregunta). */
+const BASAL_FIELDS = [
+  'sleep_quality',
+  'wake_mode',
+  'start_autonomy',
+  'medication_adherence',
+  'gi_status',
+  'sleep_hours_range',
+  'early_signs',
+  'physical_discomfort',
+  'routine_change',
+  'school_attendance',
+] as const;
+
+function fieldHasValue(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') return false;
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+/**
+ * Campos del estado basal de HOY que ya se guardaron (aunque sea en registros
+ * parciales distintos). «Mi Día» los oculta para que el tutor solo vea (y guarde)
+ * lo que falta.
+ */
+export function todaySavedFields(entries: TimelineEntry[], today: string): Set<string> {
+  const saved = new Set<string>();
+  for (const entry of entries) {
+    if (entry.kind !== 'daily_record') continue;
+    if (localDay(entry.timestamp) !== today) continue;
+    const record = entry.payload as DailyRecord;
+    for (const field of BASAL_FIELDS) {
+      if (fieldHasValue(record[field])) saved.add(field);
+    }
+  }
+  return saved;
 }

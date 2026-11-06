@@ -52,6 +52,8 @@ class CareRecordWrite(BaseModel):
     occurred_at: datetime
     idempotency_key: str = Field(min_length=1)
     provenance: ProvenanceV2
+    # Para editar un registro guardado (el lápiz del historial). Sin él, se crea uno nuevo.
+    record_id: str | None = None
     sleep_quality: str | None = None
     gi_status: str | None = None
     wake_mode: str | None = None
@@ -343,7 +345,7 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
         "date": occurred_at.astimezone(local_zone).date().isoformat(),
         "prediction_availability": "immediate",
     })
-    return _upsert_daily_record(subject_id, item)
+    return _save_daily_record_item(subject_id, item, req.record_id)
 
 
 # Campos numéricos que escribe la Bitácora (no los conteos de eventos ni las
@@ -356,30 +358,33 @@ _BASAL_NUMERIC_FIELDS = {
 }
 
 
-def _upsert_daily_record(subject_id: str, item: dict[str, Any]) -> dict[str, Any]:
-    """Guarda el estado basal del día: si ya existe, lo reemplaza (no duplica)."""
+def _save_daily_record_item(subject_id: str, item: dict[str, Any], record_id: str | None) -> dict[str, Any]:
+    """Guarda el estado basal.
+
+    Sin `record_id` crea un registro nuevo por cada guardado: el tutor puede ir
+    guardando por partes (descanso nocturno, luego digestión, etc.) y cada parte
+    queda como un registro aparte en el historial. Con `record_id` (el lápiz del
+    historial) reemplaza ese registro concreto en vez de duplicarlo.
+    """
     repo = care_repository(subject_id)
     records = repo.list(subject_id, "records")
-    target = next(
-        (
-            record
-            for record in records
-            if record.get("date") == item["date"] and record.get("prediction_availability") == "immediate"
-        ),
-        None,
-    )
-    if target is None:
-        return repo.save(subject_id, "records", item, "record_id")
-    # Editar: reemplaza el texto y los números de la Bitácora, conserva record_id,
-    # timestamps y los conteos de eventos que ya calculó `_refresh_daily_event_counts`.
-    target["raw"] = item.get("raw", {})
-    for field in _BASAL_NUMERIC_FIELDS:
-        if field in item:
-            target[field] = item[field]
-        else:
-            target.pop(field, None)
-    write_json_atomic(subject_root(subject_id) / subject_id / "records.json", records)
-    return target
+
+    if record_id:
+        for record in records:
+            if record.get("record_id") == record_id:
+                # Editar: reemplaza el texto y los números de la Bitácora, conserva
+                # record_id, timestamps y los conteos que calculó `_refresh_daily_event_counts`.
+                record["raw"] = item.get("raw", {})
+                for field in _BASAL_NUMERIC_FIELDS:
+                    if field in item:
+                        record[field] = item[field]
+                    else:
+                        record.pop(field, None)
+                write_json_atomic(subject_root(subject_id) / subject_id / "records.json", records)
+                return record
+        raise HTTPException(status_code=404, detail=f"Record {record_id} not found.")
+
+    return repo.save(subject_id, "records", item, "record_id")
 
 
 @router.post("/{subject_id}/events", status_code=201)

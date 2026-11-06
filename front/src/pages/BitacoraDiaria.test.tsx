@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { getTimeline } from '../api';
+import { todayIso } from '../domain/catalog';
 import type { DailyRecord, Subject } from '../types';
 import { BitacoraDiaria } from './BitacoraDiaria';
 
@@ -98,7 +100,7 @@ describe('Bitácora · Mi Día', () => {
     expect(screen.getByText(/Las señales salen de su perfil/)).toBeInTheDocument();
   });
 
-  it('retries a failed save with the same key, and hides the form after success (P2)', async () => {
+  it('retries a failed save with the same key, and resets the form after success (P2)', async () => {
     const save = setup(vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValue(true));
     answerCore();
 
@@ -110,20 +112,47 @@ describe('Bitácora · Mi Día', () => {
     // El reintento reutiliza la misma clave (P2).
     expect(sentRecord(save, 0).idempotency_key).toBe(sentRecord(save, 1).idempotency_key);
 
-    // El tercer intento funciona y, al guardar, el formulario desaparece.
+    // El tercer intento funciona y reinicia el formulario (queda sin selección).
     fireEvent.click(saveButton());
     await waitFor(() => expect(save).toHaveBeenCalledTimes(3));
-    await screen.findByText('Guardado');
-    expect(screen.queryByRole('button', { name: /Guardar Estado Basal/ })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryAllByRole('radio', { checked: true })).toHaveLength(0));
   });
 
-  it('hides the form once the basal of today is saved', async () => {
-    setup(vi.fn().mockResolvedValue(true));
-    answerCore();
-    fireEvent.click(saveButton());
+  it('hides the fields already saved today, leaving only what is missing', async () => {
+    vi.mocked(getTimeline).mockResolvedValue({
+      subject_id: subject.subject_id,
+      as_of: new Date().toISOString(),
+      days: 1,
+      entries: [
+        {
+          entry_id: 'r1',
+          kind: 'daily_record',
+          timestamp: new Date().toISOString(),
+          title: 'Estado basal',
+          detail: null,
+          semantic: 'info',
+          payload: {
+            record_id: 'r1',
+            subject_id: subject.subject_id,
+            date: todayIso(),
+            sleep_quality: 'Reparador',
+            wake_mode: 'Tranquilo/Alegre',
+            start_autonomy: 'Por sí solo',
+            medication_adherence: null,
+            gi_status: null,
+          },
+        },
+      ],
+    });
+    render(<BitacoraDiaria subject={subject} revision={0} saving={false} onSaveBasal={vi.fn()} onAddEvent={vi.fn()} />);
 
-    // El formulario desaparece y queda el «guardado».
-    await screen.findByText('Guardado');
-    expect(screen.queryByRole('button', { name: /Guardar Estado Basal/ })).not.toBeInTheDocument();
+    // Espera a que cargue la línea de tiempo y desaparezca lo ya guardado.
+    await waitFor(() => expect(screen.queryByRole('radiogroup', { name: /¿Cómo durmió anoche\?/ })).not.toBeInTheDocument());
+
+    // Lo ya guardado (descanso nocturno) no aparece; lo que falta sí.
+    expect(screen.queryByRole('radiogroup', { name: /¿Cómo despertó/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: /medicamentos/ })).toBeInTheDocument();
+    // Y ya no se exige sueño/despertar para seguir guardando.
+    expect(screen.queryByText(/Para guardar falta/)).not.toBeInTheDocument();
   });
 });

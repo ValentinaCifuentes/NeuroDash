@@ -1,19 +1,17 @@
 /**
  * Bitácora Diaria · Mi Día (screens/Final-Bitacora.html).
  *
- * 1. ¿Cómo estuvo el día de hoy? — sueño, despertar y autonomía (ChoiceTiles).
- * 2. Medicación — interruptor + «No aplica».
- * 3. Digestión — ShapeList.
- * 4. ¿Pasó algo distinto hoy? — contexto del día en chips (plan de datos, Fase 3).
- * 5. «Guardar Estado Basal», con el + de registro rápido al lado.
+ * 1. «¿Cómo va el día de hoy?» — título general de la bitácora (fuera de la tarjeta).
+ * 2. Descanso nocturno — sueño, despertar y autonomía (ChoiceTiles).
+ * 3. Medicación — interruptor + «No aplica».
+ * 4. Digestión — ShapeList.
+ * 5. Contexto del día — chips (plan de datos, Fase 3).
+ * 6. «Guardar Estado Basal», con el + de registro rápido al lado.
  *
- * Nada viene preseleccionado (P13): lo que el tutor no responde no se envía, y
- * un día sin dato nunca se confunde con un día «normal». Guardar exige sueño y
- * despertar, los datos de la Bitácora que cuentan para la confianza.
- *
- * El estado basal se guarda una sola vez por día: al guardarlo desaparece el
- * formulario y queda un «guardado». Si el tutor se equivocó, lo edita desde el
- * Historial de Hoy (solo el registro de hoy; el backend lo reemplaza, no duplica).
+ * Nada viene preseleccionado (P13): lo que el tutor no responde no se envía. El
+ * estado basal se guarda **por partes**: cada «Guardar» crea un registro con lo
+ * que respondió, y en «Mi Día» solo queda lo que falta. Lo ya guardado se ve (y
+ * se edita con el lápiz) en el Historial de Hoy.
  */
 
 import { useEffect, useState, type RefObject } from 'react';
@@ -33,7 +31,7 @@ import {
   todayIso,
 } from '../domain/catalog';
 import { getTimeline } from '../api';
-import { todayBasalRecord, todayRows } from '../domain/history';
+import { todayRows, todaySavedFields } from '../domain/history';
 import { earlySignOptions } from '../domain/profile';
 import type {
   ApiError,
@@ -74,23 +72,41 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
   const tab = view ?? ownTab;
   const setTab = onChangeView ?? setOwnTab;
 
-  // Registro basal de hoy que se está editando (null = no se está editando).
+  // Registro de hoy que se está editando (null = se guarda lo que falta).
   const [editingRecord, setEditingRecord] = useState<DailyRecord | null>(null);
-  // true cuando el estado basal de hoy ya se guardó en esta sesión.
-  const [savedToday, setSavedToday] = useState(false);
+  // Cambia tras cada guardado para reiniciar el formulario de «Mi Día».
+  const [saveNonce, setSaveNonce] = useState(0);
+
+  // Línea de tiempo de hoy, compartida por «Mi Día» (ocultar lo guardado) y el
+  // «Historial de Hoy» (mostrarlo). Una sola carga.
+  const [entries, setEntries] = useState<TimelineEntry[] | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    setEntries(null);
+    setError(null);
+    getTimeline(subject.subject_id, new Date().toISOString(), 1)
+      .then((res) => alive && setEntries(res.entries))
+      .catch((reason: ApiError) => alive && setError(reason));
+    return () => {
+      alive = false;
+    };
+  }, [subject.subject_id, revision, attempt]);
+
+  const savedFields = entries ? todaySavedFields(entries, todayIso()) : new Set<string>();
 
   function startEdit(record: DailyRecord) {
     setEditingRecord(record);
-    setSavedToday(false);
     setTab('basal');
   }
   function finishSave() {
     setEditingRecord(null);
-    setSavedToday(true);
+    setSaveNonce((value) => value + 1);
   }
   function cancelEdit() {
     setEditingRecord(null);
-    setSavedToday(true);
   }
 
   return (
@@ -107,25 +123,31 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
 
       {tab === 'basal' ? (
         <MiDia
-          key={editingRecord ? 'edit' : 'new'}
+          key={`${editingRecord ? 'edit' : 'new'}:${saveNonce}`}
           subject={subject}
           saving={saving}
           onSaveBasal={onSaveBasal}
           onAddEvent={onAddEvent}
           fabRef={fabRef}
           editingRecord={editingRecord}
-          savedToday={savedToday}
+          savedFields={savedFields}
           onCancelEdit={cancelEdit}
           onFinishSave={finishSave}
         />
       ) : (
         <>
-          <HistorialHoy subjectId={subject.subject_id} revision={revision} onEdit={startEdit} />
+          <HistorialHoy entries={entries} error={error} onRetry={() => setAttempt((value) => value + 1)} onEdit={startEdit} />
           {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
         </>
       )}
     </div>
   );
+}
+
+function hasValue(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') return false;
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
 }
 
 interface MiDiaProps {
@@ -135,12 +157,12 @@ interface MiDiaProps {
   onAddEvent?: () => void;
   fabRef?: RefObject<HTMLButtonElement>;
   editingRecord: DailyRecord | null;
-  savedToday: boolean;
+  savedFields: Set<string>;
   onCancelEdit: () => void;
   onFinishSave: () => void;
 }
 
-function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord, savedToday, onCancelEdit, onFinishSave }: MiDiaProps) {
+function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord, savedFields, onCancelEdit, onFinishSave }: MiDiaProps) {
   const [sleep, setSleep] = useState<SleepQuality | null>(editingRecord?.sleep_quality ?? null);
   const [wake, setWake] = useState<WakeMode | null>(editingRecord?.wake_mode ?? null);
   const [autonomy, setAutonomy] = useState<StartAutonomy | null>(editingRecord?.start_autonomy ?? null);
@@ -157,13 +179,29 @@ function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord
 
   /** P24: las señales que el tutor marcó en el perfil; sin perfil, la lista general. */
   const signs = earlySignOptions(subject);
-  const missing = [!sleep && 'sueño', !wake && 'despertar'].filter(Boolean) as string[];
-  const canSave = missing.length === 0 && !saving;
+
+  // Al editar se muestran los campos de ese registro; si no, solo lo que falta.
+  const show = (field: string): boolean =>
+    editingRecord ? hasValue((editingRecord as unknown as Record<string, unknown>)[field]) : !savedFields.has(field);
+
+  const hasAnyAnswer = Boolean(
+    sleep || wake || autonomy || medication || gi || sleepHours ||
+    earlySigns.length > 0 || discomfort.length > 0 || routineChange || school,
+  );
+  // Sueño y despertar solo se exigen la primera vez (si no están ya guardados).
+  const missing = editingRecord
+    ? []
+    : ([
+        !sleep && !savedFields.has('sleep_quality') && 'sueño',
+        !wake && !savedFields.has('wake_mode') && 'despertar',
+      ].filter(Boolean) as string[]);
+  const canSave = missing.length === 0 && hasAnyAnswer && !saving;
 
   async function save() {
     const saved = await onSaveBasal({
       subject_id: subject.subject_id,
       date: todayIso(),
+      record_id: editingRecord?.record_id,
       sleep_quality: sleep,
       wake_mode: wake,
       start_autonomy: autonomy,
@@ -182,99 +220,110 @@ function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord
     }
   }
 
-  // Ya guardado hoy y sin editar: sin formulario.
-  if (editingRecord === null && savedToday) {
-    return (
-      <>
-        <section className="nd-card nd-history" aria-labelledby="guardado-titulo">
-          <h2 id="guardado-titulo" className="nd-eyebrow nd-eyebrow--flat">Estado basal</h2>
-          <p className="nd-history__title">Guardado</p>
-          <p className="nd-history__message">Ya registraste cómo estuvo el día de hoy. Puedes editarlo desde el Historial.</p>
-        </section>
-        {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
-      </>
-    );
-  }
-
   return (
     <>
       {editingRecord && (
-        <section className="nd-card" aria-label="Editando el estado basal">
-          <p className="nd-card__hint">Estás editando el estado basal de hoy.</p>
+        <section className="nd-card" aria-label="Editando un registro">
+          <p className="nd-card__hint">Estás editando un registro guardado.</p>
           <button type="button" className="nd-linkbutton nd-press" onClick={onCancelEdit}>
             Cancelar edición
           </button>
         </section>
       )}
 
-      <section className="nd-card nd-card--questions" aria-labelledby="dia-titulo">
-        <h2 id="dia-titulo" className="nd-cardtitle nd-cardtitle--lg">¿Cómo estuvo el día de hoy?</h2>
-        <ChoiceTiles eyebrow="Descanso nocturno" legend="¿Cómo durmió anoche?" choices={SLEEP_CHOICES} value={sleep} onChange={setSleep} />
-        <ChoiceTiles eyebrow="Forma de despertar" legend="¿Cómo despertó el día de hoy?" choices={WAKE_CHOICES} value={wake} onChange={setWake} />
-        <ChoiceTiles
-          eyebrow="La transición / autonomía"
-          legend="¿Necesitó ayuda para iniciar el día?"
-          choices={START_AUTONOMY_CHOICES}
-          value={autonomy}
-          onChange={setAutonomy}
-        />
-      </section>
+      <h2 className="nd-cardtitle nd-cardtitle--lg">¿Cómo va el día de hoy?</h2>
 
-      <section className="nd-card" aria-labelledby="med-titulo">
-        <span className="nd-eyebrow nd-eyebrow--flat">Tratamiento</span>
-        <h2 id="med-titulo" className="nd-cardtitle">Adherencia a la Medicación</h2>
-        <Switch
-          label="¿Se tomó los medicamentos de hoy?"
-          checked={medication === 'Sí'}
-          disabled={medication === 'No Aplica'}
-          onChange={(taken) => setMedication(taken ? 'Sí' : 'No')}
-        />
-        <button
-          type="button"
-          className="nd-linkbutton nd-linkbutton--start nd-press"
-          aria-pressed={medication === 'No Aplica'}
-          onClick={() => setMedication((value) => (value === 'No Aplica' ? null : 'No Aplica'))}
-        >
-          {medication === 'No Aplica' ? 'Marcado como «No aplica»' : 'No aplica para este infante'}
-        </button>
-      </section>
+      {(show('sleep_quality') || show('wake_mode') || show('start_autonomy')) && (
+        <section className="nd-card nd-card--questions" aria-label="Descanso nocturno">
+          {show('sleep_quality') && (
+            <ChoiceTiles eyebrow="Descanso nocturno" legend="¿Cómo durmió anoche?" choices={SLEEP_CHOICES} value={sleep} onChange={setSleep} />
+          )}
+          {show('wake_mode') && (
+            <ChoiceTiles eyebrow="Forma de despertar" legend="¿Cómo despertó el día de hoy?" choices={WAKE_CHOICES} value={wake} onChange={setWake} />
+          )}
+          {show('start_autonomy') && (
+            <ChoiceTiles
+              eyebrow="La transición / autonomía"
+              legend="¿Necesitó ayuda para iniciar el día?"
+              choices={START_AUTONOMY_CHOICES}
+              value={autonomy}
+              onChange={setAutonomy}
+            />
+          )}
+        </section>
+      )}
 
-      <section className="nd-card" aria-labelledby="gi-titulo">
-        <span className="nd-eyebrow nd-eyebrow--flat">Digestión</span>
-        <h2 id="gi-titulo" className="nd-cardtitle">Salud Gastrointestinal</h2>
-        <ShapeList label="Salud gastrointestinal" choices={GI_CHOICES} value={gi} onChange={setGi} />
-      </section>
+      {show('medication_adherence') && (
+        <section className="nd-card" aria-labelledby="med-titulo">
+          <span className="nd-eyebrow nd-eyebrow--flat">Tratamiento</span>
+          <h2 id="med-titulo" className="nd-cardtitle">Adherencia a la Medicación</h2>
+          <Switch
+            label="¿Se tomó los medicamentos de hoy?"
+            checked={medication === 'Sí'}
+            disabled={medication === 'No Aplica'}
+            onChange={(taken) => setMedication(taken ? 'Sí' : 'No')}
+          />
+          <button
+            type="button"
+            className="nd-linkbutton nd-linkbutton--start nd-press"
+            aria-pressed={medication === 'No Aplica'}
+            onClick={() => setMedication((value) => (value === 'No Aplica' ? null : 'No Aplica'))}
+          >
+            {medication === 'No Aplica' ? 'Marcado como «No aplica»' : 'No aplica para este infante'}
+          </button>
+        </section>
+      )}
 
-      <section className="nd-card nd-card--questions" aria-labelledby="ctx-titulo">
-        <div className="nd-card__intro">
-          <span className="nd-eyebrow nd-eyebrow--flat">Contexto del día</span>
-          <h2 id="ctx-titulo" className="nd-cardtitle">¿Pasó algo distinto hoy?</h2>
-          <p className="nd-card__hint">Un toque por pregunta. Ayuda a anticipar mejor las próximas horas.</p>
-        </div>
-        <ChipGroup mode="single" legendStyle="section" legend="¿Cuántas horas durmió?" options={SLEEP_HOURS_OPTIONS} value={sleepHours} onChange={setSleepHours} />
-        <ChipGroup
-          mode="multiple"
-          legendStyle="section"
-          legend="¿Viste alguna de sus señales tempranas?"
-          hint={signs.fromProfile ? 'Las señales salen de su perfil. Puedes marcar varias.' : 'Puedes marcar varias.'}
-          options={[...signs.options, NO_EARLY_SIGNS]}
-          exclusive={NO_EARLY_SIGNS}
-          value={earlySigns}
-          onChange={setEarlySigns}
-        />
-        <ChipGroup
-          mode="multiple"
-          legendStyle="section"
-          legend="¿Tuvo algún malestar físico?"
-          hint="Puedes marcar varios."
-          options={PHYSICAL_DISCOMFORT_OPTIONS}
-          exclusive={NO_DISCOMFORT}
-          value={discomfort}
-          onChange={setDiscomfort}
-        />
-        <ChipGroup mode="single" legendStyle="section" legend="¿Hubo un cambio de rutina?" options={ROUTINE_CHANGE_OPTIONS} value={routineChange} onChange={setRoutineChange} />
-        <ChipGroup mode="single" legendStyle="section" legend="¿Asistió al colegio?" options={SCHOOL_ATTENDANCE_OPTIONS} value={school} onChange={setSchool} />
-      </section>
+      {show('gi_status') && (
+        <section className="nd-card" aria-labelledby="gi-titulo">
+          <span className="nd-eyebrow nd-eyebrow--flat">Digestión</span>
+          <h2 id="gi-titulo" className="nd-cardtitle">Salud Gastrointestinal</h2>
+          <ShapeList label="Salud gastrointestinal" choices={GI_CHOICES} value={gi} onChange={setGi} />
+        </section>
+      )}
+
+      {(show('sleep_hours_range') || show('early_signs') || show('physical_discomfort') || show('routine_change') || show('school_attendance')) && (
+        <section className="nd-card nd-card--questions" aria-labelledby="ctx-titulo">
+          <div className="nd-card__intro">
+            <span className="nd-eyebrow nd-eyebrow--flat">Contexto del día</span>
+            <h2 id="ctx-titulo" className="nd-cardtitle">¿Pasó algo distinto hoy?</h2>
+            <p className="nd-card__hint">Un toque por pregunta. Ayuda a anticipar mejor las próximas horas.</p>
+          </div>
+          {show('sleep_hours_range') && (
+            <ChipGroup mode="single" legendStyle="section" legend="¿Cuántas horas durmió?" options={SLEEP_HOURS_OPTIONS} value={sleepHours} onChange={setSleepHours} />
+          )}
+          {show('early_signs') && (
+            <ChipGroup
+              mode="multiple"
+              legendStyle="section"
+              legend="¿Viste alguna de sus señales tempranas?"
+              hint={signs.fromProfile ? 'Las señales salen de su perfil. Puedes marcar varias.' : 'Puedes marcar varias.'}
+              options={[...signs.options, NO_EARLY_SIGNS]}
+              exclusive={NO_EARLY_SIGNS}
+              value={earlySigns}
+              onChange={setEarlySigns}
+            />
+          )}
+          {show('physical_discomfort') && (
+            <ChipGroup
+              mode="multiple"
+              legendStyle="section"
+              legend="¿Tuvo algún malestar físico?"
+              hint="Puedes marcar varios."
+              options={PHYSICAL_DISCOMFORT_OPTIONS}
+              exclusive={NO_DISCOMFORT}
+              value={discomfort}
+              onChange={setDiscomfort}
+            />
+          )}
+          {show('routine_change') && (
+            <ChipGroup mode="single" legendStyle="section" legend="¿Hubo un cambio de rutina?" options={ROUTINE_CHANGE_OPTIONS} value={routineChange} onChange={setRoutineChange} />
+          )}
+          {show('school_attendance') && (
+            <ChipGroup mode="single" legendStyle="section" legend="¿Asistió al colegio?" options={SCHOOL_ATTENDANCE_OPTIONS} value={school} onChange={setSchool} />
+          )}
+        </section>
+      )}
 
       <div className="nd-ctabar">
         {missing.length > 0 && (
@@ -314,36 +363,22 @@ function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord
    ============================================================ */
 
 function HistorialHoy({
-  subjectId,
-  revision,
+  entries,
+  error,
+  onRetry,
   onEdit,
 }: {
-  subjectId: string;
-  revision: number;
+  entries: TimelineEntry[] | null;
+  error: ApiError | null;
+  onRetry: () => void;
   onEdit: (record: DailyRecord) => void;
 }) {
-  const [entries, setEntries] = useState<TimelineEntry[] | null>(null);
-  const [error, setError] = useState<ApiError | null>(null);
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    let alive = true;
-    setEntries(null);
-    setError(null);
-    getTimeline(subjectId, new Date().toISOString(), 1)
-      .then((res) => alive && setEntries(res.entries))
-      .catch((reason: ApiError) => alive && setError(reason));
-    return () => {
-      alive = false;
-    };
-  }, [subjectId, revision, attempt]);
-
   if (entries === null) {
     if (error) {
       return (
         <section className="nd-card nd-history" role="alert">
           <p className="nd-history__message">{error.message}</p>
-          <button type="button" className="nd-button-outline nd-press" onClick={() => setAttempt((value) => value + 1)}>
+          <button type="button" className="nd-button-outline nd-press" onClick={onRetry}>
             Reintentar historial
           </button>
         </section>
@@ -361,8 +396,11 @@ function HistorialHoy({
 
   const today = todayIso();
   const rows = todayRows(entries, today);
-  // Solo el estado basal de HOY se puede editar (no los días anteriores).
-  const todayBasal = todayBasalRecord(entries, today);
+  // Registro editable por fila: cada guardado parcial es un registro con su lápiz.
+  const recordByEntryId = new Map<string, DailyRecord>();
+  for (const entry of entries) {
+    if (entry.kind === 'daily_record') recordByEntryId.set(entry.entry_id, entry.payload as DailyRecord);
+  }
 
   if (rows.length === 0) {
     return (
@@ -379,31 +417,30 @@ function HistorialHoy({
         {rows.length} {rows.length === 1 ? 'registro' : 'registros'} hoy
       </h2>
       <ul className="nd-history__list">
-        {rows.map((row) => (
-          <li key={row.id} className="nd-history__row">
-            <span className="nd-history__icon" style={{ background: row.tint, color: row.color }} aria-hidden="true">
-              <Icon name={row.icon} size={18} />
-            </span>
-            <div className="nd-history__body">
-              <div className="nd-history__head">
-                <span className="nd-history__name">{row.title}</span>
-                <time className="nd-history__time" dateTime={row.timestamp}>
-                  {formatTime(row.timestamp)}
-                </time>
+        {rows.map((row) => {
+          const record = recordByEntryId.get(row.id);
+          return (
+            <li key={row.id} className="nd-history__row">
+              <span className="nd-history__icon" style={{ background: row.tint, color: row.color }} aria-hidden="true">
+                <Icon name={row.icon} size={18} />
+              </span>
+              <div className="nd-history__body">
+                <div className="nd-history__head">
+                  <span className="nd-history__name">{row.title}</span>
+                  <time className="nd-history__time" dateTime={row.timestamp}>
+                    {formatTime(row.timestamp)}
+                  </time>
+                </div>
+                {row.summary && <p className="nd-history__summary">{row.summary}</p>}
               </div>
-              {row.summary && <p className="nd-history__summary">{row.summary}</p>}
-            </div>
-            {row.title === 'Estado basal' && todayBasal && (
-              <button
-                type="button"
-                className="nd-linkbutton nd-press"
-                onClick={() => onEdit(todayBasal)}
-              >
-                <Icon name="edit" size={16} /> Editar
-              </button>
-            )}
-          </li>
-        ))}
+              {row.title === 'Estado basal' && record && (
+                <button type="button" className="nd-linkbutton nd-press" aria-label="Editar" onClick={() => onEdit(record)}>
+                  <Icon name="edit" size={16} />
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
