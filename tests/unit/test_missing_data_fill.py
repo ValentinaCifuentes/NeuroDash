@@ -45,9 +45,37 @@ def test_missing_window_is_filled_with_baseline_not_zero() -> None:
         for m in features.missingness
     )
 
-    # El indicador binario distingue «sin dato» (1) de un valor real (0).
-    assert features.rolling_features["event_count_missing_1d"] == 1.0
-    assert features.rolling_features["sleep_quality_missing_1d"] == 0.0
+    # El indicador *_missing no se agrega a los campos núcleo (siempre presentes).
+    assert "event_count_missing_1d" not in features.rolling_features
+    assert "sleep_quality_missing_1d" not in features.rolling_features
+
+
+def test_missing_indicator_only_for_optional_fields() -> None:
+    """El flag *_missing solo existe en campos opcionales; 1 si falta, 0 si hay dato."""
+    cutoff = datetime(2026, 8, 26, 12, 0, 0, tzinfo=timezone.utc)
+    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+
+    records = [
+        {  # sin medicación registrada (p. ej. «No Aplica»)
+            "source_timestamp": datetime(2026, 8, 25, 10, 0, 0, tzinfo=timezone.utc),
+            "availability_timestamp": datetime(2026, 8, 25, 10, 0, 0, tzinfo=timezone.utc),
+            "sleep_quality": 8.0,
+        },
+        {  # con medicación
+            "source_timestamp": datetime(2026, 8, 24, 10, 0, 0, tzinfo=timezone.utc),
+            "availability_timestamp": datetime(2026, 8, 24, 10, 0, 0, tzinfo=timezone.utc),
+            "sleep_quality": 6.0,
+            "medication_taken": 1,
+        },
+    ]
+
+    baseline = build_baseline(records, cutoff, policy=policy, timezone="UTC")
+    features = build_features(records, baseline, cutoff, policy=policy, timezone="UTC")
+
+    # Ventana de 1 día: solo el registro sin medicación -> falta (1).
+    assert features.rolling_features["medication_taken_missing_1d"] == 1.0
+    # Ventana de 3 días: hay medicación en uno de los días -> presente (0).
+    assert features.rolling_features["medication_taken_missing_3d"] == 0.0
 
 
 def test_planned_stressful_event_in_horizon() -> None:

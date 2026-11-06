@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "8513936876574667bbe1daa1dc6acb92",
+  "prediction_id": "e47770b86b70480598b813eed473714b",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -1314,7 +1314,7 @@
       "lineage": {
         "split_cutoff": "2026-10-26T12:00:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-06T04:56:27.744985+00:00",
+        "data_generation_timestamp": "2026-11-06T05:01:16.952933+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",

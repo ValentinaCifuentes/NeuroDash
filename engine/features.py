@@ -10,6 +10,22 @@ from engine.schemas import HORIZON_HOURS
 # Expectativas de un evento planificado que anticipan una crisis en el horizonte.
 STRESSFUL_EXPECTATIONS = {"Estresante", "Desagradable"}
 
+# Campos donde la ausencia es informativa y merece el indicador binario `*_missing`:
+# «No Aplica»/«No sé» y las escalas de eventos que no se registran todos los días.
+# El resto (sueño, despertar, conteos) se asume presente; no se les agrega el flag
+# para no inflar el vector de features con indicadores siempre en 0.
+MISSING_INDICATOR_FIELDS = {
+    "medication_taken",
+    "sleep_hours",
+    "transition_difficulty",
+    "feeding_difficulty",
+    "sensory_diet_done",
+    "early_signs_count",
+    "physical_discomfort",
+    "routine_change",
+    "school_attendance",
+}
+
 
 class FeatureSet:
     """Represents a set of calculated features and missingness metadata for a subject."""
@@ -122,10 +138,11 @@ def build_features(
             missing_feat = f"{modality}_missing_{window}d"
             if values:
                 rolling_features[feat_name] = sum(values) / len(values)
-                # Indicador binario de faltante: así el modelo distingue un valor
-                # real (p. ej. "0 eventos" o "No") de un dato ausente ("No Aplica",
-                # "No sé" o sin registro), que de otro modo se imputaría a 0.
-                rolling_features[missing_feat] = 0.0
+                # Indicador binario de faltante, solo para campos opcionales: así el
+                # modelo distingue un valor real (p. ej. "0 eventos" o "No") de un
+                # dato ausente ("No Aplica", "No sé" o sin registro).
+                if modality in MISSING_INDICATOR_FIELDS:
+                    rolling_features[missing_feat] = 0.0
                 missingness.append({
                     "window": window,
                     "field": modality,
@@ -137,7 +154,8 @@ def build_features(
                 # no se confunde con un valor real (p. ej. "0 eventos"). Solo cae a
                 # None en arranque en frío, cuando aún no hay línea base.
                 rolling_features[feat_name] = baseline.modality_baselines.get(modality)
-                rolling_features[missing_feat] = 1.0
+                if modality in MISSING_INDICATOR_FIELDS:
+                    rolling_features[missing_feat] = 1.0
                 missingness.append({
                     "window": window,
                     "field": modality,
