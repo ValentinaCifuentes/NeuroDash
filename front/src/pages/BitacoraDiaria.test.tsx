@@ -98,20 +98,23 @@ describe('Bitácora · Mi Día', () => {
     expect(screen.getByText(/Las señales salen de su perfil/)).toBeInTheDocument();
   });
 
-  it('retries a failed save with the same key and uses a new one after success (P2)', async () => {
-    const save = setup(vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true));
+  it('retries a failed save with the same key, and hides the form after success (P2)', async () => {
+    const save = setup(vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValue(true));
     answerCore();
 
     fireEvent.click(saveButton());
     await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
     fireEvent.click(saveButton());
     await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
+
+    // El reintento reutiliza la misma clave (P2).
+    expect(sentRecord(save, 0).idempotency_key).toBe(sentRecord(save, 1).idempotency_key);
+
+    // El tercer intento funciona y, al guardar, el formulario desaparece.
     fireEvent.click(saveButton());
     await waitFor(() => expect(save).toHaveBeenCalledTimes(3));
-
-    const [first, second, third] = [0, 1, 2].map((i) => sentRecord(save, i).idempotency_key);
-    expect(second).toBe(first);
-    expect(third).not.toBe(first);
+    await screen.findByText('Guardado');
+    expect(screen.queryByRole('button', { name: /Guardar Estado Basal/ })).not.toBeInTheDocument();
   });
 
   it('hides the form once the basal of today is saved', async () => {
