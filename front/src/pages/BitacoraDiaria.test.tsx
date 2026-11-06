@@ -1,8 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { getTimeline } from '../api';
-import type { DailyRecord, Subject, TimelineEntry } from '../types';
+import type { DailyRecord, Subject } from '../types';
 import { BitacoraDiaria } from './BitacoraDiaria';
 
 vi.mock('../api', () => ({ getTimeline: vi.fn().mockResolvedValue({ entries: [] }) }));
@@ -11,9 +10,8 @@ afterEach(cleanup);
 
 const subject = { subject_id: 'PAC-A', display_name: 'PAC-A' } as Subject;
 
-async function setup(onSaveBasal = vi.fn().mockResolvedValue(true)) {
+function setup(onSaveBasal = vi.fn().mockResolvedValue(true)) {
   render(<BitacoraDiaria subject={subject} revision={0} saving={false} onSaveBasal={onSaveBasal} onAddEvent={vi.fn()} />);
-  await screen.findByRole('button', { name: /Guardar Estado Basal/ });
   return onSaveBasal;
 }
 
@@ -28,29 +26,16 @@ function sentRecord(save: ReturnType<typeof vi.fn>, call = 0): DailyRecord {
   return save.mock.calls[call][0] as DailyRecord;
 }
 
-/** Una entrada de línea de tiempo que representa el estado basal guardado hoy. */
-function basalEntry(record: DailyRecord): TimelineEntry {
-  return {
-    entry_id: record.record_id ?? 'r1',
-    kind: 'daily_record',
-    timestamp: new Date().toISOString(),
-    title: 'Registro diario',
-    detail: null,
-    semantic: 'info',
-    payload: record,
-  };
-}
-
 describe('Bitácora · Mi Día', () => {
-  it('starts with nothing selected (P13)', async () => {
-    await setup();
+  it('starts with nothing selected (P13)', () => {
+    setup();
 
     expect(screen.queryAllByRole('radio', { checked: true })).toHaveLength(0);
     expect(screen.getByRole('switch', { name: /medicamentos/ })).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('keeps saving disabled until sleep and wake are answered', async () => {
-    await setup();
+  it('keeps saving disabled until sleep and wake are answered', () => {
+    setup();
 
     expect(saveButton()).toBeDisabled();
     expect(screen.getByText(/Para guardar falta: sueño y despertar/)).toBeInTheDocument();
@@ -61,7 +46,7 @@ describe('Bitácora · Mi Día', () => {
   });
 
   it('does not send medication or context the tutor did not answer', async () => {
-    const save = await setup();
+    const save = setup();
     answerCore();
     fireEvent.click(saveButton());
 
@@ -75,7 +60,7 @@ describe('Bitácora · Mi Día', () => {
   });
 
   it('sends medication once the switch or «No aplica» is touched', async () => {
-    const save = await setup();
+    const save = setup();
     answerCore();
     fireEvent.click(screen.getByRole('button', { name: /No aplica para este infante/ }));
     fireEvent.click(saveButton());
@@ -85,7 +70,7 @@ describe('Bitácora · Mi Día', () => {
   });
 
   it('sends the day context, and «Ninguna» clears the other early signs', async () => {
-    const save = await setup();
+    const save = setup();
     answerCore();
     const signs = screen.getByRole('group', { name: /señales tempranas/ });
     const [firstSign] = within(signs).getAllByRole('checkbox');
@@ -98,7 +83,7 @@ describe('Bitácora · Mi Día', () => {
     expect(sentRecord(save)).toMatchObject({ sleep_hours_range: '7 a 9 h', early_signs: ['Ninguna'] });
   });
 
-  it('offers the early signs of the profile when there are some (P24)', async () => {
+  it('offers the early signs of the profile when there are some (P24)', () => {
     render(
       <BitacoraDiaria
         subject={{ ...subject, habitual_context: { early_signs: ['Se aísla', 'Otra'] } }}
@@ -107,7 +92,6 @@ describe('Bitácora · Mi Día', () => {
         onSaveBasal={vi.fn()}
       />,
     );
-    await screen.findByRole('button', { name: /Guardar Estado Basal/ });
     const signs = screen.getByRole('group', { name: /señales tempranas/ });
 
     expect(within(signs).getAllByRole('checkbox').map((chip) => chip.textContent)).toEqual(['Se aísla', 'Ninguna']);
@@ -115,7 +99,7 @@ describe('Bitácora · Mi Día', () => {
   });
 
   it('retries a failed save with the same key and uses a new one after success (P2)', async () => {
-    const save = await setup(vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true));
+    const save = setup(vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true));
     answerCore();
 
     fireEvent.click(saveButton());
@@ -130,32 +114,13 @@ describe('Bitácora · Mi Día', () => {
     expect(third).not.toBe(first);
   });
 
-  it('hides the form once the basal of today is saved, with an edit action', async () => {
-    let saved: DailyRecord | null = null;
-    vi.mocked(getTimeline).mockImplementation(async () => ({
-      subject_id: 'PAC-A',
-      as_of: new Date().toISOString(),
-      days: 1,
-      entries: saved ? [basalEntry(saved)] : [],
-    }));
-    const save = vi.fn().mockImplementation(async (record: DailyRecord) => {
-      saved = record;
-      return true;
-    });
-
-    render(<BitacoraDiaria subject={subject} revision={0} saving={false} onSaveBasal={save} onAddEvent={vi.fn()} />);
-    await screen.findByRole('button', { name: /Guardar Estado Basal/ });
+  it('hides the form once the basal of today is saved', async () => {
+    setup(vi.fn().mockResolvedValue(true));
     answerCore();
     fireEvent.click(saveButton());
 
-    // El formulario desaparece y queda el «guardado», con la opción de editar.
-    await screen.findByText('Estado basal guardado');
+    // El formulario desaparece y queda el «guardado».
+    await screen.findByText('Guardado');
     expect(screen.queryByRole('button', { name: /Guardar Estado Basal/ })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Editar/ })).toBeInTheDocument();
-
-    // Al editar vuelve el formulario precargado.
-    fireEvent.click(screen.getByRole('button', { name: /Editar/ }));
-    await screen.findByRole('button', { name: /Guardar Estado Basal/ });
-    expect(within(screen.getByRole('radiogroup', { name: /¿Cómo durmió anoche\?/ })).getByRole('radio', { name: /Reparador/ })).toHaveAttribute('aria-checked', 'true');
   });
 });

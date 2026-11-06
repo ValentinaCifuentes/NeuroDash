@@ -12,8 +12,8 @@
  * despertar, los datos de la Bitácora que cuentan para la confianza.
  *
  * El estado basal se guarda una sola vez por día: al guardarlo desaparece el
- * formulario y queda un «guardado» con opción de editarlo (también desde el
- * historial, y solo si es el registro de hoy).
+ * formulario y queda un «guardado». Si el tutor se equivocó, lo edita desde el
+ * Historial de Hoy (solo el registro de hoy; el backend lo reemplaza, no duplica).
  */
 
 import { useEffect, useState, type RefObject } from 'react';
@@ -74,15 +74,23 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
   const tab = view ?? ownTab;
   const setTab = onChangeView ?? setOwnTab;
 
-  // Registro basal de hoy que se está editando (null = guardado nuevo).
+  // Registro basal de hoy que se está editando (null = no se está editando).
   const [editingRecord, setEditingRecord] = useState<DailyRecord | null>(null);
+  // true cuando el estado basal de hoy ya se guardó en esta sesión.
+  const [savedToday, setSavedToday] = useState(false);
 
   function startEdit(record: DailyRecord) {
     setEditingRecord(record);
+    setSavedToday(false);
     setTab('basal');
   }
-  function clearEdit() {
+  function finishSave() {
     setEditingRecord(null);
+    setSavedToday(true);
+  }
+  function cancelEdit() {
+    setEditingRecord(null);
+    setSavedToday(true);
   }
 
   return (
@@ -101,14 +109,14 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
         <MiDia
           key={editingRecord ? 'edit' : 'new'}
           subject={subject}
-          revision={revision}
           saving={saving}
           onSaveBasal={onSaveBasal}
           onAddEvent={onAddEvent}
           fabRef={fabRef}
           editingRecord={editingRecord}
-          onStartEdit={startEdit}
-          onClearEdit={clearEdit}
+          savedToday={savedToday}
+          onCancelEdit={cancelEdit}
+          onFinishSave={finishSave}
         />
       ) : (
         <>
@@ -122,17 +130,17 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
 
 interface MiDiaProps {
   subject: Subject;
-  revision: number;
   saving: boolean;
   onSaveBasal: (record: DailyRecord) => Promise<boolean> | void;
   onAddEvent?: () => void;
   fabRef?: RefObject<HTMLButtonElement>;
   editingRecord: DailyRecord | null;
-  onStartEdit: (record: DailyRecord) => void;
-  onClearEdit: () => void;
+  savedToday: boolean;
+  onCancelEdit: () => void;
+  onFinishSave: () => void;
 }
 
-function MiDia({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef, editingRecord, onStartEdit, onClearEdit }: MiDiaProps) {
+function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord, savedToday, onCancelEdit, onFinishSave }: MiDiaProps) {
   const [sleep, setSleep] = useState<SleepQuality | null>(editingRecord?.sleep_quality ?? null);
   const [wake, setWake] = useState<WakeMode | null>(editingRecord?.wake_mode ?? null);
   const [autonomy, setAutonomy] = useState<StartAutonomy | null>(editingRecord?.start_autonomy ?? null);
@@ -146,25 +154,6 @@ function MiDia({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef, edi
   const [school, setSchool] = useState<string | null>(editingRecord?.school_attendance ?? null);
   /** P2: una clave por guardado; se reutiliza si el intento falla. */
   const [saveKey, setSaveKey] = useState(() => newId());
-
-  // Si ya hay un estado basal guardado hoy, el formulario desaparece (se muestra
-  // un «guardado» con opción de editarlo). Se recarga al guardar (`revision` o
-  // `nonce`, este último para el guardado de esta misma pantalla).
-  const [todayBasal, setTodayBasal] = useState<DailyRecord | null>(null);
-  const [loading, setLoading] = useState(editingRecord === null);
-  const [nonce, setNonce] = useState(0);
-  useEffect(() => {
-    if (editingRecord) return;
-    let alive = true;
-    setLoading(true);
-    getTimeline(subject.subject_id, new Date().toISOString(), 1)
-      .then((res) => alive && setTodayBasal(todayBasalRecord(res.entries, todayIso())))
-      .catch(() => undefined)
-      .finally(() => alive && setLoading(false));
-    return () => {
-      alive = false;
-    };
-  }, [subject.subject_id, revision, nonce, editingRecord]);
 
   /** P24: las señales que el tutor marcó en el perfil; sin perfil, la lista general. */
   const signs = earlySignOptions(subject);
@@ -189,36 +178,21 @@ function MiDia({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef, edi
     });
     if (saved !== false) {
       setSaveKey(newId());
-      onClearEdit();
-      setNonce((value) => value + 1);
+      onFinishSave();
     }
   }
 
-  // Guardado (no editando y ya hay registro de hoy): sin formulario.
-  if (editingRecord === null && !loading && todayBasal) {
+  // Ya guardado hoy y sin editar: sin formulario.
+  if (editingRecord === null && savedToday) {
     return (
       <>
         <section className="nd-card nd-history" aria-labelledby="guardado-titulo">
           <h2 id="guardado-titulo" className="nd-eyebrow nd-eyebrow--flat">Estado basal</h2>
-          <p className="nd-history__title">Estado basal guardado</p>
-          <p className="nd-history__message">Ya registraste cómo estuvo el día de hoy.</p>
-          <button type="button" className="nd-button-outline nd-press" onClick={() => onStartEdit(todayBasal)}>
-            <Icon name="edit" size={16} /> Editar
-          </button>
+          <p className="nd-history__title">Guardado</p>
+          <p className="nd-history__message">Ya registraste cómo estuvo el día de hoy. Puedes editarlo desde el Historial.</p>
         </section>
         {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
       </>
-    );
-  }
-
-  if (editingRecord === null && loading) {
-    return (
-      <section className="nd-card nd-history" aria-busy="true">
-        <span className="nd-sr-only" role="status">Cargando</span>
-        <div className="nd-skeleton" style={{ width: '40%' }} />
-        <div className="nd-skeleton nd-skeleton--row" />
-        <div className="nd-skeleton nd-skeleton--row" />
-      </section>
     );
   }
 
@@ -227,7 +201,7 @@ function MiDia({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef, edi
       {editingRecord && (
         <section className="nd-card" aria-label="Editando el estado basal">
           <p className="nd-card__hint">Estás editando el estado basal de hoy.</p>
-          <button type="button" className="nd-linkbutton nd-press" onClick={onClearEdit}>
+          <button type="button" className="nd-linkbutton nd-press" onClick={onCancelEdit}>
             Cancelar edición
           </button>
         </section>
