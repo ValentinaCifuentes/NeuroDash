@@ -10,6 +10,10 @@
  * Nada viene preseleccionado (P13): lo que el tutor no responde no se envía, y
  * un día sin dato nunca se confunde con un día «normal». Guardar exige sueño y
  * despertar, los datos de la Bitácora que cuentan para la confianza.
+ *
+ * El estado basal se guarda una sola vez por día: al guardarlo desaparece el
+ * formulario y queda un «guardado» con opción de editarlo (también desde el
+ * historial, y solo si es el registro de hoy).
  */
 
 import { useEffect, useState, type RefObject } from 'react';
@@ -29,7 +33,7 @@ import {
   todayIso,
 } from '../domain/catalog';
 import { getTimeline } from '../api';
-import { todayRows } from '../domain/history';
+import { todayBasalRecord, todayRows } from '../domain/history';
 import { earlySignOptions } from '../domain/profile';
 import type {
   ApiError,
@@ -70,6 +74,17 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
   const tab = view ?? ownTab;
   const setTab = onChangeView ?? setOwnTab;
 
+  // Registro basal de hoy que se está editando (null = guardado nuevo).
+  const [editingRecord, setEditingRecord] = useState<DailyRecord | null>(null);
+
+  function startEdit(record: DailyRecord) {
+    setEditingRecord(record);
+    setTab('basal');
+  }
+  function clearEdit() {
+    setEditingRecord(null);
+  }
+
   return (
     <div className="nd-screen">
       <SegmentedTabs
@@ -83,10 +98,21 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
       />
 
       {tab === 'basal' ? (
-        <MiDia subject={subject} saving={saving} onSaveBasal={onSaveBasal} onAddEvent={onAddEvent} fabRef={fabRef} />
+        <MiDia
+          key={editingRecord ? 'edit' : 'new'}
+          subject={subject}
+          revision={revision}
+          saving={saving}
+          onSaveBasal={onSaveBasal}
+          onAddEvent={onAddEvent}
+          fabRef={fabRef}
+          editingRecord={editingRecord}
+          onStartEdit={startEdit}
+          onClearEdit={clearEdit}
+        />
       ) : (
         <>
-          <HistorialHoy subjectId={subject.subject_id} revision={revision} />
+          <HistorialHoy subjectId={subject.subject_id} revision={revision} onEdit={startEdit} />
           {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
         </>
       )}
@@ -94,26 +120,51 @@ export function BitacoraDiaria({ subject, revision, saving, onSaveBasal, onAddEv
   );
 }
 
-function MiDia({
-  subject,
-  saving,
-  onSaveBasal,
-  onAddEvent,
-  fabRef,
-}: Omit<Props, 'revision' | 'view' | 'onChangeView'>) {
-  const [sleep, setSleep] = useState<SleepQuality | null>(null);
-  const [wake, setWake] = useState<WakeMode | null>(null);
-  const [autonomy, setAutonomy] = useState<StartAutonomy | null>(null);
+interface MiDiaProps {
+  subject: Subject;
+  revision: number;
+  saving: boolean;
+  onSaveBasal: (record: DailyRecord) => Promise<boolean> | void;
+  onAddEvent?: () => void;
+  fabRef?: RefObject<HTMLButtonElement>;
+  editingRecord: DailyRecord | null;
+  onStartEdit: (record: DailyRecord) => void;
+  onClearEdit: () => void;
+}
+
+function MiDia({ subject, revision, saving, onSaveBasal, onAddEvent, fabRef, editingRecord, onStartEdit, onClearEdit }: MiDiaProps) {
+  const [sleep, setSleep] = useState<SleepQuality | null>(editingRecord?.sleep_quality ?? null);
+  const [wake, setWake] = useState<WakeMode | null>(editingRecord?.wake_mode ?? null);
+  const [autonomy, setAutonomy] = useState<StartAutonomy | null>(editingRecord?.start_autonomy ?? null);
   /** null = no se tocó: no se envía. */
-  const [medication, setMedication] = useState<MedicationAdherence | null>(null);
-  const [gi, setGi] = useState<GiStatus | null>(null);
-  const [sleepHours, setSleepHours] = useState<string | null>(null);
-  const [earlySigns, setEarlySigns] = useState<string[]>([]);
-  const [discomfort, setDiscomfort] = useState<string[]>([]);
-  const [routineChange, setRoutineChange] = useState<string | null>(null);
-  const [school, setSchool] = useState<string | null>(null);
+  const [medication, setMedication] = useState<MedicationAdherence | null>(editingRecord?.medication_adherence ?? null);
+  const [gi, setGi] = useState<GiStatus | null>(editingRecord?.gi_status ?? null);
+  const [sleepHours, setSleepHours] = useState<string | null>(editingRecord?.sleep_hours_range ?? null);
+  const [earlySigns, setEarlySigns] = useState<string[]>(editingRecord?.early_signs ?? []);
+  const [discomfort, setDiscomfort] = useState<string[]>(editingRecord?.physical_discomfort ?? []);
+  const [routineChange, setRoutineChange] = useState<string | null>(editingRecord?.routine_change ?? null);
+  const [school, setSchool] = useState<string | null>(editingRecord?.school_attendance ?? null);
   /** P2: una clave por guardado; se reutiliza si el intento falla. */
   const [saveKey, setSaveKey] = useState(() => newId());
+
+  // Si ya hay un estado basal guardado hoy, el formulario desaparece (se muestra
+  // un «guardado» con opción de editarlo). Se recarga al guardar (`revision` o
+  // `nonce`, este último para el guardado de esta misma pantalla).
+  const [todayBasal, setTodayBasal] = useState<DailyRecord | null>(null);
+  const [loading, setLoading] = useState(editingRecord === null);
+  const [nonce, setNonce] = useState(0);
+  useEffect(() => {
+    if (editingRecord) return;
+    let alive = true;
+    setLoading(true);
+    getTimeline(subject.subject_id, new Date().toISOString(), 1)
+      .then((res) => alive && setTodayBasal(todayBasalRecord(res.entries, todayIso())))
+      .catch(() => undefined)
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [subject.subject_id, revision, nonce, editingRecord]);
 
   /** P24: las señales que el tutor marcó en el perfil; sin perfil, la lista general. */
   const signs = earlySignOptions(subject);
@@ -136,11 +187,52 @@ function MiDia({
       school_attendance: school,
       idempotency_key: saveKey,
     });
-    if (saved !== false) setSaveKey(newId());
+    if (saved !== false) {
+      setSaveKey(newId());
+      onClearEdit();
+      setNonce((value) => value + 1);
+    }
+  }
+
+  // Guardado (no editando y ya hay registro de hoy): sin formulario.
+  if (editingRecord === null && !loading && todayBasal) {
+    return (
+      <>
+        <section className="nd-card nd-history" aria-labelledby="guardado-titulo">
+          <h2 id="guardado-titulo" className="nd-eyebrow nd-eyebrow--flat">Estado basal</h2>
+          <p className="nd-history__title">Estado basal guardado</p>
+          <p className="nd-history__message">Ya registraste cómo estuvo el día de hoy.</p>
+          <button type="button" className="nd-button-outline nd-press" onClick={() => onStartEdit(todayBasal)}>
+            <Icon name="edit" size={16} /> Editar
+          </button>
+        </section>
+        {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
+      </>
+    );
+  }
+
+  if (editingRecord === null && loading) {
+    return (
+      <section className="nd-card nd-history" aria-busy="true">
+        <span className="nd-sr-only" role="status">Cargando</span>
+        <div className="nd-skeleton" style={{ width: '40%' }} />
+        <div className="nd-skeleton nd-skeleton--row" />
+        <div className="nd-skeleton nd-skeleton--row" />
+      </section>
+    );
   }
 
   return (
     <>
+      {editingRecord && (
+        <section className="nd-card" aria-label="Editando el estado basal">
+          <p className="nd-card__hint">Estás editando el estado basal de hoy.</p>
+          <button type="button" className="nd-linkbutton nd-press" onClick={onClearEdit}>
+            Cancelar edición
+          </button>
+        </section>
+      )}
+
       <section className="nd-card nd-card--questions" aria-labelledby="dia-titulo">
         <h2 id="dia-titulo" className="nd-cardtitle nd-cardtitle--lg">¿Cómo estuvo el día de hoy?</h2>
         <ChoiceTiles eyebrow="Descanso nocturno" legend="¿Cómo durmió anoche?" choices={SLEEP_CHOICES} value={sleep} onChange={setSleep} />
@@ -247,7 +339,15 @@ function MiDia({
    Historial de Hoy
    ============================================================ */
 
-function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: number }) {
+function HistorialHoy({
+  subjectId,
+  revision,
+  onEdit,
+}: {
+  subjectId: string;
+  revision: number;
+  onEdit: (record: DailyRecord) => void;
+}) {
   const [entries, setEntries] = useState<TimelineEntry[] | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -285,7 +385,10 @@ function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: nu
     );
   }
 
-  const rows = todayRows(entries, todayIso());
+  const today = todayIso();
+  const rows = todayRows(entries, today);
+  // Solo el estado basal de HOY se puede editar (no los días anteriores).
+  const todayBasal = todayBasalRecord(entries, today);
 
   if (rows.length === 0) {
     return (
@@ -316,6 +419,15 @@ function HistorialHoy({ subjectId, revision }: { subjectId: string; revision: nu
               </div>
               {row.summary && <p className="nd-history__summary">{row.summary}</p>}
             </div>
+            {row.title === 'Estado basal' && todayBasal && (
+              <button
+                type="button"
+                className="nd-linkbutton nd-press"
+                onClick={() => onEdit(todayBasal)}
+              >
+                <Icon name="edit" size={16} /> Editar
+              </button>
+            )}
           </li>
         ))}
       </ul>

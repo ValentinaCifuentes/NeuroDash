@@ -97,3 +97,13 @@ export function todayRows(entries: TimelineEntry[], today: string): HistoryRow[]
     .map(historyRow)
     .sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
 }
+
+/** El estado basal de hoy (el registro diario con respuestas), si ya se guardó. */
+export function todayBasalRecord(entries: TimelineEntry[], today: string): DailyRecord | null {
+  const basal = entries
+    .filter((entry) => entry.kind === 'daily_record')
+    .filter((entry) => localDay(entry.timestamp) === today)
+    .map((entry) => entry.payload as DailyRecord)
+    .find(hasBasalAnswers);
+  return basal ?? null;
+}
