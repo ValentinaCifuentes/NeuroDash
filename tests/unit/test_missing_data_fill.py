@@ -44,3 +44,7 @@ def test_missing_window_is_filled_with_baseline_not_zero() -> None:
         m["window"] == 1 and m["field"] == "event_count" and m["missing"] is True
         for m in features.missingness
     )
+
+    # El indicador binario distingue «sin dato» (1) de un valor real (0).
+    assert features.rolling_features["event_count_missing_1d"] == 1.0
+    assert features.rolling_features["sleep_quality_missing_1d"] == 0.0

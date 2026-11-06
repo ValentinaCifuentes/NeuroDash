@@ -109,8 +109,13 @@ def build_features(
             ]
             
             feat_name = f"{modality}_mean_{window}d"
+            missing_feat = f"{modality}_missing_{window}d"
             if values:
                 rolling_features[feat_name] = sum(values) / len(values)
+                # Indicador binario de faltante: así el modelo distingue un valor
+                # real (p. ej. "0 eventos" o "No") de un dato ausente ("No Aplica",
+                # "No sé" o sin registro), que de otro modo se imputaría a 0.
+                rolling_features[missing_feat] = 0.0
                 missingness.append({
                     "window": window,
                     "field": modality,
@@ -122,6 +127,7 @@ def build_features(
                 # no se confunde con un valor real (p. ej. "0 eventos"). Solo cae a
                 # None en arranque en frío, cuando aún no hay línea base.
                 rolling_features[feat_name] = baseline.modality_baselines.get(modality)
+                rolling_features[missing_feat] = 1.0
                 missingness.append({
                     "window": window,
                     "field": modality,
