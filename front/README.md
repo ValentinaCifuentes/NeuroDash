@@ -12,7 +12,7 @@ React 18 + TypeScript + Vite. El diseño sale de `docs/rediseno/`
 Con Docker, desde la raíz del repo (front + backend; ver el README raíz):
 
 ```bash
-docker compose up --build        # http://localhost:8080
+docker compose up --build        # http://localhost:8090
 ```
 
 Solo el front, en desarrollo:

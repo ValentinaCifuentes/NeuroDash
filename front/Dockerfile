@@ -9,7 +9,7 @@ COPY . .
 
 # Vite incrusta estas variables en tiempo de build.
 # VITE_API_BASE vacío => la UI usa el mock en memoria (src/mocks/mockApi.ts).
-ARG VITE_API_BASE=http://localhost:8080
+ARG VITE_API_BASE=http://localhost:8090
 ARG VITE_ACTOR_ID=
 ARG VITE_ACTOR_ROLE=
 ENV VITE_API_BASE=$VITE_API_BASE \

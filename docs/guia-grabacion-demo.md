@@ -28,16 +28,16 @@ El script:
 Si se graba otro día, pasarle la fecha: `bash scripts/prepare_demo.sh 2026-11-20`.
 Si algo sale ✘, no grabar: revisar la salida del script.
 
-La app queda en <http://localhost:8080>.
+La app queda en <http://localhost:8090>.
 
 ## 2. Preparar la pantalla
 
 - **Formato teléfono.** La app está diseñada para 390 px de ancho. En Chrome:
   herramientas de desarrollo → modo dispositivo → «iPhone 12 Pro» (390 × 844), zoom 100 %.
-  O abrirla en un teléfono de la misma red: `http://<IP-del-computador>:8080`
-  (en ese caso, compilar con `VITE_API_BASE=http://<IP>:8080`; ver el README).
+  O abrirla en un teléfono de la misma red: `http://<IP-del-computador>:8090`
+  (en ese caso, compilar con `VITE_API_BASE=http://<IP>:8090`; ver el README).
 - Modo claro, sin extensiones que pinten la página, notificaciones silenciadas.
-- Empezar en <http://localhost:8080> sin `#…` en la dirección: se abre la selección.
+- Empezar en <http://localhost:8090> sin `#…` en la dirección: se abre la selección.
 
 ## 3. Recorrido sugerido (≈ 4–5 min)
 
