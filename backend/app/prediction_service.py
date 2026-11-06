@@ -278,7 +278,10 @@ def make_prediction(
     predictions_dir = subject_dir / "predictions"
     predictions_dir.mkdir(parents=True, exist_ok=True)
 
-    inputs = json.loads(json.dumps({"records": records, "occurrences": occurrences}, default=str))
+    inputs = json.loads(json.dumps(
+        {"records": records, "occurrences": occurrences, "planned_events": planned_events},
+        default=str,
+    ))
 
     # P5: abrir Evolución pide una estimación cada vez. Si es la misma hora y los
     # datos no cambiaron, el resultado es el mismo: se reutiliza la copia guardada
