@@ -191,6 +191,31 @@ def test_event_count_aggregation_by_local_day(tmp_path: Path, monkeypatch) -> No
     assert next(r for r in records if r["date"] == "2026-08-26")["event_count"] == 3
 
 
+def test_event_detail_counts_feed_the_daily_record(tmp_path: Path, monkeypatch) -> None:
+    """Disparadores, estrategias y desregulaciones sin regular llegan al registro del día."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client, timezone="America/Santiago")
+
+    def post_event(key: str, at: str, triggers: list[str], strategies: list[str], outcome: str) -> None:
+        response = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+            "occurred_at": at, "idempotency_key": key,
+            "provenance": {"source": "tutor_app", "synthetic": False},
+            "event_type": "Desregulación Emocional", "intensity_value": 6,
+            "trigger": triggers, "strategy_applied": strategies, "strategy_outcome": outcome,
+        }, headers=_headers())
+        assert response.status_code == 201
+
+    post_event("d1", "2026-08-26T10:00:00-04:00", ["Ruidos", "Espera"], ["Espacio seguro"], "Sin Regulación")
+    post_event("d2", "2026-08-26T15:00:00-04:00", ["Frustración"], ["Presión profunda", "Pictogramas"], "Regulación Exitosa")
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    day = next(r for r in records if r["date"] == "2026-08-26")
+    assert day["trigger_count"] == 3        # 2 + 1 disparadores
+    assert day["strategy_count"] == 3       # 1 + 2 estrategias
+    assert day["dysregulation_unresolved"] == 1  # solo el primero terminó sin regular
+
+
 def test_event_scales_become_daily_numbers_and_absent_scales_stay_absent(tmp_path: Path, monkeypatch) -> None:
     """P22: la escala de Transición, Alimentación y Dieta sensorial llega al registro del día."""
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)

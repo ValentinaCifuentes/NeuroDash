@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "a228295e3ce84478a5488a7d351088fd",
+  "prediction_id": "8a601c67dfab430999ff4d2a8f252008",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -817,6 +817,141 @@
       "comparison": "above",
       "trend": "better",
       "summary": "Hizo más dieta sensorial que de costumbre en su último registro"
+    },
+    {
+      "factor_name": "Disparadores registrados en el último día",
+      "feature": "disparadores_promedio_un_dia",
+      "contribution": 0.5,
+      "description": "La variable reciente disparadores registrados en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "trend": "same",
+      "summary": "Disparadores como de costumbre en el último día"
+    },
+    {
+      "factor_name": "Disparadores registrados en los últimos tres días",
+      "feature": "disparadores_promedio_tres_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente disparadores registrados en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "trend": "same",
+      "summary": "Disparadores como de costumbre en los últimos tres días"
+    },
+    {
+      "factor_name": "Disparadores registrados en los últimos siete días",
+      "feature": "disparadores_promedio_siete_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente disparadores registrados en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "trend": "same",
+      "summary": "Disparadores como de costumbre en los últimos siete días"
+    },
+    {
+      "factor_name": "Disparadores registrados en los últimos catorce días",
+      "feature": "disparadores_promedio_catorce_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente disparadores registrados en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "trend": "same",
+      "summary": "Disparadores como de costumbre en los últimos catorce días"
+    },
+    {
+      "factor_name": "Desviación de disparadores registrados frente a la línea base",
+      "feature": "desviacion_disparadores_linea_base",
+      "contribution": 0.5,
+      "description": "La variable reciente desviación de disparadores registrados frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más disparadores que de costumbre en su último registro"
+    },
+    {
+      "factor_name": "Estrategias aplicadas en el último día",
+      "feature": "estrategias_promedio_un_dia",
+      "contribution": -0.5,
+      "description": "La variable reciente estrategias aplicadas en el último día (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más estrategias aplicadas que de costumbre en el último día"
+    },
+    {
+      "factor_name": "Estrategias aplicadas en los últimos tres días",
+      "feature": "estrategias_promedio_tres_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente estrategias aplicadas en los últimos tres días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más estrategias aplicadas que de costumbre en los últimos tres días"
+    },
+    {
+      "factor_name": "Estrategias aplicadas en los últimos siete días",
+      "feature": "estrategias_promedio_siete_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente estrategias aplicadas en los últimos siete días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más estrategias aplicadas que de costumbre en los últimos siete días"
+    },
+    {
+      "factor_name": "Estrategias aplicadas en los últimos catorce días",
+      "feature": "estrategias_promedio_catorce_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente estrategias aplicadas en los últimos catorce días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más estrategias aplicadas que de costumbre en los últimos catorce días"
+    },
+    {
+      "factor_name": "Desviación de estrategias aplicadas frente a la línea base",
+      "feature": "desviacion_estrategias_linea_base",
+      "contribution": -0.5,
+      "description": "La variable reciente desviación de estrategias aplicadas frente a la línea base (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más estrategias aplicadas que de costumbre en su último registro"
+    },
+    {
+      "factor_name": "Desregulaciones sin regular en el último día",
+      "feature": "desregulaciones_sin_regular_promedio_un_dia",
+      "contribution": 0.5,
+      "description": "La variable reciente desregulaciones sin regular en el último día (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Menos desregulaciones sin regular que de costumbre en el último día"
+    },
+    {
+      "factor_name": "Desregulaciones sin regular en los últimos tres días",
+      "feature": "desregulaciones_sin_regular_promedio_tres_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente desregulaciones sin regular en los últimos tres días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Menos desregulaciones sin regular que de costumbre en los últimos tres días"
+    },
+    {
+      "factor_name": "Desregulaciones sin regular en los últimos siete días",
+      "feature": "desregulaciones_sin_regular_promedio_siete_dias",
+      "contribution": 0.5,
+      "description": "La variable reciente desregulaciones sin regular en los últimos siete días (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Menos desregulaciones sin regular que de costumbre en los últimos siete días"
+    },
+    {
+      "factor_name": "Desregulaciones sin regular en los últimos catorce días",
+      "feature": "desregulaciones_sin_regular_promedio_catorce_dias",
+      "contribution": -0.5,
+      "description": "La variable reciente desregulaciones sin regular en los últimos catorce días (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Menos desregulaciones sin regular que de costumbre en los últimos catorce días"
+    },
+    {
+      "factor_name": "Desviación de desregulaciones sin regular frente a la línea base",
+      "feature": "desviacion_desregulaciones_sin_regular_linea_base",
+      "contribution": 0.5,
+      "description": "La variable reciente desviación de desregulaciones sin regular frente a la línea base (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más desregulaciones sin regular que de costumbre en su último registro"
     }
   ],
   "missingness": [
@@ -832,6 +967,11 @@
     },
     {
       "window": 1,
+      "field": "dysregulation_unresolved",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "event_count",
       "missing": false
     },
@@ -872,7 +1012,17 @@
     },
     {
       "window": 1,
+      "field": "strategy_count",
+      "missing": false
+    },
+    {
+      "window": 1,
       "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 1,
+      "field": "trigger_count",
       "missing": false
     },
     {
@@ -892,6 +1042,11 @@
     },
     {
       "window": 3,
+      "field": "dysregulation_unresolved",
+      "missing": false
+    },
+    {
+      "window": 3,
       "field": "event_count",
       "missing": false
     },
@@ -932,7 +1087,17 @@
     },
     {
       "window": 3,
+      "field": "strategy_count",
+      "missing": false
+    },
+    {
+      "window": 3,
       "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 3,
+      "field": "trigger_count",
       "missing": false
     },
     {
@@ -952,6 +1117,11 @@
     },
     {
       "window": 7,
+      "field": "dysregulation_unresolved",
+      "missing": false
+    },
+    {
+      "window": 7,
       "field": "event_count",
       "missing": false
     },
@@ -992,7 +1162,17 @@
     },
     {
       "window": 7,
+      "field": "strategy_count",
+      "missing": false
+    },
+    {
+      "window": 7,
       "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 7,
+      "field": "trigger_count",
       "missing": false
     },
     {
@@ -1012,6 +1192,11 @@
     },
     {
       "window": 14,
+      "field": "dysregulation_unresolved",
+      "missing": false
+    },
+    {
+      "window": 14,
       "field": "event_count",
       "missing": false
     },
@@ -1052,7 +1237,17 @@
     },
     {
       "window": 14,
+      "field": "strategy_count",
+      "missing": false
+    },
+    {
+      "window": 14,
       "field": "transition_difficulty",
+      "missing": false
+    },
+    {
+      "window": 14,
+      "field": "trigger_count",
       "missing": false
     },
     {
@@ -1110,7 +1305,7 @@
       "lineage": {
         "split_cutoff": "2026-10-26T12:00:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-03T15:05:54.389650+00:00",
+        "data_generation_timestamp": "2026-11-06T04:44:33.236549+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "prior_day_only",

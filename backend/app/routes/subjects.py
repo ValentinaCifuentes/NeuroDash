@@ -113,6 +113,7 @@ EVENT_SCALE_ENCODINGS: dict[str, tuple[str, dict[str, float]]] = {
     "Dieta Sensorial": ("sensory_diet_done", {"Completa": 1, "Parcial": 0.5, "No realizada": 0}),
 }
 EFFECTIVE_OUTCOME = "Regulación Exitosa"
+UNRESOLVED_OUTCOME = "Sin Regulación"
 # Opciones «nada» de las preguntas de varias respuestas.
 NO_EARLY_SIGNS = "Ninguna"
 NO_DISCOMFORT = "No"
@@ -433,15 +434,21 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
     day_occurrences = [occ for occ in occurrences if _local_date(occ["source_timestamp"]) == local_date_str]
 
     event_count = len(day_occurrences)
-    dysregulation_count = sum(
-        1 for occ in day_occurrences if occ.get("event_type") == DYREGULATION_EVENT_TYPE
-    )
+    dysregulation_events = [occ for occ in day_occurrences if occ.get("event_type") == DYREGULATION_EVENT_TYPE]
+    dysregulation_count = len(dysregulation_events)
     intensities = [
         occ["intensity_value"]
         for occ in day_occurrences
         if isinstance(occ.get("intensity_value"), (int, float))
     ]
     max_intensity = max(intensities) if intensities else 0
+    # Detalle de las hojas de registro (disparadores, estrategias, resultado):
+    # lo que se marca en una desregulación se cuenta y entra al modelo como señal.
+    trigger_count = sum(len(occ.get("trigger") or []) for occ in dysregulation_events)
+    strategy_count = sum(len(occ.get("strategy_applied") or []) for occ in dysregulation_events)
+    dysregulation_unresolved = sum(
+        1 for occ in dysregulation_events if occ.get("strategy_outcome") == UNRESOLVED_OUTCOME
+    )
 
     # Prefiere el registro basal ("immediate") de ese día; si no, cualquiera del día.
     target: dict[str, Any] | None = None
@@ -458,6 +465,9 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
         "event_count": event_count,
         "dysregulation_count": dysregulation_count,
         "max_intensity": max_intensity,
+        "trigger_count": trigger_count,
+        "strategy_count": strategy_count,
+        "dysregulation_unresolved": dysregulation_unresolved,
     }
     # Escalas de Transición, Alimentación y Dieta sensorial: solo si ese día hubo
     # un evento de ese tipo con escala; si no, el campo queda ausente (no es un 0).

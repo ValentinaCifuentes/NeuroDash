@@ -1,6 +1,6 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-03T15:05:53.197484+00:00",
+    "data_generation_timestamp": "2026-11-06T04:42:47.374097+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1020
@@ -13,7 +13,16 @@
       "intensity_value": 9,
       "severity": "severe",
       "source_timestamp": "2026-08-06T19:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Presi\u00f3n profunda",
+        "Objeto de calma"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Cambio de actividad"
+      ]
     },
     {
       "availability_timestamp": "2026-08-07T17:00:00-04:00",
@@ -22,7 +31,16 @@
       "intensity_value": 9,
       "severity": "severe",
       "source_timestamp": "2026-08-07T15:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Acompa\u00f1amiento",
+        "Pictogramas"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Frustraci\u00f3n"
+      ]
     },
     {
       "availability_timestamp": "2026-08-08T20:00:00-04:00",
@@ -31,7 +49,17 @@
       "intensity_value": 9,
       "severity": "severe",
       "source_timestamp": "2026-08-08T18:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Anticipaci\u00f3n verbal"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Espera",
+        "Lugar con mucha gente",
+        "Le dijeron que no"
+      ]
     },
     {
       "availability_timestamp": "2026-08-09T17:00:00-04:00",
@@ -40,7 +68,19 @@
       "intensity_value": 10,
       "severity": "severe",
       "source_timestamp": "2026-08-09T15:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Pausa sensorial",
+        "Aud\u00edfonos",
+        "Pictogramas",
+        "Presi\u00f3n profunda"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Le dijeron que no",
+        "Espera",
+        "Ruidos"
+      ]
     },
     {
       "availability_timestamp": "2026-08-10T22:00:00-04:00",
@@ -49,7 +89,16 @@
       "intensity_value": 8,
       "severity": "severe",
       "source_timestamp": "2026-08-10T20:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Pausa sensorial",
+        "Pictogramas"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Ruidos"
+      ]
     },
     {
       "availability_timestamp": "2026-08-22T17:00:00-04:00",
@@ -58,7 +107,16 @@
       "intensity_value": 8,
       "severity": "moderate",
       "source_timestamp": "2026-08-22T15:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Pausa sensorial",
+        "Acompa\u00f1amiento"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Espera",
+        "Contacto f\u00edsico"
+      ]
     },
     {
       "availability_timestamp": "2026-08-24T15:00:00-04:00",
@@ -67,7 +125,17 @@
       "intensity_value": 9,
       "severity": "severe",
       "source_timestamp": "2026-08-24T13:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Espacio seguro",
+        "Acompa\u00f1amiento"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Espera",
+        "Ruidos"
+      ]
     },
     {
       "availability_timestamp": "2026-08-27T19:00:00-04:00",
@@ -76,7 +144,18 @@
       "intensity_value": 10,
       "severity": "severe",
       "source_timestamp": "2026-08-27T17:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Pausa sensorial",
+        "Pictogramas"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Frustraci\u00f3n",
+        "Ruidos",
+        "Le dijeron que no"
+      ]
     },
     {
       "availability_timestamp": "2026-08-28T16:00:00-04:00",
@@ -85,7 +164,16 @@
       "intensity_value": 8,
       "severity": "severe",
       "source_timestamp": "2026-08-28T14:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Acompa\u00f1amiento"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Lugar con mucha gente",
+        "Hambre o cansancio"
+      ]
     },
     {
       "availability_timestamp": "2026-08-29T20:00:00-04:00",
@@ -94,7 +182,16 @@
       "intensity_value": 7,
       "severity": "moderate",
       "source_timestamp": "2026-08-29T18:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Anticipaci\u00f3n verbal",
+        "Pausa sensorial"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Contacto f\u00edsico"
+      ]
     },
     {
       "availability_timestamp": "2026-09-01T20:00:00-04:00",
@@ -103,7 +200,17 @@
       "intensity_value": 7,
       "severity": "severe",
       "source_timestamp": "2026-09-01T18:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Pictogramas",
+        "Pausa sensorial",
+        "Aud\u00edfonos"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Frustraci\u00f3n",
+        "Lugar con mucha gente"
+      ]
     },
     {
       "availability_timestamp": "2026-09-02T15:00:00-04:00",
@@ -112,7 +219,17 @@
       "intensity_value": 7,
       "severity": "severe",
       "source_timestamp": "2026-09-02T13:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Pausa sensorial",
+        "Acompa\u00f1amiento",
+        "Objeto de calma"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Contacto f\u00edsico",
+        "Frustraci\u00f3n"
+      ]
     },
     {
       "availability_timestamp": "2026-09-03T16:00:00-04:00",
@@ -121,7 +238,16 @@
       "intensity_value": 8,
       "severity": "moderate",
       "source_timestamp": "2026-09-03T14:00:00-04:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Presi\u00f3n profunda",
+        "Aud\u00edfonos"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Espera"
+      ]
     },
     {
       "availability_timestamp": "2026-09-19T21:00:00-03:00",
@@ -130,7 +256,17 @@
       "intensity_value": 7,
       "severity": "moderate",
       "source_timestamp": "2026-09-19T19:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Presi\u00f3n profunda",
+        "Acompa\u00f1amiento"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Le dijeron que no",
+        "Contacto f\u00edsico",
+        "Cambio de actividad"
+      ]
     },
     {
       "availability_timestamp": "2026-09-20T16:00:00-03:00",
@@ -139,7 +275,17 @@
       "intensity_value": 8,
       "severity": "severe",
       "source_timestamp": "2026-09-20T14:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Acompa\u00f1amiento",
+        "Espacio seguro"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Le dijeron que no",
+        "Frustraci\u00f3n",
+        "Lugar con mucha gente"
+      ]
     },
     {
       "availability_timestamp": "2026-09-21T15:00:00-03:00",
@@ -148,7 +294,16 @@
       "intensity_value": 10,
       "severity": "severe",
       "source_timestamp": "2026-09-21T13:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Aud\u00edfonos",
+        "Pausa sensorial"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Le dijeron que no"
+      ]
     },
     {
       "availability_timestamp": "2026-09-22T21:00:00-03:00",
@@ -157,7 +312,17 @@
       "intensity_value": 10,
       "severity": "severe",
       "source_timestamp": "2026-09-22T19:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Presi\u00f3n profunda",
+        "Aud\u00edfonos"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Contacto f\u00edsico",
+        "Frustraci\u00f3n"
+      ]
     },
     {
       "availability_timestamp": "2026-09-23T19:00:00-03:00",
@@ -166,7 +331,19 @@
       "intensity_value": 9,
       "severity": "severe",
       "source_timestamp": "2026-09-23T17:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Aud\u00edfonos",
+        "Acompa\u00f1amiento"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Lugar con mucha gente",
+        "Frustraci\u00f3n",
+        "Cambio de actividad",
+        "Ruidos"
+      ]
     },
     {
       "availability_timestamp": "2026-09-24T18:00:00-03:00",
@@ -175,7 +352,18 @@
       "intensity_value": 10,
       "severity": "severe",
       "source_timestamp": "2026-09-24T16:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Espacio seguro",
+        "Pictogramas",
+        "Aud\u00edfonos"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Lugar con mucha gente",
+        "Le dijeron que no",
+        "Espera"
+      ]
     },
     {
       "availability_timestamp": "2026-10-11T22:00:00-03:00",
@@ -184,7 +372,16 @@
       "intensity_value": 4,
       "severity": "moderate",
       "source_timestamp": "2026-10-11T20:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Pausa sensorial",
+        "Aud\u00edfonos"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Cambio de actividad",
+        "Le dijeron que no"
+      ]
     },
     {
       "availability_timestamp": "2026-10-20T15:00:00-03:00",
@@ -193,7 +390,17 @@
       "intensity_value": 7,
       "severity": "severe",
       "source_timestamp": "2026-10-20T13:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Espacio seguro",
+        "Aud\u00edfonos"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Cambio de actividad",
+        "Espera",
+        "Lugar con mucha gente"
+      ]
     },
     {
       "availability_timestamp": "2026-10-21T22:00:00-03:00",
@@ -202,7 +409,16 @@
       "intensity_value": 7,
       "severity": "moderate",
       "source_timestamp": "2026-10-21T20:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Presi\u00f3n profunda"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Cambio de actividad",
+        "Frustraci\u00f3n"
+      ]
     },
     {
       "availability_timestamp": "2026-10-24T19:00:00-03:00",
@@ -211,7 +427,17 @@
       "intensity_value": 6,
       "severity": "moderate",
       "source_timestamp": "2026-10-24T17:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Espacio seguro",
+        "Pausa sensorial"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Espera",
+        "Frustraci\u00f3n",
+        "Contacto f\u00edsico"
+      ]
     },
     {
       "availability_timestamp": "2026-10-27T19:00:00-03:00",
@@ -220,7 +446,16 @@
       "intensity_value": 3,
       "severity": "moderate",
       "source_timestamp": "2026-10-27T17:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Espacio seguro",
+        "Acompa\u00f1amiento"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Contacto f\u00edsico",
+        "Lugar con mucha gente"
+      ]
     },
     {
       "availability_timestamp": "2026-10-28T21:00:00-03:00",
@@ -229,7 +464,16 @@
       "intensity_value": 6,
       "severity": "moderate",
       "source_timestamp": "2026-10-28T19:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Espacio seguro",
+        "Anticipaci\u00f3n verbal"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Cambio de actividad",
+        "Frustraci\u00f3n"
+      ]
     },
     {
       "availability_timestamp": "2026-10-29T20:00:00-03:00",
@@ -238,7 +482,17 @@
       "intensity_value": 8,
       "severity": "moderate",
       "source_timestamp": "2026-10-29T18:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Aud\u00edfonos",
+        "Espacio seguro"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Parcial",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Le dijeron que no",
+        "Ruidos",
+        "Frustraci\u00f3n"
+      ]
     },
     {
       "availability_timestamp": "2026-10-31T21:00:00-03:00",
@@ -247,7 +501,17 @@
       "intensity_value": 6,
       "severity": "moderate",
       "source_timestamp": "2026-10-31T19:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Espacio seguro"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Hambre o cansancio",
+        "Contacto f\u00edsico",
+        "Lugar con mucha gente"
+      ]
     },
     {
       "availability_timestamp": "2026-11-01T21:00:00-03:00",
@@ -256,7 +520,17 @@
       "intensity_value": 9,
       "severity": "severe",
       "source_timestamp": "2026-11-01T19:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Pausa sensorial"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Le dijeron que no",
+        "Espera",
+        "Cambio de actividad"
+      ]
     },
     {
       "availability_timestamp": "2026-11-02T17:00:00-03:00",
@@ -265,7 +539,17 @@
       "intensity_value": 10,
       "severity": "severe",
       "source_timestamp": "2026-11-02T15:00:00-03:00",
-      "subject_id": "PAC-A"
+      "strategy_applied": [
+        "Objeto de calma",
+        "Aud\u00edfonos",
+        "Pictogramas"
+      ],
+      "strategy_outcome": "Sin Regulaci\u00f3n",
+      "subject_id": "PAC-A",
+      "trigger": [
+        "Lugar con mucha gente",
+        "Ruidos"
+      ]
     }
   ],
   "records": [
@@ -273,6 +557,7 @@
       "availability_timestamp": "2026-08-05T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -291,14 +576,17 @@
       "sleep_quality": 6.57,
       "source_timestamp": "2026-08-05T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.17
     },
     {
       "availability_timestamp": "2026-08-06T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 1,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -317,14 +605,17 @@
       "sleep_quality": 5.96,
       "source_timestamp": "2026-08-06T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 7.6
     },
     {
       "availability_timestamp": "2026-08-07T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 1,
       "event_count": 6,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -343,14 +634,17 @@
       "sleep_quality": 4.83,
       "source_timestamp": "2026-08-07T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 7.99
     },
     {
       "availability_timestamp": "2026-08-08T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 1,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -369,14 +663,17 @@
       "sleep_quality": 6.4,
       "source_timestamp": "2026-08-08T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 2,
       "wake_state": 7.19
     },
     {
       "availability_timestamp": "2026-08-09T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 1,
       "event_count": 6,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -395,14 +692,17 @@
       "sleep_quality": 4.44,
       "source_timestamp": "2026-08-09T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 7.89
     },
     {
       "availability_timestamp": "2026-08-10T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -421,14 +721,17 @@
       "sleep_quality": 6.22,
       "source_timestamp": "2026-08-10T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.53
     },
     {
       "availability_timestamp": "2026-08-11T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -447,13 +750,16 @@
       "sleep_quality": 5.66,
       "source_timestamp": "2026-08-11T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 3,
       "wake_state": 6.97
     },
     {
       "availability_timestamp": "2026-08-12T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -471,13 +777,16 @@
       "sleep_quality": 6.72,
       "source_timestamp": "2026-08-12T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 2,
       "wake_state": 5.98
     },
     {
       "availability_timestamp": "2026-08-13T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -496,14 +805,17 @@
       "sleep_quality": 5.71,
       "source_timestamp": "2026-08-13T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.75
     },
     {
       "availability_timestamp": "2026-08-14T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -521,14 +833,17 @@
       "sleep_quality": 6.01,
       "source_timestamp": "2026-08-14T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 3,
       "wake_state": 5.76
     },
     {
       "availability_timestamp": "2026-08-15T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "gi_level": 1,
       "id": "rec_PAC-A_10",
@@ -545,14 +860,17 @@
       "sleep_quality": 8.23,
       "source_timestamp": "2026-08-15T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 2,
       "wake_state": 5.51
     },
     {
       "availability_timestamp": "2026-08-16T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -571,14 +889,17 @@
       "sleep_quality": 6.27,
       "source_timestamp": "2026-08-16T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.68
     },
     {
       "availability_timestamp": "2026-08-17T12:00:00-04:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "gi_level": 1,
       "id": "rec_PAC-A_12",
@@ -595,13 +916,16 @@
       "sleep_quality": 8.51,
       "source_timestamp": "2026-08-17T12:00:00-04:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
+      "trigger_count": 0,
       "wake_state": 3.23
     },
     {
       "availability_timestamp": "2026-08-18T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 2,
       "gi_level": 1,
@@ -620,14 +944,17 @@
       "sleep_quality": 7.55,
       "source_timestamp": "2026-08-18T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 1,
       "wake_state": 3.88
     },
     {
       "availability_timestamp": "2026-08-19T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -646,14 +973,17 @@
       "sleep_quality": 6.36,
       "source_timestamp": "2026-08-19T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 2,
       "wake_state": 6.94
     },
     {
       "availability_timestamp": "2026-08-20T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -672,14 +1002,17 @@
       "sleep_quality": 7.41,
       "source_timestamp": "2026-08-20T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 5.64
     },
     {
       "availability_timestamp": "2026-08-21T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -697,14 +1030,17 @@
       "sleep_quality": 7.24,
       "source_timestamp": "2026-08-21T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.68
     },
     {
       "availability_timestamp": "2026-08-22T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -722,13 +1058,16 @@
       "sleep_quality": 6.77,
       "source_timestamp": "2026-08-22T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
+      "trigger_count": 2,
       "wake_state": 6.48
     },
     {
       "availability_timestamp": "2026-08-23T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -747,13 +1086,16 @@
       "sleep_quality": 6.49,
       "source_timestamp": "2026-08-23T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
+      "trigger_count": 3,
       "wake_state": 5.95
     },
     {
       "availability_timestamp": "2026-08-24T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 6,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -772,14 +1114,17 @@
       "sleep_quality": 4.88,
       "source_timestamp": "2026-08-24T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 2,
       "wake_state": 7.74
     },
     {
       "availability_timestamp": "2026-08-25T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 1,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -798,14 +1143,17 @@
       "sleep_quality": 5.43,
       "source_timestamp": "2026-08-25T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 4,
       "wake_state": 8.17
     },
     {
       "availability_timestamp": "2026-08-26T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -824,14 +1172,17 @@
       "sleep_quality": 5.51,
       "source_timestamp": "2026-08-26T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 7.39
     },
     {
       "availability_timestamp": "2026-08-27T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 1,
       "event_count": 6,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -849,13 +1200,16 @@
       "sleep_quality": 4.75,
       "source_timestamp": "2026-08-27T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
+      "trigger_count": 3,
       "wake_state": 8.67
     },
     {
       "availability_timestamp": "2026-08-28T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 1,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -873,14 +1227,17 @@
       "sleep_quality": 5.0,
       "source_timestamp": "2026-08-28T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 7.96
     },
     {
       "availability_timestamp": "2026-08-29T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "gi_level": 1,
       "id": "rec_PAC-A_24",
@@ -898,14 +1255,17 @@
       "sleep_quality": 7.14,
       "source_timestamp": "2026-08-29T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 5.45
     },
     {
       "availability_timestamp": "2026-08-30T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "gi_level": 1,
       "id": "rec_PAC-A_25",
@@ -922,14 +1282,17 @@
       "sleep_quality": 7.22,
       "source_timestamp": "2026-08-30T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 5.71
     },
     {
       "availability_timestamp": "2026-08-31T12:00:00-04:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -948,14 +1311,17 @@
       "sleep_quality": 6.86,
       "source_timestamp": "2026-08-31T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 5.18
     },
     {
       "availability_timestamp": "2026-09-01T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 1,
       "event_count": 6,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -974,13 +1340,16 @@
       "sleep_quality": 5.07,
       "source_timestamp": "2026-09-01T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
+      "trigger_count": 2,
       "wake_state": 7.77
     },
     {
       "availability_timestamp": "2026-09-02T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -998,14 +1367,17 @@
       "sleep_quality": 6.0,
       "source_timestamp": "2026-09-02T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 2,
       "wake_state": 7.48
     },
     {
       "availability_timestamp": "2026-09-03T12:00:00-04:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "gi_level": 2,
       "id": "rec_PAC-A_29",
@@ -1022,14 +1394,17 @@
       "sleep_quality": 6.29,
       "source_timestamp": "2026-09-03T12:00:00-04:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 2,
       "wake_state": 6.65
     },
     {
       "availability_timestamp": "2026-09-04T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 0,
@@ -1047,14 +1422,17 @@
       "sleep_quality": 8.38,
       "source_timestamp": "2026-09-04T12:00:00-04:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 4.68
     },
     {
       "availability_timestamp": "2026-09-05T12:00:00-04:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "gi_level": 0,
       "id": "rec_PAC-A_31",
@@ -1072,14 +1450,17 @@
       "sleep_quality": 9.28,
       "source_timestamp": "2026-09-05T12:00:00-04:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 3.1
     },
     {
       "availability_timestamp": "2026-09-06T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1098,14 +1479,17 @@
       "sleep_quality": 8.02,
       "source_timestamp": "2026-09-06T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 3.39
     },
     {
       "availability_timestamp": "2026-09-07T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "gi_level": 0,
       "id": "rec_PAC-A_33",
@@ -1122,14 +1506,17 @@
       "sleep_quality": 9.51,
       "source_timestamp": "2026-09-07T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 2.0
     },
     {
       "availability_timestamp": "2026-09-08T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "gi_level": 1,
       "id": "rec_PAC-A_34",
@@ -1147,14 +1534,17 @@
       "sleep_quality": 8.17,
       "source_timestamp": "2026-09-08T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 4.64
     },
     {
       "availability_timestamp": "2026-09-09T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1173,14 +1563,17 @@
       "sleep_quality": 7.63,
       "source_timestamp": "2026-09-09T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 4.15
     },
     {
       "availability_timestamp": "2026-09-10T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1199,14 +1592,17 @@
       "sleep_quality": 7.89,
       "source_timestamp": "2026-09-10T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 4.36
     },
     {
       "availability_timestamp": "2026-09-11T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1225,14 +1621,17 @@
       "sleep_quality": 7.05,
       "source_timestamp": "2026-09-11T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 4.78
     },
     {
       "availability_timestamp": "2026-09-12T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "gi_level": 1,
       "id": "rec_PAC-A_38",
@@ -1250,14 +1649,17 @@
       "sleep_quality": 7.47,
       "source_timestamp": "2026-09-12T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 4.38
     },
     {
       "availability_timestamp": "2026-09-13T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1275,14 +1677,17 @@
       "sleep_quality": 7.49,
       "source_timestamp": "2026-09-13T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 5.31
     },
     {
       "availability_timestamp": "2026-09-14T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1300,14 +1705,17 @@
       "sleep_quality": 9.42,
       "source_timestamp": "2026-09-14T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.31
     },
     {
       "availability_timestamp": "2026-09-15T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1326,14 +1734,17 @@
       "sleep_quality": 8.9,
       "source_timestamp": "2026-09-15T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 4.08
     },
     {
       "availability_timestamp": "2026-09-16T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "gi_level": 0,
       "id": "rec_PAC-A_42",
@@ -1351,14 +1762,17 @@
       "sleep_quality": 9.7,
       "source_timestamp": "2026-09-16T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.0
     },
     {
       "availability_timestamp": "2026-09-17T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1377,14 +1791,17 @@
       "sleep_quality": 7.92,
       "source_timestamp": "2026-09-17T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 4.5
     },
     {
       "availability_timestamp": "2026-09-18T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1402,14 +1819,17 @@
       "sleep_quality": 7.27,
       "source_timestamp": "2026-09-18T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 1,
       "wake_state": 5.48
     },
     {
       "availability_timestamp": "2026-09-19T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1427,14 +1847,17 @@
       "sleep_quality": 6.84,
       "source_timestamp": "2026-09-19T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 6.26
     },
     {
       "availability_timestamp": "2026-09-20T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -1453,13 +1876,16 @@
       "sleep_quality": 5.9,
       "source_timestamp": "2026-09-20T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 3,
       "wake_state": 6.84
     },
     {
       "availability_timestamp": "2026-09-21T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 7,
       "feeding_difficulty": 2,
       "gi_level": 1,
@@ -1477,14 +1903,17 @@
       "sleep_quality": 4.32,
       "source_timestamp": "2026-09-21T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 8.56
     },
     {
       "availability_timestamp": "2026-09-22T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 1,
       "event_count": 7,
       "gi_level": 1,
       "id": "rec_PAC-A_48",
@@ -1502,14 +1931,17 @@
       "sleep_quality": 4.0,
       "source_timestamp": "2026-09-22T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 8.02
     },
     {
       "availability_timestamp": "2026-09-23T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 0,
       "event_count": 7,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -1527,14 +1959,17 @@
       "sleep_quality": 4.78,
       "source_timestamp": "2026-09-23T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 7.95
     },
     {
       "availability_timestamp": "2026-09-24T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 3,
+      "dysregulation_unresolved": 1,
       "event_count": 7,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -1552,14 +1987,17 @@
       "sleep_quality": 5.05,
       "source_timestamp": "2026-09-24T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 7.77
     },
     {
       "availability_timestamp": "2026-09-25T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1578,14 +2016,17 @@
       "sleep_quality": 5.89,
       "source_timestamp": "2026-09-25T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.16
     },
     {
       "availability_timestamp": "2026-09-26T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "gi_level": 1,
       "id": "rec_PAC-A_52",
@@ -1603,14 +2044,17 @@
       "sleep_quality": 5.92,
       "source_timestamp": "2026-09-26T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.01
     },
     {
       "availability_timestamp": "2026-09-27T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1629,14 +2073,17 @@
       "sleep_quality": 8.59,
       "source_timestamp": "2026-09-27T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 4.25
     },
     {
       "availability_timestamp": "2026-09-28T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1654,14 +2101,17 @@
       "sleep_quality": 9.38,
       "source_timestamp": "2026-09-28T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 0,
       "wake_state": 2.67
     },
     {
       "availability_timestamp": "2026-09-29T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1680,14 +2130,17 @@
       "sleep_quality": 7.62,
       "source_timestamp": "2026-09-29T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 4.92
     },
     {
       "availability_timestamp": "2026-09-30T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1706,13 +2159,16 @@
       "sleep_quality": 9.81,
       "source_timestamp": "2026-09-30T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
+      "trigger_count": 1,
       "wake_state": 3.37
     },
     {
       "availability_timestamp": "2026-10-01T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -1730,14 +2186,17 @@
       "sleep_quality": 8.5,
       "source_timestamp": "2026-10-01T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 0,
       "wake_state": 3.9
     },
     {
       "availability_timestamp": "2026-10-02T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1756,14 +2215,17 @@
       "sleep_quality": 8.69,
       "source_timestamp": "2026-10-02T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 2.93
     },
     {
       "availability_timestamp": "2026-10-03T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1782,14 +2244,17 @@
       "sleep_quality": 8.01,
       "source_timestamp": "2026-10-03T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 4.84
     },
     {
       "availability_timestamp": "2026-10-04T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1808,13 +2273,16 @@
       "sleep_quality": 8.12,
       "source_timestamp": "2026-10-04T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 1,
       "wake_state": 3.47
     },
     {
       "availability_timestamp": "2026-10-05T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1833,14 +2301,17 @@
       "sleep_quality": 9.53,
       "source_timestamp": "2026-10-05T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.52
     },
     {
       "availability_timestamp": "2026-10-06T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 1,
       "gi_level": 0,
@@ -1858,14 +2329,17 @@
       "sleep_quality": 9.59,
       "source_timestamp": "2026-10-06T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.42
     },
     {
       "availability_timestamp": "2026-10-07T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1884,14 +2358,17 @@
       "sleep_quality": 10.0,
       "source_timestamp": "2026-10-07T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.15
     },
     {
       "availability_timestamp": "2026-10-08T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1909,14 +2386,17 @@
       "sleep_quality": 10.0,
       "source_timestamp": "2026-10-08T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 0,
       "wake_state": 2.69
     },
     {
       "availability_timestamp": "2026-10-09T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1935,14 +2415,17 @@
       "sleep_quality": 9.68,
       "source_timestamp": "2026-10-09T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.33
     },
     {
       "availability_timestamp": "2026-10-10T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 0,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -1961,14 +2444,17 @@
       "sleep_quality": 9.74,
       "source_timestamp": "2026-10-10T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 0,
       "wake_state": 2.0
     },
     {
       "availability_timestamp": "2026-10-11T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -1986,14 +2472,17 @@
       "sleep_quality": 8.88,
       "source_timestamp": "2026-10-11T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 3.26
     },
     {
       "availability_timestamp": "2026-10-12T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2011,13 +2500,16 @@
       "sleep_quality": 8.05,
       "source_timestamp": "2026-10-12T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 1,
       "wake_state": 3.99
     },
     {
       "availability_timestamp": "2026-10-13T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 1,
       "gi_level": 0,
@@ -2035,13 +2527,16 @@
       "sleep_quality": 8.42,
       "source_timestamp": "2026-10-13T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 1,
       "wake_state": 4.17
     },
     {
       "availability_timestamp": "2026-10-14T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -2059,14 +2554,17 @@
       "sleep_quality": 9.15,
       "source_timestamp": "2026-10-14T12:00:00-03:00",
       "start_autonomy_level": 0,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 2.26
     },
     {
       "availability_timestamp": "2026-10-15T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2084,14 +2582,17 @@
       "sleep_quality": 7.21,
       "source_timestamp": "2026-10-15T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 5.17
     },
     {
       "availability_timestamp": "2026-10-16T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -2109,14 +2610,17 @@
       "sleep_quality": 8.56,
       "source_timestamp": "2026-10-16T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 3.6
     },
     {
       "availability_timestamp": "2026-10-17T12:00:00-03:00",
       "day_regulation_level_num": 0,
       "dysregulation_count": 0,
+      "dysregulation_unresolved": 0,
       "event_count": 1,
       "feeding_difficulty": 0,
       "gi_level": 0,
@@ -2135,13 +2639,16 @@
       "sleep_quality": 8.84,
       "source_timestamp": "2026-10-17T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 0,
       "wake_state": 2.51
     },
     {
       "availability_timestamp": "2026-10-18T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 2,
       "gi_level": 1,
       "id": "rec_PAC-A_74",
@@ -2159,13 +2666,16 @@
       "sleep_quality": 8.24,
       "source_timestamp": "2026-10-18T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 2,
       "wake_state": 4.73
     },
     {
       "availability_timestamp": "2026-10-19T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2184,14 +2694,17 @@
       "sleep_quality": 7.29,
       "source_timestamp": "2026-10-19T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 5.63
     },
     {
       "availability_timestamp": "2026-10-20T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 6,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2209,13 +2722,16 @@
       "sleep_quality": 5.75,
       "source_timestamp": "2026-10-20T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 2,
       "wake_state": 6.45
     },
     {
       "availability_timestamp": "2026-10-21T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2234,13 +2750,16 @@
       "sleep_quality": 6.81,
       "source_timestamp": "2026-10-21T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 0,
       "subject_id": "PAC-A",
+      "trigger_count": 1,
       "wake_state": 5.24
     },
     {
       "availability_timestamp": "2026-10-22T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2258,14 +2777,17 @@
       "sleep_quality": 6.53,
       "source_timestamp": "2026-10-22T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 5.81
     },
     {
       "availability_timestamp": "2026-10-23T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "gi_level": 1,
       "id": "rec_PAC-A_79",
@@ -2283,14 +2805,17 @@
       "sleep_quality": 6.68,
       "source_timestamp": "2026-10-23T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 5.54
     },
     {
       "availability_timestamp": "2026-10-24T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "gi_level": 1,
       "id": "rec_PAC-A_80",
@@ -2308,14 +2833,17 @@
       "sleep_quality": 6.43,
       "source_timestamp": "2026-10-24T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.08
     },
     {
       "availability_timestamp": "2026-10-25T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 1,
       "event_count": 6,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2334,13 +2862,16 @@
       "sleep_quality": 5.72,
       "source_timestamp": "2026-10-25T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
+      "trigger_count": 3,
       "wake_state": 7.33
     },
     {
       "availability_timestamp": "2026-10-26T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2359,13 +2890,16 @@
       "sleep_quality": 6.34,
       "source_timestamp": "2026-10-26T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
+      "trigger_count": 1,
       "wake_state": 6.52
     },
     {
       "availability_timestamp": "2026-10-27T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2383,14 +2917,17 @@
       "sleep_quality": 7.26,
       "source_timestamp": "2026-10-27T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 0,
+      "trigger_count": 1,
       "wake_state": 4.47
     },
     {
       "availability_timestamp": "2026-10-28T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -2409,14 +2946,17 @@
       "sleep_quality": 8.03,
       "source_timestamp": "2026-10-28T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 5.11
     },
     {
       "availability_timestamp": "2026-10-29T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 1,
@@ -2434,14 +2974,17 @@
       "sleep_quality": 6.15,
       "source_timestamp": "2026-10-29T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 3,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 2,
       "wake_state": 6.82
     },
     {
       "availability_timestamp": "2026-10-30T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 3,
       "gi_level": 1,
       "id": "rec_PAC-A_86",
@@ -2459,14 +3002,17 @@
       "sleep_quality": 6.48,
       "source_timestamp": "2026-10-30T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 1,
       "subject_id": "PAC-A",
       "transition_difficulty": 1,
+      "trigger_count": 1,
       "wake_state": 5.91
     },
     {
       "availability_timestamp": "2026-10-31T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 0,
       "gi_level": 1,
@@ -2485,14 +3031,17 @@
       "sleep_quality": 7.01,
       "source_timestamp": "2026-10-31T12:00:00-03:00",
       "start_autonomy_level": 1,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 2,
       "wake_state": 5.8
     },
     {
       "availability_timestamp": "2026-11-01T12:00:00-03:00",
       "day_regulation_level_num": 1,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 0,
       "event_count": 4,
       "feeding_difficulty": 2,
       "gi_level": 2,
@@ -2510,14 +3059,17 @@
       "sleep_quality": 5.87,
       "source_timestamp": "2026-11-01T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 7.89
     },
     {
       "availability_timestamp": "2026-11-02T12:00:00-03:00",
       "day_regulation_level_num": 2,
       "dysregulation_count": 2,
+      "dysregulation_unresolved": 1,
       "event_count": 5,
       "feeding_difficulty": 1,
       "gi_level": 2,
@@ -2536,8 +3088,10 @@
       "sleep_quality": 5.09,
       "source_timestamp": "2026-11-02T12:00:00-03:00",
       "start_autonomy_level": 2,
+      "strategy_count": 2,
       "subject_id": "PAC-A",
       "transition_difficulty": 2,
+      "trigger_count": 3,
       "wake_state": 8.41
     }
   ]

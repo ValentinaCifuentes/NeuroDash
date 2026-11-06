@@ -119,6 +119,10 @@ _CONTEXT_FAMILIES = {
     "transition_difficulty": ("dificultad en las transiciones", "dificultad_transiciones"),
     "feeding_difficulty": ("dificultad para alimentarse", "dificultad_alimentacion"),
     "sensory_diet_done": ("dieta sensorial realizada", "dieta_sensorial"),
+    # Detalle de las hojas (disparadores, estrategias, resultado), agregado por día.
+    "trigger_count": ("disparadores registrados", "disparadores"),
+    "strategy_count": ("estrategias aplicadas", "estrategias"),
+    "dysregulation_unresolved": ("desregulaciones sin regular", "desregulaciones_sin_regular"),
 }
 _WINDOW_WORDS = {
     1: ("en el último día", "un_dia"),
@@ -157,6 +161,9 @@ BASELINE_PHRASES: dict[str, tuple[float, str, str, str]] = {
     "transition_difficulty": (0.3, "Transiciones más difíciles que de costumbre", "Transiciones más fáciles que de costumbre", "Transiciones como de costumbre"),
     "feeding_difficulty": (0.3, "Comió con más dificultad que de costumbre", "Comió con menos dificultad que de costumbre", "Alimentación como de costumbre"),
     "sensory_diet_done": (0.2, "Hizo más dieta sensorial que de costumbre", "Hizo menos dieta sensorial que de costumbre", "Dieta sensorial como de costumbre"),
+    "trigger_count": (0.5, "Más disparadores que de costumbre", "Menos disparadores que de costumbre", "Disparadores como de costumbre"),
+    "strategy_count": (0.5, "Más estrategias aplicadas que de costumbre", "Menos estrategias aplicadas que de costumbre", "Estrategias como de costumbre"),
+    "dysregulation_unresolved": (0.2, "Más desregulaciones sin regular que de costumbre", "Menos desregulaciones sin regular que de costumbre", "Desregulaciones sin regular como de costumbre"),
 }
 _LATEST_RECORD = "en su último registro"
 # Variables donde «más» es mejor para el infante; en el resto, más es peor.
