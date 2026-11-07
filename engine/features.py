@@ -4,6 +4,27 @@ from typing import Any
 
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import BaselineSnapshot
+from engine.schemas import HORIZON_HOURS
+
+
+# Expectativas de un evento planificado que anticipan una crisis en el horizonte.
+STRESSFUL_EXPECTATIONS = {"Estresante", "Desagradable"}
+
+# Campos donde la ausencia es informativa y merece el indicador binario `*_missing`:
+# «No Aplica»/«No sé» y las escalas de eventos que no se registran todos los días.
+# El resto (sueño, despertar, conteos) se asume presente; no se les agrega el flag
+# para no inflar el vector de features con indicadores siempre en 0.
+MISSING_INDICATOR_FIELDS = {
+    "medication_taken",
+    "sleep_hours",
+    "transition_difficulty",
+    "feeding_difficulty",
+    "sensory_diet_done",
+    "early_signs_count",
+    "physical_discomfort",
+    "routine_change",
+    "school_attendance",
+}
 
 
 class FeatureSet:
@@ -56,12 +77,17 @@ def build_features(
     cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
     timezone: str | tzinfo | zoneinfo.ZoneInfo = "UTC",
-    subject: dict[str, Any] | None = None
+    subject: dict[str, Any] | None = None,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> FeatureSet:
     """
     Builds a FeatureSet for a subject as of a specific cutoff.
     Aggregates numeric fields over 1, 3, 7, and 14 days windows, computes deltas against
     the baseline median, records missingness, and captures sensory context.
+
+    `planned_events` añade la variable `planned_stressful_event_8h` (0/1): si hay un
+    evento planificado «Estresante»/«Desagradable» en el horizonte siguiente al corte.
+    No hay fuga de información: el evento se conoce antes del corte.
     """
     pol = policy or AvailabilityPolicy()
     eligible_records, _ = filter_records(records, cutoff, pol, timezone=timezone)
@@ -109,8 +135,14 @@ def build_features(
             ]
             
             feat_name = f"{modality}_mean_{window}d"
+            missing_feat = f"{modality}_missing_{window}d"
             if values:
                 rolling_features[feat_name] = sum(values) / len(values)
+                # Indicador binario de faltante, solo para campos opcionales: así el
+                # modelo distingue un valor real (p. ej. "0 eventos" o "No") de un
+                # dato ausente ("No Aplica", "No sé" o sin registro).
+                if modality in MISSING_INDICATOR_FIELDS:
+                    rolling_features[missing_feat] = 0.0
                 missingness.append({
                     "window": window,
                     "field": modality,
@@ -122,6 +154,8 @@ def build_features(
                 # no se confunde con un valor real (p. ej. "0 eventos"). Solo cae a
                 # None en arranque en frío, cuando aún no hay línea base.
                 rolling_features[feat_name] = baseline.modality_baselines.get(modality)
+                if modality in MISSING_INDICATOR_FIELDS:
+                    rolling_features[missing_feat] = 1.0
                 missingness.append({
                     "window": window,
                     "field": modality,
@@ -146,10 +180,33 @@ def build_features(
             rolling_features[delta_name] = current_val - baseline_val
         else:
             rolling_features[delta_name] = None
-            
+
+    # Contexto al corte (no agregado por ventanas): evento planificado estresante.
+    rolling_features["planned_stressful_event_8h"] = float(
+        _planned_stressful_in_horizon(planned_events or [], cutoff, HORIZON_HOURS)
+    )
+
     return FeatureSet(
         rolling_features=rolling_features,
         missingness=missingness,
         sensory_context=sensory_context,
         baseline_maturity=baseline.maturity
     )
+
+
+def _planned_stressful_in_horizon(
+    planned_events: list[dict[str, Any]],
+    cutoff: datetime,
+    horizon_hours: int,
+) -> float:
+    """1.0 si hay un evento planificado estresante en (cutoff, cutoff + horizon_hours]."""
+    horizon_end = cutoff + timedelta(hours=horizon_hours)
+    for event in planned_events:
+        starts = event.get("starts_at")
+        if not isinstance(starts, datetime):
+            continue
+        if starts.tzinfo is None:
+            continue
+        if cutoff < starts <= horizon_end and event.get("expectation") in STRESSFUL_EXPECTATIONS:
+            return 1.0
+    return 0.0

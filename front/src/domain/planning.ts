@@ -1,11 +1,12 @@
 /**
  * Planificación (screens/Final-Planificacion.html).
  *
- * D6: mock para el congreso. Los eventos se guardan en este navegador, por
- * infante; no llegan al backend ni al modelo. Cuando exista
- * `POST /subjects/{id}/planned-events` [PCD Fase 4], solo cambia `api.ts`.
+ * Agenda de lo que viene, con la expectativa de cada evento. Los eventos viven en
+ * el backend (`POST/GET /subjects/{id}/planned-events`) y entran al modelo como
+ * `planned_stressful_event_8h`; este módulo solo los lee y los guarda por `api.ts`.
  */
 
+import { listPlannedEvents, savePlannedEvent } from '../api';
 import type { PlannedCategory, PlannedEvent, PlannedExpectation, Subject } from '../types';
 import type { Semantic } from './catalog';
 
@@ -20,50 +21,12 @@ export const EXPECTATION_SEMANTIC: Record<PlannedExpectation, Semantic> = {
   Desagradable: 'danger',
 };
 
-const storageKey = (subjectId: string) => `neurodash.planned.${subjectId}`;
-
-function read(subjectId: string): PlannedEvent[] | null {
-  try {
-    const raw = localStorage.getItem(storageKey(subjectId));
-    return raw ? (JSON.parse(raw) as PlannedEvent[]) : null;
-  } catch {
-    return null;
-  }
-}
-
-function write(subjectId: string, events: PlannedEvent[]): void {
-  try {
-    localStorage.setItem(storageKey(subjectId), JSON.stringify(events));
-  } catch {
-    // Navegación privada o almacenamiento bloqueado: el evento vive mientras la pantalla siga abierta.
-  }
-}
-
-function at(base: Date, days: number, hours: number, minutes = 0): string {
-  const d = new Date(base);
-  d.setDate(d.getDate() + days);
-  d.setHours(hours, minutes, 0, 0);
-  return d.toISOString();
-}
-
-/** Ejemplos del prototipo, solo para los infantes demo (nunca para uno real). */
-function demoEvents(subjectId: string, now: Date): PlannedEvent[] {
-  const sunday = (7 - now.getDay()) % 7 || 7;
-  const saturday = sunday === 1 ? 7 : sunday - 1;
-  return [
-    { id: 'demo-1', subject_id: subjectId, title: 'Cita con el Dentista', starts_at: at(now, 1, 15, 30), category: 'Salud', expectation: 'Desagradable' },
-    { id: 'demo-2', subject_id: subjectId, title: 'Visita a la Abuela', starts_at: at(now, saturday, 12), category: 'Social', expectation: 'Agradable' },
-    { id: 'demo-3', subject_id: subjectId, title: 'Cumpleaños de Martín (Mucho ruido)', starts_at: at(now, sunday, 16), category: 'Social', expectation: 'Estresante' },
-  ];
-}
-
 /** Próximos eventos (desde el inicio de hoy), del más cercano al más lejano. */
-export function loadPlannedEvents(subject: Pick<Subject, 'subject_id' | 'provenance'>, now = new Date()): PlannedEvent[] {
-  let events = read(subject.subject_id);
-  if (events === null) {
-    events = subject.provenance?.synthetic ? demoEvents(subject.subject_id, now) : [];
-    write(subject.subject_id, events);
-  }
+export async function loadPlannedEvents(
+  subject: Pick<Subject, 'subject_id'>,
+  now = new Date(),
+): Promise<PlannedEvent[]> {
+  const events = await listPlannedEvents(subject.subject_id);
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
   return events
@@ -71,9 +34,8 @@ export function loadPlannedEvents(subject: Pick<Subject, 'subject_id' | 'provena
     .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
 }
 
-export function addPlannedEvent(event: PlannedEvent): void {
-  const events = read(event.subject_id) ?? [];
-  write(event.subject_id, [...events.filter((item) => item.id !== event.id), event]);
+export function addPlannedEvent(event: PlannedEvent): Promise<PlannedEvent> {
+  return savePlannedEvent(event);
 }
 
 /** «Hoy, 15:30» · «Mañana, 15:30» · «Sábado, 12:00» (esta semana) · «12 nov, 16:00». */

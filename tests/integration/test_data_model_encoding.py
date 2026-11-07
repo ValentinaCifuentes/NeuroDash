@@ -64,6 +64,52 @@ def test_daily_record_encodes_text_to_raw_and_numeric_to_root(tmp_path: Path, mo
         assert legacy_field not in saved
 
 
+def test_partial_saves_create_separate_records_and_edit_replaces(tmp_path: Path, monkeypatch) -> None:
+    """Cada guardado crea un registro aparte; el lápiz (record_id) reemplaza el suyo."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    # Primer guardado parcial: descanso nocturno.
+    first = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T07:30:00-04:00", "idempotency_key": "basal-1",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "sleep_quality": "Reparador", "wake_mode": "Tranquilo/Alegre",
+    }, headers=_headers()).json()
+
+    # Segundo guardado parcial (sin record_id): digestión, otro registro.
+    second = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T08:00:00-04:00", "idempotency_key": "basal-2",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "gi_status": "Normal",
+    }, headers=_headers()).json()
+
+    assert second["record_id"] != first["record_id"]
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    assert len(records) == 2
+
+    # Editar el primero (con record_id) reemplaza solo ese registro.
+    edited = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T09:00:00-04:00", "idempotency_key": "basal-3",
+        "provenance": {"source": "tutor_app", "synthetic": False},
+        "record_id": first["record_id"],
+        "sleep_quality": "Interrumpido", "wake_mode": "Irritable/Llorando",
+    }, headers=_headers()).json()
+
+    assert edited["record_id"] == first["record_id"]
+    assert edited["sleep_quality"] == 5  # Interrumpido
+    assert edited["wake_state"] == 8     # Irritable/Llorando
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    assert len(records) == 2
+    first_after = next(r for r in records if r["record_id"] == first["record_id"])
+    assert first_after["raw"]["sleep_quality"] == "Interrumpido"
+    # El registro de digestión no se tocó.
+    second_after = next(r for r in records if r["record_id"] == second["record_id"])
+    assert second_after["raw"]["gi_status"] == "Normal"
+
+
 def test_medication_no_aplica_omits_numeric_field(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
     client = TestClient(app)
@@ -189,6 +235,59 @@ def test_event_count_aggregation_by_local_day(tmp_path: Path, monkeypatch) -> No
     records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
     assert next(r for r in records if r["date"] == "2026-08-27")["event_count"] == 1
     assert next(r for r in records if r["date"] == "2026-08-26")["event_count"] == 3
+
+
+def test_event_detail_counts_feed_the_daily_record(tmp_path: Path, monkeypatch) -> None:
+    """Disparadores, estrategias y desregulaciones sin regular llegan al registro del día."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client, timezone="America/Santiago")
+
+    def post_event(key: str, at: str, triggers: list[str], strategies: list[str], outcome: str) -> None:
+        response = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+            "occurred_at": at, "idempotency_key": key,
+            "provenance": {"source": "tutor_app", "synthetic": False},
+            "event_type": "Desregulación Emocional", "intensity_value": 6,
+            "trigger": triggers, "strategy_applied": strategies, "strategy_outcome": outcome,
+        }, headers=_headers())
+        assert response.status_code == 201
+
+    post_event("d1", "2026-08-26T10:00:00-04:00", ["Ruidos", "Espera"], ["Espacio seguro"], "Sin Regulación")
+    post_event("d2", "2026-08-26T15:00:00-04:00", ["Frustración"], ["Presión profunda", "Pictogramas"], "Regulación Exitosa")
+
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    day = next(r for r in records if r["date"] == "2026-08-26")
+    assert day["trigger_count"] == 3        # 2 + 1 disparadores
+    assert day["strategy_count"] == 3       # 1 + 2 estrategias
+    assert day["dysregulation_unresolved"] == 1  # solo el primero terminó sin regular
+
+
+def test_planned_event_is_stored(tmp_path: Path, monkeypatch) -> None:
+    """Planificación: un evento planificado se guarda con su expectativa."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    saved = client.post(f"/api/v1/subjects/{subject_id}/planned-events", headers=_headers(), json={
+        "title": "Cita con el dentista",
+        "starts_at": "2026-08-26T15:00:00-04:00",
+        "category": "Salud",
+        "expectation": "Desagradable",
+    }).json()
+
+    assert saved["title"] == "Cita con el dentista"
+    assert saved["expectation"] == "Desagradable"
+    assert "planned_event_id" in saved
+
+    stored = json.loads((tmp_path / subject_id / "planned_events.json").read_text(encoding="utf-8"))
+    assert len(stored) == 1
+    assert stored[0]["expectation"] == "Desagradable"
+
+    # La ruta GET lo devuelve (con starts_at en ISO) para la pantalla de Planificación.
+    listed = client.get(f"/api/v1/subjects/{subject_id}/planned-events").json()
+    assert len(listed) == 1
+    assert listed[0]["title"] == "Cita con el dentista"
+    assert listed[0]["expectation"] == "Desagradable"
 
 
 def test_event_scales_become_daily_numbers_and_absent_scales_stay_absent(tmp_path: Path, monkeypatch) -> None:

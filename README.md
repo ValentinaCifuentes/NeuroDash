@@ -101,20 +101,20 @@ Requiere Docker con Compose. Desde la raíz del repositorio:
 docker compose up --build
 ```
 
-- Frontend: <http://localhost:8080> (nginx reenvía `/api` al backend)
+- Frontend: <http://localhost:8090> (nginx reenvía `/api` al backend)
 - Backend: <http://localhost:8000/docs>
 
 `data/` y `models/` se guardan en los volúmenes `neuradash-data` y
 `neuradash-models`, por lo que los cambios sobreviven a los reinicios. Para volver
 a los datos del repositorio, use `docker compose down -v`.
 
-El frontend se compila con `VITE_API_BASE=http://localhost:8080` y guarda como el
+El frontend se compila con `VITE_API_BASE=http://localhost:8090` y guarda como el
 tutor fijo `tutor-demo` (la autenticación está fuera de alcance). Si lo sirve desde
 otra URL, o quiere otro actor, defina las variables antes de compilar (por ejemplo
 en un `.env` en la raíz). El backend solo acepta los roles `tutor` y `system`:
 
 ```bash
-VITE_API_BASE=http://mi-servidor:8080
+VITE_API_BASE=http://mi-servidor:8090
 VITE_ACTOR_ID=tutor-demo
 VITE_ACTOR_ROLE=tutor
 ```
@@ -141,7 +141,7 @@ bash scripts/prepare_demo.sh              # graba hoy (o: … 2026-11-20)
 
 Genera los historiales hasta el día anterior, reentrena, actualiza los fixtures del
 front, reinicia Docker con datos limpios (pregunta antes de borrar) y verifica los tres
-estados en <http://localhost:8080>. El recorrido sugerido para el video está en la
+estados en <http://localhost:8090>. El recorrido sugerido para el video está en la
 [guía de grabación](docs/guia-grabacion-demo.md).
 
 Los pasos por separado, si hiciera falta:

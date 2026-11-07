@@ -6,7 +6,7 @@
  * textos no lo prometen (P18).
  */
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChipGroup, Field } from '../components/controls';
 import { Icon } from '../components/icons';
 import { ShapeMark } from '../components/marks';
@@ -29,13 +29,23 @@ interface Props {
 }
 
 export function Planificacion({ subject, onSaved }: Props) {
-  const [events, setEvents] = useState(() => loadPlannedEvents(subject));
+  const [events, setEvents] = useState<PlannedEvent[]>([]);
   const [adding, setAdding] = useState(false);
   const addRef = useRef<HTMLButtonElement>(null);
 
-  function save(event: PlannedEvent) {
-    addPlannedEvent(event);
-    setEvents(loadPlannedEvents(subject));
+  useEffect(() => {
+    let alive = true;
+    loadPlannedEvents(subject).then((loaded) => {
+      if (alive) setEvents(loaded);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [subject]);
+
+  async function save(event: PlannedEvent) {
+    await addPlannedEvent(event);
+    setEvents(await loadPlannedEvents(subject));
     setAdding(false);
     onSaved?.(event);
   }

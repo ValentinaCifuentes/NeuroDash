@@ -10,7 +10,7 @@
 # ⚠️ `docker compose down -v` borra lo registrado en la app (volúmenes
 # neuradash-data y neuradash-models). El script pregunta antes; con --yes no pregunta.
 #
-# Variables opcionales: DEMO_URL (por defecto http://localhost:8080, donde se graba),
+# Variables opcionales: DEMO_URL (por defecto http://localhost:8090, donde se graba),
 # y las de Compose (COMPOSE_PROJECT_NAME, COMPOSE_FILE) para levantar otra pila.
 
 set -euo pipefail
@@ -28,7 +28,7 @@ for arg in "$@"; do
   esac
 done
 END_DATE="$(date -d "$RECORDING_DATE -1 day" +%F)"
-DEMO_URL="${DEMO_URL:-http://localhost:8080}"
+DEMO_URL="${DEMO_URL:-http://localhost:8090}"
 
 step() { printf '\n\033[1m▶ %s\033[0m\n' "$1"; }
 

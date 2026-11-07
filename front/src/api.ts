@@ -24,6 +24,7 @@ import type {
   DysregulationEvent,
   FactorDirection,
   MissingDataItem,
+  PlannedEvent,
   Prediction,
   PredictionRequest,
   SupportItem,
@@ -164,6 +165,8 @@ export function buildCareWrite(occurredAt: Date, idempotencyKey: string = newId(
 export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(), idempotencyKey?: string) {
   return {
     ...buildCareWrite(now, idempotencyKey ?? record.idempotency_key),
+    // Para editar un registro guardado (el lápiz del historial); sin él, se crea uno nuevo.
+    ...(record.record_id ? { record_id: record.record_id } : {}),
     sleep_quality: record.sleep_quality,
     wake_mode: record.wake_mode,
     start_autonomy: record.start_autonomy,
@@ -180,9 +183,9 @@ export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(
 }
 
 /**
- * Cuerpo de `POST /events`. Viaja el evento completo: hoy el backend solo
- * guarda `event_type` e `intensity_value` y descarta el resto sin error; el
- * detalle se conservará cuando se amplíe `EventWrite` [PCD Fase 2].
+ * Cuerpo de `POST /events`. Viaja el evento completo: disparadores, estrategias
+ * y resultado. El backend los guarda en la auditoría y los agrega al registro del
+ * día (`trigger_count`, `strategy_count`, `dysregulation_unresolved`).
  */
 export function buildEventWrite(event: DysregulationEvent, idempotencyKey?: string) {
   const { subject_id: _subjectId, event_id: _eventId, occurred_at, idempotency_key, ...fields } = event;
@@ -203,6 +206,48 @@ export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent
     headers: getActorHeaders(),
     body: JSON.stringify(buildEventWrite(event)),
   });
+}
+
+/* --- Planificación (eventos planificados) --- */
+
+type BackendPlannedEvent = {
+  planned_event_id?: string;
+  subject_id: string;
+  title: string;
+  starts_at: string;
+  category?: string | null;
+  expectation?: string | null;
+};
+
+/** El backend identifica con `planned_event_id`; el front usa `id`. */
+function adaptPlannedEvent(event: BackendPlannedEvent): PlannedEvent {
+  return {
+    id: event.planned_event_id ?? newId(),
+    subject_id: event.subject_id,
+    title: event.title,
+    starts_at: event.starts_at,
+    category: (event.category as PlannedEvent['category']) ?? null,
+    expectation: (event.expectation as PlannedEvent['expectation']) ?? null,
+  };
+}
+
+export function savePlannedEvent(event: Omit<PlannedEvent, 'id'>): Promise<PlannedEvent> {
+  return request<BackendPlannedEvent>(`/api/v1/subjects/${event.subject_id}/planned-events`, {
+    method: 'POST',
+    headers: getActorHeaders(),
+    body: JSON.stringify({
+      title: event.title,
+      starts_at: event.starts_at,
+      category: event.category,
+      expectation: event.expectation,
+    }),
+  }).then(adaptPlannedEvent);
+}
+
+export function listPlannedEvents(subjectId: string): Promise<PlannedEvent[]> {
+  return request<BackendPlannedEvent[]>(`/api/v1/subjects/${subjectId}/planned-events`).then((events) =>
+    events.map(adaptPlannedEvent),
+  );
 }
 
 /**
@@ -457,6 +502,17 @@ const MISSING_FIELD_LABELS: Record<string, string> = {
   day_regulation_level_num: 'Regulación del día',
   dysregulation_count: 'Desregulaciones',
   max_intensity: 'Intensidad de los eventos',
+  trigger_count: 'Disparadores',
+  strategy_count: 'Estrategias aplicadas',
+  dysregulation_unresolved: 'Desregulaciones sin regular',
+  transition_difficulty: 'Dificultad en las transiciones',
+  feeding_difficulty: 'Dificultad para alimentarse',
+  sensory_diet_done: 'Dieta sensorial realizada',
+  sleep_hours: 'Horas de sueño',
+  early_signs_count: 'Señales tempranas',
+  physical_discomfort: 'Malestar físico',
+  routine_change: 'Cambios de rutina',
+  school_attendance: 'Asistencia al colegio',
 };
 
 /**

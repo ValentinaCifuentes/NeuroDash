@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ml.promotion import write_json_atomic
-from backend.app.prediction_service import load_legacy_history, load_subject_data, SubjectNotFoundError
+from backend.app.prediction_service import load_legacy_history, load_legacy_planned_events, load_subject_data, SubjectNotFoundError
 from backend.app.care_repository import CareRecordRepository, SubjectRepository
 from backend.app.schemas import ActorContext, ProvenanceV2
 
@@ -52,6 +52,8 @@ class CareRecordWrite(BaseModel):
     occurred_at: datetime
     idempotency_key: str = Field(min_length=1)
     provenance: ProvenanceV2
+    # Para editar un registro guardado (el lápiz del historial). Sin él, se crea uno nuevo.
+    record_id: str | None = None
     sleep_quality: str | None = None
     gi_status: str | None = None
     wake_mode: str | None = None
@@ -84,6 +86,15 @@ class EventWrite(BaseModel):
     quick_capture: bool = False
 
 
+class PlannedEventWrite(BaseModel):
+    """Evento planificado (Planificación): citas, salidas, cambios de rutina."""
+    title: str = Field(min_length=1)
+    starts_at: datetime
+    category: str | None = None
+    expectation: str | None = None
+    idempotency_key: str | None = None
+
+
 DYREGULATION_EVENT_TYPE = "Desregulación Emocional"
 
 # Texto -> número para los campos de la Bitácora. El texto original se conserva
@@ -113,6 +124,7 @@ EVENT_SCALE_ENCODINGS: dict[str, tuple[str, dict[str, float]]] = {
     "Dieta Sensorial": ("sensory_diet_done", {"Completa": 1, "Parcial": 0.5, "No realizada": 0}),
 }
 EFFECTIVE_OUTCOME = "Regulación Exitosa"
+UNRESOLVED_OUTCOME = "Sin Regulación"
 # Opciones «nada» de las preguntas de varias respuestas.
 NO_EARLY_SIGNS = "Ninguna"
 NO_DISCOMFORT = "No"
@@ -311,7 +323,7 @@ def get_subject(subject_id: str) -> dict[str, Any]:
     except KeyError:
         pass
     try:
-        profile, _, _ = load_subject_data(subject_id)
+        profile, _, _, _ = load_subject_data(subject_id)
         return profile
     except SubjectNotFoundError:
         raise HTTPException(status_code=404, detail=f"Subject {subject_id} not found.")
@@ -333,7 +345,46 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
         "date": occurred_at.astimezone(local_zone).date().isoformat(),
         "prediction_availability": "immediate",
     })
-    return care_repository(subject_id).save(subject_id, "records", item, "record_id")
+    return _save_daily_record_item(subject_id, item, req.record_id)
+
+
+# Campos numéricos que escribe la Bitácora (no los conteos de eventos ni las
+# escalas, que los agrega `_refresh_daily_event_counts`). Al editar, se
+# reemplazan solo estos y el texto en `raw`; el resto del registro se conserva.
+_BASAL_NUMERIC_FIELDS = {
+    "sleep_quality", "wake_state", "start_autonomy_level", "medication_taken",
+    "gi_level", "day_regulation_level_num", "sleep_hours", "routine_change",
+    "school_attendance", "early_signs_count", "physical_discomfort",
+}
+
+
+def _save_daily_record_item(subject_id: str, item: dict[str, Any], record_id: str | None) -> dict[str, Any]:
+    """Guarda el estado basal.
+
+    Sin `record_id` crea un registro nuevo por cada guardado: el tutor puede ir
+    guardando por partes (descanso nocturno, luego digestión, etc.) y cada parte
+    queda como un registro aparte en el historial. Con `record_id` (el lápiz del
+    historial) reemplaza ese registro concreto en vez de duplicarlo.
+    """
+    repo = care_repository(subject_id)
+    records = repo.list(subject_id, "records")
+
+    if record_id:
+        for record in records:
+            if record.get("record_id") == record_id:
+                # Editar: reemplaza el texto y los números de la Bitácora, conserva
+                # record_id, timestamps y los conteos que calculó `_refresh_daily_event_counts`.
+                record["raw"] = item.get("raw", {})
+                for field in _BASAL_NUMERIC_FIELDS:
+                    if field in item:
+                        record[field] = item[field]
+                    else:
+                        record.pop(field, None)
+                write_json_atomic(subject_root(subject_id) / subject_id / "records.json", records)
+                return record
+        raise HTTPException(status_code=404, detail=f"Record {record_id} not found.")
+
+    return repo.save(subject_id, "records", item, "record_id")
 
 
 @router.post("/{subject_id}/events", status_code=201)
@@ -413,6 +464,31 @@ def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext =
     return care_repository(subject_id).save(subject_id, "records", item, "record_id")
 
 
+@router.post("/{subject_id}/planned-events", status_code=201)
+def save_planned_event(subject_id: str, req: PlannedEventWrite, actor: ActorContext = Depends(get_care_actor)) -> dict[str, Any]:
+    starts_at = require_aware(req.starts_at, field_name="starts_at")
+    item = req.model_dump(mode="json", exclude_none=True)
+    item["idempotency_key"] = req.idempotency_key or uuid.uuid4().hex
+    item.update({
+        "contract_version": "2.0",
+        "subject_id": subject_id,
+        "author_id": actor.actor_id,
+        "source_timestamp": starts_at.isoformat(),
+        "availability_timestamp": starts_at.isoformat(),
+    })
+    return care_repository(subject_id).save(subject_id, "planned_events", item, "planned_event_id")
+
+
+@router.get("/{subject_id}/planned-events")
+def list_planned_events(subject_id: str) -> list[dict[str, Any]]:
+    """Eventos planificados del infante (los próximos se muestran en Planificación)."""
+    repo = care_repository(subject_id)  # resuelve real vs demo y devuelve 404 si no existe
+    planned = repo.list(subject_id, "planned_events")
+    if is_demo_subject(subject_id):
+        planned = load_legacy_planned_events(subject_id) + planned
+    return planned
+
+
 def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_id: str) -> None:
     """Recalcula event_count/dysregulation_count/max_intensity en el registro diario local.
 
@@ -433,15 +509,21 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
     day_occurrences = [occ for occ in occurrences if _local_date(occ["source_timestamp"]) == local_date_str]
 
     event_count = len(day_occurrences)
-    dysregulation_count = sum(
-        1 for occ in day_occurrences if occ.get("event_type") == DYREGULATION_EVENT_TYPE
-    )
+    dysregulation_events = [occ for occ in day_occurrences if occ.get("event_type") == DYREGULATION_EVENT_TYPE]
+    dysregulation_count = len(dysregulation_events)
     intensities = [
         occ["intensity_value"]
         for occ in day_occurrences
         if isinstance(occ.get("intensity_value"), (int, float))
     ]
     max_intensity = max(intensities) if intensities else 0
+    # Detalle de las hojas de registro (disparadores, estrategias, resultado):
+    # lo que se marca en una desregulación se cuenta y entra al modelo como señal.
+    trigger_count = sum(len(occ.get("trigger") or []) for occ in dysregulation_events)
+    strategy_count = sum(len(occ.get("strategy_applied") or []) for occ in dysregulation_events)
+    dysregulation_unresolved = sum(
+        1 for occ in dysregulation_events if occ.get("strategy_outcome") == UNRESOLVED_OUTCOME
+    )
 
     # Prefiere el registro basal ("immediate") de ese día; si no, cualquiera del día.
     target: dict[str, Any] | None = None
@@ -458,6 +540,9 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
         "event_count": event_count,
         "dysregulation_count": dysregulation_count,
         "max_intensity": max_intensity,
+        "trigger_count": trigger_count,
+        "strategy_count": strategy_count,
+        "dysregulation_unresolved": dysregulation_unresolved,
     }
     # Escalas de Transición, Alimentación y Dieta sensorial: solo si ese día hubo
     # un evento de ese tipo con escala; si no, el campo queda ausente (no es un 0).

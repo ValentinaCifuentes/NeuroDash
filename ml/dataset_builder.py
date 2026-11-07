@@ -19,7 +19,8 @@ def build_training_example(
     cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
     timezone: str = "UTC",
-    horizon_hours: int = HORIZON_HOURS
+    horizon_hours: int = HORIZON_HOURS,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> tuple[dict[str, float | None], bool]:
     """
     Builds a training example (X, y) for a given timezone-aware cutoff T.
@@ -32,7 +33,8 @@ def build_training_example(
         baseline=baseline,
         cutoff=cutoff,
         policy=policy,
-        timezone=timezone
+        timezone=timezone,
+        planned_events=planned_events
     )
     
     # 2. Determine label y
@@ -65,7 +67,8 @@ def build_dataset(
     policy: AvailabilityPolicy | None = None,
     timezone: str = "UTC",
     subject_id: str = "unknown",
-    horizon_hours: int = HORIZON_HOURS
+    horizon_hours: int = HORIZON_HOURS,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> tuple[
     list[dict[str, float | None]],
     list[bool],
@@ -96,7 +99,8 @@ def build_dataset(
             cutoff=cutoff,
             policy=pol,
             timezone=timezone,
-            horizon_hours=horizon_hours
+            horizon_hours=horizon_hours,
+            planned_events=planned_events
         )
         
         if cutoff < split_cutoff:
@@ -122,6 +126,18 @@ def build_dataset(
 
 def _clip(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
+
+
+# Disparadores y estrategias (catálogo cerrado del front, D5). Se sortean al azar
+# por evento para que la demo muestre detalle y el conteo diario tenga señal.
+SYNTHETIC_TRIGGERS = [
+    "Ruidos", "Frustración", "Cambio de actividad", "Espera",
+    "Hambre o cansancio", "Contacto físico", "Lugar con mucha gente", "Le dijeron que no",
+]
+SYNTHETIC_STRATEGIES = [
+    "Espacio seguro", "Presión profunda", "Pictogramas", "Anticipación verbal",
+    "Pausa sensorial", "Objeto de calma", "Audífonos", "Acompañamiento",
+]
 
 
 def _synthetic_raw(
@@ -182,11 +198,15 @@ def generate_synthetic_history(
 
     records: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
+    planned_events: list[dict[str, Any]] = []
 
     load = 0.5  # latent dysregulation load in [0, 1]
     # Escalas de los eventos (P22) con su propio generador: así la secuencia de
     # los valores anteriores, y con ella el estado de cada demo, no cambia.
     event_rng = random.Random(seed * 7919 + 17)
+    # Detalle de las hojas (disparadores/estrategias/resultado) también aparte, por
+    # la misma razón: no perturba la secuencia principal de la demo.
+    detail_rng = random.Random(seed * 104729 + 23)
 
     for d in range(days):
         current_time = start_date + timedelta(days=d)
@@ -210,6 +230,12 @@ def generate_synthetic_history(
         medication_taken = 1 if rng.random() > 0.30 * load else 0
         gi_level = int(_clip(round(2.0 * load + 0.3 * rng.gauss(0.0, 1.0)), 0, 2))
         day_regulation_level_num = int(_clip(round(2.0 * load + 0.3 * rng.gauss(0.0, 1.0)), 0, 2))
+        # Detalle de las hojas de registro, agregado por día (como lo hace el backend
+        # en `_refresh_daily_event_counts`). Dependen de la carga: más desregulación
+        # implica más disparadores, más estrategias y más episodios sin regular.
+        trigger_count = max(0, int(round(3.0 * load + 0.4 * detail_rng.gauss(0.0, 1.0))))
+        strategy_count = max(0, int(round(2.0 * load + 0.4 * detail_rng.gauss(0.0, 1.0))))
+        dysregulation_unresolved = 1 if (load > 0.8 and detail_rng.random() < 0.7) else 0
 
         record = {
             "id": f"rec_{subject_id}_{d}",
@@ -225,6 +251,9 @@ def generate_synthetic_history(
             "medication_taken": medication_taken,
             "gi_level": gi_level,
             "day_regulation_level_num": day_regulation_level_num,
+            "trigger_count": trigger_count,
+            "strategy_count": strategy_count,
+            "dysregulation_unresolved": dysregulation_unresolved,
             # Textos de la Bitácora, como los guarda la app (`raw`): la interfaz
             # los muestra en el historial y el calendario. El motor no los usa.
             "raw": _synthetic_raw(
@@ -243,6 +272,23 @@ def generate_synthetic_history(
             record["sensory_diet_done"] = 1.0 if done > 0.6 else 0.5 if done > 0.35 else 0.0
         records.append(record)
 
+        # 2.5 Evento planificado (conocido de antemano, sin fuga de información).
+        #    La probabilidad de que sea «Estresante» sigue a la carga: en días de más
+        #    carga es más probable un plan estresante. Así `planned_stressful_event_8h`
+        #    correlaciona con la crisis SIN alterar la secuencia de crisis (las
+        #    semillas de la demo siguen dando el mismo estado PAC-A alto / PAC-B bajo).
+        if detail_rng.random() < 0.30:
+            stressful = detail_rng.random() < (0.15 + 0.70 * load)
+            expectation = "Estresante" if stressful else detail_rng.choice(["Agradable", "Neutro"])
+            planned_events.append({
+                "id": f"plan_{subject_id}_{d}",
+                "subject_id": subject_id,
+                "starts_at": current_time + timedelta(hours=detail_rng.randint(1, 8)),
+                "title": "Cita médica" if stressful else detail_rng.choice(["Visita familiar", "Salida al parque"]),
+                "category": "Salud" if stressful else detail_rng.choice(["Social", "Rutina"]),
+                "expectation": expectation,
+            })
+
         # 3. Crisis occurrence (moderate/severe) later that day, driven by the load.
         #    Occurrences fall within the 8h horizon after the noon cutoff (13:00–20:00).
         #    Steep logistic keeps the base rate realistic (~15–20%) while remaining
@@ -255,6 +301,18 @@ def generate_synthetic_history(
             severity = "severe" if load > 0.72 else "moderate"
             intensity_value = int(_clip(round(1.0 + 9.0 * load + rng.gauss(0.0, 0.8)), 1, 10))
 
+            # Detalle de la hoja (disparadores, estrategias, resultado): igual que
+            # lo que manda el front. Usa `detail_rng` para no alterar la secuencia principal.
+            n_triggers = max(1, int(round(1.0 + 2.0 * load + 0.5 * detail_rng.gauss(0.0, 1.0))))
+            n_strategies = max(1, int(round(1.0 + 1.5 * load + 0.5 * detail_rng.gauss(0.0, 1.0))))
+            trigger = detail_rng.sample(SYNTHETIC_TRIGGERS, k=min(n_triggers, len(SYNTHETIC_TRIGGERS)))
+            strategy_applied = detail_rng.sample(SYNTHETIC_STRATEGIES, k=min(n_strategies, len(SYNTHETIC_STRATEGIES)))
+            strategy_outcome = (
+                "Sin Regulación" if load > 0.82
+                else "Regulación Parcial" if load > 0.65
+                else "Regulación Exitosa"
+            )
+
             occurrence = {
                 "id": f"occ_{subject_id}_{d}",
                 "subject_id": subject_id,
@@ -263,6 +321,9 @@ def generate_synthetic_history(
                 "severity": severity,
                 "event_type": "Desregulación Emocional",
                 "intensity_value": intensity_value,
+                "trigger": trigger,
+                "strategy_applied": strategy_applied,
+                "strategy_outcome": strategy_outcome,
             }
             occurrences.append(occurrence)
 
@@ -276,6 +337,7 @@ def generate_synthetic_history(
     return {
         "records": records,
         "occurrences": occurrences,
+        "planned_events": planned_events,
         "lineage": lineage
     }
 
