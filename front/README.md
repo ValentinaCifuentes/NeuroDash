@@ -141,7 +141,7 @@ mismas rutas con el mismo JSON que FastAPI, y pasa por los mismos adaptadores. L
 demos PAC-A/B/C salen de la demo real (`scripts/export_mock_fixture.py`) y sus fechas
 se corren solas para terminar «ayer». **No es el motor:** la estimación no cambia
 al registrar, y lo registrado se borra al recargar. Sirve para trabajar el front
-sin levantar el backend; la demo del congreso se graba con el backend.
+sin levantar el backend; la demostración se graba con el backend.
 
 ---
 

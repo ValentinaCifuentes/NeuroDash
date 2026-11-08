@@ -13,7 +13,7 @@ React/TypeScript.
 
 ## Estado actual
 
-Demostración funcional para el congreso, con tres infantes sintéticos:
+Demostración funcional con tres infantes sintéticos:
 **PAC-A** (riesgo elevado), **PAC-B** (riesgo bajo) y **PAC-C** (sin estimación:
 solo 2 días de historial).
 
@@ -120,7 +120,7 @@ VITE_ACTOR_ROLE=tutor
 ```
 
 Con `VITE_API_BASE` definida vacía, la UI usa el mock en memoria y no llama al
-backend (es secundario: la demo del congreso es un video grabado con el backend):
+backend (es secundario: la demostración es un video grabado con el backend):
 
 ```bash
 VITE_API_BASE= docker compose up --build -d frontend
