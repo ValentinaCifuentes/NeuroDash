@@ -1,6 +1,6 @@
 # Guía para grabar la demo de NeuroDash
 
-La demo del congreso es un **video pregrabado** con la app conectada al backend
+La demostración es un **video pregrabado** con la app conectada al backend
 (Docker). Esta guía cubre cómo dejarla lista el día de la grabación, un recorrido
 sugerido y lo que conviene evitar.
 
