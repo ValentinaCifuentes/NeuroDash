@@ -8,8 +8,61 @@ from typing import Any
 
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import build_baseline, BaselineSnapshot
-from engine.features import build_features
+from engine.features import FeatureSet, build_features
 from engine.schemas import HORIZON_HOURS
+
+
+def label_for_cutoff(
+    occurrences: list[dict[str, Any]],
+    cutoff: datetime,
+    horizon_hours: int = HORIZON_HOURS
+) -> bool:
+    """
+    Returns True if a moderate/severe occurrence falls in the horizon
+    (cutoff, cutoff + horizon_hours].
+    """
+    horizon_end = cutoff + timedelta(hours=horizon_hours)
+
+    for occ in occurrences:
+        src_ts = occ.get("source_timestamp")
+        if not isinstance(src_ts, datetime):
+            continue
+
+        # Occurrence must be strictly after cutoff and within the horizon
+        if cutoff < src_ts <= horizon_end:
+            severity = str(occ.get("severity", "")).lower()
+            if severity in ("moderate", "severe"):
+                return True
+
+    return False
+
+
+def build_feature_example(
+    records: list[dict[str, Any]],
+    occurrences: list[dict[str, Any]],
+    baseline: BaselineSnapshot,
+    cutoff: datetime,
+    policy: AvailabilityPolicy | None = None,
+    timezone: str = "UTC",
+    horizon_hours: int = HORIZON_HOURS,
+    planned_events: list[dict[str, Any]] | None = None
+) -> tuple[FeatureSet, bool]:
+    """
+    Builds the full FeatureSet and label (X, y) for a timezone-aware cutoff T.
+
+    The FeatureSet keeps the missingness and baseline maturity metadata that the
+    evaluation needs to reproduce the confidence/abstention layer; training keeps
+    using `build_training_example`, which only returns the rolling features.
+    """
+    feat_set = build_features(
+        records=records,
+        baseline=baseline,
+        cutoff=cutoff,
+        policy=policy,
+        timezone=timezone,
+        planned_events=planned_events
+    )
+    return feat_set, label_for_cutoff(occurrences, cutoff, horizon_hours)
 
 
 def build_training_example(
@@ -27,35 +80,16 @@ def build_training_example(
     X represents the rolling features as of cutoff T.
     y is True if there is a moderate or severe occurrence in the horizon (T, T + horizon_hours].
     """
-    # 1. Build features as of cutoff T
-    feat_set = build_features(
+    feat_set, label = build_feature_example(
         records=records,
+        occurrences=occurrences,
         baseline=baseline,
         cutoff=cutoff,
         policy=policy,
         timezone=timezone,
+        horizon_hours=horizon_hours,
         planned_events=planned_events
     )
-    
-    # 2. Determine label y
-    # Horizon is (cutoff, cutoff + horizon_hours]
-    horizon_start = cutoff
-    horizon_end = cutoff + timedelta(hours=horizon_hours)
-    
-    label = False
-    if occurrences:
-        for occ in occurrences:
-            src_ts = occ.get("source_timestamp")
-            if not isinstance(src_ts, datetime):
-                continue
-            
-            # Occurrence must be strictly after cutoff and within the horizon
-            if horizon_start < src_ts <= horizon_end:
-                severity = str(occ.get("severity", "")).lower()
-                if severity in ("moderate", "severe"):
-                    label = True
-                    break
-                    
     return feat_set.rolling_features, label
 
 
