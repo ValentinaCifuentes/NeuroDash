@@ -46,13 +46,13 @@ def test_build_training_example_labelling() -> None:
         maturity=2
     )
     
-    # Case A: Moderate occurrence within horizon (T, T + 24h]
+    # Case A: Moderate occurrence within horizon (T, T + 8h]
     occurrences_mod = [
         {
             "id": "occ_1",
             "subject_id": "sub_1",
-            "source_timestamp": cutoff + timedelta(hours=12),
-            "availability_timestamp": cutoff + timedelta(hours=15),
+            "source_timestamp": cutoff + timedelta(hours=4),
+            "availability_timestamp": cutoff + timedelta(hours=6),
             "severity": "moderate"
         }
     ]
@@ -107,13 +107,13 @@ def test_build_training_example_labelling() -> None:
     )
     assert label_c is False
 
-    # Case D: Moderate occurrence outside horizon (after T+24h)
+    # Case D: Moderate occurrence outside horizon (after T+8h)
     occurrences_late = [
         {
             "id": "occ_4",
             "subject_id": "sub_1",
-            "source_timestamp": cutoff + timedelta(hours=24, seconds=1),
-            "availability_timestamp": cutoff + timedelta(hours=28),
+            "source_timestamp": cutoff + timedelta(hours=8, seconds=1),
+            "availability_timestamp": cutoff + timedelta(hours=10),
             "severity": "moderate"
         }
     ]
@@ -127,7 +127,7 @@ def test_build_training_example_labelling() -> None:
     )
     assert label_d is False
 
-    # Case E: Moderate occurrence at exactly cutoff T (not in horizon (T, T+24h])
+    # Case E: Moderate occurrence at exactly cutoff T (not in horizon (T, T+8h])
     occurrences_exact = [
         {
             "id": "occ_5",
@@ -174,8 +174,8 @@ def test_temporal_train_test_split_no_lookahead() -> None:
         {
             "id": "occ_2",
             "subject_id": "sub_1",
-            "source_timestamp": start_time + timedelta(days=15, hours=12),
-            "availability_timestamp": start_time + timedelta(days=15, hours=12),
+            "source_timestamp": start_time + timedelta(days=15, hours=4),
+            "availability_timestamp": start_time + timedelta(days=15, hours=4),
             "severity": "moderate"
         }
     ]

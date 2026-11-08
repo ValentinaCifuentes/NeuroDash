@@ -1,38 +1,49 @@
 /**
- * Evolución · superficie de NeuraDash CORE dentro de BLUBA.
+ * Evolución · superficie de NeuroDash CORE (screens/Final-Evolucion.html).
  *
- * Renderiza el Prediction Contract v2 tal cual llega. El frontend no
- * calcula riesgo, no infiere confianza y no decide abstención: solo
- * presenta. Si el motor cambia de algoritmo, esta pantalla no se toca (D2).
+ * Renderiza el Prediction Contract v2 tal cual llega. El frontend no calcula
+ * riesgo, no infiere confianza y no decide abstención: solo presenta (D2).
  *
- * Reglas de producto que la UI debe sostener:
- *  · Riesgo y confianza son ejes separados (D4). ELEVATED + LOW no es
- *    contradicción: es patrón preocupante con poca evidencia.
- *  · `INSUFFICIENT` es un resultado válido, no un error. Se muestra como
- *    abstención con una petición concreta de datos.
- *  · Los apoyos vienen del historial, no del modelo, y se muestran
- *    separados de los factores de riesgo.
- *  · Nunca se afirma que una crisis ocurrirá.
+ * Orden: pestañas → tarjeta de estimación (con «Confirmar que ocurrió» dentro)
+ * → filas hacia «Por qué aparece así» y «Puede mejorar la lectura» → «Qué puedo
+ * hacer ahora», completo. Sin estimación: medidor punteado y solo la fila de datos.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { confirmPredictionOutcome, getPrediction } from "../api";
-import { Tabs } from "../components/controls";
-import {
-    CONFIDENCE_LABEL,
-    RISK_LABEL,
-    RISK_SEMANTIC,
-    SEMANTIC_BG,
-    SEMANTIC_COLOR,
-    formatDate,
-} from "../domain/catalog";
+import { ConfidenceChip, RiskBadge } from "../components/badges";
+import { SegmentedTabs } from "../components/controls";
+import { Icon } from "../components/icons";
+import { Fab } from "../components/shell";
+import { NavList, NavRow } from "../components/NavRow";
+import { RiskGauge, type RiskLevel } from "../components/RiskGauge";
+import { CONFIDENCE_LABEL, formatTime } from "../domain/catalog";
+import { FactorsSheet, MissingDataSheet, highlightedFactors } from "../sheets/EstimationSheets";
 import type { ApiError, Prediction, Subject } from "../types";
 import { Seguimiento } from "./Seguimiento";
+import { newId } from "../domain/ids";
 
-type TabId = "estimacion" | "seguimiento";
+export type TabId = "estimacion" | "seguimiento";
+type SheetId = "factors" | "missing" | null;
 
-export function Evolucion({ subject, revision }: { subject: Subject; revision: number }) {
-    const [tab, setTab] = useState<TabId>("estimacion");
+interface Props {
+    subject: Subject;
+    revision: number;
+    /** «Puede mejorar la lectura» lleva a la Bitácora para completar el dato. */
+    onOpenBitacora?: () => void;
+    /** Vista activa; es una ruta de App (`#evolucion` / `#seguimiento`). */
+    view?: TabId;
+    onChangeView?: (view: TabId) => void;
+    /** «+» de registro rápido, también aquí: el tutor suele estar mirando el día (no en Planificación ni Ficha). */
+    onAddEvent?: () => void;
+    fabRef?: RefObject<HTMLButtonElement>;
+}
+
+export function Evolucion({ subject, revision, onOpenBitacora, view, onChangeView, onAddEvent, fabRef }: Props) {
+    // Controlada por App; sin `view` (pruebas aisladas) guarda su propio estado.
+    const [ownTab, setOwnTab] = useState<TabId>("estimacion");
+    const tab = view ?? ownTab;
+    const setTab = onChangeView ?? setOwnTab;
     const [prediction, setPrediction] = useState<Prediction | null>(null);
     const [error, setError] = useState<ApiError | null>(null);
     const [retryNonce, setRetryNonce] = useState(0);
@@ -58,254 +69,232 @@ export function Evolucion({ subject, revision }: { subject: Subject; revision: n
     }, [error]);
 
     return (
-        <div className="app-shell__content">
-            <section className="bl-card">
-                <h1 className="bl-card__title">Evolución</h1>
-                <p className="bl-card__sub">
-                    Vista para tutor de <strong>{subject.display_name}</strong>: qué mirar, por qué y qué hacer ahora.
-                </p>
-                <ProfileLine subject={subject} />
-            </section>
-
+        <div className={`nd-screen${onAddEvent ? " nd-screen--fab" : ""}`}>
             {/* Dos ejes distintos: lo que viene y lo que ya pasó. */}
-            <Tabs
+            <SegmentedTabs
                 label="Vista de evolución"
                 active={tab}
                 onChange={setTab}
                 tabs={[
-                    { id: "estimacion", label: "Próximas 24 h", icon: "🔭" },
-                    { id: "seguimiento", label: "Seguimiento", icon: "🗓️" },
+                    // El horizonte sale del contrato; antes de tenerlo no se inventa un número.
+                    { id: "estimacion", label: prediction ? `Próximas ${prediction.horizon_hours} h` : "Próximas horas" },
+                    { id: "seguimiento", label: "Seguimiento" },
                 ]}
             />
 
             {tab === "seguimiento" && <Seguimiento subject={subject} revision={revision} />}
 
             {tab === "estimacion" && error && (
-                <div className="bl-alert bl-alert--danger" role="alert">
-                    <span aria-hidden="true">⚠️</span>
+                <div className="nd-alert" role="alert">
+                    <Icon name="alert" size={18} />
                     <span>{error.message}</span>
-                    <button ref={retryRef} type="button" className="bl-btn bl-btn--ghost" onClick={() => setRetryNonce(value => value + 1)}>
+                    <button ref={retryRef} type="button" className="nd-button-outline nd-press" onClick={() => setRetryNonce(value => value + 1)}>
                         Reintentar estimación
                     </button>
                 </div>
             )}
 
             {tab === "estimacion" && !prediction && !error && (
-                <section className="bl-card app-stack--tight" aria-busy="true">
-                    <span className="bl-sr-only">Calculando la estimación</span>
-                    <div className="bl-skeleton" style={{ width: "45%", height: 22 }} />
-                    <div className="bl-skeleton" />
-                    <div className="bl-skeleton" style={{ width: "70%" }} />
+                <section className="nd-card nd-card--hero" aria-busy="true">
+                    <span className="nd-sr-only">Calculando la estimación</span>
+                    <div className="nd-skeleton" style={{ width: "45%", height: 22 }} />
+                    <div className="nd-skeleton" />
+                    <div className="nd-skeleton" style={{ width: "70%" }} />
                 </section>
             )}
 
             {tab === "estimacion" && prediction && (
-                <>
-                    {prediction.abstained ? (
-                        <AbstentionCard prediction={prediction} />
-                    ) : (
-                        <RiskCard prediction={prediction} />
-                    )}
-
-                    {prediction.factors.length > 0 && <FactorList prediction={prediction} />}
-                    {prediction.missingness.length > 0 && <MissingDataCard prediction={prediction} />}
-                    {prediction.supports.length > 0 && <SupportCard prediction={prediction} />}
-
-                    <ProvenanceNote prediction={prediction} />
-                </>
+                <Estimation
+                    prediction={prediction}
+                    onOpenBitacora={onOpenBitacora}
+                    // La confirmación queda en la estimación que vive aquí: cambiar a
+                    // Seguimiento y volver no la pierde (la tarjeta se vuelve a crear).
+                    onConfirmed={confirmedAt => setPrediction(p => (p ? { ...p, confirmed_at: confirmedAt } : p))}
+                />
             )}
+            {onAddEvent && <Fab innerRef={fabRef} onClick={onAddEvent} />}
         </div>
     );
 }
 
-/* ============================================================
-   Riesgo + confianza
-   ============================================================ */
-
-function RiskCard({ prediction }: { prediction: Prediction }) {
-    const [confirmed, setConfirmed] = useState(false);
-    const level = prediction.risk ?? "LOW";
-    const semantic = RISK_SEMANTIC[level as Prediction["risk"] & keyof typeof RISK_SEMANTIC];
-    const score = scoreOutOf100(level);
-    const primary = riskPrimaryText(level);
-    const next = riskNextStepText(level, prediction.supports.length > 0);
-    const confidenceHelp = confidenceText(prediction.confidence);
+function Estimation({
+    prediction,
+    onOpenBitacora,
+    onConfirmed,
+}: {
+    prediction: Prediction;
+    onOpenBitacora?: () => void;
+    onConfirmed?: (confirmedAt: string) => void;
+}) {
+    const [sheet, setSheet] = useState<SheetId>(null);
+    const [showAllFactors, setShowAllFactors] = useState(false);
+    const factorsRow = useRef<HTMLButtonElement>(null);
+    const missingRow = useRef<HTMLButtonElement>(null);
+    const coreMissing = prediction.missingness.filter(item => item.is_core).length;
+    // La fila resume la señal más clara (P29), no la variable técnica de más peso.
+    const lead = highlightedFactors(prediction.factors)[0] ?? prediction.factors[0];
+    // Sin estimación solo quedan los apoyos que el tutor registró (P23); el aviso de
+    // «falta información» ya lo dicen la tarjeta y «Puede mejorar la lectura».
+    const ownSupports = prediction.supports.filter(item => item.source === "historical_support");
 
     return (
-        <section className="bl-card app-risk-card">
-            <div className="app-card-heading">
-                <p className="bl-eyebrow" style={{ margin: 0 }}>Próximas 24 horas</p>
-                <span className="bl-badge" style={{ background: SEMANTIC_BG[semantic], color: "var(--bl-text-body)" }}>
-                    <span
-                        className="bl-dot"
-                        style={{ background: SEMANTIC_COLOR[semantic], width: 10, height: 10, flex: "0 0 10px" }}
-                        aria-hidden="true"
+        <>
+            {prediction.abstained ? <AbstentionCard prediction={prediction} /> : <RiskCard prediction={prediction} onConfirmed={onConfirmed} />}
+
+            <NavList label="Detalle de la estimación">
+                {!prediction.abstained && lead && (
+                        <NavRow
+                            ref={factorsRow}
+                            icon={lead.direction === "up" ? "arrowUp" : "arrowDown"}
+                            tone="risk"
+                            title="Por qué aparece así"
+                            summary={lead.summary ?? lead.label}
+                            onClick={() => setSheet("factors")}
+                        />
+                )}
+                    <NavRow
+                        ref={missingRow}
+                        icon="plus"
+                        tone="missing"
+                        title="Puede mejorar la lectura"
+                        summary={missingSummary(prediction.missingness.length, coreMissing, prediction.abstained)}
+                        onClick={() => setSheet("missing")}
                     />
-                    {RISK_LABEL[level]}
-                </span>
-            </div>
+            </NavList>
 
-            <h2 className="app-answer-title">{primary}</h2>
-            <p className="app-answer-copy">{next}</p>
+            {!prediction.abstained && prediction.supports.length > 0 && <Supports supports={prediction.supports} />}
+            {prediction.abstained && ownSupports.length > 0 && (
+                <Supports
+                    supports={ownSupports}
+                    title="Lo que le ayuda"
+                    intro="Lo que registraste que le sirve. Con más días de registro se podrá sugerir según el momento."
+                />
+            )}
 
-            <div className="app-risk-meter" role="img" aria-label={`Índice demostrativo ${score} de 100`}>
-                <div className="app-risk-meter__labels" aria-hidden="true">
-                    <span>Bajo</span>
-                    <span>Medio</span>
-                    <span>Elevado</span>
-                </div>
-                <div className="app-risk-meter__track">
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--low${level === "LOW" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--mid${level === "MODERATE" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className={`app-risk-meter__segment app-risk-meter__segment--high${level === "ELEVATED" ? " app-risk-meter__segment--active" : ""}`} />
-                    <span className="app-risk-meter__marker" style={{ left: `${score}%`, background: SEMANTIC_COLOR[semantic] }} />
-                </div>
-                <div className="app-risk-meter__foot">
-                    <strong>Índice demostrativo {score} / 100</strong>
-                    <span><strong>{CONFIDENCE_LABEL[prediction.confidence]}</strong> - {confidenceHelp}.</span>
-                </div>
-            </div>
-            {!confirmed && <button type="button" className="bl-btn bl-btn--primary" onClick={async () => {
-                await confirmPredictionOutcome(prediction.prediction_id, true, crypto.randomUUID());
-                setConfirmed(true);
-            }}>Confirmar que ocurrió</button>}
-            {confirmed && <div role="status">Resultado confirmado</div>}
-        </section>
+            {sheet === "factors" && (
+                <FactorsSheet
+                    prediction={prediction}
+                    showAll={showAllFactors}
+                    onShowAll={() => setShowAllFactors(true)}
+                    onClose={() => setSheet(null)}
+                    returnFocusTo={factorsRow}
+                />
+            )}
+            {sheet === "missing" && (
+                <MissingDataSheet
+                    prediction={prediction}
+                    onClose={() => setSheet(null)}
+                    onOpenBitacora={() => {
+                        setSheet(null);
+                        onOpenBitacora?.();
+                    }}
+                    returnFocusTo={missingRow}
+                />
+            )}
+        </>
     );
 }
 
-function AbstentionCard({ prediction }: { prediction: Prediction }) {
-    return (
-        <section className="bl-card">
-            <p className="bl-eyebrow" style={{ margin: 0 }}>
-                <span aria-hidden="true">🔭</span> Próximas 24 horas
-            </p>
-            <h2
-                style={{
-                    margin: "var(--bl-sp-3) 0 var(--bl-sp-2)",
-                    fontSize: "var(--bl-fs-h1)",
-                    fontWeight: 800,
-                    color: "var(--bl-text)",
-                }}
-            >
-                Todavía no hay estimación
-            </h2>
-            <p style={{ margin: "0 0 var(--bl-sp-4)", color: "var(--bl-text-body)" }}>
-                La información de hoy no alcanza para sostener una estimación. Preferimos decirlo antes que mostrar un
-                número sin respaldo.
-            </p>
-            {prediction.missingness[0] && (
-                <div className="bl-alert bl-alert--info">
-                    <span aria-hidden="true">→</span>
-                    <span>Completa {prediction.missingness[0].label.toLowerCase()} para mejorar la lectura.</span>
-                </div>
-            )}
-        </section>
-    );
+function missingSummary(total: number, core: number, abstained: boolean): string {
+    if (total === 0) return abstained ? "Hacen falta más días de registro" : "Con los datos registrados alcanza";
+    if (core > 0) return core === 1 ? "Falta 1 dato que cuenta para la confianza" : `Faltan ${core} datos que cuentan para la confianza`;
+    return total === 1 ? "Falta 1 dato opcional" : `Faltan ${total} datos opcionales`;
 }
 
 /* ============================================================
-   Factores · salida del Explanation Builder, ya en lenguaje humano
+   Tarjeta de estimación: riesgo + confianza, ejes separados
    ============================================================ */
 
-function FactorList({ prediction }: { prediction: Prediction }) {
-    const [showAll, setShowAll] = useState(false);
-    const visibleFactors = showAll ? prediction.factors : prediction.factors.slice(0, 3);
-    const hiddenCount = prediction.factors.length - visibleFactors.length;
+function RiskCard({ prediction, onConfirmed }: { prediction: Prediction; onConfirmed?: (confirmedAt: string) => void }) {
+    // Viene del backend (al recargar o volver de otra pestaña) o de la confirmación recién hecha.
+    const confirmedAt = prediction.confirmed_at;
+    const level = (prediction.risk ?? "LOW") as RiskLevel;
 
     return (
-        <section className="bl-card">
-            <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Por qué aparece así</p>
-            <h2 className="app-section-title">Señales recientes</h2>
-            <div>
-                {visibleFactors.map(factor => (
-                    <div key={factor.code + factor.window} className="app-factor">
-                        <span className={`app-factor__dir app-factor__dir--${factor.direction}`} aria-hidden="true">
-                            {factor.direction === "up" ? "↑" : "↓"}
-                        </span>
-                        <span>
-                            <span className="app-factor__label">
-                                {humanizeFactorLabel(factor.label)}
-                                <span className="bl-sr-only">
-                                    {factor.direction === "up" ? " · empuja hacia arriba" : " · empuja hacia abajo"}
-                                </span>
-                            </span>
-                            <span className="app-factor__cmp">
-                                {factor.comparison} · {displayWindow(factor.window)}
-                            </span>
-                        </span>
-                    </div>
-                ))}
+        <section className="nd-card nd-card--hero nd-estimate" aria-labelledby="estimacion-titulo">
+            <div className="nd-estimate__head">
+                <span className="nd-eyebrow nd-eyebrow--flat">{horizonEyebrow(prediction)}</span>
+                <RiskBadge risk={level} />
             </div>
-            {prediction.factors.length > 3 && (
+            <RiskGauge risk={level} confidenceLabel={CONFIDENCE_LABEL[prediction.confidence]} />
+            <h2 id="estimacion-titulo" className="nd-estimate__title">{riskPrimaryText(level)}</h2>
+            <p className="nd-estimate__copy">{riskNextStepText(level, prediction.supports.length > 0)}</p>
+            <ConfidenceChip level={prediction.confidence} />
+            {confirmedAt ? (
+                <p className="nd-estimate__confirmed" role="status">
+                    <Icon name="check" size={16} strokeWidth={2.6} /> Crisis confirmada a las {formatTime(confirmedAt)}
+                </p>
+            ) : (
                 <button
                     type="button"
-                    className="bl-btn bl-btn--ghost bl-btn--block"
-                    aria-expanded={showAll}
-                    onClick={() => setShowAll(value => !value)}
-                    style={{ marginTop: "var(--bl-sp-3)" }}
+                    className="nd-button-outline nd-press"
+                    onClick={async () => {
+                        await confirmPredictionOutcome(prediction.prediction_id, true, newId());
+                        onConfirmed?.(new Date().toISOString());
+                    }}
                 >
-                    {showAll ? "Mostrar menos" : `Mostrar más (${hiddenCount})`}
+                    Confirmar que ocurrió
                 </button>
             )}
         </section>
     );
 }
 
-/* ============================================================
-   Datos faltantes · la ausencia es señal, no ruido
-   ============================================================ */
-
-function MissingDataCard({ prediction }: { prediction: Prediction }) {
+function AbstentionCard({ prediction }: { prediction: Prediction }) {
     return (
-        <section className="bl-card">
-            <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Datos que faltan</p>
-            <h2 className="app-section-title">Puede mejorar la lectura</h2>
-            <div className="app-stack--tight" style={{ display: "flex", flexDirection: "column" }}>
-                {prediction.missingness.map(item => (
-                    <div key={item.code} className="bl-alert bl-alert--warning">
-                        <span aria-hidden="true">◌</span>
-                        <span>
-                            <b>{item.label}.</b> {item.impact}
-                        </span>
-                    </div>
-                ))}
+        <section className="nd-card nd-card--hero nd-estimate" aria-labelledby="abstencion-titulo">
+            <div className="nd-estimate__head">
+                <span className="nd-eyebrow nd-eyebrow--flat">{horizonEyebrow(prediction)}</span>
+                <ConfidenceChip level="INSUFFICIENT" />
             </div>
-            {prediction.missingness[0] && (
-                <p style={{ margin: "var(--bl-sp-4) 0 0", fontSize: "var(--bl-fs-sm)" }}>
-                    Completa {prediction.missingness[0].label.toLowerCase()} para mejorar la lectura.
-                </p>
-            )}
+            <RiskGauge risk={null} abstained />
+            <h2 id="abstencion-titulo" className="nd-estimate__title">Todavía no hay estimación</h2>
+            <p className="nd-estimate__copy">
+                La información de hoy no alcanza para sostener una estimación. Preferimos decirlo antes que mostrar un
+                número sin respaldo.
+            </p>
         </section>
     );
 }
 
-/* ============================================================
-   Apoyos · vienen del historial, nunca del modelo
-   ============================================================ */
-
-function SupportCard({ prediction }: { prediction: Prediction }) {
-    return (
-        <section className="bl-card">
-            <p className="bl-eyebrow" style={{ margin: "0 0 var(--bl-sp-2)" }}>Qué puedo hacer ahora</p>
-            <h2 className="app-section-title">Apoyos disponibles</h2>
-            <div className="app-support-list">
-                {prediction.supports.map(item => (
-                    <div key={item.support_id} className="app-support-item">
-                        <span className="app-support-item__dot" aria-hidden="true">•</span>
-                        <span className="app-support-item__body">
-                            <span className="app-factor__label">{item.label}</span>
-                            {item.detail && <span className="app-factor__cmp">{item.detail}</span>}
-                        </span>
-                    </div>
-                ))}
-            </div>
-        </section>
-    );
+/** «Próximas 8 horas»: el horizonte sale del contrato, nunca se escribe a mano. */
+/** «Próximas 8 horas · hasta las 10:00 p.m.»: la ventana va desde la estimación, no es una hora de crisis. */
+function horizonEyebrow(prediction: Prediction): string {
+    const end = new Date(Date.parse(prediction.prediction_cutoff) + prediction.horizon_hours * 3_600_000);
+    return `Próximas ${prediction.horizon_hours} horas · hasta las ${formatTime(end.toISOString())}`;
 }
 
-function scoreOutOf100(level: string): number {
-    return level === "ELEVATED" ? 80 : level === "MODERATE" ? 50 : 20;
+/* ============================================================
+   Qué puedo hacer ahora: completo, sin colapsar
+   ============================================================ */
+
+function Supports({
+    supports,
+    title = "Apoyos disponibles",
+    intro,
+}: {
+    supports: Prediction["supports"];
+    title?: string;
+    intro?: string;
+}) {
+    return (
+        <section className="nd-supports" aria-labelledby="apoyos-titulo">
+            <span className="nd-supports__eyebrow">Qué puedo hacer ahora</span>
+            <h2 id="apoyos-titulo" className="nd-supports__title">{title}</h2>
+            {intro && <p className="nd-supports__intro">{intro}</p>}
+            {supports.map(item => (
+                <div key={item.support_id} className="nd-support">
+                    <span className="nd-support__icon" aria-hidden="true">
+                        <Icon name="shield" size={18} />
+                    </span>
+                    <span className="nd-support__text">
+                        <span className="nd-support__label">{item.label}</span>
+                        {item.detail && <span className="nd-support__detail">{item.detail}</span>}
+                    </span>
+                </div>
+            ))}
+        </section>
+    );
 }
 
 function riskPrimaryText(level: string): string {
@@ -324,72 +313,4 @@ function riskNextStepText(level: string, hasSupport: boolean): string {
         return "Mantén las rutinas de apoyo y completa el registro si aparece algún cambio durante el día.";
     }
     return "Por ahora no aparecen señales fuertes. Mantén el registro habitual.";
-}
-
-function confidenceText(level: Prediction["confidence"]): string {
-    if (level === "HIGH") return "datos suficientes para estimar";
-    if (level === "MEDIUM") return "hay datos parciales; la lectura puede mejorar con más registros";
-    if (level === "LOW") return "faltan algunos datos recientes";
-    return "información insuficiente para estimar";
-}
-
-function displayWindow(window: string): string {
-    if (window === "actual") return "dato actual";
-    if (window.endsWith("d")) return `últimos ${window}`;
-    return `ventana ${window}`;
-}
-
-function humanizeFactorLabel(label: string): string {
-    return label
-        .replace(/_/g, " ")
-        .replace(/\bDel Sueno\b/i, "del sueño")
-        .replace(/\bSueno\b/i, "sueño")
-        .replace(/\bEn Los Ultimos Tres Dias\b/i, "en los últimos 3 días")
-        .replace(/\bEn Los Ultimos Siete Dias\b/i, "en los últimos 7 días")
-        .replace(/\bEn Los Ultimos Catorce Dias\b/i, "en los últimos 14 días")
-        .replace(/\bEn El Ultimo Dia\b/i, "del último día")
-        .replace(/\bUltimo\b/i, "último")
-        .replace(/\bUltimos\b/i, "últimos")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-function ProfileLine({ subject }: { subject: Subject }) {
-    const items = [subject.age_range, subject.diagnosis, subject.sensory_profile].filter(isUsefulProfileText);
-    if (items.length === 0) return null;
-
-    return (
-        <div className="app-profile-line" aria-label="Perfil del consultante">
-            {items.map(item => <span key={item}>{item}</span>)}
-        </div>
-    );
-}
-
-function isUsefulProfileText(value: string): boolean {
-    const normalized = value.trim().toLowerCase();
-    return Boolean(normalized) &&
-        normalized !== "edad no registrada" &&
-        normalized !== "sin diagnóstico mostrado en esta vista" &&
-        normalized !== "perfil sensorial no registrado";
-}
-
-/* ============================================================
-   Procedencia de datos · transparencia obligatoria en demo
-   ============================================================ */
-
-function ProvenanceNote({ prediction }: { prediction: Prediction }) {
-    const prov = prediction.provenance as { contains_synthetic_data?: boolean; origins?: string[] };
-    return (
-        <details className="bl-card app-details">
-            <summary>Detalles de la estimación</summary>
-            <p style={{ margin: "var(--bl-sp-3) 0 0", fontSize: "var(--bl-fs-sm)", color: "var(--bl-text-body)" }}>
-                {prov.contains_synthetic_data
-                    ? "Usa datos sintéticos junto a datos reales de BLUBA."
-                    : "Usa únicamente datos reales de BLUBA."}
-            </p>
-            <p style={{ margin: "var(--bl-sp-2) 0 0", fontSize: "var(--bl-fs-xs)", color: "var(--bl-text-muted)" }}>
-                Origen: {(prov.origins ?? ["backend_core"]).join(", ")} · <span>Corte: {formatDate(prediction.prediction_cutoff)}</span>
-            </p>
-        </details>
-    );
 }

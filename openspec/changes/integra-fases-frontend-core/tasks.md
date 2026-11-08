@@ -7,7 +7,7 @@
 | Estimated changed lines | 700–1,000 authored lines across backend, frontend, and tests |
 | 400-line budget risk | High |
 | Chained PRs recommended | Yes |
-| Suggested split | PR 1 contract → PR 2 onboarding → PR 3 care/cutoffs → PR 4 sessions/privacy → PR 5 prediction/outcomes |
+| Suggested split | PR 1 contract → PR 2 onboarding → PR 3 care/cutoffs → PR 4 prediction/outcomes |
 | Delivery strategy | ask-on-risk |
 | Chain strategy | feature-branch-chain |
 
@@ -23,8 +23,7 @@ Chain strategy: feature-branch-chain
 | 1 | v2 contract and adapter parity | PR 1 | `.venv/Scripts/pytest tests -k contract` | `cd front; npm run typecheck` | schemas, fixtures, adapter only |
 | 2 | onboarding and explicit subject gate | PR 2 | `.venv/Scripts/pytest tests -k subject` | `cd front; npm run build` | subject routes and onboarding UI |
 | 3 | records, events, end-of-day cutoff | PR 3 | `.venv/Scripts/pytest tests -k cutoff` | FastAPI TestClient care-write/reload scenario | care repository and care pages |
-| 4 | sessions and server-enforced privacy | PR 4 | `.venv/Scripts/pytest tests -k authorization` | TestClient tutor/professional/unauthorized reads | session routes and UI |
-| 5 | prediction snapshots and outcomes | PR 5 | `.venv/Scripts/pytest tests -k prediction` | TestClient prediction→retry outcome scenario | prediction service/routes and follow-up UI |
+| 4 | prediction snapshots and outcomes | PR 4 | `.venv/Scripts/pytest tests -k prediction` | TestClient prediction→retry outcome scenario | prediction service/routes and follow-up UI |
 
 ## Phase 1: Contract and Foundation
 
@@ -39,11 +38,9 @@ Chain strategy: feature-branch-chain
 - [x] 2.3 RED: test daily records, events, end-of-day availability, local timezone closure, and prediction temporal isolation.
 - [ ] 2.4 GREEN: implement subject-scoped care endpoints in `backend/app/routes/subjects.py`; wire `BitacoraDiaria.tsx`, cutoff metadata, retry-safe writes, and mock parity.
 
-## Phase 3: Sessions and Privacy
+## Phase 3: Placeholders
 
-- [ ] 3.1 RED: test authorized tutor/professional shared reads, unauthorized denial, and `internal_notes` redaction at route and reload boundaries.
-- [ ] 3.2 GREEN: implement session persistence/projections and authorization in `subjects.py`; update `Sesiones.tsx` with safe visibility and accessible errors.
-- [ ] 3.3 RED→GREEN: test and preserve `Placeholders.tsx` as explicit non-functional out-of-scope views; verify `frontend/` is untouched.
+- [ ] 3.1 RED→GREEN: test and preserve `Placeholders.tsx` as explicit non-functional out-of-scope views; verify `frontend/` is untouched.
 
 ## Phase 4: Prediction and Verification
 

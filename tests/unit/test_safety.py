@@ -150,10 +150,10 @@ def test_non_causal_factors() -> None:
         assert "contribution" in factor
         assert "factor_name" in factor
         assert factor["factor_name"] in [
-            "Calidad Del Sueno En Los Ultimos Tres Dias",
-            "Estado Al Despertar En Los Ultimos Siete Dias",
-            "Conteo De Eventos En Los Ultimos Tres Dias",
-            "Conteo De Registros En Los Ultimos Dos Dias",
+            "Calidad del sueño en los últimos tres días",
+            "Estado al despertar en los últimos siete días",
+            "Conteo de eventos en los últimos tres días",
+            "Conteo de registros en los últimos dos días",
         ]
         assert factor["feature"] in [
             "calidad_sueno_promedio_tres_dias",
@@ -255,24 +255,24 @@ def test_contextual_support_cases_from_recommendation_guide() -> None:
         },
         {
             "id": "hist_regulation_pause",
-            "description": "Pausa breve acordada con el profesional.",
+            "description": "Pausa breve acordada y registrada.",
             "category": "regulation",
             "contexts": ["early_dysregulation", "self_regulation"],
-            "approved_by_professional": True,
+            "type": "historical",
         },
         {
             "id": "hist_help_card",
             "description": "Tarjeta de ayuda registrada para pedir apoyo.",
             "category": "communication",
             "contexts": ["communication"],
-            "approved_by_professional": True,
+            "type": "historical",
         },
         {
             "id": "hist_reinforcement",
             "description": "Reconocer verbalmente el uso de la pausa acordada.",
             "category": "reinforcement",
             "contexts": ["alternative_behavior"],
-            "approved_by_professional": True,
+            "type": "historical",
         },
     ]
     context = {
@@ -283,9 +283,7 @@ def test_contextual_support_cases_from_recommendation_guide() -> None:
         "communication_need": True,
         "alternative_behavior_used": True,
         "repeated_unclear_pattern": True,
-        "caregiver_view": True,
         "self_regulation_available": True,
-        "professional_plan": True,
     }
 
     supports = select_supports(
@@ -303,7 +301,6 @@ def test_contextual_support_cases_from_recommendation_guide() -> None:
         "alternative_behavior_reinforcement",
         "unclear_repeated_pattern",
         "previously_effective_similar_context",
-        "caregiver_context",
         "learned_self_regulation",
     }.issubset(case_ids)
     assert supports[0]["source"] == "historical_support"
@@ -385,3 +382,40 @@ def test_provenance_school_exclusion() -> None:
     assert prov_without["subject_id"] == "sub_1"
     assert prov_without["excluded_from_core"] is False
     assert "exclusion_reason" not in prov_without or prov_without["exclusion_reason"] is None
+
+
+def test_an_effective_support_appears_once_with_the_tutor_words() -> None:
+    supports = select_supports(
+        subject_history=[
+            {"id": "sup_a_1", "description": "Manta con peso en la tarde.", "type": "historical", "effective": True},
+        ],
+        sensory_context={"sensory_profile": "Hipersensible"},
+        confidence=ConfidenceLevel.HIGH,
+        abstained=False,
+        missingness=[],
+        recent_occurrences=[{}, {}, {}],
+    )
+
+    matching = [support for support in supports if "Manta con peso" in support["description"]]
+    assert len(matching) == 1
+    assert matching[0]["description"] == "Manta con peso en la tarde."
+    assert matching[0]["rationale"] == "Le sirvió antes en situaciones parecidas."
+
+
+def test_without_an_estimate_the_tutor_supports_still_show_with_the_insufficient_data_note() -> None:
+    """P23: sin estimación no se elige un apoyo según el momento, pero lo que le ayuda sigue a la vista."""
+    supports = select_supports(
+        subject_history=[
+            {"id": "sup_c_1", "description": "Masticables", "type": "historical", "effective": True},
+            {"id": "sup_c_2", "description": "Algo registrado sin saber si funciona", "type": "historical"},
+        ],
+        sensory_context={},
+        confidence=ConfidenceLevel.INSUFFICIENT,
+        abstained=True,
+        missingness=[],
+    )
+
+    assert [support["description"] for support in supports][:1] == ["Masticables"]
+    assert supports[0]["source"] == "historical_support"
+    assert supports[-1]["case_id"] == "insufficient_data"
+    assert len(supports) == 2

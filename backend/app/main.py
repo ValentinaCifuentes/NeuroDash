@@ -3,7 +3,7 @@ from fastapi import FastAPI, Header, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
-from backend.app.routes import subjects, predictions, demo_profiles, telemetry
+from backend.app.routes import subjects, predictions, demo_profiles
 from backend.app.schemas import ActorContext
 
 # Configure logging
@@ -11,16 +11,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("neuradash")
 
 app = FastAPI(
-    title="NeuraDash CORE API",
+    title="NeuroDash CORE API",
     version="2.0.0",
-    description="FastAPI implementation of NeuraDash CORE prediction and outcomes lifecycle API."
+    description="FastAPI implementation of NeuroDash CORE prediction and outcomes lifecycle API."
 )
 
 # Register routers
 app.include_router(subjects.router)
 app.include_router(predictions.router)
 app.include_router(demo_profiles.router)
-app.include_router(telemetry.router)
 
 
 def get_actor_context(

@@ -7,22 +7,19 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { AppBar } from './components/AppBar';
 import { SubjectGate } from './components/SubjectGate';
-import { Sidebar } from './components/Sidebar';
-import type { Route } from './components/Sidebar';
-import { Fab, Toast } from './components/shell';
+import { BottomNav, ROUTES, type Route } from './components/BottomNav';
+import { PageHeader, type PageHeaderProps } from './components/PageHeader';
+import { Toast } from './components/shell';
 import { CategorySheet, EventSheet } from './sheets/EventSheets';
 import { BitacoraDiaria } from './pages/BitacoraDiaria';
 import { Evolucion } from './pages/Evolucion';
-import { Sesiones } from './pages/Sesiones';
-import { BuscarProfesionales, FichaInicial, MisTickets } from './pages/Placeholders';
-import { Telemetria } from './pages/Telemetria';
+import { FichaInicial, MisTickets } from './pages/Ficha';
 import { Planificacion } from './pages/Planificacion';
-import { ProDashboard } from './pages/ProDashboard';
-import { listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
+import { getSubject, listSubjects, onboardSubject, saveDailyRecord, saveEvent, USING_MOCK } from './api';
 import { CATEGORY_BY_ID } from './domain/catalog';
 import type { ApiError, DailyRecord, DysregulationEvent, LogCategory, Subject, SubjectOnboardingInput } from './types';
+import { Icon } from './components/icons';
 
 
 type SheetState = { kind: 'none' } | { kind: 'categories' } | { kind: 'event'; category: LogCategory };
@@ -31,10 +28,8 @@ export default function App() {
   const [subject, setSubject] = useState<Subject | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loadingSubjects, setLoadingSubjects] = useState(true);
-  const [role, setRole] = useState<'family' | 'professional'>('family');
   const [loadError, setLoadError] = useState<ApiError | null>(null);
-  const [route, setRoute] = useState<Route>('bitacora');
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [route, setRoute] = useState<Route>(() => routeFromHash() ?? 'evolucion');
   const [sheet, setSheet] = useState<SheetState>({ kind: 'none' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -42,12 +37,42 @@ export default function App() {
 
   const fabRef = useRef<HTMLButtonElement>(null);
 
+  // La ruta vive en la dirección (#seguimiento…): «atrás» del navegador y del
+  // teléfono funciona, y al recargar se vuelve a la misma vista. Con «#» no hace
+  // falta configurar rutas en el servidor.
+  useEffect(() => {
+    if (window.location.hash !== `#${route}`) window.history.pushState(null, '', `#${route}`);
+  }, [route]);
+  useEffect(() => {
+    // Un «#» que no es una vista (p. ej. #contenido) no saca al tutor de donde está.
+    const onPop = () => {
+      const next = routeFromHash();
+      if (next) setRoute(next);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   useEffect(() => {
     listSubjects()
       .then(setSubjects)
       .catch((e: ApiError) => setLoadError(e))
       .finally(() => setLoadingSubjects(false));
   }, []);
+
+  // El listado no trae el perfil inicial: al elegir un infante se pide completo
+  // (Ficha, señales tempranas de la Bitácora). Si falla, se sigue con el del listado.
+  const subjectId = subject?.subject_id;
+  useEffect(() => {
+    if (!subjectId) return;
+    let alive = true;
+    getSubject(subjectId)
+      .then((full) => alive && setSubject((current) => (current?.subject_id === full.subject_id ? { ...current, ...full } : current)))
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [subjectId]);
 
   async function onOnboard(input: SubjectOnboardingInput) {
     const created = await onboardSubject(input);
@@ -62,20 +87,22 @@ export default function App() {
   }, [toast]);
 
   /** La acción conserva su nombre: "Guardar estado basal" → "Estado basal guardado". */
-  async function onSaveBasal(record: DailyRecord) {
+  async function onSaveBasal(record: DailyRecord): Promise<boolean> {
     setSaving(true);
     try {
       await saveDailyRecord(record);
       setRevision((r) => r + 1);
       setToast('Estado basal guardado');
+      return true;
     } catch (e) {
       setToast((e as ApiError).message);
+      return false;
     } finally {
       setSaving(false);
     }
   }
 
-  async function onSaveEvent(event: DysregulationEvent) {
+  async function onSaveEvent(event: DysregulationEvent): Promise<boolean> {
     setSaving(true);
     try {
       await saveEvent(event);
@@ -87,8 +114,10 @@ export default function App() {
         ) as LogCategory
       ].name;
       setToast(`${name} registrada`);
+      return true;
     } catch (e) {
       setToast((e as ApiError).message);
+      return false;
     } finally {
       setSaving(false);
     }
@@ -96,10 +125,10 @@ export default function App() {
 
   if (loadError) {
     return (
-      <div className="app-shell">
-        <div className="app-shell__content">
-          <div className="bl-alert bl-alert--danger" role="alert">
-            <span aria-hidden="true">⚠️</span>
+      <div className="nd-shell">
+        <div className="nd-screen">
+          <div className="nd-alert" role="alert">
+            <Icon name="alert" size={18} />
             <span>{loadError.message}</span>
           </div>
         </div>
@@ -109,20 +138,17 @@ export default function App() {
 
   if (loadingSubjects) {
     return (
-      <div className="app-shell">
-        <div className="app-shell__bar">
-          <AppBar initials="··" onOpenMenu={() => {}} />
-        </div>
-        <div className="app-shell__content" aria-busy="true">
-          <span className="bl-sr-only">Cargando</span>
-          <div className="bl-card app-stack--tight">
-            <div className="bl-skeleton" style={{ width: '60%', height: 22 }} />
-            <div className="bl-skeleton" style={{ width: '80%' }} />
+      <div className="nd-shell">
+        <div className="nd-screen" aria-busy="true">
+          <span className="nd-sr-only">Cargando</span>
+          <div className="nd-card">
+            <div className="nd-skeleton" style={{ width: '60%', height: 22 }} />
+            <div className="nd-skeleton" style={{ width: '80%' }} />
           </div>
-          <div className="bl-card app-stack--tight">
-            <div className="bl-skeleton" />
-            <div className="bl-skeleton" />
-            <div className="bl-skeleton" style={{ width: '70%' }} />
+          <div className="nd-card">
+            <div className="nd-skeleton" />
+            <div className="nd-skeleton" />
+            <div className="nd-skeleton" style={{ width: '70%' }} />
           </div>
         </div>
       </div>
@@ -130,55 +156,70 @@ export default function App() {
   }
 
   if (!subject) {
-    return <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />;
-  }
-
-  const showFab = route === 'bitacora';
-
-  if (role === 'professional') {
-    return <ProDashboard onToggleRole={() => setRole('family')} />;
+    return (
+      <div className="nd-shell">
+        <SubjectGate subjects={subjects} onSelect={setSubject} onOnboard={onOnboard} />
+      </div>
+    );
   }
 
   return (
-    <div className="app-shell">
-      <a className="bl-skip" href="#contenido">
+    <div className="nd-shell">
+      {/* Mueve el foco al contenido sin tocar la dirección: con rutas por «#», ir a
+          #contenido cambiaría de pantalla. */}
+      <a
+        className="nd-skip"
+        href="#contenido"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById('contenido')?.focus();
+        }}
+      >
         Saltar al contenido
       </a>
 
-      <div className="app-shell__bar">
-        <AppBar initials={subject.initials} onOpenMenu={() => setMenuOpen(true)} role={role} onToggleRole={() => setRole(role === 'family' ? 'professional' : 'family')} />
-      </div>
-
-      <main className="app-shell__scroll" id="contenido">
-        {route === 'bitacora' && (
+      <main className="nd-shell__scroll" id="contenido" tabIndex={-1}>
+        <PageHeader
+          {...headerFor(route, subject.display_name, () => setRoute('ficha'))}
+          initials={subject.initials}
+          subjectName={subject.display_name}
+          onChangeSubject={() => setSubject(null)}
+        />
+        {(route === 'bitacora' || route === 'historial') && (
           <BitacoraDiaria
+            view={route === 'historial' ? 'historial' : 'basal'}
+            onChangeView={(view) => setRoute(view === 'historial' ? 'historial' : 'bitacora')}
             subject={subject}
             revision={revision}
             saving={saving}
             onSaveBasal={onSaveBasal}
+            onAddEvent={sheet.kind === 'none' ? () => setSheet({ kind: 'categories' }) : undefined}
+            fabRef={fabRef}
           />
         )}
-        {route === 'evolucion' && <Evolucion subject={subject} revision={revision} />}
-        {route === 'sesiones' && (
-          <Sesiones
+        {(route === 'evolucion' || route === 'seguimiento') && (
+          <Evolucion
             subject={subject}
-            onSaved={(message) => {
-              setRevision((r) => r + 1);
-              setToast(message);
-            }}
-            onError={setToast}
+            revision={revision}
+            onOpenBitacora={() => setRoute('bitacora')}
+            view={route === 'seguimiento' ? 'seguimiento' : 'estimacion'}
+            onChangeView={(view) => setRoute(view === 'seguimiento' ? 'seguimiento' : 'evolucion')}
+            onAddEvent={sheet.kind === 'none' ? () => setSheet({ kind: 'categories' }) : undefined}
+            fabRef={fabRef}
           />
         )}
-        {route === 'ficha' && <FichaInicial subject={subject} />}
-        {route === 'profesionales' && <BuscarProfesionales />}
+        {route === 'ficha' && <FichaInicial subject={subject} onOpenTickets={() => setRoute('tickets')} />}
         {route === 'tickets' && <MisTickets />}
-        {route === 'telemetria' && <Telemetria subject={subject} />}
-        {route === 'planificacion' && <Planificacion />}
+        {route === 'planificacion' && (
+          <Planificacion subject={subject} onSaved={() => setToast('Evento guardado')} />
+        )}
+        {USING_MOCK && (
+          // Dentro de <main>: quien navega por zonas también lo encuentra (axe · region).
+          <p className="nd-sr-only">
+            Modo demostración sin servidor: las estimaciones son las de la demo y no cambian al registrar.
+          </p>
+        )}
       </main>
-
-      {showFab && sheet.kind === 'none' && (
-        <Fab innerRef={fabRef} aboveCta onClick={() => setSheet({ kind: 'categories' })} />
-      )}
 
       {sheet.kind === 'categories' && (
         <CategorySheet
@@ -200,24 +241,55 @@ export default function App() {
         />
       )}
 
-      <Sidebar
-        open={menuOpen}
-        current={route}
-        subjectName={subject.display_name}
-        onNavigate={(r) => {
-          setRoute(r);
-          setMenuOpen(false);
-        }}
-        onClose={() => setMenuOpen(false)}
-      />
+      <BottomNav current={route} onNavigate={setRoute} />
 
       {toast && <Toast message={toast} />}
 
-      {USING_MOCK && (
-        <span className="bl-sr-only">
-          Modo demostración: los datos provienen de un fixture de interfaz, no del motor.
-        </span>
-      )}
     </div>
   );
+}
+
+type HeaderCopy = Pick<PageHeaderProps, 'title' | 'subtitle' | 'brand' | 'back'>;
+
+/** Título y subtítulo de cada pantalla, tal como en `screens/` del prototipo. */
+function routeFromHash(): Route | null {
+  const hash = window.location.hash.slice(1) as Route;
+  return ROUTES.includes(hash) ? hash : null;
+}
+
+function headerFor(route: Route, name: string, backToFicha: () => void): HeaderCopy {
+  switch (route) {
+    case 'evolucion':
+    case 'seguimiento':
+      return { title: 'Evolución' };
+    case 'bitacora':
+    case 'historial':
+      return {
+        brand: true,
+        title: 'Bitácora Diaria',
+        subtitle: (
+          <>
+            Registra el estado basal y eventos cotidianos de <strong>{name}</strong>
+          </>
+        ),
+      };
+    case 'planificacion':
+      return {
+        brand: true,
+        title: 'Planificación de Eventos',
+        subtitle: 'Anota lo que viene para anticiparte.',
+      };
+    case 'ficha':
+      return {
+        brand: true,
+        title: 'Ficha Inicial',
+        subtitle: (
+          <>
+            Perfil de <strong>{name}</strong>
+          </>
+        ),
+      };
+    case 'tickets':
+      return { back: { label: 'Ficha', onClick: backToFicha }, title: 'Mis Tickets', subtitle: 'Solicitudes al equipo de soporte' };
+  }
 }

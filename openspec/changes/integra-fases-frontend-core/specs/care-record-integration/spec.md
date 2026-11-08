@@ -30,9 +30,9 @@ The system MUST create a subject with identity, timezone, and baseline inputs be
 - WHEN a care or prediction action is attempted
 - THEN an actionable error appears and no orphan write is sent
 
-### Requirement: Daily records, events, and sessions persist safely
+### Requirement: Daily records and events persist safely
 
-The system MUST persist daily records, events, and sessions with subject, author, timezone, and provenance. Writes MUST be retry-safe; reads MUST honor cutoffs.
+The system MUST persist daily records and events with subject, author, timezone, and provenance. Writes MUST be retry-safe; reads MUST honor cutoffs.
 
 #### Scenario: Save and reload care data
 - GIVEN an authorized caregiver submits care data
@@ -44,14 +44,14 @@ The system MUST persist daily records, events, and sessions with subject, author
 - WHEN end-of-day data is requested
 - THEN it is excluded and cannot influence earlier predictions
 
-### Requirement: Shared visibility with private internal notes
+### Requirement: Shared visibility by caregiver
 
-Authorized tutors and professionals MUST share daily records, sessions, and outcomes by default. `internal_notes` MUST remain private through server enforcement.
+Authorized tutors MUST share daily records and outcomes by default.
 
 #### Scenario: Authorized shared read
-- GIVEN an authorized tutor or professional
+- GIVEN an authorized tutor
 - WHEN allowed data is read
-- THEN shared fields return and internal notes are omitted
+- THEN shared fields return
 
 #### Scenario: Unauthorized read
 - GIVEN an unauthorized user requests protected data
@@ -60,7 +60,7 @@ Authorized tutors and professionals MUST share daily records, sessions, and outc
 
 ### Requirement: Explicit placeholders and legacy policy
 
-Professional-network and support-ticket routes MUST remain clearly labeled non-functional placeholders. `front/` MUST remain the sole UI authority; `frontend/` MUST be untouched by this change.
+Support-ticket routes MUST remain clearly labeled non-functional placeholders. `front/` MUST remain the sole UI authority; `frontend/` MUST be untouched by this change.
 
 #### Scenario: Placeholder use
 - GIVEN a user opens a placeholder

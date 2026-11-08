@@ -5,8 +5,43 @@ from pathlib import Path
 import json
 import shutil
 
+from backend.app import prediction_service
 from backend.app.main import app
+from backend.app.routes import subjects
 from engine.schemas import ConfidenceLevel, CONTRACT_VERSION
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture(autouse=True)
+def isolated_storage(tmp_path: Path, monkeypatch) -> Path:
+    """Copia demos, historial sintético y modelos a tmp_path.
+
+    Estos tests crean infantes, guardan predicciones y reentrenan PAC-A; sin esta
+    copia escribirían en `data/` y `models/` del repo, que Docker sirve en la demo.
+    """
+    data_dir = tmp_path / "data"
+    (data_dir / "subjects").mkdir(parents=True)
+    shutil.copytree(
+        PROJECT_ROOT / "data" / "demo_profiles", data_dir / "demo_profiles",
+        ignore=shutil.ignore_patterns("predictions"),
+    )
+    shutil.copytree(PROJECT_ROOT / "data" / "legacy_history", data_dir / "legacy_history")
+    shutil.copytree(PROJECT_ROOT / "models", tmp_path / "models")
+
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", data_dir / "subjects")
+    monkeypatch.setattr(subjects, "DEMO_PROFILES_ROOT", data_dir / "demo_profiles")
+    monkeypatch.setattr(prediction_service, "LEGACY_HISTORY_DIR", data_dir / "legacy_history")
+    monkeypatch.setattr(prediction_service, "MODELS_DIR", tmp_path / "models")
+
+    def get_subject_paths(subject_id: str) -> tuple[Path, bool]:
+        for root, is_demo in ((data_dir / "demo_profiles", True), (data_dir / "subjects", False)):
+            if (root / subject_id).exists():
+                return root / subject_id, is_demo
+        raise prediction_service.SubjectNotFoundError(f"Subject {subject_id} not found.")
+
+    monkeypatch.setattr(prediction_service, "get_subject_paths", get_subject_paths)
+    return tmp_path
 
 
 @pytest.fixture
@@ -167,5 +202,5 @@ def test_outcome_route(client: TestClient) -> None:
         "actual_outcome": True,
         "idempotency_key": "missing-outcome",
         "provenance": {"source": "test", "synthetic": True},
-    }, headers={"X-Actor-Id": "professional-1", "X-Actor-Role": "professional"})
+    }, headers={"X-Actor-Id": "tutor-1", "X-Actor-Role": "tutor"})
     assert resp_bad.status_code == 404

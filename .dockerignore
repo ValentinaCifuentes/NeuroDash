@@ -1,0 +1,22 @@
+.git
+.venv
+venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.claude
+.env
+.env.*
+front
+frontend
+docs
+openspec
+tests
+node_modules
+# Datos locales que no deben ir en la imagen: infantes creados en local y
+# copias de predicciones. Las demos (data/demo_profiles) sí se incluyen.
+data/subjects/*
+!data/subjects/.gitkeep
+data/**/predictions

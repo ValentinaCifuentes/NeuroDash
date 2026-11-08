@@ -8,7 +8,7 @@ from backend.app.routes import predictions, subjects
 
 
 def _headers() -> dict[str, str]:
-    return {"X-Actor-Id": "professional-1", "X-Actor-Role": "professional"}
+    return {"X-Actor-Id": "tutor-1", "X-Actor-Role": "tutor"}
 
 
 def _onboard(client: TestClient) -> str:
@@ -16,7 +16,6 @@ def _onboard(client: TestClient) -> str:
         "subject_id": "prediction-subject",
         "display_name": "Prediction Subject",
         "timezone": "America/Santiago",
-        "authorized_professional_ids": ["professional-1"],
         "authorized_tutor_ids": ["tutor-1"],
     })
     assert response.status_code == 201
@@ -121,7 +120,7 @@ def test_outcome_confirmation_requires_actor_and_replays_persisted_lineage(tmp_p
         "subject_id": subject_id,
         "prediction_cutoff": "2026-08-26T12:00:00-04:00",
     }).json()
-    payload = {"actual_outcome": True, "idempotency_key": "outcome-1", "provenance": {"source": "professional", "synthetic": False}}
+    payload = {"actual_outcome": True, "idempotency_key": "outcome-1", "provenance": {"source": "tutor", "synthetic": False}}
 
     denied = client.post(f"/api/v1/predictions/{prediction['prediction_id']}/outcome", json=payload)
     first = client.post(f"/api/v1/predictions/{prediction['prediction_id']}/outcome", json=payload, headers=_headers())
@@ -130,10 +129,111 @@ def test_outcome_confirmation_requires_actor_and_replays_persisted_lineage(tmp_p
     assert denied.status_code == 401
     assert first.status_code == replay.status_code == 201
     assert first.json()["outcome_id"] == replay.json()["outcome_id"]
-    assert first.json()["actor_id"] == "professional-1"
+    assert first.json()["actor_id"] == "tutor-1"
     assert first.json()["prediction_id"] == prediction["prediction_id"]
     reloaded = client.get(f"/api/v1/predictions/{prediction['prediction_id']}", headers=_headers())
     assert reloaded.status_code == 200
     assert reloaded.json()["prediction_id"] == prediction["prediction_id"]
     assert "model_score" not in reloaded.json()
     assert len((tmp_path / subject_id / "outcomes.json").read_text(encoding="utf-8").split('"outcome_id"')) == 2
+
+
+def test_reopening_evolucion_reuses_the_saved_estimate_until_the_data_or_the_hour_change(tmp_path: Path, monkeypatch) -> None:
+    """P5: abrir Evolución no guarda otra copia con todo el historial si nada cambió."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(prediction_service, "get_subject_paths", lambda subject_id: (tmp_path / subject_id, False))
+    client = TestClient(app)
+    subject_id = _onboard(client)
+
+    def predict(cutoff: str) -> str:
+        return client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": cutoff}).json()["prediction_id"]
+
+    def snapshots() -> int:
+        return len([path for path in (tmp_path / subject_id / "predictions").glob("*.json") if path.name != "index.json"])
+
+    first = predict("2026-08-26T12:05:00-04:00")
+    again = predict("2026-08-26T12:40:00-04:00")
+    assert again == first
+    assert snapshots() == 1
+
+    client.post(f"/api/v1/subjects/{subject_id}/daily-records", headers=_headers(), json={
+        "occurred_at": "2026-08-26T08:00:00-04:00", "idempotency_key": "basal",
+        "provenance": {"source": "tutor_app", "synthetic": False}, "sleep_quality": "Reparador",
+    })
+    after_new_data = predict("2026-08-26T12:50:00-04:00")
+    next_hour = predict("2026-08-26T13:10:00-04:00")
+    assert len({first, after_new_data, next_hour}) == 3
+    assert snapshots() == 3
+
+
+def test_a_confirmed_crisis_is_a_dysregulation_of_that_day_and_never_in_the_future(tmp_path: Path, monkeypatch) -> None:
+    """P8: la confirmación queda como desregulación, cuenta en el día y no se fecha después de ahora."""
+    import json
+    from datetime import datetime, timedelta, timezone
+
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(prediction_service, "get_subject_paths", lambda subject_id: (tmp_path / subject_id, False))
+    monkeypatch.setattr(predictions, "find_subject_dir_by_prediction_id", lambda prediction_id: tmp_path / "prediction-subject")
+    client = TestClient(app)
+    subject_id = _onboard(client)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=30)
+    prediction = client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": cutoff.isoformat()}).json()
+
+    response = client.post(f"/api/v1/predictions/{prediction['prediction_id']}/outcome", headers=_headers(), json={
+        "actual_outcome": True, "idempotency_key": "crisis", "provenance": {"source": "tutor", "synthetic": False},
+    })
+
+    assert response.status_code == 201
+    occurrence = json.loads((tmp_path / subject_id / "occurrences.json").read_text(encoding="utf-8"))[-1]
+    assert occurrence["event_type"] == "Desregulación Emocional"
+    assert occurrence["source"] == "outcome_confirmation"
+    when = datetime.fromisoformat(occurrence["source_timestamp"])
+    assert cutoff < when <= datetime.now(timezone.utc)
+    records = json.loads((tmp_path / subject_id / "records.json").read_text(encoding="utf-8"))
+    assert any(record.get("dysregulation_count") == 1 for record in records)
+
+
+def test_a_crisis_confirmed_right_after_the_estimate_shows_up_in_today_history(tmp_path: Path, monkeypatch) -> None:
+    """Confirmar en el mismo minuto de la estimación no puede dejar la crisis fechada en el futuro."""
+    import json
+    from datetime import datetime, timedelta, timezone
+
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(prediction_service, "get_subject_paths", lambda subject_id: (tmp_path / subject_id, False))
+    monkeypatch.setattr(predictions, "find_subject_dir_by_prediction_id", lambda prediction_id: tmp_path / "prediction-subject")
+    client = TestClient(app)
+    subject_id = _onboard(client)
+    cutoff = datetime.now(timezone.utc) - timedelta(seconds=5)
+    prediction = client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": cutoff.isoformat()}).json()
+    client.post(f"/api/v1/predictions/{prediction['prediction_id']}/outcome", headers=_headers(), json={
+        "actual_outcome": True, "idempotency_key": "now", "provenance": {"source": "tutor", "synthetic": False},
+    })
+
+    timeline = client.get(f"/api/v1/subjects/{subject_id}/timeline", params={"as_of": datetime.now(timezone.utc).isoformat(), "days": 1})
+
+    assert any(entry["kind"] == "event" for entry in timeline.json()["entries"])
+
+
+def test_the_estimate_says_when_a_crisis_was_already_confirmed(tmp_path: Path, monkeypatch) -> None:
+    """Tras confirmar, la estimación siguiente (aunque cambien los datos) trae la hora: el botón no vuelve."""
+    from datetime import datetime, timedelta, timezone
+
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    monkeypatch.setattr(prediction_service, "get_subject_paths", lambda subject_id: (tmp_path / subject_id, False))
+    monkeypatch.setattr(predictions, "find_subject_dir_by_prediction_id", lambda prediction_id: tmp_path / "prediction-subject")
+    client = TestClient(app)
+    subject_id = _onboard(client)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
+    first = client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": cutoff.isoformat()}).json()
+    assert first["confirmed_at"] is None
+
+    client.post(f"/api/v1/predictions/{first['prediction_id']}/outcome", headers=_headers(), json={
+        "actual_outcome": True, "idempotency_key": "c1", "provenance": {"source": "tutor", "synthetic": False},
+    })
+    later = client.post("/api/v1/predictions", json={"subject_id": subject_id, "prediction_cutoff": datetime.now(timezone.utc).isoformat()}).json()
+    much_later = client.post("/api/v1/predictions", json={
+        "subject_id": subject_id, "prediction_cutoff": (datetime.now(timezone.utc) + timedelta(hours=9)).isoformat(),
+    }).json()
+
+    assert later["confirmed_at"] is not None
+    assert much_later["confirmed_at"] is None  # fuera de las 8 h: se puede confirmar otra

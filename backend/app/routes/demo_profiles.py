@@ -5,7 +5,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.app.schemas import PredictionContractV2
+from backend.app import prediction_service
 from backend.app.prediction_service import make_prediction, load_subject_data, SubjectNotFoundError
+from backend.app.routes import subjects
 from ml.dataset_builder import build_dataset
 from ml.trainer import train_model, InsufficientDataError
 from ml.model_registry import ModelRegistry
@@ -50,7 +52,7 @@ def demo_predict(subject_id: str, req: DemoPredictRequest) -> PredictionContract
 def demo_retrain(subject_id: str) -> dict[str, Any]:
     # 1. Load data
     try:
-        profile, records, occurrences = load_subject_data(subject_id)
+        profile, records, occurrences, planned_events = load_subject_data(subject_id)
     except SubjectNotFoundError:
         raise HTTPException(
             status_code=404,
@@ -97,7 +99,8 @@ def demo_retrain(subject_id: str) -> dict[str, Any]:
             split_cutoff=split_cutoff,
             policy=policy,
             timezone=timezone_name,
-            subject_id=subject_id
+            subject_id=subject_id,
+            planned_events=planned_events
         )
     except Exception as e:
         raise HTTPException(
@@ -122,12 +125,11 @@ def demo_retrain(subject_id: str) -> dict[str, Any]:
 
     # 5. Evaluate and promote
     proj_root = Path(__file__).resolve().parents[3]
-    models_dir = proj_root / "models"
-    registry = ModelRegistry(base_dir=models_dir)
-    
+    registry = ModelRegistry(base_dir=prediction_service.MODELS_DIR)
+
     config_path = proj_root / "config" / "promotion.yaml"
-    
-    subject_dir = proj_root / "data" / "demo_profiles" / subject_id
+
+    subject_dir = subjects.DEMO_PROFILES_ROOT / subject_id
     audit_path = subject_dir / "audit.json"
 
     promoted, audit_record = evaluate_and_promote_model(

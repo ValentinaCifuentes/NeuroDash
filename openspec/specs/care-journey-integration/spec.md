@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define subject-scoped care records, events, sessions, end-of-day visibility, and privacy-safe integration for `front/` without changing the legacy `frontend/` boundary.
+Define subject-scoped care records, events, end-of-day visibility, and privacy-safe integration for `front/` without changing the legacy `frontend/` boundary.
 
 ## Requirements
 
@@ -34,14 +34,14 @@ The system MUST project records and events by subject and cutoff, including data
 - WHEN end-of-day data is requested
 - THEN it is marked unavailable and cannot influence an earlier prediction
 
-### Requirement: Authorized sharing with private notes
+### Requirement: Authorized sharing by caregiver
 
-The server MUST derive authorization from actor context. Authorized tutors and professionals share permitted records, sessions, and outcomes by default; `internal_notes` MUST remain private and MUST NOT be exposed through any read projection.
+The server MUST derive authorization from actor context. Authorized tutors share permitted records and outcomes by default; unauthorized actors MUST NOT access protected subject data.
 
 #### Scenario: Shared authorized read
-- GIVEN an authorized tutor or professional requests a subject projection
+- GIVEN an authorized tutor requests a subject projection
 - WHEN access is evaluated
-- THEN permitted fields are returned and `internal_notes` is omitted
+- THEN permitted fields are returned
 
 #### Scenario: Unauthorized read
 - GIVEN an actor lacks subject permission
@@ -50,7 +50,7 @@ The server MUST derive authorization from actor context. Authorized tutors and p
 
 ### Requirement: UI boundary and placeholders
 
-The integrated UI MUST use `front/` and equivalent real/mock contracts, expose accessible loading/error/retry states, and label professional-network and support-ticket features as non-functional out of scope with no submit action. `frontend/` MUST remain untouched.
+The integrated UI MUST use `front/` and equivalent real/mock contracts, expose accessible loading/error/retry states, and label support-ticket features as non-functional out of scope with no submit action. `frontend/` MUST remain untouched.
 
 #### Scenario: Mock/real parity
 - GIVEN identical valid care operations

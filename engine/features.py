@@ -4,6 +4,27 @@ from typing import Any
 
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import BaselineSnapshot
+from engine.schemas import HORIZON_HOURS
+
+
+# Expectativas de un evento planificado que anticipan una crisis en el horizonte.
+STRESSFUL_EXPECTATIONS = {"Estresante", "Desagradable"}
+
+# Campos donde la ausencia es informativa y merece el indicador binario `*_missing`:
+# «No Aplica»/«No sé» y las escalas de eventos que no se registran todos los días.
+# El resto (sueño, despertar, conteos) se asume presente; no se les agrega el flag
+# para no inflar el vector de features con indicadores siempre en 0.
+MISSING_INDICATOR_FIELDS = {
+    "medication_taken",
+    "sleep_hours",
+    "transition_difficulty",
+    "feeding_difficulty",
+    "sensory_diet_done",
+    "early_signs_count",
+    "physical_discomfort",
+    "routine_change",
+    "school_attendance",
+}
 
 
 class FeatureSet:
@@ -56,12 +77,17 @@ def build_features(
     cutoff: datetime,
     policy: AvailabilityPolicy | None = None,
     timezone: str | tzinfo | zoneinfo.ZoneInfo = "UTC",
-    subject: dict[str, Any] | None = None
+    subject: dict[str, Any] | None = None,
+    planned_events: list[dict[str, Any]] | None = None
 ) -> FeatureSet:
     """
     Builds a FeatureSet for a subject as of a specific cutoff.
     Aggregates numeric fields over 1, 3, 7, and 14 days windows, computes deltas against
     the baseline median, records missingness, and captures sensory context.
+
+    `planned_events` añade la variable `planned_stressful_event_8h` (0/1): si hay un
+    evento planificado «Estresante»/«Desagradable» en el horizonte siguiente al corte.
+    No hay fuga de información: el evento se conoce antes del corte.
     """
     pol = policy or AvailabilityPolicy()
     eligible_records, _ = filter_records(records, cutoff, pol, timezone=timezone)
@@ -87,6 +113,8 @@ def build_features(
                 
     # Also default to wake_state if not present to ensure tests can verify missingness representation
     modalities.add("wake_state")
+    # Se recorren en orden (`sorted`): un `set` cambia de orden entre procesos, y la
+    # misma entrada debe dar siempre la misma respuesta (missingness incluida).
     
     rolling_features: dict[str, float | None] = {}
     missingness: list[dict[str, Any]] = []
@@ -99,7 +127,7 @@ def build_features(
         # Count records in this window
         rolling_features[f"record_count_{window}d"] = float(len(window_records))
         
-        for modality in modalities:
+        for modality in sorted(modalities):
             values = [
                 float(r[modality])
                 for r in window_records
@@ -107,15 +135,27 @@ def build_features(
             ]
             
             feat_name = f"{modality}_mean_{window}d"
+            missing_feat = f"{modality}_missing_{window}d"
             if values:
                 rolling_features[feat_name] = sum(values) / len(values)
+                # Indicador binario de faltante, solo para campos opcionales: así el
+                # modelo distingue un valor real (p. ej. "0 eventos" o "No") de un
+                # dato ausente ("No Aplica", "No sé" o sin registro).
+                if modality in MISSING_INDICATOR_FIELDS:
+                    rolling_features[missing_feat] = 0.0
                 missingness.append({
                     "window": window,
                     "field": modality,
                     "missing": False
                 })
             else:
-                rolling_features[feat_name] = None
+                # Rellena el agregado faltante con la línea base del infante en lugar
+                # de dejarlo en None (que el entrenador imputa a 0). Así "sin datos"
+                # no se confunde con un valor real (p. ej. "0 eventos"). Solo cae a
+                # None en arranque en frío, cuando aún no hay línea base.
+                rolling_features[feat_name] = baseline.modality_baselines.get(modality)
+                if modality in MISSING_INDICATOR_FIELDS:
+                    rolling_features[missing_feat] = 1.0
                 missingness.append({
                     "window": window,
                     "field": modality,
@@ -127,7 +167,7 @@ def build_features(
     sorted_records = sorted(eligible_records, key=lambda r: r["availability_timestamp"], reverse=True)
     most_recent_record = sorted_records[0] if sorted_records else None
     
-    for modality in modalities:
+    for modality in sorted(modalities):
         baseline_val = baseline.modality_baselines.get(modality)
         current_val = None
         if most_recent_record and modality in most_recent_record:
@@ -140,7 +180,12 @@ def build_features(
             rolling_features[delta_name] = current_val - baseline_val
         else:
             rolling_features[delta_name] = None
-            
+
+    # Contexto al corte (no agregado por ventanas): evento planificado estresante.
+    rolling_features["planned_stressful_event_8h"] = float(
+        _planned_stressful_in_horizon(planned_events or [], cutoff, HORIZON_HOURS)
+    )
+
     return FeatureSet(
         rolling_features=rolling_features,
         missingness=missingness,
@@ -149,150 +194,19 @@ def build_features(
     )
 
 
-# ---------------------------------------------------------------------------
-# TELEMETRY PLUGIN: Contextual features from sensor data
-# ---------------------------------------------------------------------------
-# This function is ADDITIVE — it does not modify build_features() above.
-# When the telemetry plugin is disabled (no data), all sensor features
-# return None, and the CORE pipeline continues without degradation.
-# ---------------------------------------------------------------------------
-
-import statistics as _stats
-from pathlib import Path as _Path
-
-from engine.telemetry_store import TelemetryStore as _TelemetryStore
-
-
-# Canonical list of telemetry feature names.  Returned keys are always the
-# same regardless of data availability (None when missing).
-_TELEMETRY_FEATURE_KEYS: list[str] = [
-    # Environmental noise (dBA)
-    "avg_noise_1d", "avg_noise_3d", "avg_noise_7d",
-    # Movement / agitation (g)
-    "std_agitation_1d", "std_agitation_3d", "std_agitation_7d",
-    "max_agitation_1d",
-    # Heart rate (bpm)
-    "peak_hr_1d", "peak_hr_3d", "peak_hr_7d",
-    # Ambient light (lux)
-    "avg_light_1d", "avg_light_3d",
-]
-
-
-def _empty_contextual_features() -> dict[str, float | None]:
-    """Return the full feature dict with every key set to ``None``."""
-    return {k: None for k in _TELEMETRY_FEATURE_KEYS}
-
-
-def _aggregate_signal(
-    observations: list[dict[str, Any]],
-    signal_name: str,
+def _planned_stressful_in_horizon(
+    planned_events: list[dict[str, Any]],
     cutoff: datetime,
-    window_days: int,
-) -> list[float]:
-    """
-    Extract numeric values for *signal_name* within the window
-    ``[cutoff - window_days, cutoff)``.
-
-    Strictly excludes any observation with ``timestamp >= cutoff`` to
-    prevent data leakage.
-    """
-    window_start = cutoff - timedelta(days=window_days)
-    values: list[float] = []
-
-    for obs in observations:
-        if obs.get("signal") != signal_name:
+    horizon_hours: int,
+) -> float:
+    """1.0 si hay un evento planificado estresante en (cutoff, cutoff + horizon_hours]."""
+    horizon_end = cutoff + timedelta(hours=horizon_hours)
+    for event in planned_events:
+        starts = event.get("starts_at")
+        if not isinstance(starts, datetime):
             continue
-        ts_raw = obs.get("timestamp")
-        if ts_raw is None:
+        if starts.tzinfo is None:
             continue
-        ts = datetime.fromisoformat(str(ts_raw))
-        if ts.tzinfo is None:
-            ts = ts.replace(tzinfo=timezone.utc)
-
-        # DATA LEAKAGE GUARD: only use data strictly before cutoff
-        if ts >= cutoff:
-            continue
-        if ts < window_start:
-            continue
-
-        val = obs.get("value")
-        if isinstance(val, (int, float)):
-            values.append(float(val))
-
-    return values
-
-
-def build_contextual_features(
-    subject_id: str,
-    cutoff_time: datetime,
-    data_dir: _Path | None = None,
-) -> dict[str, float | None]:
-    """
-    Build sensor-derived contextual features for a subject as of *cutoff_time*.
-
-    This function operates as a **plugin**: if no telemetry data exists for
-    the subject, it returns all features as ``None`` so that the CORE
-    pipeline can proceed using only the subjective logbook.
-
-    Parameters
-    ----------
-    subject_id : str
-        Patient identifier.
-    cutoff_time : datetime
-        Prediction cutoff (timezone-aware).  Only observations with
-        ``timestamp < cutoff_time`` are used (prevents data leakage).
-    data_dir : Path, optional
-        Override the default ``data/`` directory (useful for testing).
-
-    Returns
-    -------
-    dict[str, float | None]
-        Feature dictionary with canonical keys.  Values are ``None`` when
-        the telemetry plugin is inactive or data is insufficient.
-    """
-    if data_dir is None:
-        data_dir = _Path(__file__).resolve().parents[1] / "data"
-
-    store = _TelemetryStore(data_dir=data_dir)
-    all_obs = store.read_observations(subject_id, before=cutoff_time)
-
-    # Plugin disabled: no data at all
-    if not all_obs:
-        return _empty_contextual_features()
-
-    features: dict[str, float | None] = {}
-
-    # --- Environmental noise (dBA): average per window ---
-    for window in (1, 3, 7):
-        vals = _aggregate_signal(all_obs, "environmental_noise", cutoff_time, window)
-        key = f"avg_noise_{window}d"
-        features[key] = round(sum(vals) / len(vals), 2) if vals else None
-
-    # --- Movement agitation (g): std-dev and max per window ---
-    for window in (1, 3, 7):
-        vals = _aggregate_signal(all_obs, "movement_agitation", cutoff_time, window)
-        std_key = f"std_agitation_{window}d"
-        if len(vals) >= 2:
-            features[std_key] = round(_stats.stdev(vals), 4)
-        elif len(vals) == 1:
-            features[std_key] = 0.0
-        else:
-            features[std_key] = None
-
-    # Max agitation 1d
-    vals_1d = _aggregate_signal(all_obs, "movement_agitation", cutoff_time, 1)
-    features["max_agitation_1d"] = round(max(vals_1d), 2) if vals_1d else None
-
-    # --- Heart rate (bpm): peak per window ---
-    for window in (1, 3, 7):
-        vals = _aggregate_signal(all_obs, "heart_rate", cutoff_time, window)
-        key = f"peak_hr_{window}d"
-        features[key] = round(max(vals), 1) if vals else None
-
-    # --- Ambient light (lux): average per window ---
-    for window in (1, 3):
-        vals = _aggregate_signal(all_obs, "ambient_light", cutoff_time, window)
-        key = f"avg_light_{window}d"
-        features[key] = round(sum(vals) / len(vals), 1) if vals else None
-
-    return features
+        if cutoff < starts <= horizon_end and event.get("expectation") in STRESSFUL_EXPECTATIONS:
+            return 1.0
+    return 0.0

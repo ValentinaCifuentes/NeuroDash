@@ -1,22 +1,21 @@
 /**
- * Cliente HTTP contra la API de NeuraDash CORE.
+ * Cliente HTTP contra la API de NeuroDash CORE.
  *
  * Regla de arquitectura (D2): el frontend jamás depende del algoritmo.
  * Solo conoce estos endpoints y el Prediction Contract v2.
  *
+ *   GET  /api/v1/subjects
+ *   POST /api/v1/subjects
  *   GET  /api/v1/subjects/{id}
  *   GET  /api/v1/subjects/{id}/timeline?as_of=...&days=...
  *   POST /api/v1/subjects/{id}/daily-records
  *   POST /api/v1/subjects/{id}/events
- *   GET  /api/v1/subjects/{id}/sessions
- *   PUT  /api/v1/subjects/{id}/sessions/{session_id}
- *   POST /api/v1/subjects/{id}/sessions
  *   POST /api/v1/predictions
- *   POST /api/v1/demo/profiles/{profile_id}/predict
+ *   POST /api/v1/predictions/{prediction_id}/outcome
  *
- * Si `VITE_API_BASE` no está definido, se usa `mocks/mockApi` para que la
- * UI corra sola durante el desarrollo del frontend. El mock respeta el
- * mismo contrato: cambiar de uno a otro no toca ningún componente.
+ * Si `VITE_API_BASE` no está definido, las mismas rutas responden desde
+ * `mocks/mockBackend.ts` (demos PAC-A/B/C exportadas de la demo real), y el
+ * JSON pasa por los mismos adaptadores: cambiar de modo no toca ningún componente.
  */
 
 import type {
@@ -24,10 +23,10 @@ import type {
   DailyRecord,
   DysregulationEvent,
   FactorDirection,
+  MissingDataItem,
+  PlannedEvent,
   Prediction,
   PredictionRequest,
-  ProfessionalSession,
-  ProfessionalSessionDraft,
   SupportItem,
   Subject,
   TimelineEntry,
@@ -35,11 +34,9 @@ import type {
   ApiError,
   ApiErrorEnvelope,
   OutcomeConfirmation,
-  SubjectListResponse,
   SubjectOnboardingInput,
-  SessionWrite,
 } from './types';
-import * as mock from './mocks/mockApi';
+import { newId } from './domain/ids';
 export { createSubjectId, subjectInitials } from './domain/subjectIdentity';
 
 const BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -49,35 +46,36 @@ export function mapApiError(status: number, envelope: ApiErrorEnvelope): ApiErro
   return { status, code: envelope.code, message: envelope.message };
 }
 
-export function mapSessionProjection(session: ProfessionalSessionDraft): ProfessionalSession {
-  const { internal_notes: _internalNotes, ...projection } = session;
-  return projection;
-}
+export type ActorRole = 'tutor' | 'system';
 
-export function createSessionWrite(
-  session: ProfessionalSessionDraft,
-  idempotencyKey: string,
-): SessionWrite {
-  const { session_id: _sessionId, subject_id: _subjectId, ...write } = session;
-  return {
-    ...write,
-    contract_version: '2.0',
-    idempotency_key: idempotencyKey,
-    provenance: { source: 'frontend_session', synthetic: false },
-  };
-}
+export const DEFAULT_ACTOR_ID = 'tutor-demo';
 
-export function getSessionActorHeaders(env: Record<string, string | undefined> = import.meta.env): {
+/**
+ * Identidad con la que el front escribe en el backend (`get_care_actor`).
+ *
+ * La autenticación queda fuera de alcance (D2): el actor es fijo y se define
+ * al compilar con `VITE_ACTOR_ID` / `VITE_ACTOR_ROLE`. Sin configurar, se usa
+ * `tutor-demo` con rol `tutor`. El backend solo acepta `tutor` o `system`.
+ */
+export function getActorHeaders(env: Record<string, string | undefined> = import.meta.env): {
   'X-Actor-Id': string;
-  'X-Actor-Role': 'professional';
+  'X-Actor-Role': ActorRole;
 } {
-  if (!env.VITE_ACTOR_ID || env.VITE_ACTOR_ROLE !== 'professional') {
-    throw new Error('A professional actor must be configured to access sessions.');
+  const role = env.VITE_ACTOR_ROLE || 'tutor';
+  if (role !== 'tutor' && role !== 'system') {
+    throw new Error(`VITE_ACTOR_ROLE debe ser "tutor" o "system" (recibido: "${role}").`);
   }
-  return { 'X-Actor-Id': env.VITE_ACTOR_ID, 'X-Actor-Role': 'professional' };
+  return { 'X-Actor-Id': env.VITE_ACTOR_ID || DEFAULT_ACTOR_ID, 'X-Actor-Role': role };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  // Sin backend (VITE_API_BASE vacío): las mismas rutas y el mismo JSON, desde
+  // `mocks/mockBackend.ts`. Todo lo demás (adaptadores, errores) es igual.
+  // Se carga solo en ese modo: con backend, las demos no viajan en el bundle.
+  if (USING_MOCK) {
+    const { mockRequest } = await import('./mocks/mockBackend');
+    return (await mockRequest(path, init)) as T;
+  }
   let res: Response;
   try {
     res = await fetch(`${BASE}${path}`, {
@@ -104,18 +102,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function getSubject(subjectId: string): Promise<Subject> {
-  if (USING_MOCK) return mock.getSubject(subjectId);
   return request<BackendSubject>(`/api/v1/subjects/${subjectId}`).then(adaptSubject);
 }
 
 export function listSubjects(): Promise<Subject[]> {
-  if (USING_MOCK) return mock.listSubjects();
-  return request<SubjectListResponse>('/api/v1/subjects').then((response) => response.subjects);
+  // La lista del backend solo trae los datos de selección; adaptSubject completa
+  // los campos de perfil que las pantallas leen (edad, diagnóstico, perfil sensorial).
+  return request<{ subjects: BackendSubject[] }>('/api/v1/subjects').then((response) =>
+    response.subjects.map(adaptSubject),
+  );
 }
 
 export function onboardSubject(input: SubjectOnboardingInput): Promise<Subject> {
-  if (USING_MOCK) return mock.onboardSubject(input);
-  return request<Subject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(input) });
+  // Quien crea el perfil queda autorizado para confirmar sus resultados (`require_subject_access`).
+  const body = { ...input, authorized_tutor_ids: [getActorHeaders()['X-Actor-Id']] };
+  return request<BackendSubject>('/api/v1/subjects', { method: 'POST', body: JSON.stringify(body) }).then(adaptSubject);
 }
 
 export function getTimeline(
@@ -123,49 +124,130 @@ export function getTimeline(
   asOf: string,
   days = 1,
 ): Promise<TimelineResponse> {
-  if (USING_MOCK) return mock.getTimeline(subjectId, asOf, days);
   const qs = new URLSearchParams({ as_of: asOf, days: String(days) });
-  return request<BackendTimelineEntry[]>(`/api/v1/subjects/${subjectId}/timeline?${qs}`).then((entries) => ({
-    subject_id: subjectId,
-    as_of: asOf,
-    days,
-    entries: entries.map(adaptTimelineEntry),
-  }));
+  return request<BackendTimelineResponse>(`/api/v1/subjects/${subjectId}/timeline?${qs}`).then(
+    adaptTimelineResponse,
+  );
+}
+
+/**
+ * ISO con el desfase local (`2026-11-02T22:15:00-03:00`) en vez de UTC (`…Z`).
+ * El backend toma la fecha del registro diario de `occurred_at.date()`: en UTC,
+ * un registro hecho en Chile después de las 21:00 caería en el día siguiente.
+ */
+export function toLocalIsoString(date: Date): string {
+  const pad = (n: number) => String(Math.trunc(Math.abs(n))).padStart(2, '0');
+  const offset = -date.getTimezoneOffset();
+  const sign = offset >= 0 ? '+' : '-';
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
+    `${sign}${pad(offset / 60)}:${pad(offset % 60)}`
+  );
+}
+
+/** Campos que el backend exige en toda escritura de cuidado (`CareRecordWrite`, `EventWrite`). */
+export type CareWriteMeta = {
+  occurred_at: string;
+  idempotency_key: string;
+  provenance: { source: 'tutor_app'; synthetic: false };
+};
+
+export function buildCareWrite(occurredAt: Date, idempotencyKey: string = newId()): CareWriteMeta {
+  return {
+    occurred_at: toLocalIsoString(occurredAt),
+    idempotency_key: idempotencyKey,
+    provenance: { source: 'tutor_app', synthetic: false },
+  };
+}
+
+/** Cuerpo de `POST /daily-records`: solo los textos de la Bitácora; el backend los codifica. */
+export function buildDailyRecordWrite(record: DailyRecord, now: Date = new Date(), idempotencyKey?: string) {
+  return {
+    ...buildCareWrite(now, idempotencyKey ?? record.idempotency_key),
+    // Para editar un registro guardado (el lápiz del historial); sin él, se crea uno nuevo.
+    ...(record.record_id ? { record_id: record.record_id } : {}),
+    sleep_quality: record.sleep_quality,
+    wake_mode: record.wake_mode,
+    start_autonomy: record.start_autonomy,
+    medication_adherence: record.medication_adherence,
+    gi_status: record.gi_status,
+    day_regulation_level: record.day_regulation_level ?? null,
+    // Contexto del día: lo que no se respondió no se envía (null o lista vacía).
+    sleep_hours_range: record.sleep_hours_range ?? null,
+    early_signs: record.early_signs?.length ? record.early_signs : null,
+    physical_discomfort: record.physical_discomfort?.length ? record.physical_discomfort : null,
+    routine_change: record.routine_change ?? null,
+    school_attendance: record.school_attendance ?? null,
+  };
+}
+
+/**
+ * Cuerpo de `POST /events`. Viaja el evento completo: disparadores, estrategias
+ * y resultado. El backend los guarda en la auditoría y los agrega al registro del
+ * día (`trigger_count`, `strategy_count`, `dysregulation_unresolved`).
+ */
+export function buildEventWrite(event: DysregulationEvent, idempotencyKey?: string) {
+  const { subject_id: _subjectId, event_id: _eventId, occurred_at, idempotency_key, ...fields } = event;
+  return { ...fields, ...buildCareWrite(new Date(occurred_at), idempotencyKey ?? idempotency_key) };
 }
 
 export function saveDailyRecord(record: DailyRecord): Promise<DailyRecord> {
-  if (USING_MOCK) return mock.saveDailyRecord(record);
-  return request<DailyRecord>(`/api/v1/subjects/${record.subject_id}/daily-records`, {
+  return request<Record<string, unknown>>(`/api/v1/subjects/${record.subject_id}/daily-records`, {
     method: 'POST',
-    body: JSON.stringify(record),
-  });
+    headers: getActorHeaders(),
+    body: JSON.stringify(buildDailyRecordWrite(record)),
+  }).then(adaptDailyRecordPayload);
 }
 
 export function saveEvent(event: DysregulationEvent): Promise<DysregulationEvent> {
-  if (USING_MOCK) return mock.saveEvent(event);
   return request<DysregulationEvent>(`/api/v1/subjects/${event.subject_id}/events`, {
     method: 'POST',
-    body: JSON.stringify(event),
+    headers: getActorHeaders(),
+    body: JSON.stringify(buildEventWrite(event)),
   });
 }
 
-export function getSessions(subjectId: string): Promise<ProfessionalSession[]> {
-  if (USING_MOCK) return mock.getSessions(subjectId);
-  return request<ProfessionalSessionDraft[]>(`/api/v1/subjects/${subjectId}/sessions`, {
-    headers: getSessionActorHeaders(),
-  }).then((sessions) => sessions.map(mapSessionProjection));
+/* --- Planificación (eventos planificados) --- */
+
+type BackendPlannedEvent = {
+  planned_event_id?: string;
+  subject_id: string;
+  title: string;
+  starts_at: string;
+  category?: string | null;
+  expectation?: string | null;
+};
+
+/** El backend identifica con `planned_event_id`; el front usa `id`. */
+function adaptPlannedEvent(event: BackendPlannedEvent): PlannedEvent {
+  return {
+    id: event.planned_event_id ?? newId(),
+    subject_id: event.subject_id,
+    title: event.title,
+    starts_at: event.starts_at,
+    category: (event.category as PlannedEvent['category']) ?? null,
+    expectation: (event.expectation as PlannedEvent['expectation']) ?? null,
+  };
 }
 
-/** Creates a professional session using a stable, caller-provided replay identity. */
-export function saveSession(session: ProfessionalSessionDraft): Promise<ProfessionalSession> {
-  if (USING_MOCK) return mock.saveSession(session);
-  const base = `/api/v1/subjects/${session.subject_id}/sessions`;
-  const idempotencyKey = session.session_id ?? crypto.randomUUID();
-  return request<ProfessionalSessionDraft>(base, {
+export function savePlannedEvent(event: Omit<PlannedEvent, 'id'>): Promise<PlannedEvent> {
+  return request<BackendPlannedEvent>(`/api/v1/subjects/${event.subject_id}/planned-events`, {
     method: 'POST',
-    headers: getSessionActorHeaders(),
-    body: JSON.stringify(createSessionWrite(session, idempotencyKey)),
-  }).then(mapSessionProjection);
+    headers: getActorHeaders(),
+    body: JSON.stringify({
+      title: event.title,
+      starts_at: event.starts_at,
+      category: event.category,
+      expectation: event.expectation,
+    }),
+  }).then(adaptPlannedEvent);
+}
+
+export function listPlannedEvents(subjectId: string): Promise<PlannedEvent[]> {
+  return request<BackendPlannedEvent[]>(`/api/v1/subjects/${subjectId}/planned-events`).then((events) =>
+    events.map(adaptPlannedEvent),
+  );
 }
 
 /**
@@ -173,7 +255,6 @@ export function saveSession(session: ProfessionalSessionDraft): Promise<Professi
  * Solo sujeto, momento de corte y horizonte.
  */
 export function getPrediction(req: PredictionRequest): Promise<Prediction> {
-  if (USING_MOCK) return mock.getPrediction(req);
   return request<BackendPrediction>('/api/v1/predictions', {
     method: 'POST',
     body: JSON.stringify({
@@ -183,20 +264,35 @@ export function getPrediction(req: PredictionRequest): Promise<Prediction> {
   }).then(adaptPrediction);
 }
 
-type BackendSubject = Partial<Subject> & {
+type BackendSubject = Partial<Subject> & { subject_id: string };
+
+/** `GET /subjects/{id}/timeline` (`routes/subjects.py › get_subject_timeline`). */
+export type BackendTimelineResponse = {
   subject_id: string;
-  sensory_context?: Record<string, unknown>;
+  as_of: string;
+  days: number;
+  entries: BackendTimelineEntry[];
 };
 
-type BackendTimelineEntry = Record<string, unknown>;
+export type BackendTimelineEntry = {
+  entry_id: string;
+  kind: 'daily_record' | 'event';
+  timestamp: string;
+  title: string;
+  detail: string | null;
+  semantic: TimelineEntry['semantic'];
+  payload: Record<string, unknown>;
+};
 
-type BackendPrediction = {
+/** `PredictionContractV2` (`backend/app/schemas.py`). */
+export type BackendPrediction = {
   contract_version: string;
+  /** Id con el que el backend guarda la predicción (`predictions/{id}.json`). */
+  prediction_id: string;
   subject_id: string;
   prediction_cutoff: string;
   horizon_hours: number;
   risk: string | null;
-  model_score: number | null;
   confidence: string;
   abstained: boolean;
   factors: BackendFactor[];
@@ -207,6 +303,7 @@ type BackendPrediction = {
     lineage?: Record<string, unknown> | null;
   };
   versions: Record<string, string>;
+  confirmed_at?: string | null;
 };
 
 type BackendFactor = {
@@ -214,6 +311,9 @@ type BackendFactor = {
   feature?: string;
   contribution?: number;
   description?: string;
+  comparison?: 'above' | 'below' | 'similar' | null;
+  trend?: 'worse' | 'better' | 'same' | null;
+  summary?: string | null;
 };
 
 type BackendMissingness = {
@@ -231,38 +331,115 @@ type BackendSupport = {
   rationale?: string;
 };
 
+/** Expuesta solo para tests. */
+export const adaptSubjectForTest = (subject: BackendSubject) => adaptSubject(subject);
+
 function adaptSubject(subject: BackendSubject): Subject {
-  const sensoryProfile =
-    subject.sensory_profile ??
-    String(subject.sensory_context?.sensory_profile ?? 'Perfil sensorial no registrado');
+  // Vacío = sin registrar; la Ficha decide cómo decirlo.
+  const sensoryProfile = subject.sensory_profile ?? String(subject.sensory_context?.sensory_profile ?? '');
   return {
     subject_id: subject.subject_id,
-    display_name: subject.display_name ?? `Bluba ${subject.subject_id}`,
-    initials: subject.initials ?? initialsFromId(subject.subject_id),
-    age_range: subject.age_range ?? 'Edad no registrada',
-    diagnosis: subject.diagnosis ?? 'Sin diagnóstico mostrado en esta vista',
+    display_name: subject.display_name ?? subject.subject_id,
+    // «PAC-A» no tiene espacios y el backend devuelve «P»; el avatar del diseño muestra «PA».
+    initials:
+      subject.initials && subject.initials.length > 1
+        ? subject.initials
+        : initialsFromId(subject.display_name ?? subject.subject_id),
+    age_range: subject.age_range ?? '',
+    diagnosis: subject.diagnosis ?? '',
     sensory_profile: sensoryProfile,
+    timezone: subject.timezone,
+    cold_start: subject.cold_start,
+    provenance: subject.provenance,
+    habitual_context: subject.habitual_context,
+    sensory_context: subject.sensory_context,
+    historical_supports: subject.historical_supports,
   };
 }
 
-function adaptTimelineEntry(entry: BackendTimelineEntry, index: number): TimelineEntry {
-  const timestamp = String(entry.source_timestamp ?? entry.availability_timestamp ?? new Date().toISOString());
-  const kind = 'event_count' in entry ? 'daily_record' : 'event';
+export function adaptTimelineResponse(response: BackendTimelineResponse): TimelineResponse {
   return {
-    entry_id: String(entry.id ?? `entry-${index}`),
-    kind,
-    timestamp,
-    title: kind === 'daily_record' ? 'Registro diario' : 'Evento registrado',
-    detail: summarizeTimelineEntry(entry),
-    semantic: kind === 'daily_record' ? 'info' : 'warning',
-    payload: entry as unknown as DailyRecord | DysregulationEvent,
+    subject_id: response.subject_id,
+    as_of: response.as_of,
+    days: response.days,
+    entries: response.entries.map(adaptTimelineEntry),
   };
 }
 
-function adaptPrediction(prediction: BackendPrediction): Prediction {
+/**
+ * El backend ya clasifica cada entrada (`kind`) y separa el dato guardado en
+ * `payload`. Un registro diario también puede traer `event_count`, así que el
+ * tipo nunca se infiere de los campos.
+ */
+function adaptTimelineEntry(entry: BackendTimelineEntry): TimelineEntry {
+  if (entry.kind === 'daily_record') {
+    const record = adaptDailyRecordPayload(entry.payload);
+    return {
+      entry_id: entry.entry_id,
+      kind: 'daily_record',
+      timestamp: entry.timestamp,
+      title: 'Registro diario',
+      detail: summarizeDailyRecord(record),
+      semantic: 'info',
+      payload: record,
+    };
+  }
+  const event = entry.payload as unknown as DysregulationEvent & { severity?: string };
+  return {
+    entry_id: entry.entry_id,
+    kind: 'event',
+    timestamp: entry.timestamp,
+    // Una crisis confirmada con «Confirmar que ocurrió» no tiene event_type; el
+    // backend ya la titula («Crisis confirmada»), así que se usa su título.
+    title: event.event_type ?? entry.title ?? 'Evento registrado',
+    detail: summarizeEvent(event),
+    semantic: 'warning',
+    payload: event,
+  };
+}
+
+/**
+ * El backend guarda cada respuesta de la Bitácora dos veces: el número que usa
+ * el modelo en la raíz (`sleep_quality: 8`) y el texto que eligió el tutor en
+ * `raw` (`raw.sleep_quality: "Reparador"`). La interfaz trabaja con el texto,
+ * así que aquí se reconstruye el `DailyRecord` desde `raw`.
+ */
+function adaptDailyRecordPayload(payload: Record<string, unknown>): DailyRecord {
+  const raw = (payload.raw ?? {}) as Partial<Record<keyof DailyRecord, string>> & {
+    early_signs?: string[];
+    physical_discomfort?: string[];
+  };
+  const count = (value: unknown) => (typeof value === 'number' ? value : undefined);
+  return {
+    record_id: payload.record_id as string | undefined,
+    subject_id: String(payload.subject_id ?? ''),
+    date: String(payload.date ?? ''),
+    sleep_quality: (raw.sleep_quality ?? null) as DailyRecord['sleep_quality'],
+    wake_mode: (raw.wake_mode ?? null) as DailyRecord['wake_mode'],
+    start_autonomy: (raw.start_autonomy ?? null) as DailyRecord['start_autonomy'],
+    medication_adherence: (raw.medication_adherence ?? null) as DailyRecord['medication_adherence'],
+    gi_status: (raw.gi_status ?? null) as DailyRecord['gi_status'],
+    day_regulation_level: (raw.day_regulation_level ?? null) as DailyRecord['day_regulation_level'],
+    sleep_hours_range: raw.sleep_hours_range ?? null,
+    early_signs: raw.early_signs ?? [],
+    physical_discomfort: raw.physical_discomfort ?? [],
+    routine_change: raw.routine_change ?? null,
+    school_attendance: raw.school_attendance ?? null,
+    event_count: count(payload.event_count),
+    dysregulation_count: count(payload.dysregulation_count),
+    max_intensity: count(payload.max_intensity),
+  };
+}
+
+/**
+ * El `prediction_id` siempre viene del backend: «Confirmar que ocurrió» lo usa
+ * para encontrar la predicción guardada, así que un id armado en el front
+ * nunca la encontraría.
+ */
+export function adaptPrediction(prediction: BackendPrediction): Prediction {
   return {
     contract_version: '2',
-    prediction_id: `${prediction.subject_id}-${prediction.prediction_cutoff}`,
+    prediction_id: prediction.prediction_id,
     subject_id: prediction.subject_id,
     prediction_cutoff: prediction.prediction_cutoff,
     horizon_hours: prediction.horizon_hours,
@@ -270,10 +447,11 @@ function adaptPrediction(prediction: BackendPrediction): Prediction {
     confidence: adaptConfidence(prediction.confidence),
     abstained: prediction.abstained,
     factors: prediction.factors.map(adaptFactor),
-    missingness: prediction.missingness.filter((item) => item.missing).map(adaptMissingness),
+    missingness: adaptMissingness(prediction.missingness),
     supports: prediction.supports.map(adaptSupport),
     provenance: prediction.provenance,
     versions: prediction.versions,
+    confirmed_at: prediction.confirmed_at ?? null,
   };
 }
 
@@ -300,17 +478,70 @@ function adaptFactor(factor: BackendFactor) {
     comparison: factor.description ?? 'Asociación observada en el historial reciente.',
     direction,
     window: inferWindow(factor.feature ?? factor.factor_name ?? ''),
+    baseline: factor.comparison ?? null,
+    trend: factor.trend ?? null,
+    summary: factor.summary ?? null,
   };
 }
 
-function adaptMissingness(item: BackendMissingness) {
-  const field = String(item.field ?? 'dato');
-  const window = item.window ? ` en ventana ${item.window}` : '';
-  return {
-    code: `${field}-${item.window ?? 'unknown'}`,
-    label: humanize(field),
-    impact: `Falta información reciente${window}; la estimación puede tener menor respaldo.`,
-  };
+/**
+ * Campos que cuentan para la confianza: espejo de `core_fields` en
+ * `config/confidence.yaml` (un test del backend comprueba que coincidan).
+ * Los demás campos son opcionales: ayudan a la lectura, pero no la bloquean.
+ */
+export const CORE_FIELDS = ['sleep_quality', 'wake_state', 'event_count'];
+
+/** Nombre en español de cada campo numérico que el motor reporta en `missingness`. */
+const MISSING_FIELD_LABELS: Record<string, string> = {
+  sleep_quality: 'Calidad del sueño',
+  wake_state: 'Estado al despertar',
+  event_count: 'Registro de eventos',
+  start_autonomy_level: 'Autonomía al inicio del día',
+  medication_taken: 'Medicación',
+  gi_level: 'Digestión',
+  day_regulation_level_num: 'Regulación del día',
+  dysregulation_count: 'Desregulaciones',
+  max_intensity: 'Intensidad de los eventos',
+  trigger_count: 'Disparadores',
+  strategy_count: 'Estrategias aplicadas',
+  dysregulation_unresolved: 'Desregulaciones sin regular',
+  transition_difficulty: 'Dificultad en las transiciones',
+  feeding_difficulty: 'Dificultad para alimentarse',
+  sensory_diet_done: 'Dieta sensorial realizada',
+  sleep_hours: 'Horas de sueño',
+  early_signs_count: 'Señales tempranas',
+  physical_discomfort: 'Malestar físico',
+  routine_change: 'Cambios de rutina',
+  school_attendance: 'Asistencia al colegio',
+};
+
+/**
+ * El motor manda una entrada por campo y por ventana (1, 3, 7 y 14 días).
+ * Para la persona basta una por campo: se agrupa y se informa la ventana más
+ * larga sin datos (si falta en 7 días, también falta en 1 y 3). Primero van
+ * los campos que cuentan para la confianza.
+ */
+function adaptMissingness(items: BackendMissingness[]): MissingDataItem[] {
+  const widestGap = new Map<string, number>();
+  for (const item of items) {
+    if (!item.missing || !item.field) continue;
+    const window = Number(item.window) || 0;
+    widestGap.set(item.field, Math.max(widestGap.get(item.field) ?? 0, window));
+  }
+  return [...widestGap.entries()]
+    .map(([field, days]) => {
+      const isCore = CORE_FIELDS.includes(field);
+      const period = days <= 1 ? 'el último día' : `los últimos ${days} días`;
+      return {
+        code: field,
+        label: MISSING_FIELD_LABELS[field] ?? sentenceCase(field.replace(/_/g, ' ')),
+        impact: isCore
+          ? `Sin registros en ${period}. Cuenta para la confianza de la estimación.`
+          : `Sin registros en ${period}. Es opcional: ayuda a la lectura, pero no baja la confianza.`,
+        is_core: isCore,
+      };
+    })
+    .sort((a, b) => Number(b.is_core) - Number(a.is_core));
 }
 
 function adaptSupport(support: BackendSupport): SupportItem {
@@ -322,35 +553,63 @@ function adaptSupport(support: BackendSupport): SupportItem {
   };
 }
 
+/**
+ * Ventana de un factor según su nombre de variable (`FEATURE_VARIABLE_NAMES` en
+ * `engine/explanation.py`): `…_un_dia`, `…_dos_dias`, `…_tres_dias`, etc. Las
+ * desviaciones frente a la línea base no tienen ventana y quedan como `actual`.
+ */
+const WINDOW_BY_SUFFIX: Array<[string, string]> = [
+  ['_catorce_dias', '14d'],
+  ['_siete_dias', '7d'],
+  ['_tres_dias', '3d'],
+  ['_dos_dias', '2d'],
+  ['_un_dia', '1d'],
+];
+
 function inferWindow(value: string): string {
-  if (value.includes('catorce')) return '14d';
-  if (value.includes('siete')) return '7d';
-  if (value.includes('tres')) return '3d';
-  if (value.includes('ultimo') || value.includes('último')) return '1d';
-  return 'actual';
+  return WINDOW_BY_SUFFIX.find(([suffix]) => value.endsWith(suffix))?.[1] ?? 'actual';
 }
 
-function humanize(value: string): string {
-  return value.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+function sentenceCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function initialsFromId(subjectId: string): string {
-  return subjectId
-    .split(/[-_\s]+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
+  const parts = subjectId.split(/[-_\s]+/).filter(Boolean);
+  // Un alias de una palabra («Tomi») usa sus dos primeras letras: «TO».
+  const letters = parts.length > 1 ? parts.map((part) => part[0]).join('') : (parts[0] ?? '');
+  return letters.slice(0, 2).toUpperCase();
 }
 
-function summarizeTimelineEntry(entry: BackendTimelineEntry): string | null {
-  const parts = [
-    entry.sleep_quality !== undefined ? `Sueño: ${entry.sleep_quality}` : null,
-    entry.wake_state !== undefined ? `Despertar: ${entry.wake_state}` : null,
-    entry.event_count !== undefined ? `Eventos: ${entry.event_count}` : null,
-    entry.severity !== undefined ? `Severidad: ${entry.severity}` : null,
-  ].filter(Boolean);
-  return parts.length > 0 ? parts.join(' · ') : null;
+const SEVERITY_LABEL: Record<string, string> = { mild: 'leve', moderate: 'moderada', severe: 'severa' };
+
+function joinParts(parts: Array<string | null | undefined | false>): string | null {
+  const present = parts.filter(Boolean);
+  return present.length > 0 ? present.join(' · ') : null;
+}
+
+function summarizeDailyRecord(record: DailyRecord): string | null {
+  const events = record.event_count
+    ? `Eventos del día: ${record.event_count}` +
+      (record.dysregulation_count ? ` (${record.dysregulation_count} de desregulación)` : '') +
+      (record.max_intensity ? ` · Intensidad máx.: ${record.max_intensity}/10` : '')
+    : null;
+  return joinParts([
+    record.sleep_quality && `Sueño: ${record.sleep_quality}`,
+    record.wake_mode && `Despertar: ${record.wake_mode}`,
+    record.start_autonomy && `Inicio del día: ${record.start_autonomy}`,
+    record.gi_status && `Digestión: ${record.gi_status}`,
+    record.medication_adherence && `Medicación: ${record.medication_adherence}`,
+    record.day_regulation_level && `Regulación del día: ${record.day_regulation_level}`,
+    events,
+  ]);
+}
+
+function summarizeEvent(event: DysregulationEvent & { severity?: string }): string | null {
+  return joinParts([
+    typeof event.intensity_value === 'number' && `Intensidad: ${event.intensity_value}/10`,
+    event.severity && `Gravedad: ${SEVERITY_LABEL[event.severity] ?? event.severity}`,
+  ]);
 }
 
 /** Confirms an observed outcome with a caller-generated replay identity. */
@@ -359,33 +618,13 @@ export function confirmPredictionOutcome(
   actualOutcome: boolean,
   idempotencyKey: string,
 ): Promise<OutcomeConfirmation> {
-  if (USING_MOCK) return mock.confirmPredictionOutcome(predictionId, actualOutcome, idempotencyKey);
   return request<OutcomeConfirmation>(`/api/v1/predictions/${predictionId}/outcome`, {
     method: 'POST',
-    headers: getSessionActorHeaders(),
+    headers: getActorHeaders(),
     body: JSON.stringify({
       actual_outcome: actualOutcome,
       idempotency_key: idempotencyKey,
       provenance: { source: 'frontend_outcome', synthetic: false },
     }),
-  });
-}
-
-export function simulateTelemetry(subjectId: string, profile: 'estable' | 'riesgo_acumulado' | 'datos_insuficientes'): Promise<{ status: string; stored_count: number; message: string }> {
-  if (USING_MOCK) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          status: 'ok',
-          stored_count: 50,
-          message: 'Simulated burst for profile ' + profile,
-        });
-      }, 1500);
-    });
-  }
-  
-  return request<{ status: string; stored_count: number; message: string }>('/api/v1/telemetry/simulate', {
-    method: 'POST',
-    body: JSON.stringify({ subject_id: subjectId, profile, seed: Math.floor(Math.random() * 1000) }),
   });
 }

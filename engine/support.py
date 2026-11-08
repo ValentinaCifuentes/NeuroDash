@@ -57,7 +57,7 @@ def select_supports(
     Select evidence-bounded supports without prescribing treatment.
 
     Priority order:
-    1. Previously effective or professional-approved subject supports.
+    1. Previously effective subject supports.
     2. Contextual recommendations from the validated catalog.
     3. Explicit insufficient-data message when contextualization is unsafe.
     """
@@ -66,16 +66,22 @@ def select_supports(
     signals = _detect_cases(context, factors or [], recent_records or [], recent_occurrences or [], user_role)
 
     if _must_abstain_from_contextual_supports(abstained, confidence, missingness or []):
-        return [_insufficient_data_support(catalog, missingness or [])]
+        # Sin estimación no se elige un apoyo según el momento, pero lo que el tutor
+        # registró como algo que le ayuda sigue valiendo (P23): no es una inferencia.
+        return [*_effective_history_recommendations(subject_history), _insufficient_data_support(catalog, missingness or [])]
 
     historical = _historical_supports(subject_history, signals)
     selected = list(historical)
 
     if any(entry.get("case_id") for entry in catalog):
-        registered_cases = _registered_cases(subject_history, context)
+        registered_cases = _registered_cases(subject_history)
         if any(item.get("effective") is True for item in subject_history) and signals:
             signals.add("previously_effective_similar_context")
-            selected.extend(_effective_history_recommendations(subject_history))
+            effective = _effective_history_recommendations(subject_history)
+            # Un apoyo que funcionó se muestra una sola vez: como «le sirvió antes», no además como registrado.
+            effective_ids = {item["id"] for item in effective}
+            selected = [item for item in selected if f"previous_effective_{item.get('id')}" not in effective_ids]
+            selected.extend(effective)
 
         for entry in catalog:
             case_id = entry.get("case_id")
@@ -194,10 +200,10 @@ def _history_case(item: dict[str, Any], signals: set[str]) -> str:
     return next(iter(signals), "previously_effective_similar_context") if item.get("effective") is True else "historical_support"
 
 
-def _registered_cases(subject_history: list[dict[str, Any]], context: dict[str, Any]) -> set[str]:
+def _registered_cases(subject_history: list[dict[str, Any]]) -> set[str]:
     cases = set()
     for item in subject_history:
-        if not (item.get("approved_by_professional") or item.get("effective") or item.get("type") == "historical"):
+        if not (item.get("effective") or item.get("type") == "historical"):
             continue
         contexts = item.get("contexts", [])
         if isinstance(contexts, str):
@@ -209,8 +215,6 @@ def _registered_cases(subject_history: list[dict[str, Any]], context: dict[str, 
         category_case = CONTEXT_ALIASES.get(str(item.get("category", "")).lower())
         if category_case:
             cases.add(category_case)
-    if context.get("professional_plan") is True and context.get("caregiver_view") is True:
-        cases.add("caregiver_context")
     return cases
 
 
@@ -219,17 +223,18 @@ def _effective_history_recommendations(subject_history: list[dict[str, Any]]) ->
     for item in subject_history:
         if item.get("effective") is not True:
             continue
-        description = item.get("description") or item.get("name") or "la estrategia registrada"
+        # El texto del apoyo es el del tutor, tal cual; la explicación va aparte.
+        description = item.get("description") or item.get("name") or "La estrategia registrada."
         recommendations.append(
             {
                 "id": f"previous_effective_{item.get('id', len(recommendations))}",
-                "description": f"En situaciones similares, {description} resultó útil anteriormente. Considere utilizarla nuevamente.",
+                "description": description,
                 "type": "historical",
                 "source": "historical_support",
                 "category": item.get("category", "general"),
                 "case_id": "previously_effective_similar_context",
                 "evidence_bounded": True,
-                "rationale": "La prioridad se basa en un apoyo previamente registrado como efectivo.",
+                "rationale": "Le sirvió antes en situaciones parecidas.",
                 "priority": 1,
             }
         )
@@ -273,10 +278,29 @@ def _legacy_catalog_supports(catalog: list[dict[str, Any]], context: dict[str, A
     return [] if has_history else general_entries
 
 
+# Nombres en español de los campos que cuentan para la confianza (core_fields de
+# config/confidence.yaml). El texto llega tal cual al tutor: nunca nombres internos.
+CORE_FIELD_LABELS = {
+    "sleep_quality": "calidad del sueño",
+    "wake_state": "estado al despertar",
+    "event_count": "registro de eventos",
+}
+
+
+def _missing_core_labels(missingness: list[dict[str, Any]]) -> list[str]:
+    """Campos núcleo faltantes, sin repetir (missingness trae uno por ventana)."""
+    labels: list[str] = []
+    for item in missingness:
+        label = CORE_FIELD_LABELS.get(str(item.get("field")))
+        if item.get("missing") is True and label and label not in labels:
+            labels.append(label)
+    return labels
+
+
 def _insufficient_data_support(catalog: list[dict[str, Any]], missingness: list[dict[str, Any]]) -> dict[str, Any]:
     entry = next((item for item in catalog if item.get("case_id") == "insufficient_data"), None)
-    missing_fields = [str(item.get("field")) for item in missingness if item.get("missing") is True]
-    detail = f" Falta información reciente sobre: {', '.join(missing_fields[:3])}." if missing_fields else ""
+    missing_labels = _missing_core_labels(missingness)
+    detail = f" Falta información reciente sobre: {', '.join(missing_labels)}." if missing_labels else ""
     if entry:
         support = _catalog_support(entry)
         support["type"] = "fallback"

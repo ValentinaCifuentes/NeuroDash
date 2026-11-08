@@ -1,0 +1,89 @@
+{
+  "lineage": {
+    "data_generation_timestamp": "2026-11-06T04:56:24.647626+00:00",
+    "generator_name": "synthetic_history_generator",
+    "generator_version": "2.0-load-driven",
+    "seed": 1003
+  },
+  "occurrences": [
+    {
+      "availability_timestamp": "2026-11-02T21:00:00-03:00",
+      "event_type": "Desregulaci\u00f3n Emocional",
+      "id": "occ_PAC-C_1",
+      "intensity_value": 4,
+      "severity": "moderate",
+      "source_timestamp": "2026-11-02T19:00:00-03:00",
+      "strategy_applied": [
+        "Acompa\u00f1amiento",
+        "Objeto de calma"
+      ],
+      "strategy_outcome": "Regulaci\u00f3n Exitosa",
+      "subject_id": "PAC-C",
+      "trigger": [
+        "Cambio de actividad",
+        "Hambre o cansancio"
+      ]
+    }
+  ],
+  "planned_events": [],
+  "records": [
+    {
+      "availability_timestamp": "2026-11-01T12:00:00-03:00",
+      "day_regulation_level_num": 1,
+      "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
+      "event_count": 1,
+      "feeding_difficulty": 1,
+      "gi_level": 1,
+      "id": "rec_PAC-C_0",
+      "max_intensity": 4,
+      "medication_taken": 1,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "S\u00ed",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Por s\u00ed solo",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
+      "sensory_diet_done": 0.5,
+      "sleep_quality": 8.29,
+      "source_timestamp": "2026-11-01T12:00:00-03:00",
+      "start_autonomy_level": 0,
+      "strategy_count": 0,
+      "subject_id": "PAC-C",
+      "transition_difficulty": 1,
+      "trigger_count": 2,
+      "wake_state": 3.96
+    },
+    {
+      "availability_timestamp": "2026-11-02T12:00:00-03:00",
+      "day_regulation_level_num": 1,
+      "dysregulation_count": 1,
+      "dysregulation_unresolved": 0,
+      "event_count": 3,
+      "feeding_difficulty": 1,
+      "gi_level": 1,
+      "id": "rec_PAC-C_1",
+      "max_intensity": 5,
+      "medication_taken": 0,
+      "raw": {
+        "day_regulation_level": "Estable con Apoyo",
+        "gi_status": "Estre\u00f1imiento",
+        "medication_adherence": "No",
+        "sleep_quality": "Reparador",
+        "start_autonomy": "Con alarma",
+        "wake_mode": "Cansado/Con Sue\u00f1o"
+      },
+      "sensory_diet_done": 0.5,
+      "sleep_quality": 8.11,
+      "source_timestamp": "2026-11-02T12:00:00-03:00",
+      "start_autonomy_level": 1,
+      "strategy_count": 1,
+      "subject_id": "PAC-C",
+      "transition_difficulty": 1,
+      "trigger_count": 1,
+      "wake_state": 4.46
+    }
+  ]
+}

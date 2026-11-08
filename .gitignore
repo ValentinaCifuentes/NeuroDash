@@ -2,11 +2,8 @@ __pycache__/
 *.egg-info/
 
 # Frontend dependencies and build outputs
-frontend/node_modules/
-frontend/dist/
 front/node_modules/
 front/dist/
-front/dist-single/
 front/.vite/
 
 # Python/test caches
@@ -22,9 +19,19 @@ venv/
 .env
 .env.local
 
+# Local prediction artifacts
+data/**/predictions/
+
+# Infantes creados al usar la app en local (datos reales o de prueba): no se versionan
+data/subjects/*
+!data/subjects/.gitkeep
+
 # Generated artifacts
 *.joblib.tmp
 .vite/
 *.tsbuildinfo
 node_modules/
-front/dist/: Add predictive interpretability (SHAP) reports mockup)
+
+
+AGENTS.md
+PLAN.md

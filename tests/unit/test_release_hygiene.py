@@ -18,7 +18,7 @@ def test_integration_runbook_documents_safe_api_operation() -> None:
 
     assert "## Integration API and Privacy Runbook" in guide
     assert "X-Actor-Id" in guide
-    assert "internal_notes" in guide
+    assert "`tutor` (the caregiver)" in guide
     assert "prediction cutoff" in guide
 
 

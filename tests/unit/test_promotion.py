@@ -44,12 +44,12 @@ def test_manual_outcome_confirmation(tmp_path: Path) -> None:
         prediction_id=pred_id,
         actual_outcome=True,
         subject_dir=subject_dir,
-        actor_id="professional-1",
+        actor_id="tutor-1",
         idempotency_key="outcome-positive",
         provenance={"source": "test", "synthetic": True},
     )
     
-    # Must append an occurrence with severity "moderate" or "severe" within the 24h horizon
+    # Must append an occurrence with severity "moderate" or "severe" within the 8h horizon
     with open(occurrences_path, "r", encoding="utf-8") as f:
         occurrences = json.load(f)
         
@@ -69,7 +69,7 @@ def test_manual_outcome_confirmation(tmp_path: Path) -> None:
         prediction_id=pred_id_neg,
         actual_outcome=False,
         subject_dir=subject_dir,
-        actor_id="professional-1",
+        actor_id="tutor-1",
         idempotency_key="outcome-negative",
         provenance={"source": "test", "synthetic": True},
     )

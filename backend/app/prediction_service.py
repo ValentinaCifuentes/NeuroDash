@@ -1,6 +1,7 @@
+import hashlib
 import uuid
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -19,12 +20,43 @@ from ml.explain import explain_prediction
 from ml.promotion import write_json_atomic
 
 from backend.app.schemas import PredictionContractV2
-from engine.schemas import ConfidenceLevel
+from engine.schemas import ConfidenceLevel, HORIZON_HOURS
 
 
 class SubjectNotFoundError(ValueError):
     """Raised when a requested subject is not found in data stores."""
     pass
+
+
+LEGACY_HISTORY_DIR = Path(__file__).resolve().parents[2] / "data" / "legacy_history"
+# Modelos entrenados por infante. Constante de módulo para que los tests la redirijan.
+MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
+
+
+def _read_json_list(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_legacy_history(subject_id: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Historial sintético de un perfil demo (`data/legacy_history/{id}_history.json`), sin parsear."""
+    history_path = LEGACY_HISTORY_DIR / f"{subject_id}_history.json"
+    if not history_path.exists():
+        return [], []
+    with open(history_path, "r", encoding="utf-8") as f:
+        history = json.load(f)
+    return history.get("records", []), history.get("occurrences", [])
+
+
+def load_legacy_planned_events(subject_id: str) -> list[dict[str, Any]]:
+    """Eventos planificados del historial sintético de una demo (sin parsear)."""
+    history_path = LEGACY_HISTORY_DIR / f"{subject_id}_history.json"
+    if not history_path.exists():
+        return []
+    with open(history_path, "r", encoding="utf-8") as f:
+        return json.load(f).get("planned_events", [])
 
 
 def get_subject_paths(subject_id: str) -> tuple[Path, bool]:
@@ -46,40 +78,33 @@ def get_subject_paths(subject_id: str) -> tuple[Path, bool]:
     raise SubjectNotFoundError(f"Subject {subject_id} not found.")
 
 
-def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     """
-    Loads subject profile, historical records, and occurrences.
+    Loads subject profile, historical records, occurrences, and planned events.
     """
     subject_dir, is_demo = get_subject_paths(subject_id)
-    proj_root = Path(__file__).resolve().parents[2]
 
     # Load profile
     profile_path = subject_dir / "profile.json"
     with open(profile_path, "r", encoding="utf-8") as f:
         profile = json.load(f)
 
-    records = []
-    occurrences = []
+    records: list[dict[str, Any]] = []
+    occurrences: list[dict[str, Any]] = []
+    planned_events: list[dict[str, Any]] = []
 
     if is_demo:
-        # Load from data/bluba/{subject_id}_history.json
-        history_path = proj_root / "data" / "bluba" / f"{subject_id}_history.json"
+        # Una demo une su historial sintético con lo que se registre en la app
+        # (Bitácora, eventos y crisis confirmadas), guardado en su propia carpeta.
+        records, occurrences = load_legacy_history(subject_id)
+        history_path = LEGACY_HISTORY_DIR / f"{subject_id}_history.json"
         if history_path.exists():
             with open(history_path, "r", encoding="utf-8") as f:
-                history = json.load(f)
-                records = history.get("records", [])
-                occurrences = history.get("occurrences", [])
-    else:
-        # Load from subject directory
-        records_path = subject_dir / "records.json"
-        if records_path.exists():
-            with open(records_path, "r", encoding="utf-8") as f:
-                records = json.load(f)
-        
-        occurrences_path = subject_dir / "occurrences.json"
-        if occurrences_path.exists():
-            with open(occurrences_path, "r", encoding="utf-8") as f:
-                occurrences = json.load(f)
+                planned_events = json.load(f).get("planned_events", [])
+
+    records = records + _read_json_list(subject_dir / "records.json")
+    occurrences = occurrences + _read_json_list(subject_dir / "occurrences.json")
+    planned_events = planned_events + _read_json_list(subject_dir / "planned_events.json")
 
     # Convert timestamps to aware datetimes
     def parse_dt(dt_str: str) -> datetime:
@@ -97,7 +122,11 @@ def load_subject_data(subject_id: str) -> tuple[dict[str, Any], list[dict[str, A
         o["source_timestamp"] = parse_dt(o["source_timestamp"])
         o["availability_timestamp"] = parse_dt(o["availability_timestamp"])
 
-    return profile, records, occurrences
+    for p in planned_events:
+        if isinstance(p.get("starts_at"), str):
+            p["starts_at"] = parse_dt(p["starts_at"])
+
+    return profile, records, occurrences, planned_events
 
 
 def make_prediction(
@@ -117,7 +146,7 @@ def make_prediction(
         raise ValueError("prediction_cutoff must be timezone-aware")
 
     # 1. Load data
-    profile, records, occurrences = load_subject_data(subject_id)
+    profile, records, occurrences, planned_events = load_subject_data(subject_id)
     
     timezone_name = profile["timezone"]
     sensory_context = profile.get("sensory_context", {})
@@ -129,12 +158,10 @@ def make_prediction(
     occurrences = [occurrence for occurrence in occurrences if occurrence["source_timestamp"] <= prediction_cutoff and occurrence["availability_timestamp"] <= prediction_cutoff]
     policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
-    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile)
+    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile, planned_events=planned_events)
 
     # 3. Model registry
-    proj_root = Path(__file__).resolve().parents[2]
-    models_dir = proj_root / "models"
-    registry = ModelRegistry(base_dir=models_dir)
+    registry = ModelRegistry(base_dir=MODELS_DIR)
 
     # Check active model
     active_model_exists = True
@@ -179,7 +206,7 @@ def make_prediction(
             prediction_id=prediction_id,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=None,
             confidence=ConfidenceLevel.INSUFFICIENT,
             abstained=True,
@@ -203,7 +230,12 @@ def make_prediction(
         metadata = model_artifact["metadata"]
         
         raw_explanations = explain_prediction(model, feat_names, features.rolling_features)
-        factors = generate_non_causal_factors(raw_explanations)
+        # Lo que se rellenó con la línea base por falta de datos no se compara con ella.
+        observed = dict(features.rolling_features)
+        for item in features.missingness:
+            if item.get("missing"):
+                observed[f"{item['field']}_mean_{item['window']}d"] = None
+        factors = generate_non_causal_factors(raw_explanations, baseline.modality_baselines, observed)
         
         # Select supports
         supports = select_supports(
@@ -226,7 +258,7 @@ def make_prediction(
             prediction_id=prediction_id,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=risk_tier,
             confidence=confidence,
             abstained=False,
@@ -241,16 +273,64 @@ def make_prediction(
             }
         )
 
+    # Una crisis ya confirmada en las últimas horas del horizonte: la pantalla lo
+    # muestra («Confirmado a las 14:32») en vez de volver a ofrecer el botón.
+    contract = contract.model_copy(update={"confirmed_at": _last_confirmation(occurrences, prediction_cutoff)})
+
     # 4. Save prediction snapshot for future outcomes
     subject_dir, _ = get_subject_paths(subject_id)
     predictions_dir = subject_dir / "predictions"
     predictions_dir.mkdir(parents=True, exist_ok=True)
-    
+
+    inputs = json.loads(json.dumps(
+        {"records": records, "occurrences": occurrences, "planned_events": planned_events},
+        default=str,
+    ))
+
+    # P5: abrir Evolución pide una estimación cada vez. Si es la misma hora y los
+    # datos no cambiaron, el resultado es el mismo: se reutiliza la copia guardada
+    # (y su prediction_id, que es el que usa «Confirmar que ocurrió») en vez de
+    # escribir otra con todo el historial.
+    reuse_key = _snapshot_key(prediction_cutoff, inputs)
+    index_path = predictions_dir / "index.json"
+    index = _read_snapshot_index(index_path)
+    existing_id = index.get(reuse_key)
+    if existing_id and (predictions_dir / f"{existing_id}.json").exists():
+        return existing_id, contract.model_copy(update={"prediction_id": existing_id})
+
     snapshot = contract.model_dump(mode="json")
-    snapshot["inputs"] = json.loads(json.dumps({"records": records, "occurrences": occurrences}, default=str))
+    snapshot["inputs"] = inputs
     snapshot["features"] = features.rolling_features
-    
+
     snapshot_path = predictions_dir / f"{prediction_id}.json"
     write_json_atomic(snapshot_path, snapshot)
+    write_json_atomic(index_path, {**index, reuse_key: prediction_id})
 
     return prediction_id, contract
+
+
+def _last_confirmation(occurrences: list[dict[str, Any]], prediction_cutoff: datetime) -> datetime | None:
+    window_start = prediction_cutoff - timedelta(hours=HORIZON_HOURS)
+    times = []
+    for occurrence in occurrences:
+        if occurrence.get("source") != "outcome_confirmation":
+            continue
+        when = occurrence["source_timestamp"]
+        when = datetime.fromisoformat(when) if isinstance(when, str) else when
+        if window_start < when <= prediction_cutoff:
+            times.append(when)
+    return max(times) if times else None
+
+
+def _snapshot_key(prediction_cutoff: datetime, inputs: dict[str, Any]) -> str:
+    """Misma hora (UTC) + mismos datos de entrada → misma estimación."""
+    hour = prediction_cutoff.astimezone(timezone.utc).strftime("%Y-%m-%dT%H")
+    digest = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    return f"{hour}:{digest}"
+
+
+def _read_snapshot_index(index_path: Path) -> dict[str, str]:
+    try:
+        return json.loads(index_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}

@@ -1,50 +1,12 @@
-import json
-import sys
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
 from typing import Any
 
+from ml.data_loading import load_subject_data
 from ml.dataset_builder import build_dataset
 from ml.trainer import train_model, InsufficientDataError
 from ml.model_registry import ModelRegistry
 from engine.temporal import AvailabilityPolicy
-
-
-def load_subject_data_from_dir(subject_id: str, data_dir: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
-    """Loads profile, records, and occurrences for a subject from a specific data directory."""
-    profile_path = data_dir / "demo_profiles" / subject_id / "profile.json"
-    if not profile_path.exists():
-        raise FileNotFoundError(f"Profile not found for {subject_id} at {profile_path}")
-        
-    with open(profile_path, "r", encoding="utf-8") as f:
-        profile = json.load(f)
-        
-    history_path = data_dir / "bluba" / f"{subject_id}_history.json"
-    if not history_path.exists():
-        raise FileNotFoundError(f"History not found for {subject_id} at {history_path}")
-        
-    with open(history_path, "r", encoding="utf-8") as f:
-        history = json.load(f)
-        
-    records = history.get("records", [])
-    occurrences = history.get("occurrences", [])
-    
-    # Parse ISO strings into datetime objects
-    def parse_dt(dt_str: str) -> datetime:
-        dt = datetime.fromisoformat(dt_str)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return dt
-        
-    for r in records:
-        r["source_timestamp"] = parse_dt(r["source_timestamp"])
-        r["availability_timestamp"] = parse_dt(r["availability_timestamp"])
-        
-    for o in occurrences:
-        o["source_timestamp"] = parse_dt(o["source_timestamp"])
-        o["availability_timestamp"] = parse_dt(o["availability_timestamp"])
-        
-    return profile, records, occurrences
 
 
 def train_subject_model(
@@ -59,7 +21,11 @@ def train_subject_model(
     d_dir = Path(data_dir)
     m_dir = Path(models_dir)
     
-    profile, records, occurrences = load_subject_data_from_dir(subject_id, d_dir)
+    bundle = load_subject_data(subject_id, d_dir)
+    profile = bundle["profile"]
+    records = bundle["records"]
+    occurrences = bundle["occurrences"]
+    planned_events = bundle["planned_events"]
     timezone_name = profile["timezone"]
     
     if not records:
@@ -98,7 +64,8 @@ def train_subject_model(
         split_cutoff=split_cutoff,
         policy=policy,
         timezone=timezone_name,
-        subject_id=subject_id
+        subject_id=subject_id,
+        planned_events=planned_events
     )
     
     # Train the Logistic Regression model

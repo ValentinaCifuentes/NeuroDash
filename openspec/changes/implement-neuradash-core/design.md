@@ -34,9 +34,9 @@ Every source record has aware `source_timestamp` and `availability_timestamp`; o
 | `engine/{schemas,temporal,baseline,features,confidence,abstention,explanation,support,provenance}.py` | Create | Explicit, separate domain modules and policy evaluation. |
 | `ml/{dataset_builder,trainer,evaluator,model_registry,inference,explain}.py` | Create | Deterministic subject-local lifecycle and versioned artifact operations. |
 | `config/{target,availability,features,risk_mapping,confidence,abstention,training,promotion,support_catalog}.yaml` | Create | Versioned open policy values. |
-| `data/bluba/`, `data/demo_profiles/PAC-{A,B,C}/`, `models/PAC-{A,B,C}/` | Create | Source anchor, provenance-labelled onboarding/history/outcomes, generated datasets/artifacts/metadata/registry/audits. |
+| `data/legacy_history/`, `data/demo_profiles/PAC-{A,B,C}/`, `models/PAC-{A,B,C}/` | Create | Source anchor, provenance-labelled onboarding/history/outcomes, generated datasets/artifacts/metadata/registry/audits. |
 | `scripts/{validate_source_data,generate_mock_histories,train_demo_models,smoke_demo}.py` | Create | Deterministic validate → generate → train → API/contract smoke sequence. |
-| `frontend/{package.json,vite.config.ts,src/**}` | Create | Typed client, `PredictionContractV2`, profile-first/onboarding and result components; CSS tokens derived from BLUBA. |
+| `frontend/{package.json,vite.config.ts,src/**}` | Create | Typed client, `PredictionContractV2`, profile-first/onboarding and result components; CSS tokens derived from the design system. |
 | `tests/{unit,demo_profiles,integration}/`, `frontend/src/**/*.test.tsx` | Create | Pytest/httpx and Vitest/RTL coverage. |
 
 ## Interfaces / Contracts
@@ -64,5 +64,5 @@ No migration required. Generated artifacts are reproducible and may be regenerat
 
 ## Open Questions
 
-- [ ] Confirm eventual BLUBA availability timestamps and target severity policy before any real-data claim.
+- [ ] Confirm eventual availability timestamps and target severity policy before any real-data claim.
 - [ ] Confirm future school-record schema and source guarantees; it remains excluded from CORE.

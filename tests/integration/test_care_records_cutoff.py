@@ -100,7 +100,10 @@ def test_end_of_day_is_unavailable_until_local_day_closes_and_never_leaks_backwa
 
     assert before_close.status_code == after_close.status_code == 200
     assert before_close.json()["entries"] == []
-    assert after_close.json()["entries"][0]["payload"]["day_regulation_level"] == "Estable con Apoyo"
+
+    entry = after_close.json()["entries"][0]["payload"]
+    assert entry["raw"]["day_regulation_level"] == "Estable con Apoyo"
+    assert entry["day_regulation_level_num"] == 1
 
 
 def test_care_write_uses_contract_v2_and_rejects_unsafe_input_without_persisting(tmp_path: Path, monkeypatch) -> None:

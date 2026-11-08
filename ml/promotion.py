@@ -9,6 +9,7 @@ from typing import Any
 
 from ml.model_registry import ModelRegistry, ModelAbstentionError
 from ml.evaluator import evaluate_model
+from engine.schemas import HORIZON_HOURS
 
 
 def write_json_atomic(path: Path, value: Any) -> None:
@@ -59,17 +60,27 @@ def record_prediction_outcome(
         if outcome.get("idempotency_key") == idempotency_key:
             return outcome
 
+    occurrence_timestamp = None
     if actual_outcome:
-        # Append an occurrence in the horizon (cutoff, cutoff + 24h]
-        # Let's say it happens exactly 12 hours after the prediction cutoff
-        occ_time = cutoff + timedelta(hours=12)
-        
+        # La crisis confirmada es una desregulación (P8): lleva su tipo, así el
+        # historial la muestra como tal y cuenta en los conteos del día. Su hora
+        # cae dentro del horizonte (cutoff, cutoff + horizon_hours], para que sea
+        # una etiqueta válida de esa estimación, y nunca después de «ahora»: se
+        # confirma lo que ya ocurrió.
+        horizon_hours = int(pred_snapshot.get("horizon_hours", HORIZON_HOURS))
+        horizon_end = cutoff + timedelta(hours=horizon_hours)
+        now = datetime.now(timezone.utc)
+        occ_time = max(cutoff + timedelta(seconds=1), min(now.astimezone(cutoff.tzinfo), horizon_end))
+        occurrence_timestamp = occ_time.isoformat()
+
         occ_record = {
             "id": f"occ_{prediction_id}",
             "subject_id": pred_snapshot["subject_id"],
-            "source_timestamp": occ_time.isoformat(),
-            "availability_timestamp": occ_time.isoformat(),
-            "severity": "moderate"
+            "source_timestamp": occurrence_timestamp,
+            "availability_timestamp": occurrence_timestamp,
+            "event_type": "Desregulación Emocional",
+            "severity": "moderate",
+            "source": "outcome_confirmation",
         }
 
         occurrences_path = subject_dir / "occurrences.json"
@@ -92,6 +103,7 @@ def record_prediction_outcome(
         "actor_id": actor_id,
         "idempotency_key": idempotency_key,
         "provenance": provenance,
+        "occurrence_timestamp": occurrence_timestamp,
     }
     outcomes.append(outcome)
     write_json_atomic(outcomes_path, outcomes)

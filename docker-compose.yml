@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: neuradash-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persisten sujetos, registros, predicciones y modelos entre reinicios.
+      # Al primer arranque Docker los inicializa con el contenido de la imagen.
+      - neuradash-data:/app/data
+      - neuradash-models:/app/models
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./front
+      args:
+        # Debe ser la URL con la que el navegador abre el frontend;
+        # nginx reenvía /api al backend. Sin definir => http://localhost:8090.
+        # Definida vacía (VITE_API_BASE=) => modo mock, sin backend.
+        # Se usa "-" y no ":-" para que un valor vacío no se reemplace.
+        VITE_API_BASE: ${VITE_API_BASE-http://localhost:8090}
+        VITE_ACTOR_ID: ${VITE_ACTOR_ID:-tutor-demo}
+        VITE_ACTOR_ROLE: ${VITE_ACTOR_ROLE:-tutor}
+    image: neuradash-frontend
+    ports:
+      - "8090:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  neuradash-data:
+  neuradash-models:

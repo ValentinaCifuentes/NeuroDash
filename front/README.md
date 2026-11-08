@@ -1,38 +1,60 @@
-# Bluba · Bitácora Diaria — frontend NeuraDash
+# NeuroDash · frontend
 
-Frontend de la app **Bitácora Diaria** de BLUBA, con la superficie de
-**NeuraDash CORE** (pantalla *Evolución*) integrada dentro del mismo producto.
-
-Construido sobre `bluba-lineamientos.md` + `bluba-design-system.html`, y alineado
-al stack y a la estructura de repo de `NeuraDash_Arquitectura_Tecnica_Completa`.
+App para la persona que cuida (el **tutor**): registra cómo va el día del infante y
+ve una estimación de las próximas 8 horas, con lo que puede hacer al respecto.
+React 18 + TypeScript + Vite. El diseño sale de `docs/rediseno/`
+(`screens/*.html` es la referencia visual; `DESIGN-SPEC.md` y `SCREENS.md` lo explican).
 
 ---
 
 ## Cómo correrlo
 
+Con Docker, desde la raíz del repo (front + backend; ver el README raíz):
+
 ```bash
-npm install
-npm run dev            # http://localhost:5173
+docker compose up --build        # http://localhost:8090
 ```
 
-Sin `VITE_API_BASE`, la app corre contra `src/mocks/mockApi.ts`. Para apuntar al
-backend real:
+Solo el front, en desarrollo:
 
 ```bash
-cp .env.example .env   # VITE_API_BASE=http://localhost:8000
+npm install
+npm run dev                      # http://localhost:5173
+```
+
+Sin `VITE_API_BASE`, el front responde desde `src/mocks/mockBackend.ts` (ver
+«Modo sin servidor»). Para usar el backend real en desarrollo:
+
+```bash
+cp .env.example .env             # VITE_API_BASE=http://localhost:8000
 npm run dev
 ```
 
-Otros comandos:
+Comprobaciones (también corren en GitHub en cada push; ver `scripts/check.sh`):
 
 ```bash
-npm run typecheck                        # tsc --noEmit
-npm run build                            # dist/ normal
-SINGLE_FILE=1 npx vite build --outDir dist-single   # HTML único autocontenido
+npm run typecheck                # tsc --noEmit
+npx vitest run                   # pruebas
+npm run build                    # dist/
 ```
 
-El build `SINGLE_FILE` existe para la **demo congelada** (Arquitectura §14):
-un solo `.html` que abre sin servidor, sin npm y sin red.
+---
+
+## Pantallas
+
+La barra inferior tiene 4 pestañas. Cada vista es una ruta con `#` (funciona el
+botón «atrás» y al recargar se vuelve a la misma vista):
+
+| Pestaña | Rutas | Qué muestra |
+|---|---|---|
+| Evolución | `#evolucion` · `#seguimiento` | Estimación de las próximas 8 h (riesgo, confianza, por qué, qué falta, apoyos) · calendario del mes y comparación de 14 días |
+| Bitácora | `#bitacora` · `#historial` | Mi Día (estado basal y contexto del día) y el «+» para registrar eventos · lo registrado hoy |
+| Planificación | `#planificacion` | Agenda de lo que viene con la expectativa de cada evento (mock en el navegador, D6) |
+| Ficha | `#ficha` · `#tickets` | Perfil del infante · Mis Tickets (fuera de alcance) |
+
+Antes de todo, la **selección de infante** (con alta rápida o perfil en 3 pasos).
+Las hojas inferiores: categorías y registro de eventos, «Por qué aparece así»,
+«Puede mejorar la lectura» y «Añadir evento».
 
 ---
 
@@ -40,151 +62,107 @@ un solo `.html` que abre sin servidor, sin npm y sin red.
 
 ```text
 src/
-├── types.ts                  Contratos. Espejo de los schemas Pydantic.
-├── api.ts                    Cliente HTTP. Único punto que conoce endpoints.
-├── mocks/mockApi.ts          Fixture de UI. NO es el motor (ver abajo).
-├── domain/catalog.ts         Vocabulario clínico BLUBA ↔ etiquetas de tutor.
-├── styles/bluba.css          Tokens del design system + extensiones `app-`.
-├── components/
-│   ├── AppBar.tsx            App bar 56px
-│   ├── Sidebar.tsx           Drawer 280px con focus trap
-│   ├── controls.tsx          Tabs, OptionGroup, Switch, IntensitySlider, Field
-│   └── shell.tsx             BottomSheet, Fab, Toast
-├── sheets/EventSheets.tsx    Sheet de categorías + sheet de registro
-├── pages/
-│   ├── BitacoraDiaria.tsx    Mi Día (estado basal) + Historial de Hoy
-│   ├── Evolucion.tsx         Prediction Contract v2 renderizado
-│   └── Placeholders.tsx      Ficha Inicial, Profesionales, Tickets
-└── App.tsx                   Chrome + navegación
+├── App.tsx                 Rutas, encabezado, barra inferior, hojas y avisos
+├── api.ts                  Único punto que conoce el backend: rutas, cabeceras y adaptadores
+├── types.ts                Tipos de la interfaz (espejo del contrato del backend)
+├── domain/                 Reglas sin pantalla, probadas aparte
+│   ├── catalog.ts          Opciones, etiquetas, colores y formas (sin emoji)
+│   ├── aggregate.ts        Seguimiento: resumen por día y comparación semanal
+│   ├── history.ts          Historial de Hoy: filas y resúmenes legibles
+│   ├── profile.ts          Lectura del perfil (Ficha, señales de la Bitácora)
+│   ├── onboarding.ts       Perfil en 3 pasos → POST /subjects
+│   ├── planning.ts         Planificación (mock en el navegador)
+│   ├── ids.ts              Claves de reintento (también fuera de https)
+│   └── subjectIdentity.ts  Identificador e iniciales del infante
+├── components/             Piezas reutilizables (controles, medidor, barra, hojas…)
+├── sheets/                 Hojas de registro y de la estimación
+├── pages/                  Una por pantalla
+├── mocks/                  Modo sin servidor (mockBackend.ts + demo-fixture.json)
+└── styles/neurodash.css    Única hoja de estilos: tokens --nd-* y componentes
 ```
-
-Corresponde a `frontend/` en el árbol del documento técnico. `RiskCard`,
-`ConfidenceBadge`, `FactorList`, `MissingDataCard` y `SupportCard` viven dentro
-de `pages/Evolucion.tsx` porque ninguno se reutiliza fuera de esa pantalla;
-extraerlos a archivos propios es un `git mv` cuando aparezca el segundo consumidor.
 
 ---
 
 ## Contrato con el backend
 
 ```http
+GET  /api/v1/subjects
+POST /api/v1/subjects
 GET  /api/v1/subjects/{id}
 GET  /api/v1/subjects/{id}/timeline?as_of=…&days=…
 POST /api/v1/subjects/{id}/daily-records
 POST /api/v1/subjects/{id}/events
 POST /api/v1/predictions
+POST /api/v1/predictions/{id}/outcome
 ```
 
-El cliente **nunca manda features calculadas**: solo `subject_id`, `as_of` y
-`horizon`. El backend obtiene el resto (Arquitectura §5.3).
-
-`INSUFFICIENT` llega como **HTTP 200** con `abstain: true`, no como error. La UI
-lo trata como resultado válido de negocio y muestra una petición concreta de
-datos, no un mensaje de fallo.
+- El front **nunca manda variables calculadas**: solo lo que eligió el tutor (texto),
+  el momento y una clave de reintento. El backend guarda el texto en `raw` y lo
+  traduce a números para el modelo.
+- Guardar lleva `X-Actor-Id` / `X-Actor-Role` (por defecto `tutor-demo` / `tutor`,
+  configurables al compilar). La autenticación está fuera de alcance.
+- Cada guardado lleva una `idempotency_key` que se reutiliza si hay que reintentar:
+  una respuesta perdida no duplica el registro.
+- «Sin estimación» llega como respuesta válida (`abstained: true`), no como error: la
+  pantalla lo dice y muestra qué falta.
 
 ---
 
-## Decisiones que conviene defender
+## Decisiones de diseño
 
-### 1. CSS del design system, no Tailwind
+- **Paleta propia «Cerezo y pizarra».** Tokens `--nd-*` en `styles/neurodash.css`.
+  El riesgo usa azul / ámbar / rojo profundo, nunca verde-rojo, y siempre va con
+  forma o texto (● ◆ ▲, barras): ningún estado se comunica solo por color.
+- **Sin roles profesionales.** La app es para el tutor. No hay vistas clínicas
+  ni lenguaje de diagnóstico.
+- **Horizonte de 8 h, desde el contrato.** El front no fija el número: lo lee de
+  `horizon_hours`.
+- **Riesgo y confianza son ejes separados.** Una estimación puede ser elevada con
+  confianza baja, y se dice así.
+- **Lenguaje no causal.** Los factores «aparecen junto a» más o menos riesgo; no lo
+  causan. Cada señal se compara con lo habitual del propio infante
+  («Despertó más irritable que de costumbre…») y se muestran primero las coherentes.
+- **Procedencia al pie de «Por qué aparece así».** Dice si la estimación usa datos
+  sintéticos (demos) o los registrados para ese infante.
+- **Nada viene preseleccionado.** Lo que el tutor no responde no se envía: un día
+  sin dato no se confunde con un día «normal».
+- **`nivel_regulacion_general_dia` no está en Mi Día.** Se conoce al cierre del día,
+  así que no puede alimentar la estimación de ese mismo día (el motor la lee desde
+  el día anterior).
+- **Texto del tutor ≠ valor del modelo.** `domain/catalog.ts` separa lo que viaja
+  («Dificultad de Conciliación») de lo que se lee («Muy Difícil»).
 
-El documento técnico sugiere Tailwind. El design system, sin embargo, ya existe
-como tokens CSS + clases `bl-*`. Reimplementarlo como tema de Tailwind obligaba a
-re-derivar ~60 valores a mano, con riesgo de deriva silenciosa respecto de la
-fuente de verdad.
+---
 
-`src/styles/bluba.css` copia los tokens y los componentes **1:1** desde
-`bluba-design-system.html`. Todo lo propio de esta app vive al final del archivo,
-bajo `EXTENSIONES DE APLICACIÓN` con prefijo `app-`, y solo *compone* tokens
-existentes — no introduce ni un color, ni un radio, ni una sombra nueva. La
-consistencia con el design system es verificable con un diff.
+## Modo sin servidor (secundario)
 
-Tailwind sigue siendo viable después: los tokens ya están como variables CSS.
-
-### 2. `nivel_regulacion_general_dia` no está en el formulario matinal
-
-Es la variable peligrosa del Source of Truth §6.3: se completa al cierre del día,
-así que no puede alimentar la predicción de ese mismo día. Está fuera del estado
-basal y documentada en `types.ts` como cierre de jornada, consumible por el motor
-solo desde T-1.
-
-Es el tipo de detalle que un juez técnico busca para separar un prototipo con
-criterio temporal de uno con leakage.
-
-### 3. El mock declara que no es el motor
-
-`mocks/mockApi.ts` devuelve `technical_metadata.engine: "ui_fixture"` y
-`data_provenance.origins: ["ui_fixture", …]`, y la pantalla *Evolución* imprime
-ambos en la tarjeta de Procedencia. Es imposible confundir en pantalla el fixture
-de interfaz con una inferencia del modelo entrenado.
-
-El fixture varía de forma con la cobertura de datos **solo** para poder ver los
-tres estados que el contrato permite: estimación normal, confianza baja y
-abstención. No simula un modelo.
-
-### 4. Medicación con tres estados
-
-El CSV admite `Sí | No | No Aplica`, y `No Aplica` domina los registros reales.
-El mockup muestra un switch binario. Resuelto con el switch tal cual + una acción
-ghost «No aplica para este consultante», en vez de romper el contrato de datos o
-inventar un control fuera del sistema.
-
-### 5. `value` clínico ≠ `label` de tutor
-
-`domain/catalog.ts` separa el literal que viaja al motor del texto que lee la
-persona cuidadora. Ejemplo: el CSV guarda `Dificultad de Conciliación`; la
-pantalla dice **Muy Difícil**, igual que el mockup.
-
-### 6. Las categorías del sheet resuelven a `tipo_evento`
-
-Alimentación → `Alimentación`, Desregulación → `Desregulación Emocional`,
-Transición → `Transición de Actividad`, Dieta Sensorial → `Dieta Sensorial`.
-El sheet no es un menú decorativo: es el selector de tipo del evento que se
-guardará.
-
-### 7. `Danger` solo en desregulación
-
-El design system reserva el botón rojo para el registro rápido de desregulación,
-donde el rojo ya es el código del módulo. Las otras tres categorías usan el mismo
-sheet con botón primario.
+Sin `VITE_API_BASE`, `api.ts` no llama a la red: `mocks/mockBackend.ts` responde las
+mismas rutas con el mismo JSON que FastAPI, y pasa por los mismos adaptadores. Las
+demos PAC-A/B/C salen de la demo real (`scripts/export_mock_fixture.py`) y sus fechas
+se corren solas para terminar «ayer». **No es el motor:** la estimación no cambia
+al registrar, y lo registrado se borra al recargar. Sirve para trabajar el front
+sin levantar el backend; la demostración se graba con el backend.
 
 ---
 
 ## Accesibilidad
 
-Implementado según §3.4 de los lineamientos:
-
-- Grupos de opción con `role="radiogroup"` / `role="radio"` / `aria-checked`,
-  navegables con flechas y roving `tabindex`.
-- Switch con `role="switch"`, nunca un `div`.
-- Slider expone su valor en texto: «Intensidad 5 de 10, Moderado».
-- Sheet y sidebar atrapan el foco, cierran con `Esc` y devuelven el foco al FAB.
-- Área táctil mínima 44 × 44px, incluidos cerrar y los iconos del app bar.
-- Enlace «Saltar al contenido» en el DOM, visible al tabular.
-- Ningún estado se comunica solo por color: punto de 14px + etiqueta, o icono +
-  texto. Las flechas ↑/↓ de factores llevan texto para lector de pantalla.
-- `prefers-reduced-motion` desactiva shimmer, spin y transiciones (viene del
-  design system).
+- Grupos de una opción como `radiogroup` con flechas y una sola parada de Tab;
+  los de varias, como casillas. Interruptor con `role="switch"`.
+- Hojas inferiores como diálogo: atrapan el foco, cierran con `Esc` y lo devuelven
+  al botón que las abrió.
+- Medidor de riesgo con `role="img"` y descripción en texto; barra de intensidad
+  con su valor en palabras («6, moderado»).
+- Área táctil mínima de 44 × 44 px; enlace «Saltar al contenido».
+- `prefers-reduced-motion` y `prefers-reduced-transparency` respetados.
+- `src/a11y.test.tsx` corre axe-core sobre cada pantalla y hoja, y
+  `components/keyboard.test.tsx` prueba el teclado. La revisión manual (contraste,
+  foco, 320 px, lector de pantalla) está en `docs/revision-accesibilidad.md`.
 
 ---
 
 ## Voz
 
 La acción conserva su nombre: «Guardar Estado Basal» produce «Estado basal
-guardado». Los errores dicen causa y salida sin jerga. El vacío invita a actuar:
-«Aún no hay registros de hoy».
-
-En *Evolución*, la UI nunca afirma que una crisis ocurrirá, presenta riesgo y
-confianza como ejes separados, y etiqueta los factores como asociaciones
-observadas, no como causas.
-
----
-
-## Pendiente
-
-- `Vitest + React Testing Library` sobre los estados críticos: abstención,
-  confianza baja, y guardado con datos faltantes.
-- Selector de perfil demo (`DemoProfileSwitcher`) contra
-  `POST /api/v1/demo/profiles/{id}/predict`.
-- Cierre de jornada como sheet propio, para capturar
-  `nivel_regulacion_general_dia` sin contaminar el formulario matinal.
+guardado». Los errores dicen causa y salida, sin jerga. El vacío invita a actuar:
+«Aún no hay registros de hoy». La app nunca afirma que una crisis ocurrirá.

@@ -10,7 +10,7 @@
  */
 
 /* ============================================================
-   1. Entidades BLUBA (ancladas a los CSV entregados)
+   1. Entidades de dominio (ancladas a los CSV de origen)
    ============================================================ */
 
 /** `1_casos_anonimizados.csv` */
@@ -24,6 +24,10 @@ export interface Subject {
   timezone?: string;
   cold_start?: boolean;
   provenance?: { source: string; synthetic: boolean };
+  /* Perfil inicial (solo en `GET /subjects/{id}`; el listado no lo trae). */
+  habitual_context?: Record<string, string | string[]>;
+  sensory_context?: Record<string, unknown>;
+  historical_supports?: { id?: string; description?: string; effective?: boolean }[];
 }
 
 export interface SubjectOnboardingInput {
@@ -31,6 +35,13 @@ export interface SubjectOnboardingInput {
   timezone: string;
   baseline: Record<string, string>;
   provenance: { source: string; synthetic: boolean };
+  /* Perfil inicial en 3 pasos (plan de datos §6.1). Solo viaja lo respondido. */
+  /** Edad, neurodivergencia, apoyo, comunicación, frecuencia, señales, gatillantes, momentos. */
+  habitual_context?: Record<string, string | string[]>;
+  /** Canal sensorial → −1 (busca menos) · 0 (típico) · 1 (le molesta). */
+  sensory_context?: Record<string, number>;
+  /** Estrategias que funcionan; alimentan «Qué puedo hacer ahora». */
+  historical_supports?: { id: string; description: string; type: 'historical'; effective: true }[];
 }
 
 export interface SubjectListResponse {
@@ -38,7 +49,7 @@ export interface SubjectListResponse {
   subjects: Subject[];
 }
 
-/** `4_seguimiento_diario_tutor.csv` — un registro por consultante y día */
+/** `4_seguimiento_diario_tutor.csv` — un registro por infante y día */
 export interface DailyRecord {
   record_id?: string;                 // id_registro_diario  → "REG-014"
   subject_id: string;                 // id_caso
@@ -48,7 +59,7 @@ export interface DailyRecord {
   /**
    * autonomia_inicio_dia.
    *
-   * Extensión al CSV de BLUBA: la columna no existe en
+   * Extensión al CSV de origen: la columna no existe en
    * `4_seguimiento_diario_tutor.csv`. Se captura en la mañana, así que sí
    * es utilizable como feature del mismo día (a diferencia de
    * `day_regulation_level`).
@@ -65,6 +76,24 @@ export interface DailyRecord {
    * en el cierre de jornada y el motor solo la consume desde T-1.
    */
   day_regulation_level?: DayRegulationLevel | null;
+  /**
+   * Conteos que el backend recalcula al guardar cada evento del día
+   * (`_refresh_daily_event_counts`). Solo vienen en lecturas, nunca se envían.
+   */
+  event_count?: number;
+  dysregulation_count?: number;
+  max_intensity?: number;
+  /* --- Contexto del día («¿Pasó algo distinto hoy?»). null o vacío = sin responder. --- */
+  sleep_hours_range?: string | null;
+  early_signs?: string[];
+  physical_discomfort?: string[];
+  routine_change?: string | null;
+  school_attendance?: string | null;
+  /**
+   * Clave de reintento (P2): la misma para todos los intentos de un mismo
+   * guardado, así una respuesta perdida no duplica el registro.
+   */
+  idempotency_key?: string;
 }
 
 /** `5_eventos_desregulacion_tutor.csv` */
@@ -75,8 +104,12 @@ export interface DysregulationEvent {
   event_type: EventType;              // tipo_evento
   intensity_band: IntensityBand;      // intensidad          → "Moderada (4-7)"
   intensity_value: number;            // 1..10 — precisión añadida por el slider
-  trigger: string | null;             // detonante_gatillante
-  strategy_applied: string | null;    // estrategia_calma_aplicada
+  /** detonante_gatillante. Catálogo cerrado (D5) + el texto de «Otro». */
+  trigger: string[] | null;
+  /** estrategia_calma_aplicada (Desregulación). Catálogo cerrado (D5) + el texto de «Otro». */
+  strategy_applied: string[] | null;
+  /** Apoyo utilizado en una Transición (una opción). */
+  support_used: string | null;
   strategy_outcome: StrategyOutcome | null; // resultado_estrategia
   /**
    * Escala cualitativa propia de la categoría, tal como la eligió el tutor
@@ -93,6 +126,10 @@ export interface DysregulationEvent {
   notes: string | null;
   /** true cuando se guardó por la ruta rápida, sin detalle clínico */
   quick_capture: boolean;
+  /** Clave de reintento (P2), igual que en `DailyRecord`. */
+  idempotency_key?: string;
+  /** «outcome_confirmation»: crisis confirmada desde la estimación (P8). Solo en lecturas. */
+  source?: string;
 }
 
 /* --- Vocabularios cerrados. Los valores son los literales del CSV. --- */
@@ -135,64 +172,26 @@ export type StrategyOutcome =
   | 'Regulación Parcial'
   | 'Sin Regulación';
 
+/**
+ * Evento planificado (pestaña Planificación). Por ahora es un mock que vive
+ * en el navegador (D6); el backend llega en [PCD Fase 4] con la variable
+ * `planned_stressful_event_8h`.
+ */
+export interface PlannedEvent {
+  id: string;
+  subject_id: string;
+  title: string;
+  /** ISO con offset local. */
+  starts_at: string;
+  category: PlannedCategory | null;
+  expectation: PlannedExpectation | null;
+}
+
+export type PlannedCategory = 'Salud' | 'Social' | 'Escolar' | 'Rutina';
+export type PlannedExpectation = 'Agradable' | 'Neutro' | 'Estresante' | 'Desagradable';
+
 /** Categorías del sheet de registro. Resuelven a `EventType`. */
 export type LogCategory = 'alimentacion' | 'desregulacion' | 'transicion' | 'sensorial';
-
-/**
- * `3_sesiones_profesionales.csv` — sesión del equipo tratante.
- *
- * No la escribe el tutor: es la superficie del profesional. Importa al
- * motor por un campo concreto, `alert_level`, que alimenta la feature
- * `professional_alert_recent` (Arquitectura §7, ventana 7d). El resto es
- * contexto y gestión.
- */
-export interface ProfessionalSession {
-  session_id?: string;                // id_sesion
-  subject_id: string;                 // id_caso
-  occurred_at: string;                // fecha_hora ISO
-  professional: string;               // profesional a cargo
-  consultation_reason: ConsultationReason;
-  modality: SessionModality;
-  duration_minutes: number;
-  attendance: Attendance;
-  /** Gestión administrativa; no viaja al motor. */
-  paid: boolean;
-  status: SessionStatus;
-  /** alertas → única señal clínica de la sesión que el motor consume. */
-  alert_level: AlertLevel;
-  objectives: string | null;
-  activities: string | null;
-  observations: string | null;
-  visible_to_tutor: boolean;
-  /** Baja lógica: una sesión inactiva no cuenta para features ni listados. */
-  active: boolean;
-}
-
-/** Professional-only input. Read projections never contain `internal_notes`. */
-export interface ProfessionalSessionDraft extends ProfessionalSession {
-  internal_notes: string | null;
-}
-
-export interface SessionWrite extends Omit<ProfessionalSessionDraft, 'session_id' | 'subject_id'> {
-  contract_version: '2.0';
-  idempotency_key: string;
-  provenance: { source: string; synthetic: boolean };
-}
-
-export type ConsultationReason =
-  | 'Evaluación'
-  | 'Control'
-  | 'Intervención'
-  | 'Reunión con tutores'
-  | 'Derivación';
-
-export type SessionModality = 'Presencial' | 'Telemática';
-
-export type Attendance = 'Presente' | 'Ausente' | 'Reprogramada';
-
-export type SessionStatus = 'Agendada' | 'Atendida' | 'Cancelada' | 'No asistió';
-
-export type AlertLevel = 'Bajo' | 'Medio' | 'Alto';
 
 /* ============================================================
    2. Timeline — GET /api/v1/subjects/{id}/timeline
@@ -233,12 +232,20 @@ export interface PredictionFactor {
   comparison: string;
   direction: FactorDirection;
   window: string;
+  /** Frente a lo habitual del propio infante (P19); null si no se puede comparar. */
+  baseline: 'above' | 'below' | 'similar' | null;
+  /** Qué significa esa comparación para el infante: más irritable es «worse», mejor sueño «better». */
+  trend: 'worse' | 'better' | 'same' | null;
+  /** «Despertó más irritable que de costumbre en los últimos tres días». */
+  summary: string | null;
 }
 
 export interface MissingDataItem {
   code: string;
   label: string;
   impact: string;
+  /** true si el campo cuenta para la confianza (`core_fields`); false si es opcional. */
+  is_core?: boolean;
 }
 
 export interface SupportItem {
@@ -276,6 +283,8 @@ export interface Prediction {
   supports: SupportItem[];
   provenance: Record<string, unknown>;
   versions: Record<string, string>;
+  /** Hora de una crisis ya confirmada en las últimas horas del horizonte; null si no hay. */
+  confirmed_at: string | null;
 }
 
 export interface PredictionRequest {

@@ -17,7 +17,7 @@ All scripts are located in the `scripts/` directory:
 
 2. **`scripts/generate_mock_histories.py`**:
    - Deterministically generates synthetic history datasets for three demo subjects (PAC-A, PAC-B, and PAC-C).
-   - Saves history data under `data/bluba/{subject_id}_history.json` and profiles under `data/demo_profiles/{subject_id}/profile.json`.
+   - Saves history data under `data/legacy_history/{subject_id}_history.json` and profiles under `data/demo_profiles/{subject_id}/profile.json`.
    - **PAC-A**: Generates 30 days of data using seed 1001 (sufficient for training).
    - **PAC-B**: Generates 30 days of data using seed 1002 (sufficient for training).
    - **PAC-C**: Generates 2 days of data using seed 1003 (insufficient for training, triggers cold-start/abstention).
@@ -45,9 +45,9 @@ From the project root directory, run the scripts in sequence:
 python scripts/generate_mock_histories.py
 
 # Step 2: Validate the generated history schemas
-python scripts/validate_source_data.py data/bluba/PAC-A_history.json
-python scripts/validate_source_data.py data/bluba/PAC-B_history.json
-python scripts/validate_source_data.py data/bluba/PAC-C_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-A_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-B_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-C_history.json
 
 # Step 3: Train and register demo models
 python scripts/train_demo_models.py
@@ -58,7 +58,7 @@ python scripts/smoke_demo.py
 
 ### Expected Output Summary
 
-- **History Generation**: Files are created successfully under `data/bluba/` and `data/demo_profiles/`.
+- **History Generation**: Files are created successfully under `data/legacy_history/` and `data/demo_profiles/`.
 - **Validation**: Each check reports `Success: File 'PAC-X_history.json' is valid under the NeuraDash CORE schemas.`
 - **Training**:
   - `Successfully trained and registered model for 'PAC-A' (version 1).`
@@ -131,10 +131,9 @@ identity-to-subject permission source.
 
 Care writes require a timezone-aware `occurred_at`, `idempotency_key`, and
 provenance. Use the same idempotency key when retrying a write or an outcome
-confirmation. Protected session reads and prediction reload/outcome endpoints
-require actor headers and enforce the subject authorization lists on the server.
-Session read responses never expose `internal_notes`; only an authorized
-professional may submit those notes.
+confirmation. Prediction reload and outcome endpoints require actor headers and
+enforce the subject authorization lists on the server. The supported actor roles
+are `tutor` (the caregiver) and `system`.
 
 Predictions are created with a timezone-aware `prediction_cutoff`. Every
 prediction cutoff includes only records whose availability timestamp is at or
@@ -184,7 +183,7 @@ To use the FastAPI integration instead, create `front/.env` from
 | Tasks | Delivered behavior and evidence | Rollback boundary |
 | --- | --- | --- |
 | 1.1–1.3 | Care replay, timezone validation, timeline cutoff, and local end-of-day eligibility; FastAPI TestClient care and prediction-cutoff suites. | Care repository, subject routes, and their focused integration tests. |
-| 2.1–2.3 | Server-side session authorization/redaction and explicitly non-functional placeholders; FastAPI and RTL focused suites. | Session transport/page/tests and placeholder page/tests. |
+| 2.1–2.3 | Caregiver-only actor model (`tutor`/`system`) with subject authorization; server-side role validation and privacy checks. | Subject routes, schemas, and their focused integration tests. |
 | 3.1–3.3 | Immutable cutoff-bound snapshots and actor-bound idempotent outcomes; prediction/outcome TestClient suite. | Prediction service/routes/schema/promotion files and prediction integration tests. |
 | 4.1–4.3 | Real/mock Contract v2 parity, safe retry/error states, and safe Evolucion rendering; Vitest/RTL plus typecheck/build. | `front/src` adapter, mocks, affected pages, and their tests. |
 | 5.1–5.3 | Bounded suite verification, runbook/hygiene checks, and final task-to-evidence review. | This runbook, release-hygiene test, SDD task/progress artifacts, and ignore rules only. |

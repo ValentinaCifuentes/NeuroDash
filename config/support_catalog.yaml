@@ -52,7 +52,7 @@
   case_id: communication_support
   category: communication
   description: Facilite la forma que utiliza habitualmente para solicitar una pausa.
-  rationale: Solo corresponde si la estrategia de comunicación está registrada o definida por un profesional.
+  rationale: Solo corresponde si la estrategia de comunicación está registrada o definida previamente para esta persona.
   requires_registered_support: true
   priority: 30
 - id: cat_communication_help
@@ -66,19 +66,19 @@
   case_id: alternative_behavior_reinforcement
   category: reinforcement
   description: Refuerce positivamente el uso de la estrategia de comunicación o regulación acordada.
-  rationale: El tipo de refuerzo debe provenir del plan individual o del profesional.
+  rationale: El tipo de refuerzo debe provenir del plan individual registrado para esta persona.
   requires_registered_support: true
   priority: 30
 - id: cat_unclear_pattern_review
   case_id: unclear_repeated_pattern
-  category: professional_review
+  category: pattern_review
   description: Se observa un patrón repetido. Considere revisar antecedentes, contexto y posible función de la conducta antes de modificar el plan de apoyo.
-  rationale: El sistema identifica patrones, pero la interpretación funcional corresponde a evaluación profesional.
+  rationale: El sistema identifica patrones, pero la interpretación funcional debe basarse en los antecedentes y el contexto registrados.
   priority: 20
 - id: cat_caregiver_known_strategy
   case_id: caregiver_context
   category: caregiver
-  description: Considere aplicar la estrategia previamente acordada con el profesional para este tipo de situación.
+  description: Considere aplicar la estrategia previamente acordada para este tipo de situación.
   rationale: La vista del cuidador no introduce instrucciones clínicas nuevas.
   requires_registered_support: true
   priority: 30

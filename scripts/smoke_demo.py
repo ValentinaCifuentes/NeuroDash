@@ -19,7 +19,7 @@ from ml.explain import explain_prediction
 from ml.promotion import write_json_atomic
 
 from backend.app.schemas import PredictionContractV2
-from engine.schemas import ConfidenceLevel, CONTRACT_VERSION
+from engine.schemas import ConfidenceLevel, CONTRACT_VERSION, HORIZON_HOURS
 
 
 def execute_smoke_run(
@@ -41,7 +41,7 @@ def execute_smoke_run(
     with open(profile_path, "r", encoding="utf-8") as f:
         profile = json.load(f)
         
-    history_path = d_dir / "bluba" / f"{subject_id}_history.json"
+    history_path = d_dir / "legacy_history" / f"{subject_id}_history.json"
     with open(history_path, "r", encoding="utf-8") as f:
         history = json.load(f)
         
@@ -120,7 +120,7 @@ def execute_smoke_run(
             contract_version=CONTRACT_VERSION,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=None,
             model_score=None,
             confidence=ConfidenceLevel.INSUFFICIENT,
@@ -170,7 +170,7 @@ def execute_smoke_run(
             contract_version=CONTRACT_VERSION,
             subject_id=subject_id,
             prediction_cutoff=prediction_cutoff,
-            horizon_hours=24,
+            horizon_hours=HORIZON_HOURS,
             risk=risk_tier,
             model_score=score,
             confidence=confidence,
@@ -230,7 +230,7 @@ def run_smoke_test(data_dir: Path | str, models_dir: Path | str, config_dir: Pat
     assert contract_c.subject_id == "PAC-C"
     assert contract_c.abstained is True, "PAC-C should abstain."
     assert contract_c.risk is None, "PAC-C risk should be None."
-    assert contract_c.model_score is None, "PAC-C model score should be None."
+    assert "model_score" not in contract_c.model_dump(mode="json")
     assert contract_c.confidence == ConfidenceLevel.INSUFFICIENT, "PAC-C confidence should be INSUFFICIENT."
     print("PAC-C smoke verification passed (successfully abstained).")
     

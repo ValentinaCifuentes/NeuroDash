@@ -1,78 +1,112 @@
 /**
  * Catálogo de dominio.
  *
- * Une el vocabulario clínico de los CSV de BLUBA con las etiquetas que ve
+ * Une el vocabulario clínico de los CSV de origen con las etiquetas que ve
  * el tutor. Regla: el `value` es siempre el literal del CSV (lo que viaja
  * al motor); el `label` es lenguaje de tutor (lo que se muestra).
  *
- * Design system §2.3: toda opción clínica lleva punto de color de 14px o
- * icono como refuerzo. El color nunca es la única señal.
+ * Toda opción clínica lleva un refuerzo que no depende del color: barras de
+ * nivel (1 a 3) o una forma (● ◐ ◆ ▲). El color nunca es la única señal.
+ *
+ * Los `value` coinciden letra por letra con los mapas de codificación del
+ * backend (`backend/app/routes/subjects.py`); un test lo verifica.
  */
 
 import type {
-  AlertLevel,
-  Attendance,
-  ConsultationReason,
   GiStatus,
   IntensityBand,
   LogCategory,
   SleepQuality,
-  SessionModality,
-  SessionStatus,
   StartAutonomy,
   StrategyOutcome,
   EventType,
   WakeMode,
   DayRegulationLevel,
 } from '../types';
+import type { IconName } from '../components/icons';
 
 export type Semantic = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+
+/** Barras llenas (1 a 3) de una opción en escala de tres pasos. */
+export type Level = 1 | 2 | 3;
+export type Shape = 'circle' | 'half' | 'diamond' | 'triangle';
 
 export interface Choice<T extends string> {
   value: T;
   label: string;
-  /** Emoji o glifo; refuerzo no cromático del significado. */
-  icon?: string;
-  /** Punto de color de 14px para contexto clínico. */
+  /** Tarjetas con barras (sueño, despertar, autonomía): más barras = más difícil. */
+  level?: Level;
+  /** Lista con forma y color (digestión, cierre del día, escalas de registro). */
   dot?: Semantic;
+  /** Forma propia; si falta, sale de `SEMANTIC_SHAPE[dot]`. */
+  shape?: Shape;
 }
 
+/* El diseño final no usa verde: «bien» es el azul de riesgo bajo. */
 export const SEMANTIC_COLOR: Record<Semantic, string> = {
-  success: 'var(--bl-success)',
-  warning: 'var(--bl-warning)',
-  danger: 'var(--bl-danger)',
-  info: 'var(--bl-info)',
-  neutral: 'var(--bl-border-strong)',
+  success: 'var(--nd-risk-low)',
+  warning: 'var(--nd-risk-mid)',
+  danger: 'var(--nd-risk-high)',
+  info: 'var(--nd-ink-2)',
+  neutral: 'var(--nd-border-strong)',
 };
 
 export const SEMANTIC_BG: Record<Semantic, string> = {
-  success: 'var(--bl-success-bg)',
-  warning: 'var(--bl-warning-bg)',
-  danger: 'var(--bl-danger-bg)',
-  info: 'var(--bl-info-bg)',
-  neutral: 'var(--bl-neutral-chip)',
+  success: 'var(--nd-risk-low-bg)',
+  warning: 'var(--nd-risk-mid-bg)',
+  danger: 'var(--nd-risk-high-bg)',
+  info: 'var(--nd-neutral-2)',
+  neutral: 'var(--nd-neutral-1)',
 };
+
+/** Texto sobre `SEMANTIC_BG` (todos ≥ 5.8:1). */
+export const SEMANTIC_FG: Record<Semantic, string> = {
+  success: 'var(--nd-risk-low-fg)',
+  warning: 'var(--nd-risk-mid-fg)',
+  danger: 'var(--nd-risk-high-fg)',
+  info: 'var(--nd-ink-2)',
+  neutral: 'var(--nd-ink-2)',
+};
+
+export const SEMANTIC_SHAPE: Record<Semantic, Shape> = {
+  success: 'circle',
+  warning: 'diamond',
+  danger: 'triangle',
+  info: 'circle',
+  neutral: 'circle',
+};
+
+/** Color de las barras según cuántas están llenas (prototipo: azul, ámbar, rojo profundo). */
+export const LEVEL_COLOR: Record<Level, string> = {
+  1: 'var(--nd-risk-low)',
+  2: 'var(--nd-risk-mid)',
+  3: 'var(--nd-risk-high)',
+};
+
+export function choiceShape(choice: Choice<string>): Shape {
+  return choice.shape ?? SEMANTIC_SHAPE[choice.dot ?? 'neutral'];
+}
 
 /* --- Descanso nocturno (calidad_sueno) --- */
 export const SLEEP_CHOICES: Choice<SleepQuality>[] = [
-  { value: 'Reparador', label: 'Reparador', icon: '😌' },
-  { value: 'Interrumpido', label: 'Interrumpido', icon: '😐' },
+  { value: 'Reparador', label: 'Reparador', level: 1 },
+  { value: 'Interrumpido', label: 'Interrumpido', level: 2 },
   // El CSV guarda "Dificultad de Conciliación"; el tutor lee "Muy Difícil".
-  { value: 'Dificultad de Conciliación', label: 'Muy Difícil', icon: '😫' },
+  { value: 'Dificultad de Conciliación', label: 'Muy Difícil', level: 3 },
 ];
 
 /* --- Al despertar (modo_despertar) --- */
 export const WAKE_CHOICES: Choice<WakeMode>[] = [
-  { value: 'Tranquilo/Alegre', label: 'Tranquilo / Alegre', icon: '🙂' },
-  { value: 'Cansado/Con Sueño', label: 'Cansado / Con sueño', icon: '🥱' },
-  { value: 'Irritable/Llorando', label: 'Irritable / Llorando', icon: '😢' },
+  { value: 'Tranquilo/Alegre', label: 'Tranquilo / Alegre', level: 1 },
+  { value: 'Cansado/Con Sueño', label: 'Cansado / Con sueño', level: 2 },
+  { value: 'Irritable/Llorando', label: 'Irritable / Llorando', level: 3 },
 ];
 
 /* --- Inicio del día (autonomia_inicio_dia) --- */
 export const START_AUTONOMY_CHOICES: Choice<StartAutonomy>[] = [
-  { value: 'Por sí solo', label: 'Por sí solo', icon: '🚶' },
-  { value: 'Con alarma', label: 'Con alarma', icon: '⏰' },
-  { value: 'Con insistencia', label: 'Con insistencia', icon: '🤝' },
+  { value: 'Por sí solo', label: 'Por sí solo', level: 1 },
+  { value: 'Con alarma', label: 'Con alarma', level: 2 },
+  { value: 'Con insistencia', label: 'Con insistencia', level: 3 },
 ];
 
 /* --- Digestión (estado_gastrointestinal) --- */
@@ -90,8 +124,39 @@ export const DAY_REGULATION_CHOICES: Choice<DayRegulationLevel>[] = [
 ];
 
 /* --- Resultado de la estrategia (resultado_estrategia) --- */
+/* --- Desregulación: disparadores y estrategias como catálogo cerrado (D5) ---
+   Botones en vez de texto libre para que se puedan contar. «Otro» abre un campo
+   de texto; lo escrito se guarda en lugar de «Otro». */
+export const OTHER_OPTION = 'Otro';
+
+export const TRIGGER_OPTIONS = [
+  'Ruidos',
+  'Frustración',
+  'Cambio de actividad',
+  'Espera',
+  'Hambre o cansancio',
+  'Contacto físico',
+  'Lugar con mucha gente',
+  'Le dijeron que no',
+  'No se sabe',
+  OTHER_OPTION,
+];
+
+export const STRATEGY_OPTIONS = [
+  'Espacio seguro',
+  'Presión profunda',
+  'Pictogramas',
+  'Anticipación verbal',
+  'Pausa sensorial',
+  'Objeto de calma',
+  'Audífonos',
+  'Acompañamiento',
+  OTHER_OPTION,
+];
+
 export const STRATEGY_OUTCOME_CHOICES: Choice<StrategyOutcome>[] = [
   { value: 'Regulación Exitosa', label: 'Se reguló', dot: 'success' },
+  // Desregulación: ● ◆ ▲, como en screens/Final-Registro-Desregulacion.html.
   { value: 'Regulación Parcial', label: 'Se reguló en parte', dot: 'warning' },
   { value: 'Sin Regulación', label: 'No se reguló', dot: 'danger' },
 ];
@@ -101,9 +166,10 @@ export interface CategoryDef {
   id: LogCategory;
   name: string;
   desc: string;
-  icon: string;
-  /** Clase modificadora del design system: bl-cat--food | crisis | trans | sens */
-  modifier: 'food' | 'crisis' | 'trans' | 'sens';
+  icon: IconName;
+  /** Cuadro del ícono y fondo de la tarjeta (screens/Final-Registro-Categorias.html). */
+  color: string;
+  tint: string;
   semantic: Semantic;
   /** A qué `tipo_evento` del CSV resuelve la categoría. */
   eventType: EventType;
@@ -114,8 +180,9 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'alimentacion',
     name: 'Alimentación',
     desc: 'Comidas, hidratación y colaciones',
-    icon: '🍏',
-    modifier: 'food',
+    icon: 'food',
+    color: 'var(--nd-risk-low)',
+    tint: 'var(--nd-risk-low-bg)',
     semantic: 'success',
     eventType: 'Alimentación',
   },
@@ -123,8 +190,9 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'desregulacion',
     name: 'Desregulación',
     desc: 'Crisis, conductas y desbordes',
-    icon: '⚡',
-    modifier: 'crisis',
+    icon: 'bolt',
+    color: 'var(--nd-risk-high)',
+    tint: 'var(--nd-risk-high-bg)',
     semantic: 'danger',
     eventType: 'Desregulación Emocional',
   },
@@ -132,8 +200,9 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'transicion',
     name: 'Transición',
     desc: 'Cambios de actividad o entorno',
-    icon: '⇄',
-    modifier: 'trans',
+    icon: 'transition',
+    color: 'var(--nd-missing)',
+    tint: 'var(--nd-risk-mid-bg)',
     semantic: 'warning',
     eventType: 'Transición de Actividad',
   },
@@ -141,8 +210,9 @@ export const CATEGORIES: CategoryDef[] = [
     id: 'sensorial',
     name: 'Dieta Sensorial',
     desc: 'Apoyos, estímulos y descompresión',
-    icon: '🎧',
-    modifier: 'sens',
+    icon: 'sensory',
+    color: '#5B6478',  /* pizarra */
+    tint: '#ECEEF3',
     semantic: 'info',
     eventType: 'Dieta Sensorial',
   },
@@ -187,8 +257,16 @@ export interface CategoryForm {
   detailsLabel: string;
 }
 
-/** "¿Cómo respondió?" reusa `resultado_estrategia` con lenguaje sensorial. */
-const SENSORY_RESPONSE_OPTIONS = ['Muy bien', 'Con altibajos', 'No le acomodó'];
+/**
+ * "¿Cómo respondió?" reusa `resultado_estrategia` con lenguaje sensorial.
+ * Se muestra como tarjetas ● ◐ ▲ (screens/Final-Registro-Sensorial.html).
+ */
+export const SENSORY_RESPONSE_CHOICES: Choice<string>[] = [
+  { value: 'Muy bien', label: 'Muy bien', dot: 'success' },
+  { value: 'Con altibajos', label: 'Con altibajos', dot: 'warning', shape: 'half' },
+  { value: 'No le acomodó', label: 'No le acomodó', dot: 'danger' },
+];
+const SENSORY_RESPONSE_OPTIONS = SENSORY_RESPONSE_CHOICES.map((choice) => choice.value);
 
 export const SENSORY_RESPONSE_TO_OUTCOME: Record<string, StrategyOutcome> = {
   'Muy bien': 'Regulación Exitosa',
@@ -294,93 +372,26 @@ export function intensityWord(value: number): string {
   return 'Fuerte';
 }
 
-export function intensitySemantic(value: number): Semantic {
-  if (value <= 3) return 'warning';
-  if (value <= 7) return 'warning';
-  return 'danger';
-}
-
 /* ============================================================
    Seguimiento · mapa de calor y resumen diario
    ============================================================ */
 
-/** Icono de sueño reusado en el calendario y su leyenda. */
-export const SLEEP_ICON: Record<SleepQuality, string> = {
-  'Reparador': '😌',
-  'Interrumpido': '😐',
-  'Dificultad de Conciliación': '😫',
+/** Nivel del sueño en el calendario y su leyenda (mismas barras que en la Bitácora). */
+export const SLEEP_LEVEL: Record<SleepQuality, Level> = {
+  'Reparador': 1,
+  'Interrumpido': 2,
+  'Dificultad de Conciliación': 3,
 };
 
-/** Escala del mapa de calor. El índice es el bucket de `DaySummary.heat`. */
+/** Escala del mapa de calor (frambuesa). El índice es el bucket de `DaySummary.heat`. */
 export const HEAT_STEPS = [
-  { label: '0', bg: 'var(--bl-surface)', border: 'var(--bl-border)', text: 'Sin eventos' },
-  { label: '1-2', bg: 'var(--bl-primary-100)', border: 'var(--bl-primary-200)', text: '1 a 2 eventos' },
-  { label: '3-4', bg: 'var(--bl-primary-300)', border: 'var(--bl-primary-400)', text: '3 a 4 eventos' },
-  { label: '5+', bg: 'var(--bl-primary-600)', border: 'var(--bl-primary-700)', text: '5 o más eventos' },
+  { label: '0', bg: 'var(--nd-heat-0)', border: 'var(--nd-border-soft)', text: 'Sin eventos' },
+  { label: '1-2', bg: 'var(--nd-heat-1)', border: '#F0B3C6', text: '1 a 2 eventos' },
+  { label: '3-4', bg: 'var(--nd-heat-2)', border: '#D4487A', text: '3 a 4 eventos' },
+  { label: '5+', bg: 'var(--nd-heat-3)', border: 'var(--nd-accent-pressed)', text: '5 o más eventos' },
 ];
 
 export const WEEKDAY_SHORT = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
-
-/* ============================================================
-   Sesiones profesionales
-   ============================================================ */
-
-export const PROFESSIONALS = [
-  'Pamela Neira Neira',
-  'Rodrigo Alcaíno Vera',
-  'Camila Espinoza Ruiz',
-  'Equipo BLUBA',
-];
-
-export const CONSULTATION_REASONS: ConsultationReason[] = [
-  'Evaluación',
-  'Control',
-  'Intervención',
-  'Reunión con tutores',
-  'Derivación',
-];
-
-export const SESSION_MODALITIES: SessionModality[] = ['Presencial', 'Telemática'];
-
-export const SESSION_DURATIONS = [30, 45, 60, 90];
-
-export const ATTENDANCE_OPTIONS: Attendance[] = ['Presente', 'Ausente', 'Reprogramada'];
-
-export const SESSION_STATUSES: SessionStatus[] = [
-  'Agendada',
-  'Atendida',
-  'Cancelada',
-  'No asistió',
-];
-
-/**
- * Nivel de alerta.
- *
- * Es el único campo de la sesión que el motor consume
- * (`professional_alert_recent`, ventana 7d). Por eso lleva escala de color
- * y no es texto libre: tiene que llegar comparable.
- */
-export const ALERT_LEVEL_CHOICES: Choice<AlertLevel>[] = [
-  { value: 'Bajo', label: 'Bajo', dot: 'success' },
-  { value: 'Medio', label: 'Medio', dot: 'warning' },
-  { value: 'Alto', label: 'Alto', dot: 'danger' },
-];
-
-export const ALERT_SEMANTIC: Record<AlertLevel, Semantic> = {
-  Bajo: 'success',
-  Medio: 'warning',
-  Alto: 'danger',
-};
-
-export const SESSION_STATUS_SEMANTIC: Record<SessionStatus, Semantic> = {
-  'Agendada': 'info',
-  'Atendida': 'success',
-  'Cancelada': 'neutral',
-  'No asistió': 'danger',
-};
-
-/** Límite de los campos largos, igual que en el formulario de BLUBA. */
-export const NOTES_MAX = 2000;
 
 /* --- Riesgo y confianza (Prediction Contract v2) --- */
 export const RISK_LABEL: Record<string, string> = {
@@ -393,6 +404,13 @@ export const RISK_SEMANTIC: Record<string, Semantic> = {
   LOW: 'success',
   MODERATE: 'warning',
   ELEVATED: 'danger',
+};
+
+/** Forma del riesgo en la insignia (prototipo: ● bajo, ◐ moderado, ▲ elevado). */
+export const RISK_SHAPE: Record<string, Shape> = {
+  LOW: 'circle',
+  MODERATE: 'half',
+  ELEVATED: 'triangle',
 };
 
 export const CONFIDENCE_LABEL: Record<string, string> = {
@@ -470,3 +488,155 @@ export function dayLabel(dateIso: string): { weekday: string; short: string } {
     short: `${String(d ?? 1).padStart(2, '0')}/${String(m ?? 1).padStart(2, '0')}/${y}`,
   };
 }
+
+/* ============================================================
+   Perfil sensorial (Perfil · paso 3 → `sensory_context`)
+   ============================================================ */
+
+/** −1 busca menos estímulo · 0 típico · 1 le molesta (plan de datos §6.1). */
+export type SensoryLevel = -1 | 0 | 1;
+
+export const SENSORY_CHANNELS = [
+  { key: 'auditory', label: 'Sonidos' },
+  { key: 'visual', label: 'Luces' },
+  { key: 'tactile', label: 'Tacto' },
+  { key: 'gustatory', label: 'Sabores' },
+  { key: 'vestibular', label: 'Movimiento' },
+] as const;
+
+export type SensoryChannel = (typeof SENSORY_CHANNELS)[number]['key'];
+
+export const SENSORY_LEVELS: { value: SensoryLevel; label: string; color: string }[] = [
+  { value: -1, label: 'Busca menos', color: 'var(--nd-risk-low)' },
+  { value: 0, label: 'Típico', color: '#B9ACB3' },
+  { value: 1, label: 'Le molesta', color: 'var(--nd-accent)' },
+];
+
+/* ============================================================
+   Contexto del día · «¿Pasó algo distinto hoy?» (screens/Final-Bitacora.html)
+   ============================================================
+
+   Los `value` coinciden con los mapas del backend (`routes/subjects.py`):
+   SLEEP_HOURS_MAP, ROUTINE_CHANGE_MAP, SCHOOL_ATTENDANCE_MAP y las opciones
+   «nada» de las preguntas de varias respuestas («Ninguna», «No»). */
+
+export const SLEEP_HOURS_OPTIONS = ['Menos de 7 h', '7 a 9 h', 'Más de 9 h', 'No sé'];
+
+/**
+ * Señales tempranas por defecto. Cuando exista el perfil del infante (paso 2
+ * del alta), se usan las suyas (`habitual_context.early_signs`).
+ */
+export const DEFAULT_EARLY_SIGNS = [
+  'Se tapa los oídos',
+  'Se aísla',
+  'Más movimientos repetitivos',
+  'Más irritable',
+  'Cambia el tono de voz',
+  'Llora sin motivo claro',
+  'Rechaza el contacto',
+];
+export const NO_EARLY_SIGNS = 'Ninguna';
+
+export const PHYSICAL_DISCOMFORT_OPTIONS = ['No', 'Resfrío', 'Fiebre', 'Dolor', 'Dentición'];
+export const NO_DISCOMFORT = 'No';
+
+export const ROUTINE_CHANGE_OPTIONS = ['No', 'Visita', 'Salida', 'Cambio de horario', 'Feriado'];
+
+export const SCHOOL_ATTENDANCE_OPTIONS = ['Sí', 'Medio día', 'No'];
+
+/* ============================================================
+   Perfil inicial en 3 pasos (screens/Final-Perfil-1..3.html)
+   ============================================================
+   Destinos según el plan de datos §6.1: todo va a `habitual_context`,
+   salvo el perfil sensorial (`sensory_context`) y las estrategias que
+   funcionan (`historical_supports`). */
+
+export interface ProfileQuestion {
+  key: string;
+  title: string;
+  hint: string;
+  mode: 'single' | 'multiple';
+  options: string[];
+}
+
+export const PROFILE_STEP_1: ProfileQuestion[] = [
+  {
+    key: 'age_range',
+    title: 'Edad',
+    hint: 'En rangos, para proteger su identidad.',
+    mode: 'single',
+    options: ['2 a 5 años', '6 a 8 años', '9 a 12 años', '13 a 17 años', 'Prefiero no decir'],
+  },
+  {
+    key: 'neurodivergence',
+    title: 'Tipo de neurodivergencia',
+    hint: 'Ayuda a mostrar apoyos pensados para su perfil.',
+    mode: 'single',
+    options: ['TEA', 'TDAH', 'TEA y TDAH', 'Otra', 'Prefiero no decir'],
+  },
+  {
+    key: 'support_level',
+    title: 'Nivel de apoyo',
+    hint: 'Según el diagnóstico, si lo conoces.',
+    mode: 'single',
+    options: ['Nivel 1', 'Nivel 2', 'Nivel 3', 'No lo sé'],
+  },
+  {
+    key: 'communication',
+    title: '¿Cómo se comunica?',
+    hint: 'Puedes marcar varias.',
+    mode: 'multiple',
+    options: ['Habla con frases', 'Frases cortas', 'Pocas palabras', 'No verbal', 'Usa pictogramas o tablet'],
+  },
+];
+
+export const PROFILE_STEP_2: ProfileQuestion[] = [
+  {
+    key: 'dysregulation_frequency',
+    title: '¿Con qué frecuencia se desregula?',
+    hint: 'Sirve como punto de partida mientras se acumula historial.',
+    mode: 'single',
+    options: ['Casi a diario', 'Varias veces por semana', 'Una vez por semana', 'Menos seguido'],
+  },
+  {
+    key: 'early_signs',
+    title: 'Señales tempranas',
+    hint: 'Lo que notas antes de una crisis. Las verás cada día en la Bitácora.',
+    mode: 'multiple',
+    options: [...DEFAULT_EARLY_SIGNS, 'Otra'],
+  },
+  {
+    key: 'triggers',
+    title: 'Gatillantes frecuentes',
+    hint: 'Puedes marcar varios.',
+    mode: 'multiple',
+    options: [
+      'Ruido',
+      'Cambios de rutina',
+      'Transiciones',
+      'Hambre o sueño',
+      'Esperas',
+      'Lugares con mucha gente',
+      'Tareas o exigencias',
+      'Texturas o comidas',
+    ],
+  },
+  {
+    key: 'risk_times',
+    title: 'Momentos del día con más riesgo',
+    hint: 'Ayuda a ubicar la alerta en las horas correctas.',
+    mode: 'multiple',
+    options: ['Mañana', 'Salida del colegio', 'Tarde', 'Noche', 'Al cambiar de actividad'],
+  },
+];
+
+export const PROFILE_SUPPORT_OPTIONS = [
+  'Espacio seguro',
+  'Presión profunda',
+  'Música o audífonos',
+  'Anticipación visual',
+  'Objeto de apego',
+  'Movimiento o columpio',
+  'Masticables',
+  'Tiempo a solas',
+];

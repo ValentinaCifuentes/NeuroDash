@@ -1,42 +1,41 @@
-# NeuraDash
+# NeuroDash
 
-NeuraDash es una aplicación de apoyo no diagnóstico para registros de cuidadores,
-predicciones seguras orientadas a tendencias, demostraciones de telemetría y
-colaboración con profesionales. Combina un backend de FastAPI y un frontend de
+NeuroDash acompaña a quien cuida a un infante neurodivergente (el **tutor**): registra
+cómo va el día y muestra una estimación del riesgo de desregulación en las próximas
+8 horas, con la confianza de esa estimación, las señales que la explican y apoyos
+concretos. Backend en FastAPI (motor y modelo por infante) y frontend en
 React/TypeScript.
 
-> **Límite de seguridad:** NeuraDash comunica incertidumbre, asociaciones
+> **Límite de seguridad:** NeuroDash comunica incertidumbre, asociaciones
 > observadas y opciones de apoyo. No es una herramienta de diagnóstico, causal,
 > clínica ni de toma de decisiones de emergencia. No utilice datos de demostración
 > ni sintéticos para tomar decisiones clínicas.
 
 ## Estado actual
 
-El repositorio contiene una demostración funcional y un flujo de validación. El
-frontend ofrece actualmente:
+Demostración funcional con tres infantes sintéticos:
+**PAC-A** (riesgo elevado), **PAC-B** (riesgo bajo) y **PAC-C** (sin estimación:
+solo 2 días de historial).
 
-- Incorporación de sujetos por parte del cuidador, registros diarios, registro de
-  eventos y estados de predicción de Evolución.
-- Una interfaz de telemetría respaldada por un simulador sintético de ráfagas con
-  perfiles de estabilidad, riesgo acumulado y datos insuficientes.
-- Vistas de planificación y seguimiento, incluidas **Planificación**, **Seguimiento**
-  y **Sesiones**.
-- Una vista profesional mediante el selector de roles, que incluye el panel
-  profesional y las superficies de informes.
-- Adaptadores explícitos para el modo simulado y el backend real que utilizan el
-  mismo contrato del frontend.
+- **Evolución:** estimación de las próximas 8 h (riesgo y confianza por separado),
+  «Por qué aparece así» comparado con lo habitual del infante, qué dato falta y
+  «Qué puedo hacer ahora». **Seguimiento:** calendario del mes y comparación de 14 días.
+- **Bitácora:** estado basal y contexto del día, registro de eventos en 4 categorías,
+  Historial de Hoy.
+- **Selección y perfil en 3 pasos**, y **Ficha** con el perfil completo.
+- **Planificación** (mock en el navegador; no llega al modelo) y **Mis Tickets**
+  (fuera de alcance).
 
-Algunas entradas de navegación siguen siendo marcadores de posición no funcionales
-de forma intencionada (por ejemplo, la búsqueda de profesionales y los tickets de
-soporte). Los datos de ML y telemetría utilizados por la demostración son sintéticos
-o datos locales de desarrollo; esto no es un despliegue de producción.
+El diseño está en `docs/rediseno/` y el frontend se describe en
+[`front/README.md`](front/README.md). Los datos de la demostración son sintéticos;
+esto no es un despliegue de producción.
 
 ## Inicio rápido
 
 ### Requisitos previos
 
-- Python 3.12 or newer
-- Node.js and npm
+- Python 3.12 o superior (o Docker con Compose)
+- Node.js 20 y npm (para el front fuera de Docker)
 
 ### Instalar las dependencias del backend
 
@@ -65,8 +64,8 @@ Enlaces útiles mientras está en ejecución:
 - ReDoc: <http://localhost:8000/redoc>
 
 El punto de entrada de la API es `backend.app.main:app`. Las rutas se agrupan bajo
-`/api/v1` e incluyen sujetos, registros diarios y eventos, predicciones,
-sesiones profesionales, perfiles de demostración y telemetría.
+`/api/v1` e incluyen sujetos, registros diarios y eventos, predicciones y
+perfiles de demostración.
 
 ### Ejecutar el frontend
 
@@ -80,9 +79,10 @@ npm run dev
 
 Abra la URL de Vite, normalmente <http://localhost:5173>.
 
-De forma predeterminada, el frontend utiliza el accesorio en memoria ubicado en
-`front/src/mocks/mockApi.ts`; no ejecuta el motor de ML y sus datos se borran al
-recargar. Para utilizar el backend de FastAPI en su lugar:
+De forma predeterminada, el frontend responde desde `front/src/mocks/mockBackend.ts`:
+las mismas rutas y el mismo JSON que FastAPI, con las demos PAC-A/B/C exportadas de la
+demo real. No ejecuta el motor de ML (la estimación no cambia al registrar) y lo
+registrado se borra al recargar. Para utilizar el backend de FastAPI en su lugar:
 
 ```powershell
 Copy-Item .env.example .env
@@ -90,23 +90,103 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-Los encabezados del actor de desarrollo utilizados para las operaciones profesionales
-protegidas no constituyen un proveedor de identidad de producción.
+Los encabezados del actor de desarrollo utilizados para las operaciones protegidas
+no constituyen un proveedor de identidad de producción.
+
+### Ejecutar con Docker
+
+Requiere Docker con Compose. Desde la raíz del repositorio:
+
+```bash
+docker compose up --build
+```
+
+- Frontend: <http://localhost:8090> (nginx reenvía `/api` al backend)
+- Backend: <http://localhost:8000/docs>
+
+`data/` y `models/` se guardan en los volúmenes `neuradash-data` y
+`neuradash-models`, por lo que los cambios sobreviven a los reinicios. Para volver
+a los datos del repositorio, use `docker compose down -v`.
+
+El frontend se compila con `VITE_API_BASE=http://localhost:8090` y guarda como el
+tutor fijo `tutor-demo` (la autenticación está fuera de alcance). Si lo sirve desde
+otra URL, o quiere otro actor, defina las variables antes de compilar (por ejemplo
+en un `.env` en la raíz). El backend solo acepta los roles `tutor` y `system`:
+
+```bash
+VITE_API_BASE=http://mi-servidor:8090
+VITE_ACTOR_ID=tutor-demo
+VITE_ACTOR_ROLE=tutor
+```
+
+Con `VITE_API_BASE` definida vacía, la UI usa el mock en memoria y no llama al
+backend (es secundario: la demostración es un video grabado con el backend):
+
+```bash
+VITE_API_BASE= docker compose up --build -d frontend
+```
+
+Para volver a la API real, compile otra vez sin definir la variable
+(`docker compose up --build -d`).
+
+### Grabar la demo: refrescar PAC-A/B/C
+
+El historial sintético de las demos termina en una fecha fija. Unos días después, las
+ventanas de 1–14 días quedan sin datos y PAC-A y PAC-B pasan a «Sin estimación». **El
+día de la grabación**, un solo comando deja todo listo y lo comprueba:
+
+```bash
+bash scripts/prepare_demo.sh              # graba hoy (o: … 2026-11-20)
+```
+
+Genera los historiales hasta el día anterior, reentrena, actualiza los fixtures del
+front, reinicia Docker con datos limpios (pregunta antes de borrar) y verifica los tres
+estados en <http://localhost:8090>. El recorrido sugerido para el video está en la
+[guía de grabación](docs/guia-grabacion-demo.md).
+
+Los pasos por separado, si hiciera falta:
+
+```bash
+python scripts/generate_mock_histories.py --end-date 2026-11-20
+python scripts/train_demo_models.py
+python scripts/smoke_demo.py
+python scripts/export_contract_fixture.py
+python scripts/export_mock_fixture.py
+```
+
+Los dos últimos actualizan lo que usa el front sin backend: el fixture de contrato de
+las pruebas y las demos del modo sin servidor (`front/src/mocks/demo-fixture.json`,
+usado con `VITE_API_BASE=`). El modo sin servidor corre las fechas solo, para que la
+demo termine siempre el día anterior.
+
+Antes de entrenar, borre `models/PAC-A` y `models/PAC-B`, para que el modelo nuevo sea
+la versión 1. Después reconstruya con datos limpios: `docker compose down -v` y
+`docker compose up --build -d`. Estados esperados: **PAC-A** riesgo elevado,
+**PAC-B** riesgo bajo, **PAC-C** sin estimación (lo verifica `tests/unit/test_demo_states.py`).
 
 ## Pruebas y validación
 
-Ejecute la suite de pruebas unitarias y de integración del backend desde la raíz:
+Un solo comando corre todo: pruebas del backend y, en el front, tipos, pruebas y
+build. Desde la raíz:
 
-```powershell
-py -m pytest
+```bash
+bash scripts/check.sh            # todo
+bash scripts/check.sh backend    # solo el backend
+bash scripts/check.sh front      # solo el front
 ```
 
-Ejecute las comprobaciones del frontend desde `front/`:
+Si en su Python no están las dependencias de desarrollo, el backend se prueba dentro
+de la imagen de Docker (`neuradash-backend`) con el repo en solo lectura: no hay que
+instalar nada. El front necesita Node 20.
 
-```powershell
-npm test -- --run
-npm run typecheck
-npm run build
+GitHub corre lo mismo en cada push y pull request (`.github/workflows/tests.yml`) y
+marca el commit con ✓ o ✗.
+
+Por separado, sin el script:
+
+```bash
+uv sync --extra dev && uv run pytest          # backend (o: py -m pytest)
+cd front && npm run typecheck && npx vitest run && npm run build
 ```
 
 ## Flujo de reproducibilidad
@@ -117,9 +197,9 @@ repositorio:
 
 ```powershell
 python scripts/generate_mock_histories.py
-python scripts/validate_source_data.py data/bluba/PAC-A_history.json
-python scripts/validate_source_data.py data/bluba/PAC-B_history.json
-python scripts/validate_source_data.py data/bluba/PAC-C_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-A_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-B_history.json
+python scripts/validate_source_data.py data/legacy_history/PAC-C_history.json
 python scripts/train_demo_models.py
 python scripts/smoke_demo.py
 ```
@@ -133,23 +213,23 @@ verificación](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
 ## Estructura del repositorio
 
 ```text
-backend/app/   FastAPI application, routes, schemas, and services
-engine/        Temporal features, confidence, safety, and telemetry logic
-ml/            Dataset building, training, evaluation, and model registry
-front/         Vite/React/TypeScript caregiver and professional UI
-scripts/       Synthetic-data, training, and verification commands
-tests/         Backend unit/integration tests
-docs/          Product, architecture, telemetry, and verification guides
-openspec/      Spec-driven development artifacts
-config/        Runtime and model configuration
-data/          Local demo and generated data
-models/        Local generated model artifacts
+backend/app/   API FastAPI: rutas, esquemas y servicio de estimación
+engine/        Motor: variables por ventana, línea base, confianza, explicación y apoyos
+ml/            Datos sintéticos, entrenamiento, evaluación y registro de modelos
+front/         App del tutor (Vite + React + TypeScript); ver front/README.md
+scripts/       Generar demos, entrenar, verificar, exportar fixtures, check.sh, prepare_demo.sh
+tests/         Pruebas unitarias y de integración del backend
+docs/          Producto, arquitectura, rediseño, guía de grabación y accesibilidad
+openspec/      Registro del desarrollo guiado por especificaciones
+config/        Configuración del motor (confianza, apoyos, riesgo)
+data/          Perfiles e historiales de las demos
+models/        Modelos entrenados de las demos
 ```
 
 ## Aviso sobre privacidad e identidad de producción
 
 Utilice únicamente datos sintéticos o debidamente autorizados durante el desarrollo.
-La telemetría JSON local, los historiales de demostración y los artefactos de modelos
+Los historiales de demostración y los artefactos de modelos locales
 no constituyen un almacén de datos de producción. Antes del despliegue, añada
 controles verificados de autenticación, autorización y consentimiento del sujeto,
 reemplace los encabezados de desarrollo `X-Actor-Id` y `X-Actor-Role`, proteja el
@@ -159,9 +239,12 @@ de la incertidumbre.
 
 ## Documentación adicional
 
-- [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_NeuroHack_2026_CONSISTENTE.md)
+- [Guía para grabar la demo](docs/guia-grabacion-demo.md)
+- [Revisión de accesibilidad](docs/revision-accesibilidad.md)
+- [Rediseño: especificación y pantallas](docs/rediseno/README.md)
+- [Pendientes del rediseño](docs/pendientes-rediseno.md)
+
+- [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md)
 - [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
-- [Guía de telemetría](docs/Telemetría.md)
-- [Panel profesional](docs/NeuraDash_Dashboard_Terapeuta.md)
 - [Casos y recomendaciones](docs/NeuraDash_Casos_y_Recomendaciones.md)
 - [Flujo de OpenSpec](openspec/README.md)
