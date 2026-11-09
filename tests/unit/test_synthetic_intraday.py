@@ -50,7 +50,8 @@ def test_only_crises_are_moderate_or_severe_and_they_fall_during_the_day() -> No
     others = [o for o in HISTORY["occurrences"] if o.get("severity") not in ("moderate", "severe")]
 
     assert crises and others
-    assert all(time(9, 30) <= c["source_timestamp"].time() <= time(21, 0) for c in crises)
+    # La primera crisis del día cae entre 09:30 y 21:00; la que se repite, hasta las 22:00.
+    assert all(time(9, 30) <= c["source_timestamp"].time() <= time(22, 0) for c in crises)
     assert len({c["source_timestamp"].hour for c in crises}) >= 8  # repartidas, no siempre a la misma hora
     assert all(c["intensity_value"] >= 4 and c["event_type"] == DYSREGULATION_EVENT_TYPE for c in crises)
     assert all(o["intensity_value"] <= 3 for o in others)
@@ -69,6 +70,17 @@ def test_many_crises_are_preceded_by_a_mild_dysregulation_the_same_day() -> None
         )
 
     assert sum(map(warned, crises)) / len(crises) >= 0.5
+
+
+def test_some_crises_repeat_a_few_hours_later_the_same_day() -> None:
+    """Después de una crisis puede venir otra: si nunca pasara, el modelo aprendería
+    que tras una crisis viene la calma."""
+    crises_per_day = defaultdict(int)
+    for occurrence in HISTORY["occurrences"]:
+        if occurrence.get("severity") in ("moderate", "severe"):
+            crises_per_day[occurrence["source_timestamp"].date()] += 1
+
+    assert any(count >= 2 for count in crises_per_day.values())
 
 
 def test_a_mild_event_is_known_at_its_own_time_and_a_crisis_two_hours_later() -> None:

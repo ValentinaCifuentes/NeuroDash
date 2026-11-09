@@ -43,6 +43,8 @@ TODAY_BASAL_FIELDS = (
     "routine_change",
     "school_attendance",
 )
+# Severidades que cuentan como crisis (las mismas de la etiqueta, `ml/dataset_builder.py › label_for_cutoff`).
+CRISIS_SEVERITIES = ("moderate", "severe")
 # Sin desregulaciones recientes, «horas desde la última» se topa en un día.
 HOURS_SINCE_CAP = 24.0
 # Momento del día de la estimación (hora local). La madrugada (0–6 h) es la referencia.
@@ -52,6 +54,7 @@ TODAY_FEATURE_NAMES = (
     "today_record_missing",
     "event_count_today",
     "dysregulation_count_today",
+    "crisis_count_today",
     "max_intensity_today",
     "dysregulation_unresolved_today",
     "dysregulation_count_8h",
@@ -311,6 +314,11 @@ def _today_features(
     ]
     features["event_count_today"] = float(len(today_events))
     features["dysregulation_count_today"] = float(len(today_dysregulations))
+    # Las crisis (moderadas o severas) van aparte: una leve avisa que el día escala,
+    # una crisis que ya pasó es otra situación, y mezclarlas confunde al modelo.
+    features["crisis_count_today"] = float(
+        sum(1 for o in today_dysregulations if str(o.get("severity", "")).lower() in CRISIS_SEVERITIES)
+    )
     features["max_intensity_today"] = max(intensities) if intensities else 0.0
     features["dysregulation_unresolved_today"] = float(
         sum(1 for o in today_dysregulations if o.get("strategy_outcome") == UNRESOLVED_OUTCOME)

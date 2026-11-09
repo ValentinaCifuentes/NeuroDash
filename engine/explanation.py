@@ -161,6 +161,7 @@ for _feature, (_name, _code) in {
     "today_record_missing": ("sin registro de Mi Día hoy", "sin_registro_hoy"),
     "event_count_today": ("eventos registrados hoy", "eventos_hoy"),
     "dysregulation_count_today": ("desregulaciones registradas hoy", "desregulaciones_hoy"),
+    "crisis_count_today": ("crisis moderadas o intensas hoy", "crisis_hoy"),
     "max_intensity_today": ("intensidad máxima de eventos hoy", "intensidad_maxima_hoy"),
     "dysregulation_unresolved_today": ("desregulaciones sin regular hoy", "desregulaciones_sin_regular_hoy"),
     "dysregulation_count_8h": ("desregulaciones en las últimas ocho horas", "desregulaciones_ultimas_ocho_horas"),

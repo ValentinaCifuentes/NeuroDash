@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "0f7c2fc5f5b94a6e8208f0347bc16548",
+  "prediction_id": "0c81d75a969f419fb6e941598d6c5af5",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -1080,10 +1080,19 @@
       "summary": null
     },
     {
+      "factor_name": "Crisis moderadas o intensas hoy",
+      "feature": "crisis_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente crisis moderadas o intensas hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
       "factor_name": "Intensidad máxima de eventos hoy",
       "feature": "intensidad_maxima_hoy",
-      "contribution": -0.5,
-      "description": "La variable reciente intensidad máxima de eventos hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "contribution": 0.5,
+      "description": "La variable reciente intensidad máxima de eventos hoy (1.0) se asocia con un aumento en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1091,8 +1100,8 @@
     {
       "factor_name": "Desregulaciones sin regular hoy",
       "feature": "desregulaciones_sin_regular_hoy",
-      "contribution": 0.5,
-      "description": "La variable reciente desregulaciones sin regular hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "contribution": -0.5,
+      "description": "La variable reciente desregulaciones sin regular hoy (1.0) se asocia con una disminución en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1100,8 +1109,8 @@
     {
       "factor_name": "Desregulaciones en las últimas ocho horas",
       "feature": "desregulaciones_ultimas_ocho_horas",
-      "contribution": -0.5,
-      "description": "La variable reciente desregulaciones en las últimas ocho horas (1.0) se asocia con una disminución en los patrones observados.",
+      "contribution": 0.5,
+      "description": "La variable reciente desregulaciones en las últimas ocho horas (1.0) se asocia con un aumento en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1109,8 +1118,8 @@
     {
       "factor_name": "Horas desde la última desregulación",
       "feature": "horas_desde_ultima_desregulacion",
-      "contribution": 0.5,
-      "description": "La variable reciente horas desde la última desregulación (1.0) se asocia con un aumento en los patrones observados.",
+      "contribution": -0.5,
+      "description": "La variable reciente horas desde la última desregulación (1.0) se asocia con una disminución en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1118,8 +1127,8 @@
     {
       "factor_name": "Estimación hecha en la mañana",
       "feature": "momento_manana",
-      "contribution": -0.5,
-      "description": "La variable reciente estimación hecha en la mañana (1.0) se asocia con una disminución en los patrones observados.",
+      "contribution": 0.5,
+      "description": "La variable reciente estimación hecha en la mañana (1.0) se asocia con un aumento en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1127,8 +1136,8 @@
     {
       "factor_name": "Estimación hecha en la tarde",
       "feature": "momento_tarde",
-      "contribution": 0.5,
-      "description": "La variable reciente estimación hecha en la tarde (1.0) se asocia con un aumento en los patrones observados.",
+      "contribution": -0.5,
+      "description": "La variable reciente estimación hecha en la tarde (1.0) se asocia con una disminución en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1136,8 +1145,8 @@
     {
       "factor_name": "Estimación hecha en la noche",
       "feature": "momento_noche",
-      "contribution": -0.5,
-      "description": "La variable reciente estimación hecha en la noche (1.0) se asocia con una disminución en los patrones observados.",
+      "contribution": 0.5,
+      "description": "La variable reciente estimación hecha en la noche (1.0) se asocia con un aumento en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null

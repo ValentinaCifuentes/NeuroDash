@@ -6,10 +6,39 @@ import random
 import zoneinfo
 from typing import Any
 
-from engine.temporal import AvailabilityPolicy, filter_records
+from engine.temporal import AvailabilityPolicy, filter_records, resolve_timezone
 from engine.baseline import build_baseline, BaselineSnapshot
-from engine.features import FeatureSet, build_features
+from engine.features import CRISIS_SEVERITIES, FeatureSet, build_features
 from engine.schemas import DYSREGULATION_EVENT_TYPE, HORIZON_HOURS
+
+
+# Horas locales de las estimaciones con que se entrena y evalúa: varias por día, porque
+# el riesgo de las próximas 8 horas cambia durante el día y en la app se puede pedir
+# a cualquier hora. La de las 04:00 hace que el modelo también vea la madrugada.
+CUTOFF_HOURS = (4, 8, 12, 16, 20)
+
+
+def training_cutoffs(
+    records: list[dict[str, Any]],
+    timezone: str = "UTC",
+    start_offset_days: int = 3,
+    hours: tuple[int, ...] = CUTOFF_HOURS,
+) -> list[datetime]:
+    """Cortes de entrenamiento: las `hours` locales de cada día con historial.
+
+    Empieza `start_offset_days` días después del primer registro, para que la línea
+    base tenga algo de madurez, y termina el último día con registros.
+    """
+    if not records:
+        return []
+    tz = resolve_timezone(timezone)
+    days = sorted({record["source_timestamp"].astimezone(tz).date() for record in records})
+    first, last = days[0], days[-1]
+    cutoffs = []
+    for offset in range(start_offset_days, (last - first).days + 1):
+        day = first + timedelta(days=offset)
+        cutoffs.extend(datetime(day.year, day.month, day.day, hour, tzinfo=tz) for hour in hours)
+    return cutoffs
 
 
 def label_for_cutoff(
@@ -31,7 +60,7 @@ def label_for_cutoff(
         # Occurrence must be strictly after cutoff and within the horizon
         if cutoff < src_ts <= horizon_end:
             severity = str(occ.get("severity", "")).lower()
-            if severity in ("moderate", "severe"):
+            if severity in CRISIS_SEVERITIES:
                 return True
 
     return False
@@ -152,6 +181,8 @@ def build_dataset(
         "subject_id": subject_id,
         "data_generation_timestamp": datetime.now(dt_timezone.utc).isoformat(),
         "horizon_hours": horizon_hours,
+        "cutoffs_count": len(cutoffs),
+        "cutoff_hours": sorted({c.astimezone(resolve_timezone(timezone)).hour for c in cutoffs}),
         "policy": {
             "daily_regulation": pol.daily_regulation,
             "exclusion_policy": pol.exclusion_policy
@@ -245,7 +276,8 @@ def generate_synthetic_history(
     08:30 (con los conteos del día, como los deja `_refresh_daily_event_counts`), el
     cierre del día en la noche (disponible desde la medianoche), los eventos sueltos
     a lo largo del día y la crisis entre las 09:30 y las 21:00. Muchas crisis vienen
-    precedidas por una desregulación leve: lo de la mañana también anticipa la tarde.
+    precedidas por desregulaciones leves (el día escala) y a veces se repiten unas
+    horas después: lo de la mañana también anticipa la tarde.
 
     `end_date` fija el día del último registro (las demos usan «ayer», para que el
     historial sea reciente cuando se muestran). Sin ella, el historial empieza el
@@ -406,23 +438,49 @@ def generate_synthetic_history(
                 "strategy_applied": strategy_applied,
                 "strategy_outcome": strategy_outcome,
             })
-            # Señal temprana: muchas crisis vienen precedidas, 1 a 3 horas antes, por
-            # una desregulación leve. Es lo que deja anticipar dentro del mismo día.
-            if time_rng.random() < 0.6:
-                warning = max(morning, occ_time - timedelta(minutes=time_rng.randint(60, 180)))
-                day_events.append(_mild_event(
-                    f"occ_{subject_id}_{d}_warn", warning, DYSREGULATION_EVENT_TYPE, time_rng.randint(2, 3)
-                ))
+            # Señal temprana: la mayoría de las crisis vienen precedidas, en las 3 horas
+            # anteriores, por una o dos desregulaciones leves. Es lo que deja anticipar
+            # dentro del mismo día.
+            if time_rng.random() < 0.8:
+                for warn_index in range(time_rng.randint(1, 2)):
+                    warning = max(morning, occ_time - timedelta(minutes=time_rng.randint(30, 180)))
+                    day_events.append(_mild_event(
+                        f"occ_{subject_id}_{d}_warn{warn_index}", warning, DYSREGULATION_EVENT_TYPE, time_rng.randint(2, 3)
+                    ))
+            # Después de una crisis el infante queda más vulnerable: puede venir otra
+            # 2 a 5 horas más tarde, más probable con más carga. Sin esto, el modelo
+            # aprendería que tras una crisis viene la calma (en los datos nunca habría otra).
+            if time_rng.random() < 0.25 + 0.5 * load:
+                rebound = occ_time + timedelta(minutes=time_rng.randint(120, 300))
+                if rebound <= day + timedelta(hours=22):
+                    day_events.append({
+                        **day_events[0],
+                        "id": f"occ_{subject_id}_{d}_b",
+                        "source_timestamp": rebound,
+                        "availability_timestamp": rebound + timedelta(hours=2),
+                        "intensity_value": max(4, intensity_value - time_rng.randint(0, 2)),
+                    })
 
         # 4. El resto de los eventos del día, hasta los conteos sorteados: desregulaciones
         #    leves (una moderada o severa sería otra crisis) y eventos de rutina. Los
         #    conteos del registro de Mi Día se calculan desde estos eventos, como en
         #    `_refresh_daily_event_counts`; la intensidad leve nunca pasa de 3.
+        #    En un día con crisis, las leves van antes de ella: el día escala. En un día
+        #    sin crisis hay menos (una leve suelta no siempre escala, pero si fueran tantas
+        #    como en los días con crisis no avisarían nada).
         mild_cap = max(1, min(3, max_intensity))
+        first_crisis = day_events[0]["source_timestamp"] if day_events else None
         dysregulations_so_far = sum(1 for e in day_events if e["event_type"] == DYSREGULATION_EVENT_TYPE)
         for index in range(max(0, dysregulation_count - dysregulations_so_far)):
+            if first_crisis is None and time_rng.random() < 0.6:
+                continue
+            when = (
+                morning + (first_crisis - morning) * time_rng.random()
+                if first_crisis is not None
+                else _waking_time(day, time_rng)
+            )
             day_events.append(_mild_event(
-                f"evt_{subject_id}_{d}_d{index}", _waking_time(day, time_rng),
+                f"evt_{subject_id}_{d}_d{index}", when,
                 DYSREGULATION_EVENT_TYPE, time_rng.randint(1, mild_cap),
             ))
         for index in range(max(0, event_count - len(day_events))):

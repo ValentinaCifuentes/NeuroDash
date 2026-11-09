@@ -5,12 +5,11 @@ from pathlib import Path
 import pytest
 
 from ml.data_loading import known_at, load_subject_data
-from ml.dataset_builder import build_feature_example, generate_synthetic_history
+from ml.dataset_builder import CUTOFF_HOURS, build_feature_example, generate_synthetic_history, training_cutoffs
 from ml.evaluation import (
     binary_metrics,
     build_evaluation_examples,
     cold_start_case,
-    daily_cutoffs,
     evaluate_subject,
     product_metrics,
     score_summary,
@@ -20,8 +19,8 @@ from ml.evaluation import (
 )
 
 
-def test_daily_cutoffs_start_after_baseline_offset() -> None:
-    start = datetime(2026, 8, 1, 12, 0, tzinfo=timezone.utc)
+def test_training_cutoffs_are_several_per_day_after_the_baseline_offset() -> None:
+    start = datetime(2026, 8, 1, 7, 30, tzinfo=timezone.utc)
     records = [
         {
             "source_timestamp": start + timedelta(days=day),
@@ -30,11 +29,25 @@ def test_daily_cutoffs_start_after_baseline_offset() -> None:
         for day in range(10)
     ]
 
-    cutoffs = daily_cutoffs(records, start_offset_days=3)
+    cutoffs = training_cutoffs(records, timezone="UTC", start_offset_days=3)
 
-    assert len(cutoffs) == 7  # days 3..9
-    assert cutoffs[0] == start + timedelta(days=3)
-    assert cutoffs[-1] == start + timedelta(days=9)
+    assert len(cutoffs) == 7 * len(CUTOFF_HOURS)  # days 3..9
+    assert cutoffs[0] == datetime(2026, 8, 4, CUTOFF_HOURS[0], tzinfo=timezone.utc)
+    assert cutoffs[-1] == datetime(2026, 8, 10, CUTOFF_HOURS[-1], tzinfo=timezone.utc)
+    assert sorted({c.hour for c in cutoffs}) == list(CUTOFF_HOURS)
+
+
+def test_training_cutoffs_follow_the_local_day_of_the_profile() -> None:
+    import zoneinfo
+
+    santiago = zoneinfo.ZoneInfo("America/Santiago")
+    first = datetime(2026, 11, 1, 7, 30, tzinfo=santiago)
+    records = [{"source_timestamp": first + timedelta(days=d)} for d in range(5)]
+
+    cutoffs = training_cutoffs(records, timezone="America/Santiago")
+
+    assert cutoffs[0] == datetime(2026, 11, 4, CUTOFF_HOURS[0], tzinfo=santiago)
+    assert all(c.utcoffset() == timedelta(hours=-3) for c in cutoffs)
 
 
 def test_training_data_counts_a_late_entry_only_from_when_it_arrived() -> None:
@@ -147,7 +160,7 @@ def test_build_evaluation_examples_includes_confidence_and_abstention() -> None:
     examples = build_evaluation_examples(
         records=history["records"],
         occurrences=history["occurrences"],
-        cutoffs=daily_cutoffs(history["records"]),
+        cutoffs=training_cutoffs(history["records"]),
         timezone="UTC",
         planned_events=history["planned_events"],
     )
@@ -253,7 +266,7 @@ def test_load_subject_data_parses_timezone_aware_timestamps(tmp_path: Path) -> N
 
 def test_build_feature_example_returns_feature_set_metadata() -> None:
     history = generate_synthetic_history("PAC-A", days=10, seed=42)
-    cutoff = daily_cutoffs(history["records"])[0]
+    cutoff = training_cutoffs(history["records"])[0]
     from engine.baseline import build_baseline
 
     baseline = build_baseline(history["records"], cutoff, timezone="UTC")

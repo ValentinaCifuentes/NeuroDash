@@ -3,7 +3,7 @@ from datetime import timedelta
 from typing import Any
 
 from ml.data_loading import load_subject_data
-from ml.dataset_builder import build_dataset
+from ml.dataset_builder import build_dataset, training_cutoffs
 from ml.trainer import train_model, InsufficientDataError
 from ml.model_registry import ModelRegistry
 from engine.temporal import AvailabilityPolicy
@@ -45,8 +45,9 @@ def train_subject_model(
             f"need at least 5 days, got {total_days} days."
         )
         
-    # Generate daily cutoffs starting from min_date + 3 days to allow baseline accumulation
-    cutoffs = [min_date + timedelta(days=d) for d in range(3, total_days + 1)]
+    # Varias estimaciones por día (CUTOFF_HOURS), desde el cuarto día para que la
+    # línea base tenga algo de madurez.
+    cutoffs = training_cutoffs(records, timezone=timezone_name)
     
     # Split training and validation: last 7 days (or 2 days if short) for validation
     if total_days >= 14:

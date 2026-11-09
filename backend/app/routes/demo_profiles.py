@@ -8,7 +8,7 @@ from backend.app.schemas import PredictionContractV2
 from backend.app import prediction_service
 from backend.app.prediction_service import make_prediction, load_subject_data, SubjectNotFoundError
 from backend.app.routes import subjects
-from ml.dataset_builder import build_dataset
+from ml.dataset_builder import build_dataset, training_cutoffs
 from ml.trainer import train_model, InsufficientDataError
 from ml.model_registry import ModelRegistry
 from ml.promotion import evaluate_and_promote_model
@@ -79,8 +79,8 @@ def demo_retrain(subject_id: str) -> dict[str, Any]:
             detail=f"Cannot retrain model: historical records must span at least 7 days. Got {total_days} days."
         )
 
-    # Generate daily cutoffs starting from min_date + 3 days (to allow baseline accumulation)
-    cutoffs = [min_date + timedelta(days=d) for d in range(3, total_days + 1)]
+    # Varias estimaciones por día (CUTOFF_HOURS), desde el cuarto día (madurez de la línea base)
+    cutoffs = training_cutoffs(records, timezone=timezone_name)
     
     # Temporally split training and validation: last 7 days (or 2 days if dataset is short) for validation
     if total_days >= 14:
