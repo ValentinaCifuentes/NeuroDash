@@ -9,7 +9,7 @@ from typing import Any
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import build_baseline, BaselineSnapshot
 from engine.features import FeatureSet, build_features
-from engine.schemas import HORIZON_HOURS
+from engine.schemas import DYSREGULATION_EVENT_TYPE, HORIZON_HOURS
 
 
 def label_for_cutoff(
@@ -175,6 +175,27 @@ SYNTHETIC_STRATEGIES = [
     "Espacio seguro", "Presión profunda", "Pictogramas", "Anticipación verbal",
     "Pausa sensorial", "Objeto de calma", "Audífonos", "Acompañamiento",
 ]
+# Eventos de rutina de las hojas de registro (no son desregulaciones).
+SYNTHETIC_ROUTINE_EVENTS = ["Transición de Actividad", "Alimentación", "Dieta Sensorial"]
+
+
+def _waking_time(day: datetime, rng: random.Random) -> datetime:
+    """Una hora al azar entre las 08:00 y las 21:00 de ese día."""
+    return day + timedelta(hours=8, minutes=rng.randint(0, 13 * 60))
+
+
+def _mild_event(event_id: str, when: datetime, event_type: str, intensity_value: int) -> dict[str, Any]:
+    """Evento leve registrado al momento (disponible a su hora)."""
+    event: dict[str, Any] = {
+        "id": event_id,
+        "source_timestamp": when,
+        "availability_timestamp": when,
+        "event_type": event_type,
+        "intensity_value": intensity_value,
+    }
+    if event_type == DYSREGULATION_EVENT_TYPE:
+        event["severity"] = "mild"
+    return event
 
 
 def _synthetic_raw(
@@ -220,6 +241,12 @@ def generate_synthetic_history(
     Because the load is persistent across days, *past* records are genuinely predictive
     of *today's* crisis, so the model has real signal to learn (it beats a naive baseline).
 
+    Cada día tiene horas, como lo que registra la app: Mi Día entre las 07:00 y las
+    08:30 (con los conteos del día, como los deja `_refresh_daily_event_counts`), el
+    cierre del día en la noche (disponible desde la medianoche), los eventos sueltos
+    a lo largo del día y la crisis entre las 09:30 y las 21:00. Muchas crisis vienen
+    precedidas por una desregulación leve: lo de la mañana también anticipa la tarde.
+
     `end_date` fija el día del último registro (las demos usan «ayer», para que el
     historial sea reciente cuando se muestran). Sin ella, el historial empieza el
     2026-08-01. La secuencia de valores depende solo de `seed` y `days`, no de las fechas.
@@ -228,10 +255,10 @@ def generate_synthetic_history(
 
     tz = zoneinfo.ZoneInfo(timezone)
     if end_date is None:
-        start_date = datetime(2026, 8, 1, 12, 0, 0, tzinfo=tz)
+        first_day = date(2026, 8, 1)
     else:
         first_day = end_date - timedelta(days=days - 1)
-        start_date = datetime(first_day.year, first_day.month, first_day.day, 12, 0, 0, tzinfo=tz)
+    start_date = datetime(first_day.year, first_day.month, first_day.day, tzinfo=tz)
 
     records: list[dict[str, Any]] = []
     occurrences: list[dict[str, Any]] = []
@@ -244,9 +271,12 @@ def generate_synthetic_history(
     # Detalle de las hojas (disparadores/estrategias/resultado) también aparte, por
     # la misma razón: no perturba la secuencia principal de la demo.
     detail_rng = random.Random(seed * 104729 + 23)
+    # Horas del día y eventos sueltos (Mi Día, cierre, eventos previos a la crisis),
+    # también aparte por la misma razón.
+    time_rng = random.Random(seed * 15485863 + 31)
 
     for d in range(days):
-        current_time = start_date + timedelta(days=d)
+        day = start_date + timedelta(days=d)
 
         # 1. Evolve latent load: strongly autocorrelated (persistent) around 0.5.
         #    A high load today makes a high load tomorrow likely, which is what lets
@@ -274,28 +304,31 @@ def generate_synthetic_history(
         strategy_count = max(0, int(round(2.0 * load + 0.4 * detail_rng.gauss(0.0, 1.0))))
         dysregulation_unresolved = 1 if (load > 0.8 and detail_rng.random() < 0.7) else 0
 
+        # Dos registros por día, como en la app: Mi Día en la mañana (disponible al
+        # guardarse) y el cierre en la noche (disponible desde la medianoche).
+        morning = day + timedelta(hours=7, minutes=time_rng.randint(0, 90))
+        evening = day + timedelta(hours=20, minutes=time_rng.randint(30, 90))
+        raw = _synthetic_raw(
+            sleep_quality, wake_state, start_autonomy_level, medication_taken, gi_level, day_regulation_level_num
+        )
         record = {
             "id": f"rec_{subject_id}_{d}",
             "subject_id": subject_id,
-            "source_timestamp": current_time,
-            "availability_timestamp": current_time,
+            "source_timestamp": morning,
+            "availability_timestamp": morning,
+            "date": day.date().isoformat(),
+            "prediction_availability": "immediate",
             "sleep_quality": sleep_quality,
             "wake_state": wake_state,
-            "event_count": event_count,
-            "dysregulation_count": dysregulation_count,
-            "max_intensity": max_intensity,
             "start_autonomy_level": start_autonomy_level,
             "medication_taken": medication_taken,
             "gi_level": gi_level,
-            "day_regulation_level_num": day_regulation_level_num,
             "trigger_count": trigger_count,
             "strategy_count": strategy_count,
             "dysregulation_unresolved": dysregulation_unresolved,
             # Textos de la Bitácora, como los guarda la app (`raw`): la interfaz
             # los muestra en el historial y el calendario. El motor no los usa.
-            "raw": _synthetic_raw(
-                sleep_quality, wake_state, start_autonomy_level, medication_taken, gi_level, day_regulation_level_num
-            ),
+            "raw": {key: value for key, value in raw.items() if key != "day_regulation_level"},
         }
         # Escalas de las hojas de registro, traducidas como lo hace el backend
         # (`EVENT_SCALE_ENCODINGS`). No todos los días hay una transición, una comida
@@ -308,6 +341,16 @@ def generate_synthetic_history(
             done = 1.0 - load + 0.2 * event_rng.gauss(0.0, 1.0)
             record["sensory_diet_done"] = 1.0 if done > 0.6 else 0.5 if done > 0.35 else 0.0
         records.append(record)
+        records.append({
+            "id": f"eod_{subject_id}_{d}",
+            "subject_id": subject_id,
+            "source_timestamp": evening,
+            "availability_timestamp": day + timedelta(days=1),
+            "date": day.date().isoformat(),
+            "prediction_availability": "prior_day_only",
+            "day_regulation_level_num": day_regulation_level_num,
+            "raw": {"day_regulation_level": raw["day_regulation_level"]},
+        })
 
         # 2.5 Evento planificado (conocido de antemano, sin fuga de información).
         #    La probabilidad de que sea «Estresante» sigue a la carga: en días de más
@@ -320,23 +363,25 @@ def generate_synthetic_history(
             planned_events.append({
                 "id": f"plan_{subject_id}_{d}",
                 "subject_id": subject_id,
-                "starts_at": current_time + timedelta(hours=detail_rng.randint(1, 8)),
+                "starts_at": day + timedelta(hours=8 + detail_rng.randint(1, 12)),
                 "title": "Cita médica" if stressful else detail_rng.choice(["Visita familiar", "Salida al parque"]),
                 "category": "Salud" if stressful else detail_rng.choice(["Social", "Rutina"]),
                 "expectation": expectation,
             })
 
-        # 3. Crisis occurrence (moderate/severe) later that day, driven by the load.
-        #    Occurrences fall within the 8h horizon after the noon cutoff (13:00–20:00).
+        # 3. Crisis occurrence (moderate/severe) during the day, driven by the load.
+        #    Falls between 09:30 and 21:00, so the 8h horizon of a morning, noon or
+        #    afternoon estimate can contain it.
         #    Steep logistic keeps the base rate realistic (~15–20%) while remaining
         #    strongly dependent on the load.
+        day_events: list[dict[str, Any]] = []
         p_crisis = 1.0 / (1.0 + math.exp(-8.0 * (load - 0.7)))
         if rng.random() < p_crisis:
             occ_hour = rng.randint(1, 8)
-            occ_time = current_time + timedelta(hours=occ_hour)
+            occ_time = day + timedelta(hours=8 + 1.5 * occ_hour, minutes=time_rng.randint(0, 59))
             avail_time = occ_time + timedelta(hours=2)  # 2 hours notification delay
             severity = "severe" if load > 0.72 else "moderate"
-            intensity_value = int(_clip(round(1.0 + 9.0 * load + rng.gauss(0.0, 0.8)), 1, 10))
+            intensity_value = int(_clip(round(1.0 + 9.0 * load + rng.gauss(0.0, 0.8)), 4, 10))
 
             # Detalle de la hoja (disparadores, estrategias, resultado): igual que
             # lo que manda el front. Usa `detail_rng` para no alterar la secuencia principal.
@@ -350,19 +395,49 @@ def generate_synthetic_history(
                 else "Regulación Exitosa"
             )
 
-            occurrence = {
+            day_events.append({
                 "id": f"occ_{subject_id}_{d}",
-                "subject_id": subject_id,
                 "source_timestamp": occ_time,
                 "availability_timestamp": avail_time,
                 "severity": severity,
-                "event_type": "Desregulación Emocional",
+                "event_type": DYSREGULATION_EVENT_TYPE,
                 "intensity_value": intensity_value,
                 "trigger": trigger,
                 "strategy_applied": strategy_applied,
                 "strategy_outcome": strategy_outcome,
-            }
-            occurrences.append(occurrence)
+            })
+            # Señal temprana: muchas crisis vienen precedidas, 1 a 3 horas antes, por
+            # una desregulación leve. Es lo que deja anticipar dentro del mismo día.
+            if time_rng.random() < 0.6:
+                warning = max(morning, occ_time - timedelta(minutes=time_rng.randint(60, 180)))
+                day_events.append(_mild_event(
+                    f"occ_{subject_id}_{d}_warn", warning, DYSREGULATION_EVENT_TYPE, time_rng.randint(2, 3)
+                ))
+
+        # 4. El resto de los eventos del día, hasta los conteos sorteados: desregulaciones
+        #    leves (una moderada o severa sería otra crisis) y eventos de rutina. Los
+        #    conteos del registro de Mi Día se calculan desde estos eventos, como en
+        #    `_refresh_daily_event_counts`; la intensidad leve nunca pasa de 3.
+        mild_cap = max(1, min(3, max_intensity))
+        dysregulations_so_far = sum(1 for e in day_events if e["event_type"] == DYSREGULATION_EVENT_TYPE)
+        for index in range(max(0, dysregulation_count - dysregulations_so_far)):
+            day_events.append(_mild_event(
+                f"evt_{subject_id}_{d}_d{index}", _waking_time(day, time_rng),
+                DYSREGULATION_EVENT_TYPE, time_rng.randint(1, mild_cap),
+            ))
+        for index in range(max(0, event_count - len(day_events))):
+            day_events.append(_mild_event(
+                f"evt_{subject_id}_{d}_r{index}", _waking_time(day, time_rng),
+                time_rng.choice(SYNTHETIC_ROUTINE_EVENTS), time_rng.randint(1, mild_cap),
+            ))
+
+        day_events.sort(key=lambda e: e["source_timestamp"])
+        dysregulations = [e for e in day_events if e["event_type"] == DYSREGULATION_EVENT_TYPE]
+        record["event_count"] = len(day_events)
+        record["dysregulation_count"] = len(dysregulations)
+        record["max_intensity"] = max((e["intensity_value"] for e in day_events), default=0)
+        for event in day_events:
+            occurrences.append({"subject_id": subject_id, **event})
 
     lineage = {
         "seed": seed,

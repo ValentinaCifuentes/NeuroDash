@@ -205,17 +205,19 @@ def build_features(
                 })
                 
     # Compute delta features against baseline
-    # Delta is: current value (most recent eligible record) minus baseline median
+    # Delta is: current value (most recent eligible record that has it) minus baseline
+    # median. Un día tiene varios registros (Mi Día por partes, el cierre): el último
+    # registro puede no traer el campo, y eso no lo vuelve un faltante.
     sorted_records = sorted(history_records, key=lambda r: r["availability_timestamp"], reverse=True)
-    most_recent_record = sorted_records[0] if sorted_records else None
     
     for modality in sorted(modalities):
         baseline_val = baseline.modality_baselines.get(modality)
         current_val = None
-        if most_recent_record and modality in most_recent_record:
-            val = most_recent_record[modality]
+        for record in sorted_records:
+            val = record.get(modality)
             if isinstance(val, (int, float)) and not isinstance(val, bool):
                 current_val = float(val)
+                break
                 
         delta_name = f"{modality}_delta_baseline"
         if current_val is not None and baseline_val is not None:

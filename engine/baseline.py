@@ -34,7 +34,8 @@ def build_baseline(
     """
     pol = policy or AvailabilityPolicy()
     eligible_records, _ = filter_records(records, cutoff, pol, timezone=timezone)
-    eligible_records = completed_days(eligible_records, cutoff, resolve_timezone(timezone))
+    tz = resolve_timezone(timezone)
+    eligible_records = completed_days(eligible_records, cutoff, tz)
     
     # Extract subject ID if available
     subject_id = "unknown"
@@ -62,5 +63,6 @@ def build_baseline(
         subject_id=subject_id,
         as_of=cutoff,
         modality_baselines=modality_baselines,
-        maturity=len(eligible_records)
+        # Días con registro, no registros: Mi Día se guarda por partes y el cierre del día es otro registro.
+        maturity=len({r["source_timestamp"].astimezone(tz).date() for r in eligible_records})
     )

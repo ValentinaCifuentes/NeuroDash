@@ -4,6 +4,10 @@ from pathlib import Path
 from datetime import datetime
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from engine.schemas import DYSREGULATION_EVENT_TYPE  # noqa: E402
+
 
 def validate_schema(file_path: Path | str) -> bool:
     """
@@ -79,8 +83,12 @@ def validate_schema(file_path: Path | str) -> bool:
             print(f"Error: Occurrence at index {idx} is not an object.")
             return False
 
-        # Required occurrence keys
-        for req_key in ["id", "subject_id", "source_timestamp", "availability_timestamp", "severity"]:
+        # Required occurrence keys. Como en la app (`save_event`), solo las
+        # desregulaciones llevan severidad; una transición o una comida no.
+        required = ["id", "subject_id", "source_timestamp", "availability_timestamp"]
+        if occ.get("event_type", DYSREGULATION_EVENT_TYPE) == DYSREGULATION_EVENT_TYPE or "severity" in occ:
+            required.append("severity")
+        for req_key in required:
             if req_key not in occ:
                 print(f"Error: Occurrence {idx} missing required key '{req_key}'.")
                 return False
@@ -97,7 +105,7 @@ def validate_schema(file_path: Path | str) -> bool:
                 return False
 
         # Validate severity level
-        severity = occ["severity"].lower()
+        severity = occ.get("severity", "mild").lower()
         if severity not in ["mild", "moderate", "severe"]:
             print(f"Error: Occurrence {idx} field 'severity' must be one of 'mild', 'moderate', 'severe'. Got '{severity}'")
             return False

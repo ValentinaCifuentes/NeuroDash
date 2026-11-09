@@ -222,17 +222,17 @@ def test_synthetic_data_generator_seeds_and_reproducibility() -> None:
     assert len(history_1["occurrences"]) == len(history_2["occurrences"])
     
     for r1, r2 in zip(history_1["records"], history_2["records"]):
-        assert r1["sleep_quality"] == r2["sleep_quality"]
+        assert r1.get("sleep_quality") == r2.get("sleep_quality")
         assert r1["source_timestamp"] == r2["source_timestamp"]
         
     for o1, o2 in zip(history_1["occurrences"], history_2["occurrences"]):
-        assert o1["severity"] == o2["severity"]
+        assert o1.get("severity") == o2.get("severity")
         assert o1["source_timestamp"] == o2["source_timestamp"]
 
     # Verify that different seeds produce different outputs
     all_same = True
     for r1, r_diff in zip(history_1["records"], history_diff["records"]):
-        if r1["sleep_quality"] != r_diff["sleep_quality"]:
+        if r1.get("sleep_quality") != r_diff.get("sleep_quality"):
             all_same = False
             break
     assert not all_same

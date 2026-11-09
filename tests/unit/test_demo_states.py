@@ -40,10 +40,14 @@ def test_end_date_moves_the_dates_but_keeps_the_same_values() -> None:
 
     assert anchored["records"][-1]["source_timestamp"].date() == date(2026, 12, 3)
     assert anchored["records"][0]["source_timestamp"].date() == date(2026, 11, 24)
-    assert fixed["records"][0]["source_timestamp"] == datetime.fromisoformat("2026-08-01T12:00:00-04:00")
+    # Mi Día en la mañana (07:00–08:30) y el cierre en la noche, disponible desde la medianoche.
+    first, first_close = fixed["records"][0], fixed["records"][1]
+    assert first["source_timestamp"].date() == date(2026, 8, 1)
+    assert 7 <= first["source_timestamp"].hour <= 8
+    assert first_close["availability_timestamp"] == datetime.fromisoformat("2026-08-02T00:00:00-04:00")
 
     def values(history: dict) -> list:
-        return [{k: v for k, v in record.items() if "timestamp" not in k} for record in history["records"]]
+        return [{k: v for k, v in record.items() if "timestamp" not in k and k != "date"} for record in history["records"]]
 
     assert values(anchored) == values(fixed)
     assert len(anchored["occurrences"]) == len(fixed["occurrences"])
