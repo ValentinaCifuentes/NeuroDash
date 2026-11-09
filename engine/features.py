@@ -2,7 +2,7 @@ from datetime import datetime, date, timedelta, timezone, tzinfo
 import zoneinfo
 from typing import Any
 
-from engine.temporal import AvailabilityPolicy, filter_records
+from engine.temporal import AvailabilityPolicy, completed_days, filter_records, resolve_timezone
 from engine.baseline import BaselineSnapshot
 from engine.schemas import HORIZON_HOURS
 
@@ -56,6 +56,9 @@ def get_records_in_window(
     """
     Returns records that fall within the rolling window of size `window_days`
     relative to the prior day of the cutoff date in the given timezone.
+
+    Cada registro cae en el día en que ocurrió (no en el que quedó disponible): el
+    cierre del día de ayer, disponible desde la medianoche, sigue siendo de ayer.
     """
     cutoff_local_date = get_local_date(cutoff, tz)
     prior_day = cutoff_local_date - timedelta(days=1)
@@ -63,9 +66,8 @@ def get_records_in_window(
     
     matching_records = []
     for record in records:
-        avail_ts = record["availability_timestamp"]
-        avail_date = get_local_date(avail_ts, tz)
-        if start_day <= avail_date <= prior_day:
+        source_date = get_local_date(record["source_timestamp"], tz)
+        if start_day <= source_date <= prior_day:
             matching_records.append(record)
             
     return matching_records
@@ -91,12 +93,10 @@ def build_features(
     """
     pol = policy or AvailabilityPolicy()
     eligible_records, _ = filter_records(records, cutoff, pol, timezone=timezone)
-    
-    # Resolve timezone object
-    if isinstance(timezone, str):
-        tz = zoneinfo.ZoneInfo(timezone)
-    else:
-        tz = timezone
+    tz = resolve_timezone(timezone)
+    # El historial (ventanas, deltas y campos a recorrer) se arma con días completos.
+    # Con la regla `intraday` lo de hoy también es elegible, pero todavía no se usa.
+    history_records = completed_days(eligible_records, cutoff, tz)
         
     # Get subject metadata
     subject_data = subject or {}
@@ -106,7 +106,7 @@ def build_features(
     # We include fields from baseline modalities, plus any numeric fields found in eligible records
     modalities = set(baseline.modality_baselines.keys())
     ignored_keys = {"source_timestamp", "availability_timestamp", "id", "subject_id"}
-    for record in eligible_records:
+    for record in history_records:
         for key, value in record.items():
             if key not in ignored_keys and isinstance(value, (int, float)) and not isinstance(value, bool):
                 modalities.add(key)
@@ -122,7 +122,7 @@ def build_features(
     
     # Calculate rolling feature aggregates and track missingness
     for window in windows:
-        window_records = get_records_in_window(eligible_records, cutoff, window, tz)
+        window_records = get_records_in_window(history_records, cutoff, window, tz)
         
         # Count records in this window
         rolling_features[f"record_count_{window}d"] = float(len(window_records))
@@ -164,7 +164,7 @@ def build_features(
                 
     # Compute delta features against baseline
     # Delta is: current value (most recent eligible record) minus baseline median
-    sorted_records = sorted(eligible_records, key=lambda r: r["availability_timestamp"], reverse=True)
+    sorted_records = sorted(history_records, key=lambda r: r["availability_timestamp"], reverse=True)
     most_recent_record = sorted_records[0] if sorted_records else None
     
     for modality in sorted(modalities):

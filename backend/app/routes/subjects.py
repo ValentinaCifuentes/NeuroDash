@@ -2,7 +2,7 @@ import re
 import unicodedata
 import uuid
 import zoneinfo
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from pathlib import Path
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
@@ -207,6 +207,19 @@ def require_aware(value: datetime, field_name: str = "occurred_at") -> datetime:
     return value
 
 
+def received_now() -> str:
+    """Hora del servidor en que llega un dato (`received_at`).
+
+    Es distinta de `occurred_at`: un evento anotado a las 16:00 que ocurrió a las
+    10:00 recién se conoce a las 16:00. Al entrenar y evaluar (`ml/data_loading.py`)
+    el dato cuenta desde la más tardía de las dos, para que una estimación pasada no
+    use lo que todavía no se sabía. La disponibilidad del registro no se toca: el
+    corte en vivo lo pone el reloj del celular, y un desfase de segundos con el
+    servidor escondería lo recién guardado.
+    """
+    return datetime.now(timezone.utc).isoformat()
+
+
 def subject_root(subject_id: str) -> Path:
     """Carpeta raíz donde vive el infante: los reales primero, luego las demos."""
     for root in (SUBJECTS_ROOT, DEMO_PROFILES_ROOT):
@@ -344,6 +357,7 @@ def save_daily_record(subject_id: str, req: CareRecordWrite, actor: ActorContext
         "availability_timestamp": occurred_at.isoformat(),
         "date": occurred_at.astimezone(local_zone).date().isoformat(),
         "prediction_availability": "immediate",
+        "received_at": received_now(),
     })
     return _save_daily_record_item(subject_id, item, req.record_id)
 
@@ -373,13 +387,15 @@ def _save_daily_record_item(subject_id: str, item: dict[str, Any], record_id: st
         for record in records:
             if record.get("record_id") == record_id:
                 # Editar: reemplaza el texto y los números de la Bitácora, conserva
-                # record_id, timestamps y los conteos que calculó `_refresh_daily_event_counts`.
+                # record_id, la hora del registro y los conteos que calculó `_refresh_daily_event_counts`.
                 record["raw"] = item.get("raw", {})
                 for field in _BASAL_NUMERIC_FIELDS:
                     if field in item:
                         record[field] = item[field]
                     else:
                         record.pop(field, None)
+                # Los valores nuevos se conocen desde ahora, no desde el registro original.
+                record["received_at"] = item["received_at"]
                 write_json_atomic(subject_root(subject_id) / subject_id / "records.json", records)
                 return record
         raise HTTPException(status_code=404, detail=f"Record {record_id} not found.")
@@ -404,6 +420,7 @@ def save_event(subject_id: str, req: EventWrite, actor: ActorContext = Depends(g
         "source_timestamp": occurred_at.isoformat(),
         "availability_timestamp": occurred_at.isoformat(),
         "prediction_availability": "immediate",
+        "received_at": received_now(),
     })
     saved = care_repository(subject_id).save(subject_id, "occurrences", item, "event_id")
     _refresh_daily_event_counts(subject_id, occurred_at, actor.actor_id)
@@ -460,6 +477,7 @@ def save_end_of_day(subject_id: str, req: CareRecordWrite, actor: ActorContext =
         "availability_timestamp": availability.isoformat(),
         "date": local_time.date().isoformat(),
         "prediction_availability": "prior_day_only",
+        "received_at": received_now(),
     })
     return care_repository(subject_id).save(subject_id, "records", item, "record_id")
 
@@ -475,6 +493,7 @@ def save_planned_event(subject_id: str, req: PlannedEventWrite, actor: ActorCont
         "author_id": actor.actor_id,
         "source_timestamp": starts_at.isoformat(),
         "availability_timestamp": starts_at.isoformat(),
+        "received_at": received_now(),
     })
     return care_repository(subject_id).save(subject_id, "planned_events", item, "planned_event_id")
 
@@ -568,6 +587,7 @@ def _refresh_daily_event_counts(subject_id: str, occurred_at: datetime, author_i
             "availability_timestamp": occurred_at.isoformat(),
             "date": local_date_str,
             "prediction_availability": "immediate",
+            "received_at": received_now(),
             **counts,
         })
 

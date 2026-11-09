@@ -72,7 +72,7 @@ def execute_smoke_run(
     prediction_cutoff = records_sorted[-1]["source_timestamp"] if records_sorted else datetime.now(timezone.utc)
     
     # 2. Build baseline and features
-    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+    policy = AvailabilityPolicy()  # regla de config/availability.yaml
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
     features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile)
     

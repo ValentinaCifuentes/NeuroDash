@@ -1,7 +1,7 @@
 from datetime import datetime, timezone, timedelta
 import pytest
 
-from engine.temporal import AvailabilityPolicy
+from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import build_baseline, BaselineSnapshot
 from engine.features import build_features, FeatureSet
 
@@ -42,22 +42,19 @@ def test_prior_day_only_regulation_in_features() -> None:
     features_active = build_features(records, baseline_active, cutoff, policy=policy_active, timezone="UTC", subject=subject)
     assert features_active.rolling_features["sleep_quality_mean_1d"] == 8.0
 
-    # Test case 2: With daily regulation disabled ("none")
-    policy_none = AvailabilityPolicy(daily_regulation="none", exclusion_policy="conservative")
-    baseline_none = build_baseline(records, cutoff, policy=policy_none, timezone="UTC")
-    assert baseline_none.maturity == 2
-    # Median of 8.0 and 4.0 is 6.0
-    assert baseline_none.modality_baselines["sleep_quality"] == 6.0
-    
-    features_none = build_features(records, baseline_none, cutoff, policy=policy_none, timezone="UTC", subject=subject)
-    # Under no regulation, 1d window includes 2026-08-26 8:00 (same day).
-    # Wait, the 1d window is defined relative to the prior day.
-    # If daily regulation is "none", it filters cutoff-eligible records, but windows are still relative to the prior day.
-    # Let's verify that the same-day record is excluded from rolling windows (since they are defined back from prior day).
-    # Yes, get_records_in_window filters within [prior_day - W + 1, prior_day].
-    # But same-day record can be used in other ways (e.g. if we build same-day features, but rolling windows are specifically 1/3/7/14d from prior day).
-    # This is a good verification!
-    assert features_none.rolling_features["sleep_quality_mean_1d"] == 8.0
+    # Test case 2: With intraday regulation, today's record is eligible...
+    policy_intraday = AvailabilityPolicy(daily_regulation="intraday", exclusion_policy="conservative")
+    eligible, _ = filter_records(records, cutoff, policy_intraday, timezone="UTC")
+    assert rec_same in eligible
+
+    # ...but the baseline and the 1–14 day windows are built only from completed days:
+    # today is still unfinished and does not mix with closed days.
+    baseline_intraday = build_baseline(records, cutoff, policy=policy_intraday, timezone="UTC")
+    assert baseline_intraday.maturity == 1
+    assert baseline_intraday.modality_baselines["sleep_quality"] == 8.0
+
+    features_intraday = build_features(records, baseline_intraday, cutoff, policy=policy_intraday, timezone="UTC", subject=subject)
+    assert features_intraday.rolling_features == features_active.rolling_features
 
 
 def test_rolling_windows_and_missingness() -> None:
@@ -176,3 +173,32 @@ def test_sensory_context_inclusion_never_sets_baseline_risk() -> None:
     features_2 = build_features(records, baseline_2, cutoff, policy=policy, timezone="UTC", subject=subject_none)
     assert features_2.sensory_context == {}
     assert "risk" not in features_2.rolling_features
+
+
+def test_switching_to_intraday_does_not_change_the_demo_features_yet() -> None:
+    """Paso 2: la regla nueva deja entrar lo de hoy, pero el historial sigue igual.
+
+    Con el historial de PAC-A, las variables y la línea base son las mismas con las dos
+    reglas, a mediodía y en la tarde: el modelo actual no cambia hasta que se usen
+    los datos del día en curso.
+    """
+    from pathlib import Path
+    from ml.data_loading import load_subject_data
+
+    data_dir = Path(__file__).resolve().parents[2] / "data"
+    bundle = load_subject_data("PAC-A", data_dir)
+    records, tz = bundle["records"], bundle["profile"]["timezone"]
+    last = max(r["source_timestamp"] for r in records)
+    old = AvailabilityPolicy(daily_regulation="prior_day_only")
+    new = AvailabilityPolicy(daily_regulation="intraday")
+
+    for cutoff in [last - timedelta(days=30), last - timedelta(days=1, hours=-6), last, last + timedelta(hours=6)]:
+        base_old = build_baseline(records, cutoff, policy=old, timezone=tz)
+        base_new = build_baseline(records, cutoff, policy=new, timezone=tz)
+        assert base_new.modality_baselines == base_old.modality_baselines
+        assert base_new.maturity == base_old.maturity
+
+        feats_old = build_features(records, base_old, cutoff, policy=old, timezone=tz, planned_events=bundle["planned_events"])
+        feats_new = build_features(records, base_new, cutoff, policy=new, timezone=tz, planned_events=bundle["planned_events"])
+        assert feats_new.rolling_features == feats_old.rolling_features
+        assert feats_new.missingness == feats_old.missingness

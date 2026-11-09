@@ -3,7 +3,7 @@ import statistics
 import zoneinfo
 from typing import Any
 
-from engine.temporal import AvailabilityPolicy, filter_records
+from engine.temporal import AvailabilityPolicy, completed_days, filter_records, resolve_timezone
 
 
 class BaselineSnapshot:
@@ -29,10 +29,12 @@ def build_baseline(
 ) -> BaselineSnapshot:
     """
     Computes a baseline snapshot for a subject by calculating the median of historical modalities.
-    Only records that are eligible under the temporal policy are included.
+    Only records that are eligible under the temporal policy are included, and only
+    from completed days: the baseline is what is habitual, and today is still unfinished.
     """
     pol = policy or AvailabilityPolicy()
     eligible_records, _ = filter_records(records, cutoff, pol, timezone=timezone)
+    eligible_records = completed_days(eligible_records, cutoff, resolve_timezone(timezone))
     
     # Extract subject ID if available
     subject_id = "unknown"

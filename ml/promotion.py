@@ -81,6 +81,8 @@ def record_prediction_outcome(
             "event_type": "Desregulación Emocional",
             "severity": "moderate",
             "source": "outcome_confirmation",
+            # Se confirma ahora, aunque la hora de la crisis quede antes (ver routes/subjects.py › received_now).
+            "received_at": now.isoformat(),
         }
 
         occurrences_path = subject_dir / "occurrences.json"

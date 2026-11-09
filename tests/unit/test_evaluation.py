@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ml.data_loading import load_subject_data
+from ml.data_loading import known_at, load_subject_data
 from ml.dataset_builder import build_feature_example, generate_synthetic_history
 from ml.evaluation import (
     binary_metrics,
@@ -35,6 +35,17 @@ def test_daily_cutoffs_start_after_baseline_offset() -> None:
     assert len(cutoffs) == 7  # days 3..9
     assert cutoffs[0] == start + timedelta(days=3)
     assert cutoffs[-1] == start + timedelta(days=9)
+
+
+def test_training_data_counts_a_late_entry_only_from_when_it_arrived() -> None:
+    """Anotado a las 16:00 algo de las 10:00: para entrenar y evaluar, se sabe desde las 16:00."""
+    late = {"availability_timestamp": "2026-11-02T10:00:00-03:00", "received_at": "2026-11-02T19:00:00+00:00"}
+    on_time = {"availability_timestamp": "2026-11-02T10:00:00-03:00", "received_at": "2026-11-02T13:00:05+00:00"}
+    synthetic = {"availability_timestamp": "2026-11-02T10:00:00-03:00"}
+
+    assert known_at(late) == datetime(2026, 11, 2, 19, 0, tzinfo=timezone.utc)
+    assert known_at(on_time) == datetime(2026, 11, 2, 13, 0, 5, tzinfo=timezone.utc)
+    assert known_at(synthetic) == datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc)
 
 
 def test_walk_forward_folds_are_temporal_and_expanding() -> None:

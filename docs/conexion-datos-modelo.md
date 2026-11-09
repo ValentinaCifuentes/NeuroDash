@@ -249,7 +249,7 @@ Umbrales de cobertura (en `config/confidence.yaml`):
 
 ## 11. Consideraciones y pendientes
 
-- **Política temporal `prior_day_only`:** lo registrado hoy recién cuenta mañana (`availability_timestamp` del cierre de día es la medianoche siguiente). El campo `prediction_availability` (`immediate` vs `prior_day_only`) describe la intención, aunque hoy el motor usa `prior_day_only` de forma fija.
+- **Política temporal (`config/availability.yaml`, regla `intraday`):** cuenta lo disponible hasta la hora de la estimación, también lo de hoy. El cierre del día (`prediction_availability: prior_day_only`, disponible desde la medianoche siguiente) recién cuenta mañana. El historial de 1–14 días y la línea base se arman solo con días completos; las variables del día en curso están en construcción. La regla anterior, `prior_day_only` (nada del día de la estimación), se mantiene para comparar. Al entrenar y evaluar, lo registrado en la app cuenta desde su `received_at` si llegó después de ocurrir.
 - **Datos demo:** `ml/dataset_builder.py:generate_synthetic_history` genera los mismos campos numéricos y con **señal aprendible** (una "carga de desregulación" oculta, autocorrelacionada, que hace que los registros pasados predigan la crisis de hoy). Los perfiles PAC-A/PAC-B usan 90 días; PAC-C usa 2 días para demostrar la abstención.
 - **Ocurrencias de "Confirmar que ocurrió"** (`ml/promotion.py:record_prediction_outcome`) no llevan `event_type` ni `intensity_value`; cuentan en `event_count` pero no en `dysregulation_count`.
 - **Fuera de alcance por ahora (Fases 2–4 del plan):** detalle de eventos, contexto del día, perfil inicial completo y planificación.

@@ -156,7 +156,7 @@ def make_prediction(
     # 2. Build baseline and features from data available at the cutoff only.
     records = [record for record in records if record["source_timestamp"] <= prediction_cutoff and record["availability_timestamp"] <= prediction_cutoff]
     occurrences = [occurrence for occurrence in occurrences if occurrence["source_timestamp"] <= prediction_cutoff and occurrence["availability_timestamp"] <= prediction_cutoff]
-    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+    policy = AvailabilityPolicy()  # regla de config/availability.yaml
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
     features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile, planned_events=planned_events)
 

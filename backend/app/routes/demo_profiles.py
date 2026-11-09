@@ -88,7 +88,7 @@ def demo_retrain(subject_id: str) -> dict[str, Any]:
     else:
         split_cutoff = max_date - timedelta(days=2)
 
-    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+    policy = AvailabilityPolicy()  # regla de config/availability.yaml
 
     # 3. Build dataset
     try:

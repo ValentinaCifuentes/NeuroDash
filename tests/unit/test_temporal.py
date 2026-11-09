@@ -51,7 +51,7 @@ def test_naive_timestamp_rejection() -> None:
 
 
 def test_cutoff_equality_and_future_exclusion() -> None:
-    policy = AvailabilityPolicy(daily_regulation="none", exclusion_policy="conservative")
+    policy = AvailabilityPolicy(daily_regulation="intraday", exclusion_policy="conservative")
     cutoff = datetime(2026, 8, 26, 12, 0, 0, tzinfo=timezone.utc)
     context = TemporalContext(cutoff=cutoff, policy=policy, timezone="UTC")
 
@@ -144,3 +144,46 @@ def test_conservative_exclusion_policy_with_provenance() -> None:
     reasons = [e["reason"] for e in provenance["exclusions"]]
     assert "same_day_regulation" in reasons
     assert "after_cutoff" in reasons
+
+
+def test_intraday_counts_today_but_keeps_the_end_of_day_summary_for_tomorrow() -> None:
+    """Mi Día y los eventos de hoy cuentan apenas están; el cierre del día, desde mañana."""
+    policy = AvailabilityPolicy(daily_regulation="intraday", exclusion_policy="conservative")
+    tz = "America/Santiago"
+    cutoff = datetime(2026, 11, 2, 15, 0, tzinfo=zoneinfo.ZoneInfo(tz))
+    morning = {
+        "id": "morning",
+        "source_timestamp": datetime(2026, 11, 2, 8, 0, tzinfo=zoneinfo.ZoneInfo(tz)),
+        "availability_timestamp": datetime(2026, 11, 2, 8, 0, tzinfo=zoneinfo.ZoneInfo(tz)),
+        "prediction_availability": "immediate",
+    }
+    later_today = {**morning, "id": "later", "source_timestamp": cutoff + timedelta(hours=1),
+                   "availability_timestamp": cutoff + timedelta(hours=1)}
+    # Un cierre del día con disponibilidad mal puesta (hoy): igual espera a mañana.
+    end_of_day_today = {**morning, "id": "eod-today", "prediction_availability": "prior_day_only"}
+    end_of_day_yesterday = {
+        "id": "eod-yesterday",
+        "source_timestamp": datetime(2026, 11, 1, 20, 0, tzinfo=zoneinfo.ZoneInfo(tz)),
+        "availability_timestamp": datetime(2026, 11, 2, 0, 0, tzinfo=zoneinfo.ZoneInfo(tz)),
+        "prediction_availability": "prior_day_only",
+    }
+
+    eligible, provenance = filter_records(
+        [morning, later_today, end_of_day_today, end_of_day_yesterday], cutoff, policy, timezone=tz
+    )
+
+    assert [r["id"] for r in eligible] == ["morning", "eod-yesterday"]
+    assert {e["record_id"]: e["reason"] for e in provenance["exclusions"]} == {
+        "later": "after_cutoff",
+        "eod-today": "same_day_regulation",
+    }
+    assert provenance["policy"]["daily_regulation"] == "intraday"
+
+
+def test_unknown_daily_regulation_is_rejected() -> None:
+    with pytest.raises(TemporalError):
+        AvailabilityPolicy(daily_regulation="none")
+
+
+def test_the_configured_rule_is_intraday() -> None:
+    assert AvailabilityPolicy().daily_regulation == "intraday"

@@ -54,7 +54,7 @@ def train_subject_model(
     else:
         split_cutoff = max_date - timedelta(days=2)
         
-    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+    policy = AvailabilityPolicy()  # regla de config/availability.yaml
     
     # Build dataset
     X_train, y_train, _, _, lineage = build_dataset(

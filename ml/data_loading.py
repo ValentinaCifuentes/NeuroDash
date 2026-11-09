@@ -22,6 +22,18 @@ def parse_timestamp(value: str | datetime) -> datetime:
     return dt
 
 
+def known_at(item: dict[str, Any]) -> datetime:
+    """Desde cuándo se puede usar un dato: su disponibilidad o, si llegó después, su `received_at`.
+
+    Lo registrado en la app guarda la hora del servidor en que llegó
+    (`backend/app/routes/subjects.py › received_now`). Un evento anotado tarde no
+    debe aparecer en una estimación anterior a cuando se anotó.
+    """
+    available = parse_timestamp(item["availability_timestamp"])
+    received = item.get("received_at")
+    return max(available, parse_timestamp(received)) if received else available
+
+
 def load_subject_data(subject_id: str, data_dir: Path | str) -> dict[str, Any]:
     """Carga perfil, registros, ocurrencias y eventos planificados de un sujeto.
 
@@ -51,19 +63,9 @@ def load_subject_data(subject_id: str, data_dir: Path | str) -> dict[str, Any]:
     occurrences = history.get("occurrences", [])
     planned_events = history.get("planned_events", [])
 
-    for record in records:
-        record["source_timestamp"] = parse_timestamp(record["source_timestamp"])
-        record["availability_timestamp"] = parse_timestamp(
-            record["availability_timestamp"]
-        )
-
-    for occurrence in occurrences:
-        occurrence["source_timestamp"] = parse_timestamp(
-            occurrence["source_timestamp"]
-        )
-        occurrence["availability_timestamp"] = parse_timestamp(
-            occurrence["availability_timestamp"]
-        )
+    for item in [*records, *occurrences]:
+        item["source_timestamp"] = parse_timestamp(item["source_timestamp"])
+        item["availability_timestamp"] = known_at(item)
 
     for event in planned_events:
         if isinstance(event.get("starts_at"), str):

@@ -132,3 +132,35 @@ def test_care_write_uses_contract_v2_and_rejects_unsafe_input_without_persisting
     assert saved.json()["contract_version"] == "2.0"
     assert rejected.status_code == 422
     assert [entry["entry_id"] for entry in timeline.json()["entries"]] == [saved.json()["record_id"]]
+
+
+def test_writes_keep_the_server_time_they_arrived_apart_from_when_it_happened(tmp_path: Path, monkeypatch) -> None:
+    """Un dato anotado tarde guarda cuándo llegó (`received_at`); su hora y su disponibilidad no cambian."""
+    monkeypatch.setattr(subjects, "SUBJECTS_ROOT", tmp_path)
+    arrivals = iter(["2026-08-26T20:00:00+00:00", "2026-08-26T21:00:00+00:00", "2026-08-26T22:00:00+00:00"])
+    monkeypatch.setattr(subjects, "received_now", lambda: next(arrivals))
+    client = TestClient(app)
+    subject_id = onboard(client)
+    provenance = {"source": "caregiver", "synthetic": False}
+
+    daily = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T07:30:00-04:00", "idempotency_key": "late-daily",
+        "provenance": provenance, "sleep_quality": "Reparador",
+    }, headers=headers()).json()
+    event = client.post(f"/api/v1/subjects/{subject_id}/events", json={
+        "occurred_at": "2026-08-26T10:00:00-04:00", "idempotency_key": "late-event",
+        "provenance": provenance, "event_type": "Transición de Actividad", "intensity_value": 4,
+    }, headers=headers()).json()
+
+    assert daily["availability_timestamp"] == "2026-08-26T07:30:00-04:00"
+    assert daily["received_at"] == "2026-08-26T20:00:00+00:00"
+    assert event["availability_timestamp"] == "2026-08-26T10:00:00-04:00"
+    assert event["received_at"] == "2026-08-26T21:00:00+00:00"
+
+    # Corregir el registro con el lápiz: los valores nuevos se conocen desde ahora.
+    edited = client.post(f"/api/v1/subjects/{subject_id}/daily-records", json={
+        "occurred_at": "2026-08-26T07:30:00-04:00", "idempotency_key": "late-edit",
+        "provenance": provenance, "record_id": daily["record_id"], "sleep_quality": "Interrumpido",
+    }, headers=headers()).json()
+    assert edited["received_at"] == "2026-08-26T22:00:00+00:00"
+    assert edited["availability_timestamp"] == "2026-08-26T07:30:00-04:00"
