@@ -12,6 +12,7 @@ from ml.promotion import write_json_atomic
 from backend.app.prediction_service import load_legacy_history, load_legacy_planned_events, load_subject_data, SubjectNotFoundError
 from backend.app.care_repository import CareRecordRepository, SubjectRepository
 from backend.app.schemas import ActorContext, ProvenanceV2
+from engine.schemas import DYSREGULATION_EVENT_TYPE as DYREGULATION_EVENT_TYPE, UNRESOLVED_OUTCOME
 
 router = APIRouter(prefix="/api/v1/subjects", tags=["Subjects"])
 SUBJECTS_ROOT = Path(__file__).resolve().parents[3] / "data" / "subjects"
@@ -95,8 +96,6 @@ class PlannedEventWrite(BaseModel):
     idempotency_key: str | None = None
 
 
-DYREGULATION_EVENT_TYPE = "Desregulación Emocional"
-
 # Texto -> número para los campos de la Bitácora. El texto original se conserva
 # en `raw: {...}` y el número queda en la raíz con un nombre estable que el
 # motor (`engine/features.py`) agrega automáticamente.
@@ -124,7 +123,6 @@ EVENT_SCALE_ENCODINGS: dict[str, tuple[str, dict[str, float]]] = {
     "Dieta Sensorial": ("sensory_diet_done", {"Completa": 1, "Parcial": 0.5, "No realizada": 0}),
 }
 EFFECTIVE_OUTCOME = "Regulación Exitosa"
-UNRESOLVED_OUTCOME = "Sin Regulación"
 # Opciones «nada» de las preguntas de varias respuestas.
 NO_EARLY_SIGNS = "Ninguna"
 NO_DISCOMFORT = "No"

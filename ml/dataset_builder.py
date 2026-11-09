@@ -54,13 +54,16 @@ def build_feature_example(
     evaluation needs to reproduce the confidence/abstention layer; training keeps
     using `build_training_example`, which only returns the rolling features.
     """
+    # Las ocurrencias sirven para la etiqueta (las posteriores al corte) y para las
+    # variables del día (solo las disponibles al corte; lo filtra `build_features`).
     feat_set = build_features(
         records=records,
         baseline=baseline,
         cutoff=cutoff,
         policy=policy,
         timezone=timezone,
-        planned_events=planned_events
+        planned_events=planned_events,
+        occurrences=occurrences
     )
     return feat_set, label_for_cutoff(occurrences, cutoff, horizon_hours)
 

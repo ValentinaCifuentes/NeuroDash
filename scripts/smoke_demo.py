@@ -74,7 +74,7 @@ def execute_smoke_run(
     # 2. Build baseline and features
     policy = AvailabilityPolicy()  # regla de config/availability.yaml
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
-    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile)
+    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile, occurrences=occurrences)
     
     # 3. Model Registry loading
     registry = ModelRegistry(base_dir=m_dir)

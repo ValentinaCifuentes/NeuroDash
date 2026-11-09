@@ -9,6 +9,10 @@ CONTRACT_VERSION = "2"
 # señal disponible (ver docs/plan-conexion-datos-modelo.md, sección "Riesgos").
 HORIZON_HOURS = 8
 
+# Tipo de evento y resultado que el motor cuenta como desregulación (hojas de registro).
+DYSREGULATION_EVENT_TYPE = "Desregulación Emocional"
+UNRESOLVED_OUTCOME = "Sin Regulación"
+
 
 class ConfidenceLevel(StrEnum):
     INSUFFICIENT = "INSUFFICIENT"

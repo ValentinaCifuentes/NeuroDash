@@ -1,6 +1,8 @@
 import re
 from typing import Any
 
+from engine.features import TODAY_BASAL_FIELDS
+
 FEATURE_DISPLAY_NAMES = {
     "sleep_quality_mean_1d": "calidad del sueño en el último día",
     "sleep_quality_mean_3d": "calidad del sueño en los últimos tres días",
@@ -141,6 +143,35 @@ for _field, (_name, _code) in _CONTEXT_FAMILIES.items():
 FEATURE_DISPLAY_NAMES["planned_stressful_event_8h"] = "evento planificado estresante en el horizonte"
 FEATURE_VARIABLE_NAMES["planned_stressful_event_8h"] = "evento_planificado_estresante"
 
+# Día en curso (`engine/features.py › _today_features`): estado de la mañana…
+_TODAY_BASAL_NAMES = {
+    "sleep_quality": ("calidad del sueño", "calidad_sueno"),
+    "wake_state": ("estado al despertar", "estado_despertar"),
+    "start_autonomy_level": ("autonomía al inicio del día", "autonomia_inicio_dia"),
+    "medication_taken": ("toma de medicación", "medicacion"),
+    "gi_level": ("nivel de digestión", "digestion"),
+    **{field: _CONTEXT_FAMILIES[field] for field in ("sleep_hours", "early_signs_count", "physical_discomfort", "routine_change", "school_attendance")},
+}
+for _field in TODAY_BASAL_FIELDS:
+    _name, _code = _TODAY_BASAL_NAMES[_field]
+    FEATURE_DISPLAY_NAMES[f"{_field}_today"] = f"{_name} hoy"
+    FEATURE_VARIABLE_NAMES[f"{_field}_today"] = f"{_code}_hoy"
+# …lo que pasó hasta la hora de la estimación y el momento del día.
+for _feature, (_name, _code) in {
+    "today_record_missing": ("sin registro de Mi Día hoy", "sin_registro_hoy"),
+    "event_count_today": ("eventos registrados hoy", "eventos_hoy"),
+    "dysregulation_count_today": ("desregulaciones registradas hoy", "desregulaciones_hoy"),
+    "max_intensity_today": ("intensidad máxima de eventos hoy", "intensidad_maxima_hoy"),
+    "dysregulation_unresolved_today": ("desregulaciones sin regular hoy", "desregulaciones_sin_regular_hoy"),
+    "dysregulation_count_8h": ("desregulaciones en las últimas ocho horas", "desregulaciones_ultimas_ocho_horas"),
+    "hours_since_dysregulation": ("horas desde la última desregulación", "horas_desde_ultima_desregulacion"),
+    "period_morning": ("estimación hecha en la mañana", "momento_manana"),
+    "period_afternoon": ("estimación hecha en la tarde", "momento_tarde"),
+    "period_evening": ("estimación hecha en la noche", "momento_noche"),
+}.items():
+    FEATURE_DISPLAY_NAMES[_feature] = _name
+    FEATURE_VARIABLE_NAMES[_feature] = _code
+
 
 # Comparación con el propio infante (P19). Para cada variable: cuánto tiene que
 # alejarse de su línea base (la mediana de su historial) para contar como
@@ -170,6 +201,7 @@ BASELINE_PHRASES: dict[str, tuple[float, str, str, str]] = {
     "dysregulation_unresolved": (0.2, "Más desregulaciones sin regular que de costumbre", "Menos desregulaciones sin regular que de costumbre", "Desregulaciones sin regular como de costumbre"),
 }
 _LATEST_RECORD = "en su último registro"
+_TODAY = "hoy"
 # Variables donde «más» es mejor para el infante; en el resto, más es peor.
 HIGHER_IS_BETTER = {"sleep_quality", "medication_taken", "sleep_hours", "school_attendance", "sensory_diet_done"}
 
@@ -195,6 +227,14 @@ def compare_with_baseline(
         return none
     if feature.endswith("_delta_baseline"):
         field, diff, when = feature[: -len("_delta_baseline")], value, _LATEST_RECORD
+    elif feature.endswith("_today"):
+        # Solo el estado de la mañana: un conteo de hoy está incompleto hasta que
+        # termina el día y no se compara con días completos.
+        field = feature[: -len("_today")]
+        base = (baselines or {}).get(field)
+        if field not in TODAY_BASAL_FIELDS or base is None:
+            return none
+        diff, when = value - base, _TODAY
     else:
         match = re.fullmatch(r"(.+)_mean_(\d+)d", feature)
         if not match or not baselines:

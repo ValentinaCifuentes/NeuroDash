@@ -3,7 +3,11 @@ import pytest
 
 from engine.temporal import AvailabilityPolicy, filter_records
 from engine.baseline import build_baseline, BaselineSnapshot
-from engine.features import build_features, FeatureSet
+from engine.features import TODAY_FEATURE_NAMES, build_features, FeatureSet
+
+
+def _history(features: dict) -> dict:
+    return {name: value for name, value in features.items() if name not in TODAY_FEATURE_NAMES}
 
 
 def test_prior_day_only_regulation_in_features() -> None:
@@ -54,7 +58,16 @@ def test_prior_day_only_regulation_in_features() -> None:
     assert baseline_intraday.modality_baselines["sleep_quality"] == 8.0
 
     features_intraday = build_features(records, baseline_intraday, cutoff, policy=policy_intraday, timezone="UTC", subject=subject)
-    assert features_intraday.rolling_features == features_active.rolling_features
+    assert _history(features_intraday.rolling_features) == _history(features_active.rolling_features)
+
+    # Today's morning state only enters with the intraday rule. The daily record's
+    # event_count (5) is not used for today: today's events come from the occurrences.
+    today = features_intraday.rolling_features
+    assert (today["sleep_quality_today"], today["wake_state_today"], today["today_record_missing"]) == (4.0, 3.0, 0.0)
+    assert today["event_count_today"] == 0.0
+    prior = features_active.rolling_features
+    assert (prior["sleep_quality_today"], prior["today_record_missing"]) == (8.0, 1.0)  # baseline fill
+    assert "sleep_quality_today" in features_active.today_imputed
 
 
 def test_rolling_windows_and_missingness() -> None:
@@ -175,12 +188,11 @@ def test_sensory_context_inclusion_never_sets_baseline_risk() -> None:
     assert "risk" not in features_2.rolling_features
 
 
-def test_switching_to_intraday_does_not_change_the_demo_features_yet() -> None:
-    """Paso 2: la regla nueva deja entrar lo de hoy, pero el historial sigue igual.
+def test_switching_to_intraday_keeps_the_demo_history_features() -> None:
+    """La regla nueva suma lo de hoy, pero no cambia el historial.
 
-    Con el historial de PAC-A, las variables y la línea base son las mismas con las dos
-    reglas, a mediodía y en la tarde: el modelo actual no cambia hasta que se usen
-    los datos del día en curso.
+    Con el historial de PAC-A, la línea base, las ventanas de 1–14 días y los faltantes
+    son los mismos con las dos reglas, a mediodía y en la tarde.
     """
     from pathlib import Path
     from ml.data_loading import load_subject_data
@@ -200,5 +212,5 @@ def test_switching_to_intraday_does_not_change_the_demo_features_yet() -> None:
 
         feats_old = build_features(records, base_old, cutoff, policy=old, timezone=tz, planned_events=bundle["planned_events"])
         feats_new = build_features(records, base_new, cutoff, policy=new, timezone=tz, planned_events=bundle["planned_events"])
-        assert feats_new.rolling_features == feats_old.rolling_features
+        assert _history(feats_new.rolling_features) == _history(feats_old.rolling_features)
         assert feats_new.missingness == feats_old.missingness
