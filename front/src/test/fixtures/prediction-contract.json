@@ -1,8 +1,8 @@
 {
   "contract_version": "2",
-  "prediction_id": "8b14caed56964d66bfb98f317a17086b",
+  "prediction_id": "2aae5522e581480aa196906078c666bb",
   "subject_id": "PAC-A",
-  "prediction_cutoff": "2026-11-03T10:00:00-03:00",
+  "prediction_cutoff": "2026-11-09T10:00:00-03:00",
   "horizon_hours": 8,
   "risk": "MEDIUM",
   "confidence": "HIGH",
@@ -1483,9 +1483,9 @@
       "positives_count": 54,
       "negatives_count": 346,
       "lineage": {
-        "split_cutoff": "2026-10-26T21:09:00-03:00",
+        "split_cutoff": "2026-11-01T21:09:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-09T12:13:51.762814+00:00",
+        "data_generation_timestamp": "2026-11-09T12:56:48.665724+00:00",
         "horizon_hours": 8,
         "cutoffs_count": 435,
         "cutoff_hours": [

@@ -12,13 +12,13 @@
           20
         ],
         "cutoffs_count": 435,
-        "data_generation_timestamp": "2026-11-09T12:13:54.775212+00:00",
+        "data_generation_timestamp": "2026-11-09T12:56:51.279359+00:00",
         "horizon_hours": 8,
         "policy": {
           "daily_regulation": "intraday",
           "exclusion_policy": "conservative"
         },
-        "split_cutoff": "2026-10-26T21:01:00-03:00",
+        "split_cutoff": "2026-11-01T21:01:00-03:00",
         "subject_id": "PAC-B"
       },
       "negatives_count": 343,
@@ -28,7 +28,7 @@
       "seed": 42,
       "solver": "liblinear"
     },
-    "timestamp": "2026-11-09T12:13:54.816492+00:00",
+    "timestamp": "2026-11-09T12:56:51.311073+00:00",
     "version": 1
   }
 ]

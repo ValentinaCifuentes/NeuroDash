@@ -1,7 +1,7 @@
 [
   {
-    "occurred_at": "2026-11-03T07:45:00-03:00",
-    "idempotency_key": "demo-morning:PAC-A:2026-11-03",
+    "occurred_at": "2026-11-09T07:45:00-03:00",
+    "idempotency_key": "demo-morning:PAC-A:2026-11-09",
     "provenance": {
       "source": "synthetic_demo",
       "synthetic": true
@@ -19,13 +19,13 @@
       "gi_status": "Diarrea"
     },
     "contract_version": "2.0",
-    "record_id": "demo-morning-PAC-A-2026-11-03",
+    "record_id": "demo-morning-PAC-A-2026-11-09",
     "subject_id": "PAC-A",
     "author_id": "tutor-demo",
-    "source_timestamp": "2026-11-03T07:45:00-03:00",
-    "availability_timestamp": "2026-11-03T07:45:00-03:00",
-    "date": "2026-11-03",
+    "source_timestamp": "2026-11-09T07:45:00-03:00",
+    "availability_timestamp": "2026-11-09T07:45:00-03:00",
+    "date": "2026-11-09",
     "prediction_availability": "immediate",
-    "received_at": "2026-11-03T07:45:00-03:00"
+    "received_at": "2026-11-09T07:45:00-03:00"
   }
 ]

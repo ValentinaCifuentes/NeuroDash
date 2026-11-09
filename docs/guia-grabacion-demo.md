@@ -29,8 +29,10 @@ El script:
 Correr el script **el mismo día de la grabación y después de las 07:45**: antes de esa
 hora el Mi Día de la mañana todavía no cuenta y PAC-A se vería en riesgo bajo.
 
-**Grabar entre las 12:00 y las 18:00.** En ese horario basta **una** desregulación leve
-para que PAC-A pase a riesgo elevado; en la mañana o la noche hacen falta **dos**.
+**Registrar dos desregulaciones leves (intensidad 1 a 3).** Con una sola, la estimación
+sube pero puede quedarse en moderado (depende de la hora y del historial, que se genera
+cada día); con dos, PAC-A pasa a riesgo elevado. Una intensidad de 4 o más es una crisis,
+no una señal de alerta, y hace lo contrario (ver «Qué evitar»).
 
 Si se graba otro día, pasarle la fecha: `bash scripts/prepare_demo.sh 2026-11-20`.
 Si algo sale ✘, no grabar: revisar la salida del script.
@@ -57,9 +59,9 @@ La app queda en <http://localhost:8090>.
 | 5 | «Qué puedo hacer ahora» | Manta con peso, audífonos | Apoyos que ya le sirvieron, con las palabras del tutor |
 | 6 | Historial de Hoy | El Mi Día de las 07:45 («Muy difícil», «Irritable / Llorando») | Lo que el tutor anotó en la mañana ya cuenta para la tarde |
 | 7 | «+» → **Desregulación** | Intensidad **leve (1–3)**, un disparador, **Guardar registro** | Registrar cuesta dos toques; el detalle es opcional |
-| 8 | Evolución · **PAC-A** | El medidor sube a **«Riesgo elevado»** (si no, registrar una segunda desregulación leve) | Lo que pasa durante el día cambia la estimación de las próximas 8 horas: una desregulación leve suele anticipar una crisis |
+| 8 | Evolución · **PAC-A** | Registrar una **segunda** desregulación leve y volver: el medidor sube a **«Riesgo elevado»** | Lo que pasa durante el día cambia la estimación de las próximas 8 horas: las desregulaciones leves suelen anticipar una crisis |
 | 9 | Evolución › Seguimiento | Calendario del mes, tocar un día, abrir «Evolución de 14 días» | Lo que ya pasó, día a día |
-| 9b | (opcional) Bitácora · Mi Día en **PAC-B** | Responder sueño y despertar; **Guardar Estado Basal** | Nada viene marcado: lo que no se responde no se envía |
+| 9b | (opcional) Bitácora · Mi Día en **PAC-B** | Lo de la mañana ya está guardado; queda «¿Pasó algo distinto hoy?», plegado y marcado como opcional | Nada viene marcado y lo opcional no estorba; el contexto queda en el historial |
 | 10 | Evolución · **PAC-C** | «Todavía no hay estimación» y «Lo que le ayuda» | Prefiere decir que no sabe antes que inventar un número |
 | 11 | Ficha · PAC-A | Contexto clínico y «Su día a día» | Lo que el tutor contó en el perfil |
 | 12 | (opcional) Perfil en 3 pasos | Agregar «Tomi» y recorrer los pasos | Todo con botones; solo el alias es obligatorio |
@@ -72,6 +74,12 @@ La app queda en <http://localhost:8090>.
   suele bajar. Si se quiere mostrar, al final, o en PAC-B.
 - **Volver a guardar el Mi Día de PAC-A** con otras respuestas: cuenta lo último que se
   guardó, y una buena noche bajaría el riesgo. Para mostrar el formulario, usar PAC-B.
+- **El contexto del día** (horas de sueño, señales tempranas, malestar, cambios de rutina,
+  colegio) se guarda pero todavía no cambia la estimación: no está en los datos con que
+  aprendió el modelo (P32). La app lo muestra plegado y como opcional; no presentarlo
+  como algo que mueve el riesgo.
+- Si una toma salió mal (por ejemplo, se registró una crisis), volver a correr
+  `prepare_demo.sh` para empezar limpio.
 - **Recargar después de registrar no borra nada** (está en el backend), pero si se
   repite una toma, volver a correr `prepare_demo.sh` para empezar limpio.
 - La estimación se reutiliza dentro de la misma hora si no cambian los datos: es

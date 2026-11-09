@@ -24,6 +24,11 @@ function answerCore() {
   fireEvent.click(within(screen.getByRole('radiogroup', { name: /¿Cómo despertó/ })).getByRole('radio', { name: /Tranquilo/ }));
 }
 
+/** El contexto del día viene cerrado (es opcional y todavía no cambia la estimación). */
+function openContext() {
+  fireEvent.click(screen.getByRole('button', { name: /Pasó algo distinto hoy/ }));
+}
+
 function sentRecord(save: ReturnType<typeof vi.fn>, call = 0): DailyRecord {
   return save.mock.calls[call][0] as DailyRecord;
 }
@@ -71,9 +76,25 @@ describe('Bitácora · Mi Día', () => {
     expect(sentRecord(save).medication_adherence).toBe('No Aplica');
   });
 
+  it('shows the day context closed and marked as optional', () => {
+    setup();
+    const toggle = screen.getByRole('button', { name: /Pasó algo distinto hoy.*Opcional/ });
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('group', { name: /señales tempranas/ })).not.toBeInTheDocument();
+    // Sin abrirlo, igual se puede guardar lo esencial.
+    answerCore();
+    expect(saveButton()).toBeEnabled();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/Todavía no cambia la estimación/)).toBeInTheDocument();
+  });
+
   it('sends the day context, and «Ninguna» clears the other early signs', async () => {
     const save = setup();
     answerCore();
+    openContext();
     const signs = screen.getByRole('group', { name: /señales tempranas/ });
     const [firstSign] = within(signs).getAllByRole('checkbox');
     fireEvent.click(firstSign);
@@ -94,6 +115,7 @@ describe('Bitácora · Mi Día', () => {
         onSaveBasal={vi.fn()}
       />,
     );
+    openContext();
     const signs = screen.getByRole('group', { name: /señales tempranas/ });
 
     expect(within(signs).getAllByRole('checkbox').map((chip) => chip.textContent)).toEqual(['Se aísla', 'Ninguna']);

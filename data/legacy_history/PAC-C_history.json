@@ -1,36 +1,36 @@
 {
   "lineage": {
-    "data_generation_timestamp": "2026-11-09T12:13:38.091947+00:00",
+    "data_generation_timestamp": "2026-11-09T12:56:37.435947+00:00",
     "generator_name": "synthetic_history_generator",
     "generator_version": "2.0-load-driven",
     "seed": 1003
   },
   "occurrences": [
     {
-      "availability_timestamp": "2026-11-01T20:03:00-03:00",
+      "availability_timestamp": "2026-11-07T20:03:00-03:00",
       "event_type": "Desregulaci\u00f3n Emocional",
       "id": "evt_PAC-C_0_d0",
       "intensity_value": 1,
       "severity": "mild",
-      "source_timestamp": "2026-11-01T20:03:00-03:00",
+      "source_timestamp": "2026-11-07T20:03:00-03:00",
       "subject_id": "PAC-C"
     },
     {
-      "availability_timestamp": "2026-11-02T16:35:00-03:00",
+      "availability_timestamp": "2026-11-08T16:35:00-03:00",
       "event_type": "Desregulaci\u00f3n Emocional",
       "id": "occ_PAC-C_1_warn0",
       "intensity_value": 3,
       "severity": "mild",
-      "source_timestamp": "2026-11-02T16:35:00-03:00",
+      "source_timestamp": "2026-11-08T16:35:00-03:00",
       "subject_id": "PAC-C"
     },
     {
-      "availability_timestamp": "2026-11-02T20:40:00-03:00",
+      "availability_timestamp": "2026-11-08T20:40:00-03:00",
       "event_type": "Desregulaci\u00f3n Emocional",
       "id": "occ_PAC-C_1",
       "intensity_value": 4,
       "severity": "moderate",
-      "source_timestamp": "2026-11-02T18:40:00-03:00",
+      "source_timestamp": "2026-11-08T18:40:00-03:00",
       "strategy_applied": [
         "Acompa\u00f1amiento",
         "Objeto de calma"
@@ -43,19 +43,19 @@
       ]
     },
     {
-      "availability_timestamp": "2026-11-02T19:28:00-03:00",
+      "availability_timestamp": "2026-11-08T19:28:00-03:00",
       "event_type": "Alimentaci\u00f3n",
       "id": "evt_PAC-C_1_r0",
       "intensity_value": 2,
-      "source_timestamp": "2026-11-02T19:28:00-03:00",
+      "source_timestamp": "2026-11-08T19:28:00-03:00",
       "subject_id": "PAC-C"
     }
   ],
   "planned_events": [],
   "records": [
     {
-      "availability_timestamp": "2026-11-01T07:52:00-03:00",
-      "date": "2026-11-01",
+      "availability_timestamp": "2026-11-07T07:52:00-03:00",
+      "date": "2026-11-07",
       "dysregulation_count": 1,
       "dysregulation_unresolved": 0,
       "event_count": 1,
@@ -74,7 +74,7 @@
       },
       "sensory_diet_done": 0.5,
       "sleep_quality": 8.29,
-      "source_timestamp": "2026-11-01T07:52:00-03:00",
+      "source_timestamp": "2026-11-07T07:52:00-03:00",
       "start_autonomy_level": 0,
       "strategy_count": 0,
       "subject_id": "PAC-C",
@@ -83,20 +83,20 @@
       "wake_state": 3.96
     },
     {
-      "availability_timestamp": "2026-11-02T00:00:00-03:00",
-      "date": "2026-11-01",
+      "availability_timestamp": "2026-11-08T00:00:00-03:00",
+      "date": "2026-11-07",
       "day_regulation_level_num": 1,
       "id": "eod_PAC-C_0",
       "prediction_availability": "prior_day_only",
       "raw": {
         "day_regulation_level": "Estable con Apoyo"
       },
-      "source_timestamp": "2026-11-01T20:38:00-03:00",
+      "source_timestamp": "2026-11-07T20:38:00-03:00",
       "subject_id": "PAC-C"
     },
     {
-      "availability_timestamp": "2026-11-02T07:17:00-03:00",
-      "date": "2026-11-02",
+      "availability_timestamp": "2026-11-08T07:17:00-03:00",
+      "date": "2026-11-08",
       "dysregulation_count": 2,
       "dysregulation_unresolved": 0,
       "event_count": 3,
@@ -115,7 +115,7 @@
       },
       "sensory_diet_done": 0.5,
       "sleep_quality": 8.11,
-      "source_timestamp": "2026-11-02T07:17:00-03:00",
+      "source_timestamp": "2026-11-08T07:17:00-03:00",
       "start_autonomy_level": 1,
       "strategy_count": 1,
       "subject_id": "PAC-C",
@@ -124,15 +124,15 @@
       "wake_state": 4.46
     },
     {
-      "availability_timestamp": "2026-11-03T00:00:00-03:00",
-      "date": "2026-11-02",
+      "availability_timestamp": "2026-11-09T00:00:00-03:00",
+      "date": "2026-11-08",
       "day_regulation_level_num": 1,
       "id": "eod_PAC-C_1",
       "prediction_availability": "prior_day_only",
       "raw": {
         "day_regulation_level": "Estable con Apoyo"
       },
-      "source_timestamp": "2026-11-02T20:47:00-03:00",
+      "source_timestamp": "2026-11-08T20:47:00-03:00",
       "subject_id": "PAC-C"
     }
   ]

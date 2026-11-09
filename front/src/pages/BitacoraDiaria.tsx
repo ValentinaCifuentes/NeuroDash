@@ -5,7 +5,8 @@
  * 2. Descanso nocturno — sueño, despertar y autonomía (ChoiceTiles).
  * 3. Medicación — interruptor + «No aplica».
  * 4. Digestión — ShapeList.
- * 5. Contexto del día — chips (plan de datos, Fase 3).
+ * 5. Contexto del día — chips (plan de datos, Fase 3), en un desplegable cerrado y
+ *    marcado como opcional: se guarda, pero todavía no cambia la estimación (P32).
  * 6. «Guardar Estado Basal», con el + de registro rápido al lado.
  *
  * Nada viene preseleccionado (P13): lo que el tutor no responde no se envía. El
@@ -16,6 +17,7 @@
 
 import { useEffect, useState, type RefObject } from 'react';
 import { ChipGroup, ChoiceTiles, SegmentedTabs, ShapeList, Switch } from '../components/controls';
+import { Disclosure } from '../components/Disclosure';
 import {
   GI_CHOICES,
   NO_DISCOMFORT,
@@ -283,46 +285,49 @@ function MiDia({ subject, saving, onSaveBasal, onAddEvent, fabRef, editingRecord
       )}
 
       {(show('sleep_hours_range') || show('early_signs') || show('physical_discomfort') || show('routine_change') || show('school_attendance')) && (
-        <section className="nd-card nd-card--questions" aria-labelledby="ctx-titulo">
-          <div className="nd-card__intro">
-            <span className="nd-eyebrow nd-eyebrow--flat">Contexto del día</span>
-            <h2 id="ctx-titulo" className="nd-cardtitle">¿Pasó algo distinto hoy?</h2>
-            <p className="nd-card__hint">Un toque por pregunta. Ayuda a anticipar mejor las próximas horas.</p>
+        // Cerrado salvo al editar un registro que lo trae (si no, el lápiz no mostraría nada).
+        <Disclosure
+          title="¿Pasó algo distinto hoy?"
+          summary="Opcional · horas de sueño, señales, malestar, rutina y colegio"
+          defaultOpen={Boolean(editingRecord)}
+        >
+          <div className="nd-disclosure__questions">
+            <p className="nd-card__hint">Queda en su historial. Todavía no cambia la estimación de las próximas horas.</p>
+            {show('sleep_hours_range') && (
+              <ChipGroup mode="single" legendStyle="section" legend="¿Cuántas horas durmió?" options={SLEEP_HOURS_OPTIONS} value={sleepHours} onChange={setSleepHours} />
+            )}
+            {show('early_signs') && (
+              <ChipGroup
+                mode="multiple"
+                legendStyle="section"
+                legend="¿Viste alguna de sus señales tempranas?"
+                hint={signs.fromProfile ? 'Las señales salen de su perfil. Puedes marcar varias.' : 'Puedes marcar varias.'}
+                options={[...signs.options, NO_EARLY_SIGNS]}
+                exclusive={NO_EARLY_SIGNS}
+                value={earlySigns}
+                onChange={setEarlySigns}
+              />
+            )}
+            {show('physical_discomfort') && (
+              <ChipGroup
+                mode="multiple"
+                legendStyle="section"
+                legend="¿Tuvo algún malestar físico?"
+                hint="Puedes marcar varios."
+                options={PHYSICAL_DISCOMFORT_OPTIONS}
+                exclusive={NO_DISCOMFORT}
+                value={discomfort}
+                onChange={setDiscomfort}
+              />
+            )}
+            {show('routine_change') && (
+              <ChipGroup mode="single" legendStyle="section" legend="¿Hubo un cambio de rutina?" options={ROUTINE_CHANGE_OPTIONS} value={routineChange} onChange={setRoutineChange} />
+            )}
+            {show('school_attendance') && (
+              <ChipGroup mode="single" legendStyle="section" legend="¿Asistió al colegio?" options={SCHOOL_ATTENDANCE_OPTIONS} value={school} onChange={setSchool} />
+            )}
           </div>
-          {show('sleep_hours_range') && (
-            <ChipGroup mode="single" legendStyle="section" legend="¿Cuántas horas durmió?" options={SLEEP_HOURS_OPTIONS} value={sleepHours} onChange={setSleepHours} />
-          )}
-          {show('early_signs') && (
-            <ChipGroup
-              mode="multiple"
-              legendStyle="section"
-              legend="¿Viste alguna de sus señales tempranas?"
-              hint={signs.fromProfile ? 'Las señales salen de su perfil. Puedes marcar varias.' : 'Puedes marcar varias.'}
-              options={[...signs.options, NO_EARLY_SIGNS]}
-              exclusive={NO_EARLY_SIGNS}
-              value={earlySigns}
-              onChange={setEarlySigns}
-            />
-          )}
-          {show('physical_discomfort') && (
-            <ChipGroup
-              mode="multiple"
-              legendStyle="section"
-              legend="¿Tuvo algún malestar físico?"
-              hint="Puedes marcar varios."
-              options={PHYSICAL_DISCOMFORT_OPTIONS}
-              exclusive={NO_DISCOMFORT}
-              value={discomfort}
-              onChange={setDiscomfort}
-            />
-          )}
-          {show('routine_change') && (
-            <ChipGroup mode="single" legendStyle="section" legend="¿Hubo un cambio de rutina?" options={ROUTINE_CHANGE_OPTIONS} value={routineChange} onChange={setRoutineChange} />
-          )}
-          {show('school_attendance') && (
-            <ChipGroup mode="single" legendStyle="section" legend="¿Asistió al colegio?" options={SCHOOL_ATTENDANCE_OPTIONS} value={school} onChange={setSchool} />
-          )}
-        </section>
+        </Disclosure>
       )}
 
       <div className="nd-ctabar">
