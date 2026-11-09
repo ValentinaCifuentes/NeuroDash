@@ -45,6 +45,10 @@ TODAY_BASAL_FIELDS = (
 )
 # Severidades que cuentan como crisis (las mismas de la etiqueta, `ml/dataset_builder.py › label_for_cutoff`).
 CRISIS_SEVERITIES = ("moderate", "severe")
+# Una desregulación leve avisa que el día escala durante unas horas. Se cuentan las
+# recientes y no el total del día: las de la mañana que ya pasaron no anticipan la
+# tarde, y con el total el modelo aprendía que más desregulaciones bajan el riesgo.
+WARNING_WINDOW_HOURS = 3
 # Sin desregulaciones recientes, «horas desde la última» se topa en un día.
 HOURS_SINCE_CAP = 24.0
 # Momento del día de la estimación (hora local). La madrugada (0–6 h) es la referencia.
@@ -52,12 +56,10 @@ DAY_PERIODS = {"period_morning": (6, 12), "period_afternoon": (12, 18), "period_
 TODAY_FEATURE_NAMES = (
     *(f"{field}_today" for field in TODAY_BASAL_FIELDS),
     "today_record_missing",
-    "event_count_today",
-    "dysregulation_count_today",
+    "mild_dysregulation_count_3h",
     "crisis_count_today",
     "max_intensity_today",
     "dysregulation_unresolved_today",
-    "dysregulation_count_8h",
     "hours_since_dysregulation",
     *DAY_PERIODS,
 )
@@ -312,20 +314,18 @@ def _today_features(
         float(o["intensity_value"]) for o in today_events
         if isinstance(o.get("intensity_value"), (int, float)) and not isinstance(o.get("intensity_value"), bool)
     ]
-    features["event_count_today"] = float(len(today_events))
-    features["dysregulation_count_today"] = float(len(today_dysregulations))
-    # Las crisis (moderadas o severas) van aparte: una leve avisa que el día escala,
-    # una crisis que ya pasó es otra situación, y mezclarlas confunde al modelo.
-    features["crisis_count_today"] = float(
-        sum(1 for o in today_dysregulations if str(o.get("severity", "")).lower() in CRISIS_SEVERITIES)
-    )
+    # Las crisis (moderadas o severas) van aparte de las leves: una leve reciente avisa
+    # que el día escala; una crisis que ya pasó es otra situación (el modelo estima
+    # el riesgo de una crisis nueva).
+    warning_start = cutoff - timedelta(hours=WARNING_WINDOW_HOURS)
+    features["mild_dysregulation_count_3h"] = float(sum(
+        1 for o in dysregulations
+        if o["source_timestamp"] > warning_start and not _is_crisis(o)
+    ))
+    features["crisis_count_today"] = float(sum(1 for o in today_dysregulations if _is_crisis(o)))
     features["max_intensity_today"] = max(intensities) if intensities else 0.0
     features["dysregulation_unresolved_today"] = float(
         sum(1 for o in today_dysregulations if o.get("strategy_outcome") == UNRESOLVED_OUTCOME)
-    )
-    recent_start = cutoff - timedelta(hours=HORIZON_HOURS)
-    features["dysregulation_count_8h"] = float(
-        sum(1 for o in dysregulations if o["source_timestamp"] > recent_start)
     )
     last = max((o["source_timestamp"] for o in dysregulations), default=None)
     hours_since = (cutoff - last).total_seconds() / 3600 if last is not None else HOURS_SINCE_CAP
@@ -337,3 +337,7 @@ def _today_features(
         features[name] = 1.0 if start <= hour < end else 0.0
 
     return features, imputed
+
+
+def _is_crisis(occurrence: dict[str, Any]) -> bool:
+    return str(occurrence.get("severity", "")).lower() in CRISIS_SEVERITIES

@@ -60,8 +60,9 @@ def test_some_examples_already_know_about_today() -> None:
     examples = [_features(HISTORY["records"], HISTORY["occurrences"], c)[0] for c in training_cutoffs(HISTORY["records"], timezone=TZ)]
 
     assert any(x["today_record_missing"] == 0.0 for x in examples)
-    assert any(x["dysregulation_count_today"] > 0 for x in examples)
-    assert any(x["dysregulation_count_today"] == 0 for x in examples)
+    assert any(x["mild_dysregulation_count_3h"] > 0 for x in examples)
+    assert any(x["mild_dysregulation_count_3h"] == 0 for x in examples)
+    assert any(x["crisis_count_today"] > 0 for x in examples)
 
 
 def test_the_dataset_has_several_estimates_per_day_and_says_so_in_its_lineage() -> None:

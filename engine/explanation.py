@@ -159,12 +159,10 @@ for _field in TODAY_BASAL_FIELDS:
 # …lo que pasó hasta la hora de la estimación y el momento del día.
 for _feature, (_name, _code) in {
     "today_record_missing": ("sin registro de Mi Día hoy", "sin_registro_hoy"),
-    "event_count_today": ("eventos registrados hoy", "eventos_hoy"),
-    "dysregulation_count_today": ("desregulaciones registradas hoy", "desregulaciones_hoy"),
+    "mild_dysregulation_count_3h": ("desregulaciones leves en las últimas tres horas", "desregulaciones_leves_ultimas_tres_horas"),
     "crisis_count_today": ("crisis moderadas o intensas hoy", "crisis_hoy"),
     "max_intensity_today": ("intensidad máxima de eventos hoy", "intensidad_maxima_hoy"),
     "dysregulation_unresolved_today": ("desregulaciones sin regular hoy", "desregulaciones_sin_regular_hoy"),
-    "dysregulation_count_8h": ("desregulaciones en las últimas ocho horas", "desregulaciones_ultimas_ocho_horas"),
     "hours_since_dysregulation": ("horas desde la última desregulación", "horas_desde_ultima_desregulacion"),
     "period_morning": ("estimación hecha en la mañana", "momento_manana"),
     "period_afternoon": ("estimación hecha en la tarde", "momento_tarde"),

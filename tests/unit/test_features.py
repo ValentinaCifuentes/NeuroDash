@@ -64,7 +64,7 @@ def test_prior_day_only_regulation_in_features() -> None:
     # event_count (5) is not used for today: today's events come from the occurrences.
     today = features_intraday.rolling_features
     assert (today["sleep_quality_today"], today["wake_state_today"], today["today_record_missing"]) == (4.0, 3.0, 0.0)
-    assert today["event_count_today"] == 0.0
+    assert today["max_intensity_today"] == 0.0
     prior = features_active.rolling_features
     assert (prior["sleep_quality_today"], prior["today_record_missing"]) == (8.0, 1.0)  # baseline fill
     assert "sleep_quality_today" in features_active.today_imputed

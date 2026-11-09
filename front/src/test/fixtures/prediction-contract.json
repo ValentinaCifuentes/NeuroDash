@@ -1,6 +1,6 @@
 {
   "contract_version": "2",
-  "prediction_id": "0c81d75a969f419fb6e941598d6c5af5",
+  "prediction_id": "0184d8eb505f4295930c833c4e5185a0",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
@@ -1062,19 +1062,10 @@
       "summary": null
     },
     {
-      "factor_name": "Eventos registrados hoy",
-      "feature": "eventos_hoy",
+      "factor_name": "Desregulaciones leves en las últimas tres horas",
+      "feature": "desregulaciones_leves_ultimas_tres_horas",
       "contribution": -0.5,
-      "description": "La variable reciente eventos registrados hoy (1.0) se asocia con una disminución en los patrones observados.",
-      "comparison": null,
-      "trend": null,
-      "summary": null
-    },
-    {
-      "factor_name": "Desregulaciones registradas hoy",
-      "feature": "desregulaciones_hoy",
-      "contribution": 0.5,
-      "description": "La variable reciente desregulaciones registradas hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "description": "La variable reciente desregulaciones leves en las últimas tres horas (1.0) se asocia con una disminución en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1082,8 +1073,8 @@
     {
       "factor_name": "Crisis moderadas o intensas hoy",
       "feature": "crisis_hoy",
-      "contribution": -0.5,
-      "description": "La variable reciente crisis moderadas o intensas hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "contribution": 0.5,
+      "description": "La variable reciente crisis moderadas o intensas hoy (1.0) se asocia con un aumento en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1091,8 +1082,8 @@
     {
       "factor_name": "Intensidad máxima de eventos hoy",
       "feature": "intensidad_maxima_hoy",
-      "contribution": 0.5,
-      "description": "La variable reciente intensidad máxima de eventos hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "contribution": -0.5,
+      "description": "La variable reciente intensidad máxima de eventos hoy (1.0) se asocia con una disminución en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
@@ -1100,17 +1091,8 @@
     {
       "factor_name": "Desregulaciones sin regular hoy",
       "feature": "desregulaciones_sin_regular_hoy",
-      "contribution": -0.5,
-      "description": "La variable reciente desregulaciones sin regular hoy (1.0) se asocia con una disminución en los patrones observados.",
-      "comparison": null,
-      "trend": null,
-      "summary": null
-    },
-    {
-      "factor_name": "Desregulaciones en las últimas ocho horas",
-      "feature": "desregulaciones_ultimas_ocho_horas",
       "contribution": 0.5,
-      "description": "La variable reciente desregulaciones en las últimas ocho horas (1.0) se asocia con un aumento en los patrones observados.",
+      "description": "La variable reciente desregulaciones sin regular hoy (1.0) se asocia con un aumento en los patrones observados.",
       "comparison": null,
       "trend": null,
       "summary": null
