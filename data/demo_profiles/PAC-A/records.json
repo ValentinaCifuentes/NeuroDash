@@ -1,0 +1,31 @@
+[
+  {
+    "occurred_at": "2026-11-03T07:45:00-03:00",
+    "idempotency_key": "demo-morning:PAC-A:2026-11-03",
+    "provenance": {
+      "source": "synthetic_demo",
+      "synthetic": true
+    },
+    "sleep_quality": 2,
+    "wake_state": 8,
+    "start_autonomy_level": 2,
+    "medication_taken": 0,
+    "gi_level": 2,
+    "raw": {
+      "sleep_quality": "Dificultad de Conciliación",
+      "wake_mode": "Irritable/Llorando",
+      "start_autonomy": "Con insistencia",
+      "medication_adherence": "No",
+      "gi_status": "Diarrea"
+    },
+    "contract_version": "2.0",
+    "record_id": "demo-morning-PAC-A-2026-11-03",
+    "subject_id": "PAC-A",
+    "author_id": "tutor-demo",
+    "source_timestamp": "2026-11-03T07:45:00-03:00",
+    "availability_timestamp": "2026-11-03T07:45:00-03:00",
+    "date": "2026-11-03",
+    "prediction_availability": "immediate",
+    "received_at": "2026-11-03T07:45:00-03:00"
+  }
+]

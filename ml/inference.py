@@ -15,8 +15,8 @@ def load_risk_mapping(config_path: Path | str | None = None) -> tuple[float, flo
     default_high = 0.7
     
     if config_path is None:
-        # Search relative to project root
-        proj_root = Path(__file__).resolve().parents[2]
+        # Search relative to project root (ml/ → raíz del repo)
+        proj_root = Path(__file__).resolve().parents[1]
         config_path = proj_root / "config" / "risk_mapping.yaml"
         
     config_path = Path(config_path)

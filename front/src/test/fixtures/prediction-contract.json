@@ -1,10 +1,10 @@
 {
   "contract_version": "2",
-  "prediction_id": "0184d8eb505f4295930c833c4e5185a0",
+  "prediction_id": "8b14caed56964d66bfb98f317a17086b",
   "subject_id": "PAC-A",
   "prediction_cutoff": "2026-11-03T10:00:00-03:00",
   "horizon_hours": 8,
-  "risk": "HIGH",
+  "risk": "MEDIUM",
   "confidence": "HIGH",
   "abstained": false,
   "factors": [
@@ -1479,16 +1479,24 @@
       "C": 1.0,
       "penalty": "l2",
       "solver": "liblinear",
-      "samples_count": 79,
-      "positives_count": 19,
-      "negatives_count": 60,
+      "samples_count": 400,
+      "positives_count": 54,
+      "negatives_count": 346,
       "lineage": {
-        "split_cutoff": "2026-10-26T12:00:00-03:00",
+        "split_cutoff": "2026-10-26T21:09:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-07T04:29:04.415996+00:00",
+        "data_generation_timestamp": "2026-11-09T12:13:51.762814+00:00",
         "horizon_hours": 8,
+        "cutoffs_count": 435,
+        "cutoff_hours": [
+          4,
+          8,
+          12,
+          16,
+          20
+        ],
         "policy": {
-          "daily_regulation": "prior_day_only",
+          "daily_regulation": "intraday",
           "exclusion_policy": "conservative"
         }
       }

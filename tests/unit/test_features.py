@@ -199,7 +199,10 @@ def test_switching_to_intraday_keeps_the_demo_history_features() -> None:
 
     data_dir = Path(__file__).resolve().parents[2] / "data"
     bundle = load_subject_data("PAC-A", data_dir)
-    records, tz = bundle["records"], bundle["profile"]["timezone"]
+    # Solo Mi Día: el cierre del día de ayer sí cambia a propósito (la regla anterior
+    # lo usaba un día más tarde; la nueva, desde la medianoche).
+    records = [r for r in bundle["records"] if r.get("prediction_availability") != "prior_day_only"]
+    tz = bundle["profile"]["timezone"]
     last = max(r["source_timestamp"] for r in records)
     old = AvailabilityPolicy(daily_regulation="prior_day_only")
     new = AvailabilityPolicy(daily_regulation="intraday")

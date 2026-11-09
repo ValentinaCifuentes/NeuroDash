@@ -38,7 +38,12 @@ from engine.features import build_features
 from engine.schemas import HORIZON_HOURS
 from engine.temporal import AvailabilityPolicy
 from ml.dataset_builder import CUTOFF_HOURS, build_feature_example, training_cutoffs
+from ml.inference import load_risk_mapping
 from ml.trainer import InsufficientDataError, train_model
+
+
+# Mismos umbrales que la app (`config/risk_mapping.yaml`).
+LOW_THRESHOLD, HIGH_THRESHOLD = load_risk_mapping()
 
 
 # ---------------------------------------------------------------------------
@@ -375,8 +380,8 @@ def _alert_metrics(
 def product_metrics(
     examples: Sequence[dict[str, Any]],
     y_score: Sequence[float],
-    low_threshold: float = 0.3,
-    high_threshold: float = 0.7,
+    low_threshold: float = LOW_THRESHOLD,
+    high_threshold: float = HIGH_THRESHOLD,
 ) -> dict[str, Any]:
     """Métricas del producto: cobertura, abstención y carga de alertas.
 
@@ -786,8 +791,8 @@ def evaluate_subject(
     test_size: int = 7,
     step: int = 7,
     seed: int = 42,
-    low_threshold: float = 0.3,
-    high_threshold: float = 0.7,
+    low_threshold: float = LOW_THRESHOLD,
+    high_threshold: float = HIGH_THRESHOLD,
     horizon_hours: int = HORIZON_HOURS,
     policy: AvailabilityPolicy | None = None,
 ) -> dict[str, Any]:
@@ -975,8 +980,8 @@ def evaluate_subjects(
     test_size: int = 7,
     step: int = 7,
     seed: int = 42,
-    low_threshold: float = 0.3,
-    high_threshold: float = 0.7,
+    low_threshold: float = LOW_THRESHOLD,
+    high_threshold: float = HIGH_THRESHOLD,
     horizon_hours: int = HORIZON_HOURS,
 ) -> dict[str, Any]:
     """Evalúa varios sujetos y calcula un promedio macro entre ellos.

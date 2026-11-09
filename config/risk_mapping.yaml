@@ -1,3 +1,5 @@
 version: "1.0"
 low_threshold: 0.3
-high_threshold: 0.7
+# Sobre 0.6 la estimación es «elevada»: con las estimaciones del día en curso, en esos casos
+# hubo una crisis real en ~80% de los casos de práctica (antes, 0.7: solo ~5% de las estimaciones).
+high_threshold: 0.6

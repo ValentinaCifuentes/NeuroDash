@@ -38,7 +38,7 @@ describe('a tutor day with PAC-A, end to end', () => {
 
     // 1 · Selección → Evolución: la estimación real de la demo.
     fireEvent.click(await screen.findByRole('button', { name: /PAC-A/ }));
-    expect(await screen.findByText('Riesgo elevado')).toBeInTheDocument();
+    expect(await screen.findByText('Riesgo moderado')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Por qué aparece así.*que de costumbre/ })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Apoyos disponibles' })).toHaveTextContent('Manta con peso en la tarde');
 
@@ -63,10 +63,11 @@ describe('a tutor day with PAC-A, end to end', () => {
     expect(await screen.findByText('Transición registrada')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-    // 4 · Historial de Hoy: los dos registros, con las palabras del tutor.
+    // 4 · Historial de Hoy: los dos registros, con las palabras del tutor, junto al
+    //     Mi Día que la demo ya trae de esta mañana (07:45).
     tab('Historial de Hoy');
     expect(window.location.hash).toBe('#historial');
-    const historial = await screen.findByRole('region', { name: /2 registros hoy/ });
+    const historial = await screen.findByRole('region', { name: /3 registros hoy/ });
     expect(historial).toHaveTextContent('Sueño interrumpido · Despertar irritable / llorando');
     expect(historial).toHaveTextContent('Con ayuda · Apoyo visual / pictogramas');
 

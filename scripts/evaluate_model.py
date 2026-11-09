@@ -22,6 +22,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from ml.data_loading import load_subject_data
 from ml.evaluation import (
+    HIGH_THRESHOLD,
+    LOW_THRESHOLD,
     cold_start_case,
     evaluate_subjects,
     format_results_markdown,
@@ -72,14 +74,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--low-threshold",
         type=float,
-        default=0.3,
-        help="Umbral bajo de riesgo (por defecto: 0.3).",
+        default=LOW_THRESHOLD,
+        help=f"Umbral bajo de riesgo (por defecto: {LOW_THRESHOLD}, de config/risk_mapping.yaml).",
     )
     parser.add_argument(
         "--high-threshold",
         type=float,
-        default=0.7,
-        help="Umbral alto de riesgo (por defecto: 0.7).",
+        default=HIGH_THRESHOLD,
+        help=f"Umbral alto de riesgo (por defecto: {HIGH_THRESHOLD}, de config/risk_mapping.yaml).",
     )
     parser.add_argument(
         "--out",

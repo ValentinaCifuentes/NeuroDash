@@ -14,8 +14,8 @@ React/TypeScript.
 ## Estado actual
 
 Demostración funcional con tres infantes sintéticos:
-**PAC-A** (riesgo elevado), **PAC-B** (riesgo bajo) y **PAC-C** (sin estimación:
-solo 2 días de historial).
+**PAC-A** (riesgo moderado, que sube a elevado al registrar desregulaciones leves),
+**PAC-B** (riesgo bajo) y **PAC-C** (sin estimación: solo 2 días de historial).
 
 - **Evolución:** estimación de las próximas 8 h (riesgo y confianza por separado),
   «Por qué aparece así» comparado con lo habitual del infante, qué dato falta y
@@ -161,7 +161,8 @@ demo termine siempre el día anterior.
 
 Antes de entrenar, borre `models/PAC-A` y `models/PAC-B`, para que el modelo nuevo sea
 la versión 1. Después reconstruya con datos limpios: `docker compose down -v` y
-`docker compose up --build -d`. Estados esperados: **PAC-A** riesgo elevado,
+`docker compose up --build -d`. Estados esperados: **PAC-A** riesgo moderado
+(su Mi Día de hoy: mala noche; sube a elevado al registrar desregulaciones leves),
 **PAC-B** riesgo bajo, **PAC-C** sin estimación (lo verifica `tests/unit/test_demo_states.py`).
 
 ## Pruebas y validación

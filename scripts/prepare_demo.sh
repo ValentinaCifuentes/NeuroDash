@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Deja la demo lista para grabar: historiales que terminan el día anterior a la
-# grabación, modelos reentrenados, fixtures del front al día, Docker con datos
+# grabación, el Mi Día de esa mañana (07:45) en PAC-A y PAC-B, modelos reentrenados, fixtures del front al día, Docker con datos
 # limpios y una comprobación de los tres estados en la app levantada.
 #
 #   bash scripts/prepare_demo.sh                 # graba hoy
@@ -75,7 +75,9 @@ import json, os, sys, urllib.request
 from datetime import datetime, timezone
 
 url = os.environ["DEMO_URL"]
-expected = {"PAC-A": "HIGH", "PAC-B": "LOW", "PAC-C": None}
+# PAC-A abre en moderado (su Mi Día de hoy: mala noche) y sube a elevado al registrar
+# desregulaciones leves; ver docs/guia-grabacion-demo.md.
+expected = {"PAC-A": "MEDIUM", "PAC-B": "LOW", "PAC-C": None}
 ok = True
 for subject, risk in expected.items():
     body = json.dumps({"subject_id": subject, "prediction_cutoff": datetime.now(timezone.utc).isoformat()}).encode()

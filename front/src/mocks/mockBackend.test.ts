@@ -41,7 +41,8 @@ describe('mock backend (I9)', () => {
       ['PAC-A', 'PAC-B', 'PAC-C'].map((subject_id) => api.getPrediction({ subject_id, prediction_cutoff: cutoff })),
     );
 
-    expect([a.risk, b.risk, c.risk]).toEqual(['ELEVATED', 'LOW', null]);
+    // PAC-A abre en moderado: su Mi Día de hoy (07:45) trae una mala noche.
+    expect([a.risk, b.risk, c.risk]).toEqual(['MODERATE', 'LOW', null]);
     expect(c.abstained).toBe(true);
     expect(a.horizon_hours).toBe(8);
     expect(a.factors.some((factor) => factor.summary?.includes('que de costumbre'))).toBe(true);
@@ -66,8 +67,11 @@ describe('mock backend (I9)', () => {
     await api.saveDailyRecord(record);
     const { entries } = await api.getTimeline('PAC-B', new Date().toISOString(), 1);
 
-    // La ventana de 24 h también trae el registro demo de ayer.
-    const today = entries.filter((entry) => entry.kind === 'daily_record' && entry.timestamp.startsWith('2026-12-10'));
+    // La ventana de 24 h también trae el registro demo de ayer y el Mi Día demo de esta mañana.
+    const today = entries.filter(
+      (entry) => entry.kind === 'daily_record' && entry.timestamp.startsWith('2026-12-10')
+        && 'sleep_quality' in entry.payload && entry.payload.sleep_quality === 'Interrumpido',
+    );
     expect(today).toHaveLength(1);
     expect(today[0].payload).toMatchObject({ sleep_quality: 'Interrumpido', wake_mode: 'Cansado/Con Sueño', medication_adherence: null });
   });
