@@ -9,19 +9,28 @@
  */
 
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App';
 import { USING_MOCK } from './api';
 import { resetMockBackend, setMockLatency } from './mocks/mockBackend';
 
 beforeEach(() => {
+  // Reloj fijo (10 dic 2026, 12:00): después de las 07:45 en que la demo ya trae
+  // su «Mi Día» de esta mañana. Así ese registro entra en «Hoy» y el recorrido no
+  // depende de a qué hora del día se corra la prueba (antes de las 07:45 el registro
+  // de la mañana quedaría «en el futuro» y el Historial diría 2 en vez de 3).
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 11, 10, 12, 0));
   window.history.replaceState(null, '', '/');
   resetMockBackend();
   setMockLatency(0);
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  vi.useRealTimers();
+  cleanup();
+});
 
 const nav = (name: string) => fireEvent.click(screen.getByRole('link', { name }));
 const tab = (name: RegExp | string) => fireEvent.click(screen.getByRole('tab', { name }));
