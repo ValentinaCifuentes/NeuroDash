@@ -14,8 +14,8 @@ React/TypeScript.
 ## Estado actual
 
 Demostración funcional con tres infantes sintéticos:
-**PAC-A** (riesgo elevado), **PAC-B** (riesgo bajo) y **PAC-C** (sin estimación:
-solo 2 días de historial).
+**PAC-A** (riesgo moderado, que sube a elevado al registrar desregulaciones leves),
+**PAC-B** (riesgo bajo) y **PAC-C** (sin estimación: solo 2 días de historial).
 
 - **Evolución:** estimación de las próximas 8 h (riesgo y confianza por separado),
   «Por qué aparece así» comparado con lo habitual del infante, qué dato falta y
@@ -23,12 +23,29 @@ solo 2 días de historial).
 - **Bitácora:** estado basal y contexto del día, registro de eventos en 4 categorías,
   Historial de Hoy.
 - **Selección y perfil en 3 pasos**, y **Ficha** con el perfil completo.
-- **Planificación** (mock en el navegador; no llega al modelo) y **Mis Tickets**
-  (fuera de alcance).
+- **Planificación** (agenda de eventos futuros conectada al backend; los eventos
+  «Estresantes/Desagradables» entran al modelo como `planned_stressful_event_8h`) y
+  **Mis Tickets** (fuera de alcance).
 
-El diseño está en `docs/rediseno/` y el frontend se describe en
-[`front/README.md`](front/README.md). Los datos de la demostración son sintéticos;
-esto no es un despliegue de producción.
+El frontend se describe en [`front/README.md`](front/README.md). Los datos de la
+demostración son sintéticos; esto no es un despliegue de producción.
+
+## Demo publicada (mock) vs proyecto real
+
+Hay dos formas de ver NeuroDash, y conviene no confundirlas:
+
+- **Demo en GitHub Pages (frontend en modo mock).** En cada push a `develop`,
+  `.github/workflows/pages.yml` compila el frontend con `front/.env.pages`
+  (`VITE_API_BASE=` vacío) y lo publica en GitHub Pages. Ahí corre **solo la
+  interfaz**, con las demos PAC-A/B/C cargadas del fixture en memoria
+  (`front/src/mocks/demo-fixture.json`): **no hay FastAPI ni motor de ML**. Al
+  registrar algo, la estimación **no** se recalcula y lo guardado se borra al
+  recargar. Sirve para ver la UI sin instalar nada.
+
+- **Proyecto real (backend + motor).** Levantar FastAPI y el frontend juntos
+  (Docker o backend + front por separado, ver «Inicio rápido»). Aquí el backend
+  sí entrena e infiere con el modelo por infante: registrar el día y los eventos
+  **recalcula de verdad** la estimación. Es lo que se usa para grabar la demo.
 
 ## Inicio rápido
 
@@ -161,7 +178,8 @@ demo termine siempre el día anterior.
 
 Antes de entrenar, borre `models/PAC-A` y `models/PAC-B`, para que el modelo nuevo sea
 la versión 1. Después reconstruya con datos limpios: `docker compose down -v` y
-`docker compose up --build -d`. Estados esperados: **PAC-A** riesgo elevado,
+`docker compose up --build -d`. Estados esperados: **PAC-A** riesgo moderado
+(su Mi Día de hoy: mala noche; sube a elevado al registrar desregulaciones leves),
 **PAC-B** riesgo bajo, **PAC-C** sin estimación (lo verifica `tests/unit/test_demo_states.py`).
 
 ## Pruebas y validación
@@ -208,7 +226,7 @@ PAC-A y PAC-B tienen suficiente historial sintético para el entrenamiento. PAC-
 un caso de inicio en frío y debe abstenerse de forma segura en lugar de producir una
 predicción. Para consultar la explicación completa de los artefactos generados, la
 procedencia y los resultados esperados, consulte la [Guía de reproducibilidad y
-verificación](docs/NeuraDash_Reproducibility_and_Verification_Guide.md).
+verificación](docs/NeuroDash_Reproducibility_and_Verification_Guide.md).
 
 ## Estructura del repositorio
 
@@ -219,7 +237,7 @@ ml/            Datos sintéticos, entrenamiento, evaluación y registro de model
 front/         App del tutor (Vite + React + TypeScript); ver front/README.md
 scripts/       Generar demos, entrenar, verificar, exportar fixtures, check.sh, prepare_demo.sh
 tests/         Pruebas unitarias y de integración del backend
-docs/          Producto, arquitectura, rediseño, guía de grabación y accesibilidad
+docs/          Producto, arquitectura, guía de grabación, accesibilidad y pendientes del rediseño
 openspec/      Registro del desarrollo guiado por especificaciones
 config/        Configuración del motor (confianza, apoyos, riesgo)
 data/          Perfiles e historiales de las demos
@@ -241,10 +259,9 @@ de la incertidumbre.
 
 - [Guía para grabar la demo](docs/guia-grabacion-demo.md)
 - [Revisión de accesibilidad](docs/revision-accesibilidad.md)
-- [Rediseño: especificación y pantallas](docs/rediseno/README.md)
 - [Pendientes del rediseño](docs/pendientes-rediseno.md)
 
-- [Fuente de verdad del producto](docs/NeuraDash_Source_of_Truth_Contexto_Maestro_CONSISTENTE.md)
-- [Arquitectura técnica](docs/NeuraDash_Arquitectura_Tecnica_Completa_CONSISTENTE.md)
-- [Casos y recomendaciones](docs/NeuraDash_Casos_y_Recomendaciones.md)
+- [Fuente de verdad del producto](docs/NeuroDash_Source_of_Truth.md)
+- [Arquitectura técnica](docs/NeuroDash_Arquitectura_Tecnica.md)
+- [Casos y recomendaciones](docs/NeuroDash_Casos_y_Recomendaciones.md)
 - [Flujo de OpenSpec](openspec/README.md)

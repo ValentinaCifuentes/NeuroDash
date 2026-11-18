@@ -851,6 +851,13 @@ select {
 .nd-disclosure__body {
   padding-bottom: 14px;
 }
+/* Preguntas dentro de un desplegable (contexto del día en Mi Día): mismo
+   espaciado que una tarjeta de preguntas. */
+.nd-disclosure__questions {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
 @media (prefers-reduced-motion: reduce) {
   .nd-disclosure__chevron {
     transition: none;

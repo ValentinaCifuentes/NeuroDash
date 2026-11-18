@@ -1,10 +1,10 @@
-# NeuraDash: Reproducibility & Verification Guide
+# NeuroDash: Reproducibility & Verification Guide
 
-This guide details the procedures to run, validate, and verify the NeuraDash CORE end-to-end reproducibility pipeline and the test suite.
+This guide details the procedures to run, validate, and verify the NeuroDash CORE end-to-end reproducibility pipeline and the test suite.
 
 ## 1. End-to-End Reproducibility Pipeline
 
-NeuraDash CORE features a deterministic pipeline designed to generate synthetic subject histories, validate their schema, train per-subject personalized machine learning models, and produce predictions or safe abstentions.
+NeuroDash CORE features a deterministic pipeline designed to generate synthetic subject histories, validate their schema, train per-subject personalized machine learning models, and produce predictions or safe abstentions.
 
 ### Overview of Scripts
 
@@ -18,8 +18,8 @@ All scripts are located in the `scripts/` directory:
 2. **`scripts/generate_mock_histories.py`**:
    - Deterministically generates synthetic history datasets for three demo subjects (PAC-A, PAC-B, and PAC-C).
    - Saves history data under `data/legacy_history/{subject_id}_history.json` and profiles under `data/demo_profiles/{subject_id}/profile.json`.
-   - **PAC-A**: Generates 30 days of data using seed 1001 (sufficient for training).
-   - **PAC-B**: Generates 30 days of data using seed 1002 (sufficient for training).
+   - **PAC-A**: Generates 90 days of data using seed 1020 (sufficient for training).
+   - **PAC-B**: Generates 90 days of data using seed 1004 (sufficient for training).
    - **PAC-C**: Generates 2 days of data using seed 1003 (insufficient for training, triggers cold-start/abstention).
 
 3. **`scripts/train_demo_models.py`**:
@@ -59,7 +59,7 @@ python scripts/smoke_demo.py
 ### Expected Output Summary
 
 - **History Generation**: Files are created successfully under `data/legacy_history/` and `data/demo_profiles/`.
-- **Validation**: Each check reports `Success: File 'PAC-X_history.json' is valid under the NeuraDash CORE schemas.`
+- **Validation**: Each check reports `Success: File 'PAC-X_history.json' is valid under the NeuroDash CORE schemas.`
 - **Training**:
   - `Successfully trained and registered model for 'PAC-A' (version 1).`
   - `Successfully trained and registered model for 'PAC-B' (version 1).`
@@ -74,7 +74,7 @@ python scripts/smoke_demo.py
 
 ## 3. Configuration & Artifact Lineage Verification
 
-To ensure reproducibility, NeuraDash tracks hashes and metadata:
+To ensure reproducibility, NeuroDash tracks hashes and metadata:
 - **Registry Versioning**: Every save in the `ModelRegistry` increments the version (e.g. `v1`, `v2`) and writes metadata to `registry.json` including features list, hyperparameters (`C=1.0`, `penalty=l2`), samples count, class balances, and generator seeds.
 - **Reproducibility Guarantee**: The synthetic generator (`generate_synthetic_history`) uses explicit random seeds. Generating data twice with the same seed yields identical values down to the float decimal.
 - **Lineage Metadata**: All prediction outputs embed `provenance` metadata. For active predictions, the model version, training metrics, and exclusion states are captured in the contract.
@@ -85,7 +85,7 @@ To ensure reproducibility, NeuraDash tracks hashes and metadata:
 
 > [!IMPORTANT]
 > **No Clinical Claims & Diagnostic Safety**
-> NeuraDash CORE is a support utility designed to enhance family routine awareness.
+> NeuroDash CORE is a support utility designed to enhance family routine awareness.
 > - **No Clinical Accuracy Claims**: The predictions represent technical statistical correlations and must not be interpreted as medical diagnoses, clinical trials, or statements of absolute certainty.
 > - **No IoT Sensors Dependency**: The CORE engine relies purely on daily subjective caregiver records (sleep quality, wake state, etc.) and does not depend on wearable or external IoT telemetry.
 > - **Exclusion of School Records**: School data adapters are isolated from the CORE predictor. If school records are supplied, they are marked as excluded (`excluded_from_core: true` in the contract provenance) to prevent biasing personal model features.
@@ -159,15 +159,16 @@ and must remain untouched.
 ## Caregiver UI demo state
 
 The Vite application uses the in-memory mock adapter when `VITE_API_BASE` is
-not configured. The demo starts with subject `PAC-002` and a deterministic
-29-day history for the **Seguimiento** view. That history is intentionally
-separate from today's prediction input.
+not configured. The demo subjects are `PAC-A`, `PAC-B` and `PAC-C`, with
+synthetic histories (90 days for PAC-A/PAC-B, 2 days for PAC-C) loaded from
+`front/src/mocks/demo-fixture.json`. That history is intentionally separate
+from today's prediction input.
 
 To see a prediction in **Evolución**:
 
-1. Select `PAC-002`.
-2. Open **Bitácora diaria** and save today's basal state.
-3. Open **Evolución** and select **Próximas 24 horas**.
+1. Select `PAC-A` (or `PAC-B`).
+2. Open **Bitácora** and save today's basal state.
+3. Open **Evolución** and select **Próximas 8 horas**.
 
 Without today's basal record, the safe expected result is an abstention
 (`INSUFFICIENT`), not a fabricated risk estimate. Mock records and outcomes

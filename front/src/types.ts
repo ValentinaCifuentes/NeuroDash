@@ -104,9 +104,9 @@ export interface DysregulationEvent {
   event_type: EventType;              // tipo_evento
   intensity_band: IntensityBand;      // intensidad          → "Moderada (4-7)"
   intensity_value: number;            // 1..10 — precisión añadida por el slider
-  /** detonante_gatillante. Catálogo cerrado (D5) + el texto de «Otro». */
+  /** detonante_gatillante. Catálogo cerrado + el texto de «Otro». */
   trigger: string[] | null;
-  /** estrategia_calma_aplicada (Desregulación). Catálogo cerrado (D5) + el texto de «Otro». */
+  /** estrategia_calma_aplicada (Desregulación). Catálogo cerrado + el texto de «Otro». */
   strategy_applied: string[] | null;
   /** Apoyo utilizado en una Transición (una opción). */
   support_used: string | null;
@@ -173,9 +173,9 @@ export type StrategyOutcome =
   | 'Sin Regulación';
 
 /**
- * Evento planificado (pestaña Planificación). Por ahora es un mock que vive
- * en el navegador (D6); el backend llega en [PCD Fase 4] con la variable
- * `planned_stressful_event_8h`.
+ * Evento planificado (pestaña Planificación). Se guarda en el backend
+ * (`/api/v1/subjects/{id}/planned-events`); los eventos «Estresantes» o
+ * «Desagradables» entran al modelo como `planned_stressful_event_8h`.
  */
 export interface PlannedEvent {
   id: string;

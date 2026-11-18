@@ -156,9 +156,9 @@ def make_prediction(
     # 2. Build baseline and features from data available at the cutoff only.
     records = [record for record in records if record["source_timestamp"] <= prediction_cutoff and record["availability_timestamp"] <= prediction_cutoff]
     occurrences = [occurrence for occurrence in occurrences if occurrence["source_timestamp"] <= prediction_cutoff and occurrence["availability_timestamp"] <= prediction_cutoff]
-    policy = AvailabilityPolicy(daily_regulation="prior_day_only", exclusion_policy="conservative")
+    policy = AvailabilityPolicy()  # regla de config/availability.yaml
     baseline = build_baseline(records, prediction_cutoff, policy=policy, timezone=timezone_name)
-    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile, planned_events=planned_events)
+    features = build_features(records, baseline, prediction_cutoff, policy=policy, timezone=timezone_name, subject=profile, planned_events=planned_events, occurrences=occurrences)
 
     # 3. Model registry
     registry = ModelRegistry(base_dir=MODELS_DIR)
@@ -235,6 +235,8 @@ def make_prediction(
         for item in features.missingness:
             if item.get("missing"):
                 observed[f"{item['field']}_mean_{item['window']}d"] = None
+        for name in features.today_imputed:
+            observed[name] = None
         factors = generate_non_causal_factors(raw_explanations, baseline.modality_baselines, observed)
         
         # Select supports

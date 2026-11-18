@@ -9,19 +9,28 @@
  */
 
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App';
 import { USING_MOCK } from './api';
 import { resetMockBackend, setMockLatency } from './mocks/mockBackend';
 
 beforeEach(() => {
+  // Reloj fijo (10 dic 2026, 12:00): después de las 07:45 en que la demo ya trae
+  // su «Mi Día» de esta mañana. Así ese registro entra en «Hoy» y el recorrido no
+  // depende de a qué hora del día se corra la prueba (antes de las 07:45 el registro
+  // de la mañana quedaría «en el futuro» y el Historial diría 2 en vez de 3).
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date(2026, 11, 10, 12, 0));
   window.history.replaceState(null, '', '/');
   resetMockBackend();
   setMockLatency(0);
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  vi.useRealTimers();
+  cleanup();
+});
 
 const nav = (name: string) => fireEvent.click(screen.getByRole('link', { name }));
 const tab = (name: RegExp | string) => fireEvent.click(screen.getByRole('tab', { name }));
@@ -38,7 +47,7 @@ describe('a tutor day with PAC-A, end to end', () => {
 
     // 1 · Selección → Evolución: la estimación real de la demo.
     fireEvent.click(await screen.findByRole('button', { name: /PAC-A/ }));
-    expect(await screen.findByText('Riesgo elevado')).toBeInTheDocument();
+    expect(await screen.findByText('Riesgo moderado')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Por qué aparece así.*que de costumbre/ })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Apoyos disponibles' })).toHaveTextContent('Manta con peso en la tarde');
 
@@ -63,10 +72,11 @@ describe('a tutor day with PAC-A, end to end', () => {
     expect(await screen.findByText('Transición registrada')).toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-    // 4 · Historial de Hoy: los dos registros, con las palabras del tutor.
+    // 4 · Historial de Hoy: los dos registros, con las palabras del tutor, junto al
+    //     Mi Día que la demo ya trae de esta mañana (07:45).
     tab('Historial de Hoy');
     expect(window.location.hash).toBe('#historial');
-    const historial = await screen.findByRole('region', { name: /2 registros hoy/ });
+    const historial = await screen.findByRole('region', { name: /3 registros hoy/ });
     expect(historial).toHaveTextContent('Sueño interrumpido · Despertar irritable / llorando');
     expect(historial).toHaveTextContent('Con ayuda · Apoyo visual / pictogramas');
 

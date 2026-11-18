@@ -1,10 +1,10 @@
 {
   "contract_version": "2",
-  "prediction_id": "2313b446afc04a77900cf3e88141f28f",
+  "prediction_id": "2aae5522e581480aa196906078c666bb",
   "subject_id": "PAC-A",
-  "prediction_cutoff": "2026-11-03T10:00:00-03:00",
+  "prediction_cutoff": "2026-11-09T10:00:00-03:00",
   "horizon_hours": 8,
-  "risk": "HIGH",
+  "risk": "MEDIUM",
   "confidence": "HIGH",
   "abstained": false,
   "factors": [
@@ -961,6 +961,177 @@
       "comparison": null,
       "trend": null,
       "summary": null
+    },
+    {
+      "factor_name": "Calidad del sueño hoy",
+      "feature": "calidad_sueno_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente calidad del sueño hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "trend": "better",
+      "summary": "Durmió mejor que de costumbre hoy"
+    },
+    {
+      "factor_name": "Estado al despertar hoy",
+      "feature": "estado_despertar_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente estado al despertar hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Despertó más tranquilo que de costumbre hoy"
+    },
+    {
+      "factor_name": "Autonomía al inicio del día hoy",
+      "feature": "autonomia_inicio_dia_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente autonomía al inicio del día hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "similar",
+      "trend": "same",
+      "summary": "Inicio del día como de costumbre hoy"
+    },
+    {
+      "factor_name": "Toma de medicación hoy",
+      "feature": "medicacion_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente toma de medicación hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "trend": "better",
+      "summary": "Tomó la medicación con más regularidad hoy"
+    },
+    {
+      "factor_name": "Nivel de digestión hoy",
+      "feature": "digestion_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente nivel de digestión hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Menos molestias digestivas que de costumbre hoy"
+    },
+    {
+      "factor_name": "Horas de sueño hoy",
+      "feature": "horas_sueno_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente horas de sueño hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "above",
+      "trend": "better",
+      "summary": "Durmió más horas que de costumbre hoy"
+    },
+    {
+      "factor_name": "Señales tempranas observadas hoy",
+      "feature": "senales_tempranas_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente señales tempranas observadas hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "below",
+      "trend": "better",
+      "summary": "Menos señales tempranas que de costumbre hoy"
+    },
+    {
+      "factor_name": "Malestar físico hoy",
+      "feature": "malestar_fisico_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente malestar físico hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "similar",
+      "trend": "same",
+      "summary": "Malestar físico como de costumbre hoy"
+    },
+    {
+      "factor_name": "Cambios de rutina hoy",
+      "feature": "cambio_rutina_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente cambios de rutina hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": "above",
+      "trend": "worse",
+      "summary": "Más cambios de rutina que de costumbre hoy"
+    },
+    {
+      "factor_name": "Asistencia al colegio hoy",
+      "feature": "asistencia_colegio_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente asistencia al colegio hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": "below",
+      "trend": "worse",
+      "summary": "Asistió menos al colegio que de costumbre hoy"
+    },
+    {
+      "factor_name": "Sin registro de Mi Día hoy",
+      "feature": "sin_registro_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente sin registro de Mi Día hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Desregulaciones leves en las últimas tres horas",
+      "feature": "desregulaciones_leves_ultimas_tres_horas",
+      "contribution": -0.5,
+      "description": "La variable reciente desregulaciones leves en las últimas tres horas (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Crisis moderadas o intensas hoy",
+      "feature": "crisis_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente crisis moderadas o intensas hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Intensidad máxima de eventos hoy",
+      "feature": "intensidad_maxima_hoy",
+      "contribution": -0.5,
+      "description": "La variable reciente intensidad máxima de eventos hoy (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Desregulaciones sin regular hoy",
+      "feature": "desregulaciones_sin_regular_hoy",
+      "contribution": 0.5,
+      "description": "La variable reciente desregulaciones sin regular hoy (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Horas desde la última desregulación",
+      "feature": "horas_desde_ultima_desregulacion",
+      "contribution": -0.5,
+      "description": "La variable reciente horas desde la última desregulación (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Estimación hecha en la mañana",
+      "feature": "momento_manana",
+      "contribution": 0.5,
+      "description": "La variable reciente estimación hecha en la mañana (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Estimación hecha en la tarde",
+      "feature": "momento_tarde",
+      "contribution": -0.5,
+      "description": "La variable reciente estimación hecha en la tarde (1.0) se asocia con una disminución en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
+    },
+    {
+      "factor_name": "Estimación hecha en la noche",
+      "feature": "momento_noche",
+      "contribution": 0.5,
+      "description": "La variable reciente estimación hecha en la noche (1.0) se asocia con un aumento en los patrones observados.",
+      "comparison": null,
+      "trend": null,
+      "summary": null
     }
   ],
   "missingness": [
@@ -1308,16 +1479,24 @@
       "C": 1.0,
       "penalty": "l2",
       "solver": "liblinear",
-      "samples_count": 79,
-      "positives_count": 19,
-      "negatives_count": 60,
+      "samples_count": 400,
+      "positives_count": 54,
+      "negatives_count": 346,
       "lineage": {
-        "split_cutoff": "2026-10-26T12:00:00-03:00",
+        "split_cutoff": "2026-11-01T21:09:00-03:00",
         "subject_id": "PAC-A",
-        "data_generation_timestamp": "2026-11-07T04:29:04.415996+00:00",
+        "data_generation_timestamp": "2026-11-09T12:56:48.665724+00:00",
         "horizon_hours": 8,
+        "cutoffs_count": 435,
+        "cutoff_hours": [
+          4,
+          8,
+          12,
+          16,
+          20
+        ],
         "policy": {
-          "daily_regulation": "prior_day_only",
+          "daily_regulation": "intraday",
           "exclusion_policy": "conservative"
         }
       }

@@ -37,35 +37,18 @@ from engine.confidence import calculate_confidence
 from engine.features import build_features
 from engine.schemas import HORIZON_HOURS
 from engine.temporal import AvailabilityPolicy
-from ml.dataset_builder import build_feature_example
+from ml.dataset_builder import CUTOFF_HOURS, build_feature_example, training_cutoffs
+from ml.inference import load_risk_mapping
 from ml.trainer import InsufficientDataError, train_model
+
+
+# Mismos umbrales que la app (`config/risk_mapping.yaml`).
+LOW_THRESHOLD, HIGH_THRESHOLD = load_risk_mapping()
 
 
 # ---------------------------------------------------------------------------
 # Construcción de ejemplos y folds temporales
 # ---------------------------------------------------------------------------
-
-
-def daily_cutoffs(
-    records: Sequence[dict[str, Any]],
-    start_offset_days: int = 3,
-) -> list[datetime]:
-    """Genera cortes diarios desde el cuarto día de historial hasta el último.
-
-    El offset de 3 días deja que la línea base tenga algo de madurez antes del
-    primer ejemplo, igual que hace `scripts/train_demo_models.py`.
-    """
-    if not records:
-        return []
-
-    ordered = sorted(records, key=lambda record: record["source_timestamp"])
-    first = ordered[0]["source_timestamp"]
-    last = ordered[-1]["source_timestamp"]
-    total_days = (last - first).days
-    return [
-        first + timedelta(days=offset)
-        for offset in range(start_offset_days, total_days + 1)
-    ]
 
 
 def _has_prior_crisis(
@@ -397,8 +380,8 @@ def _alert_metrics(
 def product_metrics(
     examples: Sequence[dict[str, Any]],
     y_score: Sequence[float],
-    low_threshold: float = 0.3,
-    high_threshold: float = 0.7,
+    low_threshold: float = LOW_THRESHOLD,
+    high_threshold: float = HIGH_THRESHOLD,
 ) -> dict[str, Any]:
     """Métricas del producto: cobertura, abstención y carga de alertas.
 
@@ -808,13 +791,18 @@ def evaluate_subject(
     test_size: int = 7,
     step: int = 7,
     seed: int = 42,
-    low_threshold: float = 0.3,
-    high_threshold: float = 0.7,
+    low_threshold: float = LOW_THRESHOLD,
+    high_threshold: float = HIGH_THRESHOLD,
     horizon_hours: int = HORIZON_HOURS,
     policy: AvailabilityPolicy | None = None,
 ) -> dict[str, Any]:
-    """Evalúa un sujeto con folds temporales y devuelve métricas listas para reportar."""
-    cutoffs = daily_cutoffs(records)
+    """Evalúa un sujeto con folds temporales y devuelve métricas listas para reportar.
+
+    Hay varias estimaciones por día (`CUTOFF_HOURS`); `initial_train`, `test_size` y
+    `step` se cuentan en días, así cada fold empieza y termina en un día completo.
+    """
+    cutoffs = training_cutoffs(list(records), timezone=timezone)
+    per_day = len(CUTOFF_HOURS)
     examples = build_evaluation_examples(
         records=records,
         occurrences=occurrences,
@@ -826,9 +814,9 @@ def evaluate_subject(
     )
     folds = walk_forward_folds(
         len(examples),
-        initial_train=initial_train,
-        test_size=test_size,
-        step=step,
+        initial_train=initial_train * per_day,
+        test_size=test_size * per_day,
+        step=step * per_day,
     )
 
     fold_results: list[dict[str, Any]] = []
@@ -913,9 +901,11 @@ def evaluate_subject(
     return {
         "subject_id": subject_id,
         "config": {
+            # En días; cada día aporta una estimación por hora de `cutoff_hours`.
             "initial_train": initial_train,
             "test_size": test_size,
             "step": step,
+            "cutoff_hours": list(CUTOFF_HOURS),
             "seed": seed,
             "horizon_hours": horizon_hours,
             "low_threshold": low_threshold,
@@ -990,8 +980,8 @@ def evaluate_subjects(
     test_size: int = 7,
     step: int = 7,
     seed: int = 42,
-    low_threshold: float = 0.3,
-    high_threshold: float = 0.7,
+    low_threshold: float = LOW_THRESHOLD,
+    high_threshold: float = HIGH_THRESHOLD,
     horizon_hours: int = HORIZON_HOURS,
 ) -> dict[str, Any]:
     """Evalúa varios sujetos y calcula un promedio macro entre ellos.
@@ -1060,9 +1050,11 @@ def evaluate_subjects(
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "config": {
+            # En días; cada día aporta una estimación por hora de `cutoff_hours`.
             "initial_train": initial_train,
             "test_size": test_size,
             "step": step,
+            "cutoff_hours": list(CUTOFF_HOURS),
             "seed": seed,
             "low_threshold": low_threshold,
             "high_threshold": high_threshold,

@@ -1,3 +1,8 @@
 version: "1.0"
-daily_regulation: "prior_day_only"
+# Qué datos puede usar una estimación (engine/temporal.py):
+#   intraday        lo registrado hasta la hora de la estimación, también lo de hoy.
+#                   El cierre del día (prediction_availability: prior_day_only) cuenta
+#                   desde el día siguiente, porque resume la jornada completa.
+#   prior_day_only  solo días anteriores (regla original; queda para comparar).
+daily_regulation: "intraday"
 exclusion_policy: "conservative"

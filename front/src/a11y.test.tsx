@@ -61,7 +61,7 @@ describe('accessibility (axe-core)', () => {
     found.push(...(await violations('Selección')));
 
     fireEvent.click(screen.getByRole('button', { name: /PAC-A/ }));
-    await screen.findByText('Riesgo elevado');
+    await screen.findByText('Riesgo moderado');
     found.push(...(await violations('Evolución')));
 
     fireEvent.click(screen.getByRole('button', { name: /Por qué aparece así/ }));

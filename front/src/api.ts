@@ -1,7 +1,7 @@
 /**
  * Cliente HTTP contra la API de NeuroDash CORE.
  *
- * Regla de arquitectura (D2): el frontend jamás depende del algoritmo.
+ * Regla de arquitectura: el frontend jamás depende del algoritmo.
  * Solo conoce estos endpoints y el Prediction Contract v2.
  *
  *   GET  /api/v1/subjects
@@ -53,7 +53,7 @@ export const DEFAULT_ACTOR_ID = 'tutor-demo';
 /**
  * Identidad con la que el front escribe en el backend (`get_care_actor`).
  *
- * La autenticación queda fuera de alcance (D2): el actor es fijo y se define
+ * La autenticación queda fuera de alcance: el actor es fijo y se define
  * al compilar con `VITE_ACTOR_ID` / `VITE_ACTOR_ROLE`. Sin configurar, se usa
  * `tutor-demo` con rol `tutor`. El backend solo acepta `tutor` o `system`.
  */

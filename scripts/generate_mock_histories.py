@@ -2,11 +2,12 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from datetime import date, datetime, timedelta, timezone as dt_timezone
+from datetime import date, datetime, time, timedelta, timezone as dt_timezone
+import zoneinfo
 from typing import Any
 
 # Import synthetic generator from our ML package
-from ml.dataset_builder import demo_profile, generate_synthetic_history
+from ml.dataset_builder import DEMO_TUTOR_ID, demo_profile, generate_synthetic_history
 
 
 def serialize_dt(obj: Any) -> Any:
@@ -73,10 +74,78 @@ DEMO_HISTORIES = {
 }
 
 
+# Mi Día del día de la demo (el día siguiente a `end_date`), como si la tutora ya lo
+# hubiera llenado en la mañana. La estimación usa lo de hoy: sin esto, al abrir la app
+# PAC-A y PAC-B se verían iguales. PAC-A durmió mal y despertó irritable (abre en
+# riesgo moderado y sube si se registra una desregulación); PAC-B tuvo buena noche.
+# PAC-C no lo trae: es un perfil recién creado y se abstiene igual.
+DEMO_MORNING_TIME = time(7, 45)
+DEMO_MORNINGS: dict[str, dict[str, str]] = {
+    "PAC-A": {
+        "sleep_quality": "Dificultad de Conciliación",
+        "wake_mode": "Irritable/Llorando",
+        "start_autonomy": "Con insistencia",
+        "medication_adherence": "No",
+        "gi_status": "Diarrea",
+    },
+    "PAC-B": {
+        "sleep_quality": "Reparador",
+        "wake_mode": "Tranquilo/Alegre",
+        "start_autonomy": "Por sí solo",
+        "medication_adherence": "Sí",
+        "gi_status": "Normal",
+    },
+}
+
+
+def demo_morning_record(subject_id: str, day: date) -> dict[str, Any]:
+    """Mi Día de esa mañana, codificado igual que `POST /daily-records`."""
+    from backend.app.routes.subjects import CareRecordWrite, _encode_care_record
+
+    profile = demo_profile(subject_id)
+    occurred_at = datetime.combine(day, DEMO_MORNING_TIME, tzinfo=zoneinfo.ZoneInfo(profile["timezone"]))
+    request = CareRecordWrite(
+        occurred_at=occurred_at,
+        idempotency_key=f"demo-morning:{subject_id}:{day.isoformat()}",
+        provenance={"source": "synthetic_demo", "synthetic": True},
+        **DEMO_MORNINGS[subject_id],
+    )
+    return {
+        **_encode_care_record(request),
+        "contract_version": "2.0",
+        "record_id": f"demo-morning-{subject_id}-{day.isoformat()}",
+        "subject_id": subject_id,
+        "author_id": DEMO_TUTOR_ID,
+        "source_timestamp": occurred_at.isoformat(),
+        "availability_timestamp": occurred_at.isoformat(),
+        "date": day.isoformat(),
+        "prediction_availability": "immediate",
+        "received_at": occurred_at.isoformat(),
+    }
+
+
+def write_demo_mornings(out_dir: Path | str, day: date) -> None:
+    """Deja el Mi Día de `day` como lo registrado en la app (`demo_profiles/{id}/records.json`).
+
+    Reemplaza lo que hubiera: las demos parten limpias, igual que con `docker compose down -v`.
+    El entrenamiento no lo usa (lee solo el historial sintético).
+    """
+    for subject_id in DEMO_HISTORIES:
+        subject_dir = Path(out_dir) / "demo_profiles" / subject_id
+        for name in ("records.json", "occurrences.json"):
+            (subject_dir / name).unlink(missing_ok=True)
+        if subject_id in DEMO_MORNINGS:
+            with open(subject_dir / "records.json", "w", encoding="utf-8") as f:
+                json.dump([demo_morning_record(subject_id, day)], f, indent=2, ensure_ascii=False)
+
+
 def generate_all_histories(out_dir: Path | str, end_date: date | None = None) -> None:
-    """Generates default PAC-A, PAC-B, and PAC-C histories ending on `end_date`."""
+    """Generates default PAC-A, PAC-B, and PAC-C histories ending on `end_date`,
+    plus the demo morning (Mi Día) of the day after."""
     for subject_id, (days, seed) in DEMO_HISTORIES.items():
         generate_subject_history(subject_id, days=days, seed=seed, out_dir=out_dir, end_date=end_date)
+    if end_date is not None:
+        write_demo_mornings(out_dir, end_date + timedelta(days=1))
 
 
 if __name__ == "__main__":

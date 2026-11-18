@@ -100,7 +100,8 @@ describe('real estimates (POST /predictions)', () => {
   it('shows the intended state of each demo, with the 8 h horizon of the contract', () => {
     const [a, b, c] = [prediction('PAC-A'), prediction('PAC-B'), prediction('PAC-C')];
 
-    expect([a.risk, b.risk, c.risk]).toEqual(['ELEVATED', 'LOW', null]);
+    // PAC-A abre en moderado: su Mi Día de hoy (07:45) trae una mala noche.
+    expect([a.risk, b.risk, c.risk]).toEqual(['MODERATE', 'LOW', null]);
     expect([a.abstained, b.abstained, c.abstained]).toEqual([false, false, true]);
     expect([a.horizon_hours, b.horizon_hours, c.horizon_hours]).toEqual([8, 8, 8]);
     expect(a.confidence).toBe('HIGH');

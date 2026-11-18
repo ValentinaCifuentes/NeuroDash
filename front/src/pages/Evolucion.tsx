@@ -2,7 +2,7 @@
  * Evolución · superficie de NeuroDash CORE (screens/Final-Evolucion.html).
  *
  * Renderiza el Prediction Contract v2 tal cual llega. El frontend no calcula
- * riesgo, no infiere confianza y no decide abstención: solo presenta (D2).
+ * riesgo, no infiere confianza y no decide abstención: solo presenta.
  *
  * Orden: pestañas → tarjeta de estimación (con «Confirmar que ocurrió» dentro)
  * → filas hacia «Por qué aparece así» y «Puede mejorar la lectura» → «Qué puedo

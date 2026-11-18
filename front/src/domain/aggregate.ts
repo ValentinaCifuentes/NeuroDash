@@ -89,7 +89,11 @@ export function buildDaySummaries(
   const eventEntries = new Map<string, { count: number; max: number }>();
   const recordCounts = new Map<string, { count: number; max: number }>();
 
-  for (const entry of entries) {
+  // En orden cronológico: si el día tiene varios Mi Día (se guarda por partes o se
+  // corrige), manda el último, igual que en la estimación (`engine/features.py`).
+  // El historial llega del más nuevo al más antiguo.
+  const chronological = [...entries].sort((a, b) => Date.parse(a.timestamp) - Date.parse(b.timestamp));
+  for (const entry of chronological) {
     const key = localDay(entry.timestamp);
     const day = byDate.get(key);
     if (!day) continue; // fuera de la ventana pedida
