@@ -12,7 +12,7 @@ def test_frontend_dependencies_and_build_output_are_ignored() -> None:
 
 
 def test_integration_runbook_documents_safe_api_operation() -> None:
-    guide = (ROOT / "docs" / "NeuraDash_Reproducibility_and_Verification_Guide.md").read_text(
+    guide = (ROOT / "docs" / "NeuroDash_Reproducibility_and_Verification_Guide.md").read_text(
         encoding="utf-8"
     )
 
@@ -23,7 +23,7 @@ def test_integration_runbook_documents_safe_api_operation() -> None:
 
 
 def test_integration_runbook_maps_each_sdd_task_to_evidence_and_rollback() -> None:
-    guide = (ROOT / "docs" / "NeuraDash_Reproducibility_and_Verification_Guide.md").read_text(
+    guide = (ROOT / "docs" / "NeuroDash_Reproducibility_and_Verification_Guide.md").read_text(
         encoding="utf-8"
     )
 

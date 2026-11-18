@@ -1,8 +1,8 @@
-# NeuraDash — Casos y recomendaciones de apoyo
+# NeuroDash — Casos y recomendaciones de apoyo
 
 ## Propósito
 
-Este documento define casos de uso para el **Support Selector** de NeuraDash y las recomendaciones de apoyo que pueden mostrarse cuando exista información suficiente.
+Este documento define casos de uso para el **Support Selector** de NeuroDash y las recomendaciones de apoyo que pueden mostrarse cuando exista información suficiente.
 
 Las recomendaciones se plantean como **apoyos potenciales a considerar**, no como tratamientos automáticos. Deben priorizarse, en este orden:
 
@@ -67,7 +67,7 @@ Si existen apoyos de transición previamente registrados como efectivos, deben p
 
 ## Regla de personalización
 
-NeuraDash no debe inventar una técnica de regulación. Debe recuperar una estrategia registrada, practicada o aprobada para esa persona.
+NeuroDash no debe inventar una técnica de regulación. Debe recuperar una estrategia registrada, practicada o aprobada para esa persona.
 
 ---
 
@@ -143,7 +143,7 @@ La recomendación solo debe aparecer si la estrategia de comunicación está reg
 
 ## Regla de personalización
 
-NeuraDash no debe seleccionar por sí mismo el reforzador. El tipo de refuerzo debe provenir del plan individual registrado para la persona.
+NeuroDash no debe seleccionar por sí mismo el reforzador. El tipo de refuerzo debe provenir del plan individual registrado para la persona.
 
 ---
 
@@ -162,7 +162,7 @@ NeuraDash no debe seleccionar por sí mismo el reforzador. El tipo de refuerzo d
 ### Solicitar revisión de antecedentes y contexto
 > Se observa un patrón repetido. Considere revisar antecedentes, contexto y posible función de la conducta antes de modificar el plan de apoyo.
 
-## Qué NO debe hacer NeuraDash
+## Qué NO debe hacer NeuroDash
 
 No debe concluir automáticamente:
 
@@ -274,7 +274,7 @@ No llenar el espacio con una lista genérica de recomendaciones cuando el sistem
 
 ---
 
-# Integración con los escenarios demo de NeuraDash
+# Integración con los escenarios demo de NeuroDash
 
 ## Caso A — Patrón estable
 
