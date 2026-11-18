@@ -65,7 +65,7 @@ La app queda en <http://localhost:8090>.
 | 10 | Evolución · **PAC-C** | «Todavía no hay estimación» y «Lo que le ayuda» | Prefiere decir que no sabe antes que inventar un número |
 | 11 | Ficha · PAC-A | Contexto clínico y «Su día a día» | Lo que el tutor contó en el perfil |
 | 12 | (opcional) Perfil en 3 pasos | Agregar «Tomi» y recorrer los pasos | Todo con botones; solo el alias es obligatorio |
-| 13 | (opcional) Planificación | Agenda y «Añadir Evento» | Hoy es un registro para el tutor; todavía no entra al modelo |
+| 13 | (opcional) Planificación | Agenda y «Añadir Evento» | Se guarda en el backend; los «Estresantes/Desagradables» entran al modelo |
 
 ## 4. Qué evitar
 
@@ -86,6 +86,7 @@ La app queda en <http://localhost:8090>.
   normal que al volver a Evolución el número sea el mismo.
 - No decir que la app **predice crisis** ni que **diagnostica**: estima un riesgo
   con cierta confianza y sugiere apoyos.
-- Planificación y Mis Tickets no llegan al modelo ni al equipo de soporte (D6 y
-  fuera de alcance): mostrarlos como parte de la experiencia, no como funciones
-  conectadas.
+- Mis Tickets no llega al modelo ni al equipo de soporte (fuera de alcance):
+  mostrarlo como parte de la experiencia, no como función conectada. Planificación
+  sí se conecta al backend, y los eventos «Estresantes/Desagradables» entran al
+  modelo (`planned_stressful_event_8h`).

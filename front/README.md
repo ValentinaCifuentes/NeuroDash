@@ -2,8 +2,8 @@
 
 App para la persona que cuida (el **tutor**): registra cómo va el día del infante y
 ve una estimación de las próximas 8 horas, con lo que puede hacer al respecto.
-React 18 + TypeScript + Vite. El diseño sale de `docs/rediseno/`
-(`screens/*.html` es la referencia visual; `DESIGN-SPEC.md` y `SCREENS.md` lo explican).
+React 18 + TypeScript + Vite. Paleta propia «Cerezo y pizarra» (tokens `--nd-*` en
+`styles/neurodash.css`).
 
 ---
 
@@ -49,7 +49,7 @@ botón «atrás» y al recargar se vuelve a la misma vista):
 |---|---|---|
 | Evolución | `#evolucion` · `#seguimiento` | Estimación de las próximas 8 h (riesgo, confianza, por qué, qué falta, apoyos) · calendario del mes y comparación de 14 días |
 | Bitácora | `#bitacora` · `#historial` | Mi Día (estado basal y contexto del día) y el «+» para registrar eventos · lo registrado hoy |
-| Planificación | `#planificacion` | Agenda de lo que viene con la expectativa de cada evento (mock en el navegador, D6) |
+| Planificación | `#planificacion` | Agenda de lo que viene con la expectativa de cada evento (guardada en el backend; los eventos «Estresantes/Desagradables» entran al modelo como `planned_stressful_event_8h`) |
 | Ficha | `#ficha` · `#tickets` | Perfil del infante · Mis Tickets (fuera de alcance) |
 
 Antes de todo, la **selección de infante** (con alta rápida o perfil en 3 pasos).
@@ -71,7 +71,7 @@ src/
 │   ├── history.ts          Historial de Hoy: filas y resúmenes legibles
 │   ├── profile.ts          Lectura del perfil (Ficha, señales de la Bitácora)
 │   ├── onboarding.ts       Perfil en 3 pasos → POST /subjects
-│   ├── planning.ts         Planificación (mock en el navegador)
+│   ├── planning.ts         Planificación (eventos planificados, conectada al backend)
 │   ├── ids.ts              Claves de reintento (también fuera de https)
 │   └── subjectIdentity.ts  Identificador e iniciales del infante
 ├── components/             Piezas reutilizables (controles, medidor, barra, hojas…)
@@ -92,6 +92,8 @@ GET  /api/v1/subjects/{id}
 GET  /api/v1/subjects/{id}/timeline?as_of=…&days=…
 POST /api/v1/subjects/{id}/daily-records
 POST /api/v1/subjects/{id}/events
+POST /api/v1/subjects/{id}/planned-events
+GET  /api/v1/subjects/{id}/planned-events
 POST /api/v1/predictions
 POST /api/v1/predictions/{id}/outcome
 ```
