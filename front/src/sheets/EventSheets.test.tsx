@@ -62,7 +62,7 @@ describe('EventSheet', () => {
     expect(quickButton()).toBeEnabled();
   });
 
-  it('saves triggers and strategies as chips, writing the «Otro» text in its place (D5)', async () => {
+  it('saves triggers and strategies as chips, writing the «Otro» text in its place', async () => {
     const save = renderSheet('desregulacion');
     fireEvent.change(screen.getByLabelText('Intensidad'), { target: { value: '6' } });
     fireEvent.click(screen.getByRole('button', { name: /más detalles clínicos/ }));

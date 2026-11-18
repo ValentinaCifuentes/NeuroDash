@@ -124,7 +124,7 @@ export const DAY_REGULATION_CHOICES: Choice<DayRegulationLevel>[] = [
 ];
 
 /* --- Resultado de la estrategia (resultado_estrategia) --- */
-/* --- Desregulación: disparadores y estrategias como catálogo cerrado (D5) ---
+/* --- Desregulación: disparadores y estrategias como catálogo cerrado ---
    Botones en vez de texto libre para que se puedan contar. «Otro» abre un campo
    de texto; lo escrito se guarda en lugar de «Otro». */
 export const OTHER_OPTION = 'Otro';

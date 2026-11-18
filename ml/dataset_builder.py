@@ -196,7 +196,7 @@ def _clip(value: float, low: float, high: float) -> float:
     return max(low, min(high, value))
 
 
-# Disparadores y estrategias (catálogo cerrado del front, D5). Se sortean al azar
+# Disparadores y estrategias (catálogo cerrado del front). Se sortean al azar
 # por evento para que la demo muestre detalle y el conteo diario tenga señal.
 SYNTHETIC_TRIGGERS = [
     "Ruidos", "Frustración", "Cambio de actividad", "Espera",

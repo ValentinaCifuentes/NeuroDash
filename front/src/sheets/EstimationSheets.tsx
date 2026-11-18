@@ -3,7 +3,7 @@
  *
  * - «Por qué aparece así»: factores ↑/↓ dichos frente a lo habitual del infante
  *   («Despertó más irritable que de costumbre…», P19) y, al pie, de dónde salen
- *   los datos (decisión D3 del plan).
+ *   los datos (procedencia).
  * - «Puede mejorar la lectura»: qué dato falta, por qué importa y dónde se registra.
  *
  * Lenguaje no causal: un factor «aparece junto a» más o menos riesgo, no lo causa.

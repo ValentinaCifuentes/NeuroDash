@@ -1,9 +1,9 @@
 /**
  * Planificación (screens/Final-Planificacion.html y -Nuevo.html).
  *
- * Agenda de lo que viene, con la expectativa de cada evento. D6: mock en el
- * navegador (`domain/planning.ts`); todavía no entra al modelo, así que los
- * textos no lo prometen (P18).
+ * Agenda de lo que viene, con la expectativa de cada evento. Se guarda en el
+ * backend (`/api/v1/subjects/{id}/planned-events`); los eventos «Estresantes» o
+ * «Desagradables» entran al modelo como `planned_stressful_event_8h`.
  */
 
 import { useEffect, useRef, useState } from 'react';
